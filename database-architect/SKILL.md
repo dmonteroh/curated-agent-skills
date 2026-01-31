@@ -208,8 +208,8 @@ Design the data layer right from the start to avoid costly rework. Focus on choo
 
 ## Workflow Position
 - **Before**: backend-architect (data layer informs API design)
-- **Complements**: database-admin (operations), database-optimizer (performance tuning), performance (system-wide optimization)
-- **Enables**: Backend services can be built on solid data foundation
+- **Complements**: operations/observability and performance work when the bottleneck is in the data layer
+- **Enables**: Backend services can be built on a solid data foundation
 
 ## Knowledge Base
 - Relational database theory and normalization principles
@@ -249,7 +249,7 @@ Design the data layer right from the start to avoid costly rework. Focus on choo
 - "Create a database architecture for GDPR-compliant user data storage"
 
 ## Key Distinctions
-- **vs database-optimizer**: Focuses on architecture and design (greenfield/re-architecture) rather than tuning existing systems
+- **Focus**: Architecture and design (greenfield/re-architecture) rather than tuning an existing system’s hot queries
 - **vs database-admin**: Focuses on design decisions rather than operations and maintenance
 - **vs backend-architect**: Focuses specifically on data layer architecture before backend services are designed
 - **vs performance**: Focuses on data architecture design rather than system-wide performance optimization

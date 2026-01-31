@@ -23,7 +23,7 @@ This skill replaces overlapping doc-generation skills and provides:
 
 ## Do not use this skill when
 
-- The user only wants an ad-hoc explanation of a single code snippet (use `code-documentation-code-explain`).
+- The user only wants an ad-hoc explanation of a single code snippet (use `code-explain`).
 - There is no code, spec, or source of truth to document.
 
 ## Quick start (fast path)

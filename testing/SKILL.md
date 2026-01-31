@@ -8,6 +8,7 @@ description: Unified testing skill for speed + quality. Supports two modes: unit
 One canonical testing skill that combines:
 - **unit**: generate and improve unit tests quickly with strong edge-case focus
 - **automation**: end-to-end / integration / CI strategy and reliability (flakiness, runtime, reporting)
+- **api**: API-focused testing and lightweight mocking for parallel development (no dedicated specialist skill needed)
 
 ## Use this skill when
 
@@ -60,6 +61,25 @@ Output:
 - recommended test pyramid + tooling
 - execution plan and CI integration steps
 
+### Mode: api (API testing + mocking, pragmatic)
+
+Goal: test API behavior with strong signal and enable parallel development without relying on live dependencies.
+
+Use when:
+- Frontend/client work needs stable API behavior before the backend is ready.
+- Integration tests need to replace third-party/partner APIs with deterministic stubs.
+- You want API contract confidence (schemas, error shapes, pagination/auth semantics).
+
+Defaults:
+- Prefer in-process stubs/mocks where possible (cheapest, least brittle).
+- Use a standalone mock server only when consumers truly need it.
+- Keep fixtures deterministic; avoid randomness unless explicitly seeded.
+
+Outputs:
+- API test plan (what to cover + where: unit/integration/e2e)
+- Mock/stub approach (in-process vs mock server) + scenarios
+- Fixtures and how to regenerate them
+
 ## Quick start (in a real repo)
 
 ```sh
@@ -80,4 +100,5 @@ Outputs a deterministic report under `docs/_docgen/testing/`.
 
 - `resources/unit-playbook.md` (unit testing patterns)
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
+- `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
 - `scripts/test.sh` (wrapper)
