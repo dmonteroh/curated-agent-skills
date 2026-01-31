@@ -58,3 +58,51 @@ This playbook is a pragmatic checklist for diagnosing and fixing database perfor
 - Plan diff (or equivalent evidence).
 - Regression guard: add a benchmark/query test if feasible.
 
+## Common optimization patterns (high ROI)
+
+### Avoid `SELECT *`
+
+Fetch only needed columns to reduce IO and improve index-only scan chances.
+
+### Cursor/keyset pagination over large OFFSET
+
+OFFSET pagination becomes slower as offsets grow.
+
+- Prefer keyset (cursor) pagination:
+  - `WHERE (created_at, id) < ($cursorCreatedAt, $cursorId)`
+  - plus an index on `(created_at, id)` in the same ordering.
+
+### Fix N+1 at the boundary
+
+Symptoms:
+- many similar queries differing only by an ID
+
+Fixes:
+- batch queries (`WHERE id IN (...)`)
+- joins + aggregation
+- application-side grouping after one batch fetch
+
+### Reduce correlated subqueries
+
+Replace “subquery per row” with:
+- a join + group by
+- or window functions (when appropriate)
+
+### Batch large updates/backfills
+
+Avoid single huge transactions:
+- update by primary key ranges
+- commit per batch
+- throttle to protect p95 latency
+
+### Know when indexes help vs hurt
+
+- Indexes speed reads but slow writes.
+- Remove redundant indexes; prefer partial indexes for hot subsets.
+
+### Use materialization deliberately
+
+When reads dominate and the query is expensive:
+- materialized view / summary table
+- incremental refresh strategy
+- treat it as derived state (rebuildable)

@@ -1,9 +1,9 @@
 ---
-name: postgresql
-description: Design a PostgreSQL-specific schema. Covers best-practices, data types, indexing, constraints, performance patterns, and advanced features
+name: postgresql-engineering
+description: PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when you are targeting Postgres specifically.
 ---
 
-# PostgreSQL Table Design 
+# postgresql-engineering
 
 ## Use this skill when
 

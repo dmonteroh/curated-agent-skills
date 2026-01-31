@@ -27,6 +27,8 @@ This skill is intentionally lightweight and drop-in: if a project has no existin
   - `docs/context/product.md`
   - `docs/context/tech-stack.md`
   - `docs/context/workflow.md`
+- Optional (recommended) rehydration snapshot:
+  - `docs/context/brief.md`
 
 ## Quick start
 
@@ -35,6 +37,7 @@ In the target repo:
 ```sh
 ./cdd-context/scripts/context.sh init
 ./cdd-context/scripts/context.sh index
+./cdd-context/scripts/context.sh brief
 ./cdd-context/scripts/context.sh validate
 ```
 
