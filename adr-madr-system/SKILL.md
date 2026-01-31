@@ -20,8 +20,8 @@ This skill is designed for **spec-driven development (SDD)** and **multi-agent**
 
 ## Defaults (override if the repo already has conventions)
 
-- ADR directory: `docs/adr/`
-- ADR index: `docs/adr/README.md`
+- ADR directory: docs/adr/
+- ADR index: docs/adr/README.md
 - File naming: `ADR-XXXX-short-title.md` (XXXX is zero-padded)
 - Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
 
@@ -65,7 +65,7 @@ Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 
 ### Step F: Update the ADR index in the same change
 
-Output: update `docs/adr/README.md` to include the new/updated ADR metadata and links.
+Output: update docs/adr/README.md to include the new/updated ADR metadata and links.
 Use `references/index-format.md` for the index table format and update rules.
 
 ## Quality gates

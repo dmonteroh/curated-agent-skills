@@ -1,27 +1,41 @@
 ---
 name: react-next-frontend
-description: Build React and Next.js UIs (components, routing, data fetching, state, accessibility, performance). React/Next oriented; not intended for Angular or SvelteKit. Use when implementing or debugging React/Next frontend code.
+description: Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native.
 ---
 
 # React + Next Frontend
 
-React/Next.js-focused frontend skill for implementation work: components, state/data fetching, accessibility, and performance.
+This skill is for Next.js projects (especially App Router) where Server Components, caching, and server/client boundaries matter.
 
 ## Use this skill when
 
-- Building or refactoring React components.
-- Working in a Next.js app (routing, server/client boundaries, data fetching).
-- Fixing frontend bugs, performance regressions, or accessibility issues in React/Next.
+- Building or refactoring React components in a Next.js app
+- Working with App Router routing/layouts/loading/error boundaries
+- Handling server vs client component boundaries
+- Implementing data fetching, caching, revalidation, and streaming/Suspense
+- Implementing form actions / server actions (where supported)
 
 ## Do not use this skill when
 
-- The project is Angular or SvelteKit (use a stack-specific skill instead).
-- The request is backend-only.
+- The project is a plain React SPA or component library (use `react-pro`)
+- The project is React Native / Expo (use `react-native-pro`)
 
-## Instructions
+## Workflow (Deterministic)
 
-- Clarify target UX and constraints (responsive, accessibility, perf budget).
-- Keep components small; prefer composable primitives.
-- Ensure keyboard navigation and ARIA correctness.
-- Validate data fetching and caching strategy (avoid waterfalls).
-- Add tests where appropriate (unit + integration + e2e as needed).
+1. Identify which parts must run on the server vs client.
+2. Define routing and UI state boundaries (layout vs page vs client component).
+3. Choose data fetching strategy and caching/revalidation semantics.
+4. Add loading/error boundaries and Suspense where it improves UX.
+5. Verify accessibility (keyboard, focus, ARIA) and performance.
+
+## Output Contract (Always)
+
+- Code changes with explicit server/client boundary notes
+- Data fetching + caching behavior explanation
+- Error/loading state behavior
+- Verification steps (dev repro + tests if present)
+
+## References (Optional)
+
+- Server Components patterns: `references/server-components.md`
+- React 19 features used in RSC contexts: `references/react-19-features.md`

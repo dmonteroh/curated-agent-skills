@@ -24,9 +24,9 @@ This skill is for **running migrations safely** (not for writing migration SQL/O
 ## Outputs (what you should produce)
 
 Minimum artifacts (paths are suggestions; adapt to repo conventions):
-- `docs/runbooks/migrations/<migration-id>.md` (the runbook with gates)
-- `docs/runbooks/migrations/<migration-id>-dashboard.md` (dashboard/queries, tool-agnostic)
-- `docs/runbooks/migrations/<migration-id>-alerts.md` (alert thresholds + paging policy)
+- docs/runbooks/migrations/<migration-id>.md (the runbook with gates)
+- docs/runbooks/migrations/<migration-id>-dashboard.md (dashboard/queries, tool-agnostic)
+- docs/runbooks/migrations/<migration-id>-alerts.md (alert thresholds + paging policy)
 
 Templates:
 - `references/runbook-template.md`
@@ -76,4 +76,3 @@ This skill does not require a specific stack. Common setups:
 - Alerts: Grafana alerting / PagerDuty / OpsGenie / Slack
 
 If none exist, you can still be “observable” by emitting structured logs + writing a runbook with manual checks and thresholds.
-

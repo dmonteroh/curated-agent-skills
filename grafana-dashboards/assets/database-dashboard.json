@@ -1,0 +1,33 @@
+{
+  "_note": "Minimal database dashboard stub. Replace metrics and labels to match your DB exporter and topology.",
+  "dashboard": {
+    "title": "Database / Overview",
+    "tags": ["database", "overview"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "Connections",
+        "type": "timeseries",
+        "datasource": "__DS_PROMETHEUS__",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "pg_stat_activity_count"
+          }
+        ]
+      },
+      {
+        "title": "Query Latency (p95)",
+        "type": "timeseries",
+        "datasource": "__DS_PROMETHEUS__",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "histogram_quantile(0.95, sum by (le) (rate(db_query_duration_seconds_bucket[5m])))"
+          }
+        ]
+      }
+    ]
+  }
+}

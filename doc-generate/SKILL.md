@@ -38,7 +38,7 @@ This skill replaces overlapping doc-generation skills and provides:
 - audiences, doc set, file locations, ownership, and update triggers.
 
 4) Generate docs incrementally:
-- start with 1-2 top-value docs (usually: `docs/README.md`, `docs/architecture/overview.md`, `docs/runbooks/`).
+- start with 1-2 top-value docs (often: docs/README.md, docs/architecture/overview.md, docs/runbooks/).
 
 5) Add automation:
 - index generation, link checks, and a lightweight “docs stale?” checklist.
@@ -50,10 +50,10 @@ This skill replaces overlapping doc-generation skills and provides:
 Output: a short plan containing:
 - Target audiences (developers, operators, end-users).
 - Minimum doc set (recommended):
-  - `docs/README.md` (docs entry point + index block)
-  - `docs/architecture/overview.md`
-  - `docs/runbooks/` (ops workflows)
-  - `docs/onboarding/` (setup, local dev)
+  - docs/README.md (docs entry point + index block)
+  - docs/architecture/overview.md
+  - docs/runbooks/ (ops workflows)
+  - docs/onboarding/ (setup, local dev)
 - “Living docs” sources: specs, ADRs, track/task artifacts, code.
 
 ### 2) Extract truth from the repo
@@ -70,7 +70,7 @@ Output: a short plan containing:
 
 ### 4) Indexing (multi-agent safe)
 
-Use a managed block in `docs/README.md`:
+Use a managed block in docs/README.md:
 
 <!-- DOC-INDEX:START -->
 <!-- DOC-INDEX:END -->

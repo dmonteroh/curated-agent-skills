@@ -21,14 +21,14 @@ This skill is intentionally lightweight and drop-in: if a project has no existin
 
 ## Defaults (override if the repo already has conventions)
 
-- Context directory: `docs/context/`
-- Context index: `docs/context/README.md`
+- Context directory: docs/context/
+- Context index: docs/context/README.md
 - Required core artifacts (minimal):
-  - `docs/context/product.md`
-  - `docs/context/tech-stack.md`
-  - `docs/context/workflow.md`
+  - docs/context/product.md
+  - docs/context/tech-stack.md
+  - docs/context/workflow.md
 - Optional (recommended) rehydration snapshot:
-  - `docs/context/brief.md`
+  - docs/context/brief.md
 
 ## Quick start
 
@@ -44,7 +44,7 @@ In the target repo:
 ## Workflow (single canonical process)
 
 1) Verify context exists
-- If `docs/context/` is missing, create it.
+- If docs/context/ is missing, create it.
 - If core artifacts are missing, scaffold minimal stubs (don’t block).
 
 2) Confirm context freshness
@@ -57,7 +57,7 @@ In the target repo:
 - When in doubt, add a short “Open questions” section rather than guessing.
 
 4) Keep it discoverable
-- Maintain a deterministic index in `docs/context/README.md` using a managed block.
+- Maintain a deterministic index in docs/context/README.md using a managed block.
 
 ## Compatibility space (optional)
 

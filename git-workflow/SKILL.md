@@ -42,6 +42,7 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - `references/quick-cheatsheet.md` (high-signal commands)
 - `references/commit-messages.md` (clean, reviewable commits)
 - `references/rebase-and-conflicts.md` (rebase workflows + conflict resolution)
+- `references/finish-branch.md` (verification-first branch finishing / PR flow)
 - `references/recovery.md` (reflog, reset, restore, undo)
 - `references/bisect.md` (find the regression commit)
 - `references/worktrees.md` (parallel work without stashing)

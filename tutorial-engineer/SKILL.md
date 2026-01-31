@@ -137,3 +137,7 @@ Generate tutorials in Markdown with:
 - Links to working code repositories
 
 Remember: Your goal is to create tutorials that transform learners from confused to confident, ensuring they not only understand the code but can apply concepts independently.
+
+## References (Optional)
+
+- `resources/implementation-playbook.md`

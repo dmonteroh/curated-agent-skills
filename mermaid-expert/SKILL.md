@@ -57,3 +57,13 @@ gitGraph, journey, quadrantChart, timeline
 - Export recommendations
 
 Always provide both basic and styled versions. Include comments explaining complex syntax.
+
+## References (Optional)
+
+- `resources/implementation-playbook.md`
+- `references/flowcharts.md`
+- `references/sequence-diagrams.md`
+- `references/er-diagrams.md`
+- `references/state-diagrams.md`
+- `references/c4-diagrams.md`
+- `references/advanced-features.md`

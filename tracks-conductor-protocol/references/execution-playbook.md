@@ -20,6 +20,31 @@ This is a concise execution protocol for implementing tasks created with Tracks 
    - Update `docs/project/task_status.md`
    - Rebuild `docs/project/work_index.md` via `tcd.sh index`
 
+## Batch execution (recommended for large tasks)
+
+If the task has multiple acceptance criteria or the plan has many steps, execute in small batches.
+
+Default batch size: **2-5 atomic steps** or **1 acceptance criterion**.
+
+After each batch:
+
+- summarize what changed
+- show verification evidence (tests/build output)
+- ask for review/feedback before continuing
+
+## Verification before completion (honesty gate)
+
+Do not claim a task is complete without fresh verification evidence.
+
+Checklist before claiming “done” or preparing integration:
+
+1. Identify the command(s) that prove the claim (tests/build/lint).
+2. Run them fresh.
+3. Read output and confirm exit code.
+4. Only then claim completion, with evidence.
+
+If you cannot run verification in the current environment, say so explicitly and provide a concrete verification plan for the user.
+
 ## Verification checklist (minimum)
 
 - Acceptance criteria satisfied (explicitly check each).
@@ -32,6 +57,13 @@ This is a concise execution protocol for implementing tasks created with Tracks 
 
 - Small commits aligned to acceptance criteria or plan phases.
 - Commit messages reference the task id (e.g. `S03-T-20260130-...`).
+
+## Finishing / integration
+
+When implementation is complete, finish the branch with verification-first workflows.
+
+- If `git-workflow` exists, use `git-workflow/references/finish-branch.md`.
+- Otherwise: verify tests, then choose merge vs PR vs keep.
 
 ## When to stop and create more artifacts
 

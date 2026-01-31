@@ -1,0 +1,33 @@
+{
+  "_note": "Minimal infrastructure dashboard stub. Replace datasources/queries to match your node/k8s/VM metrics.",
+  "dashboard": {
+    "title": "Infrastructure / Overview",
+    "tags": ["infrastructure", "overview"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "CPU Usage (%)",
+        "type": "timeseries",
+        "datasource": "__DS_PROMETHEUS__",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage (%)",
+        "type": "timeseries",
+        "datasource": "__DS_PROMETHEUS__",
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))"
+          }
+        ]
+      }
+    ]
+  }
+}

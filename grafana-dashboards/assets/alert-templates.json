@@ -1,0 +1,27 @@
+{
+  "_note": "Alert rule patterns (structure only). Customize labels, routing, and thresholds to your environment.",
+  "templates": [
+    {
+      "name": "high_error_rate",
+      "description": "Page when 5xx error rate exceeds threshold.",
+      "pattern": {
+        "expr": "100 * (sum(rate(http_requests_total{service=\"$service\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{service=\"$service\"}[5m])))",
+        "for": "5m",
+        "severity": "page",
+        "summary": "High error rate",
+        "runbook": "<runbook-link>"
+      }
+    },
+    {
+      "name": "high_latency_p95",
+      "description": "Page when p95 latency breaches SLO threshold.",
+      "pattern": {
+        "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"$service\"}[5m])))",
+        "for": "10m",
+        "severity": "page",
+        "summary": "High latency p95",
+        "runbook": "<runbook-link>"
+      }
+    }
+  ]
+}

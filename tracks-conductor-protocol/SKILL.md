@@ -25,13 +25,13 @@ This skill is intentionally optimized for speed:
 
 ## Default repo layout (override via env vars)
 
-- Intake drafts: `docs/project/to-do/` (TD-YYYYMMDD-*.md)
-- Task briefs: `docs/project/tasks/` (S##-T-YYYYMMDD-*.md)
-- Task status: `docs/project/task_status.md`
-- Tracks registry: `docs/project/tracks.md`
-- Tracks: `docs/project/tracks/<track-slug>/{spec.md,plan.md,context.md}`
-- Work index (managed blocks): `docs/project/work_index.md`
-- CDD context: `docs/context/{product.md,tech-stack.md,workflow.md}`
+- Intake drafts: docs/project/to-do/ (TD-YYYYMMDD-*.md)
+- Task briefs: docs/project/tasks/ (S##-T-YYYYMMDD-*.md)
+- Task status: docs/project/task_status.md
+- Tracks registry: docs/project/tracks.md
+- Tracks: docs/project/tracks/<track-slug>/{spec.md,plan.md,context.md}
+- Work index (managed blocks): docs/project/work_index.md
+- CDD context: docs/context/{product.md,tech-stack.md,workflow.md}
 
 ## Core principles (multi-agent compatible)
 
@@ -52,24 +52,39 @@ This skill is intentionally optimized for speed:
 ### 0) Initialize (once per repo)
 
 Run the init script to create directories, seed index blocks, and create CDD stubs:
-- `scripts/tcd.sh init`
+
+```sh
+scripts/tcd.sh init
+```
 
 ### 1) Intake (To-Do Draft)
 
 Create a TD file that captures the problem, intent, and success signal:
-- `scripts/tcd.sh intake "Title"`
+
+```sh
+scripts/tcd.sh intake "Title"
+```
+
 - Template and quality bar: `references/templates.md`
 
 ### 2) Promote intake -> task brief
 
 When accepted, promote the TD to an executable task brief:
-- `scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md`
+
+```sh
+scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md
+```
+
 - Update status sources of truth (`task_status.md`, index).
 
 ### 3) Organize into a track (spec + plan)
 
 Create a track to group related tasks and define a coherent spec and phased plan:
-- `scripts/tcd.sh track "Track title"`
+
+```sh
+scripts/tcd.sh track "Track title"
+```
+
 - Track templates: `references/templates.md`
 
 ### 4) Execute using workflow patterns
@@ -84,7 +99,7 @@ Execution is performed per task (TDD/workflow checkpoints, verification, commit 
 
 ## Indexing system (like adr-madr-system)
 
-`docs/project/work_index.md` contains managed blocks:
+docs/project/work_index.md contains managed blocks:
 - Intake table
 - Tasks table
 - Tracks table
@@ -94,7 +109,13 @@ Scripts rebuild only these blocks, keeping other content untouched.
 
 ## Validation
 
-Use `scripts/tcd.sh validate` to validate:
+Use:
+
+```sh
+scripts/tcd.sh validate
+```
+
+To validate:
 - required directories exist
 - index blocks exist and cover all artifacts
 - required sections exist in intake/tasks/tracks
@@ -110,7 +131,7 @@ Use `scripts/tcd.sh validate` to validate:
 
 ## Escalation rules (create more spec/context as required)
 
-- If an intake draft cannot be evaluated without project context, create/update `docs/context/*` first.
+- If an intake draft cannot be evaluated without project context, create/update docs/context/* first.
 - If a track spec is missing requirements or non-goals, expand it before implementation.
 - If implementation depends on a cross-cutting architectural decision, create an ADR via `adr-madr-system`.
 - If a requirement is explicitly deferred but architecture-sensitive, create a Future entry and add a clear trigger.

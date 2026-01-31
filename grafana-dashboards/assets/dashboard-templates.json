@@ -1,0 +1,83 @@
+{
+  "_note": "Minimal dashboard JSON stubs. These are starting points (not guaranteed to import as-is across all Grafana versions). Replace datasource placeholders like __DS_PROMETHEUS__.",
+  "templates": [
+    {
+      "name": "service_overview",
+      "description": "On-call overview: traffic, errors, latency, saturation.",
+      "dashboard": {
+        "title": "Service / Overview",
+        "timezone": "browser",
+        "schemaVersion": 39,
+        "version": 1,
+        "refresh": "30s",
+        "tags": ["overview", "oncall"],
+        "templating": {
+          "list": [
+            {
+              "name": "service",
+              "type": "textbox",
+              "label": "service",
+              "hide": 0,
+              "query": "your-service",
+              "current": { "text": "your-service", "value": "your-service" }
+            }
+          ]
+        },
+        "panels": [
+          {
+            "type": "timeseries",
+            "title": "Traffic (req/s)",
+            "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+            "datasource": "__DS_PROMETHEUS__",
+            "targets": [
+              {
+                "refId": "A",
+                "expr": "sum(rate(http_requests_total{service=\"$service\"}[5m]))"
+              }
+            ],
+            "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+          },
+          {
+            "type": "timeseries",
+            "title": "Error rate (%)",
+            "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+            "datasource": "__DS_PROMETHEUS__",
+            "targets": [
+              {
+                "refId": "A",
+                "expr": "100 * (sum(rate(http_requests_total{service=\"$service\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{service=\"$service\"}[5m])))"
+              }
+            ],
+            "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] }
+          },
+          {
+            "type": "timeseries",
+            "title": "Latency p95 (ms)",
+            "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+            "datasource": "__DS_PROMETHEUS__",
+            "targets": [
+              {
+                "refId": "A",
+                "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"$service\"}[5m]))) * 1000"
+              }
+            ],
+            "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
+          },
+          {
+            "type": "timeseries",
+            "title": "Saturation (CPU %)",
+            "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+            "datasource": "__DS_PROMETHEUS__",
+            "targets": [
+              {
+                "refId": "A",
+                "expr": "100 * avg(rate(process_cpu_seconds_total{service=\"$service\"}[5m]))"
+              }
+            ],
+            "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] }
+          }
+        ]
+      }
+    }
+  ]
+}

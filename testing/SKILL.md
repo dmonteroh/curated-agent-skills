@@ -101,4 +101,8 @@ Outputs a deterministic report under `docs/_docgen/testing/`.
 - `resources/unit-playbook.md` (unit testing patterns)
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
+- `references/tdd-iron-laws.md` (TDD loop + verification discipline)
+- `references/testing-anti-patterns.md` (fast test review heuristics)
+- `references/test-report-template.md` (consistent findings + sign-off)
+- `references/qa-practice-compact.md` (exploratory charters, a11y smoke, risk-based focus)
 - `scripts/test.sh` (wrapper)
