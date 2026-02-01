@@ -40,3 +40,4 @@ Across all skills, prefer “evidence before claims”:
 
 - Don’t claim “done”, “fixed”, or “tests pass” without fresh verification output.
 - When working via multiple agents, require each agent to report: root cause, files changed, and how they verified.
+

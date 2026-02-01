@@ -60,4 +60,4 @@ This skill is for designing and implementing MCP servers that agents can use rel
 - Schema + output conventions: `references/contracts.md`
 - Error handling patterns: `references/errors.md`
 - Evaluation playbook: `references/evals.md`
-
+- Protocol + SDK notes (compact): `references/sdk/`
