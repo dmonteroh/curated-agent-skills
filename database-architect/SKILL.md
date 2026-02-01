@@ -1,6 +1,6 @@
 ---
 name: database-architect
-description: Design data layers and database architectures: data modeling, technology selection, schema/index strategy, lifecycle/retention, and safe evolution. Produces tradeoffs + migration/rollback plans. Use PROACTIVELY for data-model decisions.
+description: "Design data layers and database architectures: data modeling, technology selection, schema/index strategy, lifecycle/retention, and safe evolution. Produces tradeoffs + migration/rollback plans. Use PROACTIVELY for data-model decisions."
 metadata:
   model: opus
 ---

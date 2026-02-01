@@ -1,6 +1,6 @@
 ---
 name: adr-madr-system
-description: Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index. Optimized for spec-driven development and multi-agent workflows: enforces decision drivers, considered options, consequences, and "supersedes" semantics instead of editing accepted ADRs. Works standalone; if other skills exist, use them for domain/tech guidance, but keep ADRs as the decision source of truth.
+description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index. Optimized for spec-driven development and multi-agent workflows: enforces decision drivers, considered options, consequences, and \"supersedes\" semantics instead of editing accepted ADRs. Works standalone; if other skills exist, use them for domain/tech guidance, but keep ADRs as the decision source of truth."
 ---
 
 # ADR MADR System

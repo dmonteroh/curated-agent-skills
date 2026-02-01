@@ -1,9 +1,23 @@
 ---
 name: brainstorming
-description: Clarify ambiguous work through structured brainstorming: ask focused questions, propose 2-3 approaches with tradeoffs, and produce a concise design brief (goals, non-goals, constraints, risks, validation). Use when requirements are unclear or before large/irreversible changes.
+description: "Clarify ambiguous work through structured brainstorming: ask focused questions, propose 2-3 approaches with tradeoffs, and produce a concise design brief (goals, non-goals, constraints, risks, validation). Use when requirements are unclear or before large/irreversible changes."
+metadata:
+  short-description: Turn ambiguity into a design brief
 ---
 
-# Brainstorming Ideas Into Designs
+# Brainstorming: Ideas → Design Brief
+
+## Use this skill when
+
+- The user’s requirements are ambiguous, conflicting, or incomplete
+- The cost of “building the wrong thing” is high (irreversible changes, migrations, public APIs)
+- You need a fast, structured way to compare 2–3 approaches and pick one
+
+## Do not use this skill when
+
+- The request is already clear enough to plan and implement directly
+- The user asked you to implement now and explicitly does not want upfront design
+- The work is tiny/low-risk and a design brief would be overhead
 
 ## Overview
 
@@ -11,7 +25,7 @@ Turn fuzzy ideas into a clear, testable design brief via short, structured dialo
 
 Default posture: clarify, do not prematurely implement.
 
-## The Process
+## Workflow
 
 ### 1) Understand the idea (question loop)
 
@@ -64,9 +78,9 @@ Do not assume other skills exist; treat any integrations as optional.
 
 ## Output Contract (Always)
 
-- A 3-7 bullet problem statement and success criteria.
-- 2-3 approaches with pros/cons and a recommendation.
-- A design brief with explicit non-goals, risks, and a verification plan.
+- A 3–7 bullet problem statement + success criteria
+- 2–3 approaches with pros/cons and a recommendation
+- A design brief with explicit non-goals, risks, and a verification plan
 
 ## Resources (Optional)
 

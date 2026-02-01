@@ -6,6 +6,7 @@ Repo-wide skill quality/performance audit.
 
 Checks (intentionally lightweight; no PyYAML dependency):
 - SKILL.md has YAML frontmatter with name + description
+- Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
 - Entry point (SKILL.md) is <= 200 lines (performance guardrail)
 - Backticked local file references inside a skill resolve (for refs like `references/x.md`)
 - No network assumptions in SKILL.md (skills should be usable offline)
@@ -47,6 +48,41 @@ def _parse_frontmatter(text: str) -> dict[str, str]:
     return fm
 
 
+def _frontmatter_block(text: str) -> str | None:
+    m = FM_RE.match(text)
+    return None if not m else m.group(1)
+
+
+def _frontmatter_needs_quotes_for_colons(block: str) -> list[str]:
+    """
+    Codex's skill loader expects strict YAML.
+
+    YAML "plain scalars" become ambiguous/invalid if they contain `: ` (colon + space) unquoted:
+      description: Foo: bar
+
+    This is the root cause of several "invalid YAML: mapping values are not allowed in this context"
+    failures when loading skills.
+    """
+    issues: list[str] = []
+    for line in block.splitlines():
+        mm = KV_RE.match(line)
+        if not mm:
+            continue
+        key = mm.group(1)
+        raw_value = mm.group(2).strip()
+        if not raw_value:
+            continue
+        if raw_value.startswith(("'", '"', "|", ">")):
+            continue
+        if ": " in raw_value:
+            # Special-case description because it's the common failure mode.
+            if key == "description":
+                issues.append("description_requires_quotes_for_colons")
+            else:
+                issues.append(f"frontmatter_unquoted_colon:{key}")
+    return issues
+
+
 def _find_backtick_paths(text: str) -> set[str]:
     out: set[str] = set()
     for m in re.finditer(r"`([^`]+)`", text):
@@ -73,6 +109,10 @@ def scan_skill(dirpath: Path) -> list[str]:
 
     if not fm:
         issues.append("missing_frontmatter")
+    else:
+        block = _frontmatter_block(text)
+        if block:
+            issues.extend(_frontmatter_needs_quotes_for_colons(block))
     if not name:
         issues.append("missing_name_in_frontmatter")
     if not desc:
@@ -82,7 +122,7 @@ def scan_skill(dirpath: Path) -> list[str]:
         issues.append(f"entry_over_200_lines:{len(lines)}")
 
     if name and name != dirpath.name:
-        issues.append(f"name_folder_mismatch:{name}!=${dirpath.name}")
+        issues.append(f"name_folder_mismatch:{name}!={dirpath.name}")
 
     missing = []
     for rel in sorted(_find_backtick_paths(text)):
@@ -128,4 +168,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

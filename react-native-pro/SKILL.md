@@ -1,6 +1,6 @@
 ---
 name: react-native-pro
-description: Build cross-platform mobile apps with React Native/Expo: navigation, platform handling (iOS/Android), performance (FlatList), storage, and native module integration. Not for React web or Next.js.
+description: "Build cross-platform mobile apps with React Native/Expo: navigation, platform handling (iOS/Android), performance (FlatList), storage, and native module integration. Not for React web or Next.js."
 ---
 
 # React Native Pro

@@ -1,6 +1,6 @@
 ---
 name: react-next-frontend
-description: Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native.
+description: "Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native."
 ---
 
 # React + Next Frontend

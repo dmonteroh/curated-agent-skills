@@ -1,6 +1,6 @@
 ---
 name: dotnet-core-pro
-description: Build modern .NET (ASP.NET Core / .NET 8+) services: Minimal APIs, auth, DI, configuration, background jobs, and production readiness. Includes EF Core patterns and clean architecture/CQRS as optional variants. Use when implementing or reviewing .NET backend code.
+description: "Build modern .NET (ASP.NET Core / .NET 8+) services: Minimal APIs, auth, DI, configuration, background jobs, and production readiness. Includes EF Core patterns and clean architecture/CQRS as optional variants. Use when implementing or reviewing .NET backend code."
 ---
 
 # .NET Core Pro
