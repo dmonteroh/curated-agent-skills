@@ -9,6 +9,7 @@ Sync selected skills from this repo into a Codex skills directory (default: ~/.c
 Safe-by-default:
 - Never deletes anything unless --prune is explicitly provided.
 - Never overwrites an existing installed skill unless --force is provided.
+- Backups when overwriting are opt-in via --backup.
 - Provides interactive prompts when flags are not supplied.
 
 Exit codes:
@@ -218,9 +219,14 @@ def main(argv: list[str]) -> int:
         help="Overwrite existing installed skills (default: do not overwrite).",
     )
     parser.add_argument(
+        "--backup",
+        action="store_true",
+        help="When overwriting with --force, rename the existing skill to a timestamped .bak-... folder (opt-in).",
+    )
+    parser.add_argument(
         "--no-backup",
         action="store_true",
-        help="When overwriting with --force, delete the existing skill instead of renaming to a timestamped backup.",
+        help="Deprecated: backups are now opt-in via --backup (this flag has no effect).",
     )
     parser.add_argument(
         "--prune",
@@ -277,7 +283,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     force = args.force
-    backup = not args.no_backup
+    backup = args.backup
     dry_run = args.dry_run
 
     if not dest_root.exists():

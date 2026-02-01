@@ -11,7 +11,7 @@ Script: `scripts/codex_skills_sync.py`
 - Safe-by-default:
   - does not overwrite existing installed skills unless you pass `--force`
   - does not delete anything unless you pass `--prune`
-  - when overwriting with `--force`, it creates timestamped backups by default
+  - when overwriting with `--force`, backups are opt-in via `--backup`
 
 ## Quick Start (Interactive)
 
@@ -26,7 +26,7 @@ Runs interactively (prompts for install directory and which skills to install):
 Install the recommended OS-level bundle (workflow/protocol + indexing):
 
 ```sh
-./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,cdd-context,doc-generate,dispatching-parallel-agents,mermaid-expert,subagent-driven-development,tracks-conductor-protocol"
+./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,git-workflow,cdd-context,doc-generate,dispatching-parallel-agents,mermaid-expert,subagent-driven-development,tracks-conductor-protocol"
 ```
 
 Install the recommended architecture bundle (system + backend + cloud; no DB-architect):
@@ -109,16 +109,16 @@ Install to a custom directory:
 ./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react-pro,svelte-pro"
 ```
 
-Overwrite existing installed skills (backs up old folders by default):
+Overwrite existing installed skills:
 
 ```sh
 ./scripts/codex_skills_sync.py --select "all" --force
 ```
 
-Overwrite without keeping backups (destructive):
+Overwrite and keep timestamped backups (opt-in):
 
 ```sh
-./scripts/codex_skills_sync.py --select "all" --force --no-backup
+./scripts/codex_skills_sync.py --select "all" --force --backup
 ```
 
 Prune installed skills not in your selected set (destructive):
