@@ -9,7 +9,7 @@ Some skills act as an "operating system" for agent work (protocols, quality gate
 1) Operating System skills
    - Workflow/protocol skills that organize work, decisions, review, and quality.
    - These should work even if no other skills are present.
-   - Brainstorming fits here as an optional “pre-intake” step: clarify intent, explore options, then produce a design brief that can be promoted into a spec/track/ADR later.
+   - `design-brief` fits here as an optional “pre-intake” step: clarify intent, explore options, then produce a design brief that can be promoted into a spec/track/ADR later.
 
 2) Tech skills
    - Language/framework/tool specific skills (e.g. Go, TypeScript, PostgreSQL).
@@ -40,4 +40,3 @@ Across all skills, prefer “evidence before claims”:
 
 - Don’t claim “done”, “fixed”, or “tests pass” without fresh verification output.
 - When working via multiple agents, require each agent to report: root cause, files changed, and how they verified.
-

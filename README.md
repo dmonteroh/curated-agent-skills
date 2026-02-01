@@ -1,6 +1,6 @@
 # codex-curated-skills
 
-This repo contains 64 skills. Each folder is a skill with a `SKILL.md` definition.
+This repo contains 65 skills. Each folder is a skill with a `SKILL.md` definition.
 
 ## Skills
 
@@ -58,6 +58,8 @@ This repo contains 64 skills. Each folder is a skill with a `SKILL.md` definitio
 | `security-auditor` | Expert security auditor specializing in DevSecOps, comprehensive cybersecurity, and compliance frameworks. Masters vulnerability assessment, threat modeling, secure authentication (OAuth2/OIDC), OWASP standards, cloud security, and security automation. Handles DevSecOps integration, compliance (GDPR/HIPAA/SOC2), and incident response. Use PROACTIVELY for security audits, DevSecOps, or compliance implementation. |
 | `sql-querying` | Write correct, maintainable SQL and design queries (joins, CTEs, window functions) for OLTP/analytics. Use for query authoring and query-level reasoning; for DB-wide performance diagnosis use database-performance, and for schema architecture use database-architect / postgresql-engineering. |
 | `sre-engineer` | Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards). |
+| `stitch-design-md` | (Stitch) Analyze Stitch projects and synthesize a semantic design system into DESIGN.md files. Can operate without the Stitch MCP server if you provide the HTML and screenshots manually. |
+| `stitch-enhance-prompt` | (Stitch) Transform vague UI ideas into polished prompts optimized for Stitch-like generators. Enhances specificity, adds UI/UX keywords, injects DESIGN.md context when present, and structures output. Does not require the Stitch MCP server. |
 | `subagent-driven-development` | Use when executing an implementation plan by delegating independent tasks to fresh subagents (implementer + reviewers) with deterministic task packets and verification gates. Works with non-interactive subagents (Codex exec) and interactive environments. |
 | `svelte-pro` | Build Svelte 5 and SvelteKit apps fast: runes/reactivity, component patterns, SvelteKit routing/data flow, forms/actions, SSR boundaries, and production hygiene. Includes optional guidance for TanStack Query and common component libraries. |
 | `tailwind-pro` | Build and maintain Tailwind CSS systems fast without framework lock-in: tokens (CSS variables), theme + dark mode, content globs/safelist, component variant patterns, accessibility/responsive conventions, and migration hygiene. |
@@ -69,4 +71,3 @@ This repo contains 64 skills. Each folder is a skill with a `SKILL.md` definitio
 | `typescript-pro` | TypeScript best-practices + advanced typing in one skill. Use for strictness/tsconfig decisions, type-level design (generics/conditional/mapped types), fixing type errors, improving type-system performance, and building durable runtime-validated contracts at boundaries. |
 | `ui-design` | One canonical, framework-agnostic UI/UX design skill: turn requirements into clear UI briefs, flows, component specs, and design-system rules; review UI code against local guidelines; prioritize accessibility, consistency, and developer-hand-off clarity. Not a Google Stitch skill. |
 | `ui-visual-validator` | Verify UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs). Catch regressions, design-system drift, responsive breakage, and visual accessibility issues (focus visibility, contrast, readability). Use PROACTIVELY as a final quality gate before merge. |
-| `web-artifacts-builder` | Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts. |
