@@ -27,6 +27,8 @@ SKIP_DIRS = {".git", "scripts"}
 TOKEN_SOFT_LIMIT = 110
 TOKEN_HARD_LIMIT = 120
 TOKEN_ENCODING = "cl100k_base"
+SKILL_MD_SOFT_TOKEN_LIMIT = 4500
+SKILL_MD_HARD_TOKEN_LIMIT = 5001
 _TOKEN_ENCODER = None
 
 FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
@@ -165,6 +167,12 @@ def scan_skill(dirpath: Path) -> tuple[list[str], list[str]]:
             issues.append(f"frontmatter_tokens_over_hard_limit:{token_count}")
         elif token_count > TOKEN_SOFT_LIMIT:
             warnings.append(f"frontmatter_tokens_over_soft_limit:{token_count}")
+
+    skill_tokens = _token_count(text)
+    if skill_tokens > SKILL_MD_HARD_TOKEN_LIMIT:
+        issues.append(f"skill_md_tokens_over_hard_limit:{skill_tokens}")
+    elif skill_tokens > SKILL_MD_SOFT_TOKEN_LIMIT:
+        warnings.append(f"skill_md_tokens_over_soft_limit:{skill_tokens}")
 
     return issues, warnings
 
