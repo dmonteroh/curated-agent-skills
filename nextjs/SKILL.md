@@ -40,3 +40,8 @@ This skill is for Next.js projects (especially App Router) where Server Componen
 
 - Server Components patterns: `references/server-components.md`
 - React 19 features used in RSC contexts: `references/react-19-features.md`
+- App Router patterns: `references/app-router.md`
+- Data fetching & caching: `references/data-fetching.md`
+- Server Actions: `references/server-actions.md`
+- Deployment: `references/deployment.md`
+- Best practices: `references/best-practices.md`
