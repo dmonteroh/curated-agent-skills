@@ -94,13 +94,9 @@ def main() -> int:
     skills = load_skills()
 
     lines: list[str] = []
-    lines.append("# codex-curated-skills")
+    lines.append("# Content Table")
     lines.append("")
-    lines.append(
-        f"This repo contains {len(skills)} skills. Each folder is a skill with a `SKILL.md` definition."
-    )
-    lines.append("")
-    lines.append("## Skills")
+    lines.append(f"Total skills: {len(skills)}")
     lines.append("")
     lines.append("| Skill | Summary |")
     lines.append("| --- | --- |")
@@ -108,7 +104,7 @@ def main() -> int:
         lines.append(f"| `{_escape_table_cell(name)}` | {_escape_table_cell(desc)} |")
     lines.append("")
 
-    (ROOT / "README.md").write_text("\n".join(lines), encoding="utf-8")
+    (ROOT / "CONTENT_TABLE.md").write_text("\n".join(lines), encoding="utf-8")
     return 0
 
 

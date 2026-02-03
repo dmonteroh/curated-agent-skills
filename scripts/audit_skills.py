@@ -14,7 +14,6 @@ Checks (intentionally lightweight; no PyYAML dependency):
 """
 
 import re
-import sys
 from pathlib import Path
 
 
