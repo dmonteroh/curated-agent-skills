@@ -42,4 +42,7 @@ This skill is for React Native and Expo apps.
 - Platform handling: `references/platform-handling.md`
 - List optimization: `references/list-optimization.md`
 - Storage hooks: `references/storage-hooks.md`
+- Component scaffolding: `references/component-scaffolding.md`
+- Architecture: `references/architecture.md`
+- Best practices: `references/best-practices.md`
 - Project structure: `references/project-structure.md`

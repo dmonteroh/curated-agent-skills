@@ -46,5 +46,7 @@ This skill is for React web apps and component libraries that are not tied to a 
 - Hooks patterns: `references/hooks-patterns.md`
 - State management: `references/state-management.md`
 - Performance: `references/performance.md`
+- Best practices: `references/best-practices.md`
 - Testing: `references/testing-react.md`
+- Component scaffolding: `references/component-scaffolding.md`
 - Migration (class -> hooks): `references/migration-class-to-modern.md`

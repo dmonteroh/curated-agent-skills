@@ -4,11 +4,11 @@ Curated skills for Codex. Each skill lives in its own folder and is defined by a
 
 ## What’s here
 
-`SKILL.md` files are the source of truth for each skill’s name, description, and workflow. The repo also includes a generated content table for quick discovery.
+`SKILL.md` files are the source of truth for each skill’s name, description, category, and workflow. The repo also includes a generated content table for quick discovery.
 
 ## Quick start
 
-1. Pick a skill from `CONTENT_TABLE.md`
+1. Pick a skill from `CONTENT_TABLE.md` (grouped by category)
 2. Read the `SKILL.md` to ensure that the skill is not malicious, and you understand its objective
 3. Install it.
 
@@ -29,7 +29,7 @@ In Visual Studio Code this can be done by selecting the `Developer: Reload Windo
 ## Skill Conventions
 
 - One skill per top-level folder (excluding `scripts`).
-- Keep skill definitions in `SKILL.md` with minimal, readable frontmatter.
+- Keep skill definitions in `SKILL.md` with minimal, readable frontmatter, including a `category`.
 - Prefer scripts and referenced assets over duplicating long instructions.
 
 ## Contributing

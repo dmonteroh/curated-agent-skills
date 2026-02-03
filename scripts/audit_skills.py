@@ -105,6 +105,7 @@ def scan_skill(dirpath: Path) -> list[str]:
     issues: list[str] = []
     name = fm.get("name", "").strip()
     desc = fm.get("description", "").strip()
+    category = fm.get("category", "").strip()
 
     if not fm:
         issues.append("missing_frontmatter")
@@ -116,6 +117,8 @@ def scan_skill(dirpath: Path) -> list[str]:
         issues.append("missing_name_in_frontmatter")
     if not desc:
         issues.append("missing_description_in_frontmatter")
+    if not category:
+        issues.append("missing_category_in_frontmatter")
 
     if len(lines) > 200:
         issues.append(f"entry_over_200_lines:{len(lines)}")

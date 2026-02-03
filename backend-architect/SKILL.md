@@ -1,7 +1,7 @@
 ---
 name: backend-architect
 description: "Expert backend architect for designing operable services and APIs: service boundaries, contracts, reliability, integration patterns, and rollout safety. Produces crisp architecture decisions and verification steps. Use PROACTIVELY when creating or changing backend services/APIs."
-category: backend
+category: architecture
 ---
 
 # Backend Architect

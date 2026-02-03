@@ -1,7 +1,7 @@
 ---
 name: dispatching-parallel-agents
 description: Split work across multiple agents in parallel when tasks are independent (no shared state, minimal file overlap). Provides a deterministic workflow to partition scope, write focused sub-agent prompts, and merge results safely.
-category: workflow
+category: ai
 ---
 
 # Dispatching Parallel Agents

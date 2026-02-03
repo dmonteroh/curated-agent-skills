@@ -1,7 +1,7 @@
 ---
 name: stitch-enhance-prompt
 description: (Stitch) Transform vague UI ideas into polished prompts optimized for Stitch-like generators. Enhances specificity, adds UI/UX keywords, injects DESIGN.md context when present, and structures output. Does not require the Stitch MCP server.
-category: frontend
+category: ai
 allowed-tools:
   - "Read"
   - "Write"
