@@ -1,8 +1,7 @@
 ---
 name: brainstorming
 description: "Clarify ambiguous work through structured brainstorming: ask focused questions, propose 2-3 approaches with tradeoffs, and produce a concise design brief (goals, non-goals, constraints, risks, validation). Use when requirements are unclear or before large/irreversible changes."
-metadata:
-  short-description: Turn ambiguity into a design brief
+category: workflow
 ---
 
 # Brainstorming: Ideas → Design Brief

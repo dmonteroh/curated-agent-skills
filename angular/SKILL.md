@@ -1,6 +1,7 @@
 ---
-name: angular-pro
+name: angular
 description: Build Angular apps with modern standalone APIs, signals, RxJS, routing, and testing. Focuses on clean component boundaries, predictable state flow, accessibility, and performance. Use for Angular implementation and refactors.
+category: frontend
 ---
 
 # Angular Pro

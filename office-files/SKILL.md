@@ -1,6 +1,7 @@
 ---
 name: office-files
 description: "Work with Microsoft Office OOXML files (.docx/.pptx/.xlsx): inspect structure, extract text/tables, produce diffs, and generate clean Markdown summaries. Tool-agnostic and safe-by-default (prefers read-only workflows). Use when a task involves Word, PowerPoint, or Excel files."
+category: docs
 ---
 
 # Office Files (DOCX / PPTX / XLSX)

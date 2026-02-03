@@ -1,6 +1,7 @@
 ---
-name: svelte-pro
+name: svelte
 description: "Build Svelte 5 and SvelteKit apps fast: runes/reactivity, component patterns, SvelteKit routing/data flow, forms/actions, SSR boundaries, and production hygiene. Includes optional guidance for TanStack Query and common component libraries."
+category: frontend
 ---
 
 # Svelte Pro

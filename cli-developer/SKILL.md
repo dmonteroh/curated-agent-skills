@@ -1,6 +1,7 @@
 ---
 name: cli-developer
 description: Build fast, user-friendly CLI tools with stable command surfaces, predictable output contracts (stdout vs stderr), and cross-platform behavior. Covers subcommands/flags, config precedence, interactive prompts, progress indicators, and shell completions. Use when designing or implementing CLI tools.
+category: backend
 ---
 
 # CLI Developer

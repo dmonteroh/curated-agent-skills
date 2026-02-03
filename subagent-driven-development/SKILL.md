@@ -1,6 +1,7 @@
 ---
 name: subagent-driven-development
 description: Use when executing an implementation plan by delegating independent tasks to fresh subagents (implementer + reviewers) with deterministic task packets and verification gates. Works with non-interactive subagents (Codex exec) and interactive environments.
+category: workflow
 ---
 
 # Subagent-Driven Development

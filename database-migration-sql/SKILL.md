@@ -1,6 +1,7 @@
 ---
 name: database-migration-sql
 description: Write and operate raw SQL migration files safely (forward-only / versioned SQL) with zero-downtime patterns, validation, and rollback plans. Use for .sql migration workflows (not ORM migrations).
+category: database
 ---
 
 # database-migration-sql

@@ -1,6 +1,7 @@
 ---
-name: react-next-frontend
+name: nextjs
 description: "Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native."
+category: frontend
 ---
 
 # React + Next Frontend
@@ -17,8 +18,8 @@ This skill is for Next.js projects (especially App Router) where Server Componen
 
 ## Do not use this skill when
 
-- The project is a plain React SPA or component library (use `react-pro`)
-- The project is React Native / Expo (use `react-native-pro`)
+- The project is a plain React SPA or component library (use `react`)
+- The project is React Native / Expo (use `react-native`)
 
 ## Workflow (Deterministic)
 

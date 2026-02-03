@@ -1,6 +1,7 @@
 ---
 name: performance
 description: End-to-end performance optimization skill combining orchestration (workflow) and deep-dive engineering. Establishes baselines, profiles bottlenecks, proposes fixes with measurable impact, and adds regression guardrails. Includes a safe-by-default perf wrapper script to capture repo signals and write a deterministic report. Use PROACTIVELY for latency/throughput/resource issues, scalability work, or perf gating.
+category: observability
 ---
 
 # performance

@@ -1,6 +1,7 @@
 ---
-name: nestjs-pro
+name: nestjs
 description: "Build and evolve NestJS backends fast with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Optimized for spec-driven work: deterministic steps, clear output contracts, and verification gates."
+category: backend
 ---
 
 # NestJS Pro

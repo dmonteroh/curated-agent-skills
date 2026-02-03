@@ -1,6 +1,7 @@
 ---
 name: sql-querying
 description: Write correct, maintainable SQL and design queries (joins, CTEs, window functions) for OLTP/analytics. Use for query authoring and query-level reasoning; for DB-wide performance diagnosis use database-performance, and for schema architecture use database-architect / postgresql-engineering.
+category: database
 ---
 
 # SQL Querying

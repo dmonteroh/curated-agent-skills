@@ -131,7 +131,7 @@ def prompt_selection(items: list[str]) -> list[str]:
     eprint("- all (or *)")
     eprint("- comma-separated indices: 1,4,7")
     eprint("- ranges: 1-5")
-    eprint("- names: react-pro,svelte-pro")
+    eprint("- names: react,svelte")
     ans = prompt("> ").strip()
     return parse_selection(ans, items)
 

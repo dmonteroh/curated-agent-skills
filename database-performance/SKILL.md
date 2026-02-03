@@ -1,8 +1,7 @@
 ---
 name: database-performance
 description: Diagnose and fix database performance issues (query plans, indexing, locks, connection pools, caching, partitioning). Use when latency/throughput problems point to the DB or DB access patterns. Not for schema design from scratch.
-metadata:
-  model: inherit
+category: database
 ---
 
 ## Use this skill when

@@ -1,6 +1,7 @@
 ---
 name: tracks-conductor-protocol
 description: Unified protocol + tooling for spec-driven and context-driven development across intake, task briefs, tracks (spec/plan), and execution. Designed for multi-agent workflows with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Works standalone; if tech/framework skills are available, use them for implementation details.
+category: workflow
 ---
 
 # Tracks Conductor Protocol

@@ -1,6 +1,7 @@
 ---
-name: typescript-pro
+name: typescript
 description: TypeScript best-practices + advanced typing in one skill. Use for strictness/tsconfig decisions, type-level design (generics/conditional/mapped types), fixing type errors, improving type-system performance, and building durable runtime-validated contracts at boundaries.
+category: language
 ---
 
 # TypeScript Pro

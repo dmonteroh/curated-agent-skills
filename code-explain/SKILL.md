@@ -1,6 +1,7 @@
 ---
 name: code-explain
 description: Explain complex code clearly for humans and agents. Produce a structured walkthrough (high-level intent -> data/control flow -> key invariants -> edge cases) with optional Mermaid diagrams and actionable next steps. Use for onboarding, debugging understanding, and “how it works” docs.
+category: docs
 ---
 
 # code-explain

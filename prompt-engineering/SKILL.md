@@ -1,6 +1,7 @@
 ---
 name: prompt-engineering
 description: Design, test, and ship production prompts fast (patterns + applied workflows). Includes prompt-as-code conventions, reusable templates, evaluation guidance, and scripts/assets for prompt iteration. Always outputs copy-pastable full prompt text. Use PROACTIVELY when building AI features, improving agent performance, or standardizing system prompts.
+category: workflow
 ---
 
 # prompt-engineering

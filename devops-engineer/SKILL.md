@@ -1,6 +1,7 @@
 ---
 name: devops-engineer
 description: "Day-2 operations and platform engineering: Docker/containerization, Kubernetes runtime patterns, environment hygiene, operational readiness, and incident response. Use when improving ops reliability or running infrastructure. For CI/CD pipeline design and rollout automation, prefer deployment-engineer."
+category: devops
 ---
 
 # DevOps Engineer

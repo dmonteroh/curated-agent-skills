@@ -1,6 +1,7 @@
 ---
 name: monitoring-expert
 description: End-to-end observability (logs/metrics/traces/alerts) and performance signals (profiling/load tests/capacity planning). Use when instrumenting services, setting alert strategy, or building an observability stack. For Grafana dashboard implementation/JSON, prefer grafana-dashboards if available.
+category: observability
 triggers:
   - monitoring
   - observability

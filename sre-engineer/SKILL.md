@@ -1,6 +1,7 @@
 ---
 name: sre-engineer
 description: "Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards)."
+category: observability
 ---
 
 # SRE Engineer

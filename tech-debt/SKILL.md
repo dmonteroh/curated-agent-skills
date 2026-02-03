@@ -1,6 +1,7 @@
 ---
 name: tech-debt
 description: Identify, quantify, and prioritize technical debt fast, then turn it into an executable remediation plan (SDD/CDD friendly). Produces a debt register with ROI estimates, risk tiers, and a track/task breakdown compatible with tracks-conductor-protocol and adr-madr-system. Use PROACTIVELY for debt audits, cleanup planning, or when velocity/quality is degrading.
+category: workflow
 ---
 
 # Tech Debt

@@ -1,6 +1,7 @@
 ---
 name: terraform-engineer
 description: Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing.
+category: devops
 triggers:
   - Terraform
   - infrastructure as code

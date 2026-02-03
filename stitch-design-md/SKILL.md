@@ -1,6 +1,7 @@
 ---
 name: stitch-design-md
 description: (Stitch) Analyze Stitch projects and synthesize a semantic design system into DESIGN.md files. Can operate without the Stitch MCP server if you provide the HTML and screenshots manually.
+category: frontend
 allowed-tools:
   - "Read"
   - "Write"

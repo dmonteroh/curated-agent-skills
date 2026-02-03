@@ -1,6 +1,7 @@
 ---
 name: database-cost-optimization
 description: Reduce database-related infrastructure spend safely (instances, storage, replicas, IO) without breaking reliability or performance. Focuses on DB cost drivers, rightsizing, retention/tiering, and cost/perf tradeoffs. Works standalone.
+category: database
 ---
 
 # database-cost-optimization

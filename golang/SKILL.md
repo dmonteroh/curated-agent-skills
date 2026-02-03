@@ -1,9 +1,10 @@
 ---
-name: golang-pro
+name: golang
 description: Build and review production Go (1.21+) services/CLIs with Go-idiomatic design, correctness, and concurrency. Includes a concurrency playbook and best-practices references (Effective Go, Code Review Comments, context/cancellation).
+category: language
 ---
 
-# golang-pro
+# golang
 
 Write Go that is simple, correct, and production-ready. Default to the standard library and Go idioms.
 

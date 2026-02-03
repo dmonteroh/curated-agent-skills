@@ -1,6 +1,7 @@
 ---
-name: react-native-pro
+name: react-native
 description: "Build cross-platform mobile apps with React Native/Expo: navigation, platform handling (iOS/Android), performance (FlatList), storage, and native module integration. Not for React web or Next.js."
+category: frontend
 ---
 
 # React Native Pro
@@ -17,8 +18,8 @@ This skill is for React Native and Expo apps.
 
 ## Do not use this skill when
 
-- The project is React web (use `react-pro`)
-- The project is Next.js (use `react-next-frontend`)
+- The project is React web (use `react`)
+- The project is Next.js (use `nextjs`)
 
 ## Workflow (Deterministic)
 

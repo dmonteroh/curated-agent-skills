@@ -1,6 +1,7 @@
 ---
 name: monorepo-engineering
 description: Design and operate monorepos with clear boundaries, fast builds, and low-conflict collaboration. Covers workspace layout, dependency constraints, build caching, affected detection, versioning/publishing, and CI integration. Works standalone; choose tooling pragmatically (pnpm/yarn/npm, Nx/Turbo/Bazel).
+category: architecture
 ---
 
 # monorepo-engineering

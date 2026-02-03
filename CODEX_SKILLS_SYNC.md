@@ -106,7 +106,7 @@ Install everything:
 Install to a custom directory:
 
 ```sh
-./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react-pro,svelte-pro"
+./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react,svelte"
 ```
 
 Overwrite existing installed skills:
@@ -146,8 +146,8 @@ Show version:
 - `all` or `*`
 - indices: `1,4,8`
 - ranges: `1-5`
-- names: `react-pro,svelte-pro`
-- mixed: `1-5,react-pro`
+- names: `react,svelte`
+- mixed: `1-5,react`
 
 ## Output
 

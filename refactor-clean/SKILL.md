@@ -1,6 +1,7 @@
 ---
 name: refactor-clean
 description: Refactor code safely and quickly using clean-code + SOLID principles with an incremental, test-first workflow. Includes a lightweight hotspot scan script to find high-impact refactor targets. Use PROACTIVELY for refactoring tangled code, reducing duplication/complexity, and preparing modules for new features without behavior regressions.
+category: workflow
 ---
 
 # Refactor Clean

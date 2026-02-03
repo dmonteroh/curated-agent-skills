@@ -1,6 +1,7 @@
 ---
 name: code-review
 description: High-signal, fast code review with selectable modes (quality/tone, security/performance, tooling/automation). Includes a safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report. Works standalone; if other skills are available, use them for domain/tech-specific checks.
+category: workflow
 ---
 
 # code-review

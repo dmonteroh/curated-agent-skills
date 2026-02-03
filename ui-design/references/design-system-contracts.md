@@ -63,5 +63,5 @@ A contract defines:
 If Tailwind is in use:
 
 - Keep class names aligned with semantic tokens (e.g., `bg-ui-canvas`, `text-ui-text`).
-- Use `tailwind-pro` when editing `tailwind.config.*`, content globs, safelist, or token mapping.
+- Use `tailwind` when editing `tailwind.config.*`, content globs, safelist, or token mapping.
 

@@ -1,6 +1,7 @@
 ---
 name: migration-observability
 description: Make database migrations safe and observable. Define progress + safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic.
+category: observability
 ---
 
 # migration-observability

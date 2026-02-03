@@ -1,6 +1,7 @@
 ---
 name: frontend-design
 description: Implement distinctive, production-grade frontend UI (code) with high design quality. Use when you are asked to build or style components/pages/apps and you must output working UI code. For design briefs/specs/reviews (no code), use ui-design instead.
+category: frontend
 license: Complete terms in LICENSE.txt
 ---
 

@@ -1,13 +1,14 @@
 ---
 name: ui-design
 description: "One canonical, framework-agnostic UI/UX design skill: turn requirements into clear UI briefs, flows, component specs, and design-system rules; review UI code against local guidelines; prioritize accessibility, consistency, and developer-hand-off clarity. Not a Google Stitch skill."
+category: frontend
 ---
 
 # UI Design
 
 This skill is design + review + specification. It is intentionally framework-agnostic.
 
-If Tailwind is in use, treat `tailwind-pro` as an optional helper for implementation details (tokens/config/class hygiene). Do not assume Tailwind exists.
+If Tailwind is in use, treat `tailwind` as an optional helper for implementation details (tokens/config/class hygiene). Do not assume Tailwind exists.
 
 ## Use this skill when
 

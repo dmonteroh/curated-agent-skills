@@ -1,6 +1,7 @@
 ---
 name: testing
 description: "Unified testing skill for speed + quality. Supports two modes: unit test generation and end-to-end/automation strategy. Includes safe-by-default scripts to scaffold test plans and generate a deterministic testing report. Works standalone; if stack-specific testing skills exist, prefer them for framework/tooling details."
+category: workflow
 ---
 
 # testing

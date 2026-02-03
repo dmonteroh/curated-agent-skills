@@ -1,6 +1,7 @@
 ---
 name: cdd-context
 description: Create and maintain project context artifacts (CDD) as living documentation under docs/context/. Includes scripts to scaffold minimal context files, validate required sections, and maintain a deterministic context index. Works standalone; if other skills are available, use them for implementation details.
+category: workflow
 ---
 
 # CDD Context

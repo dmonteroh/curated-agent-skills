@@ -1,6 +1,7 @@
 ---
 name: doc-generate
 description: Generate and maintain high-signal documentation from an existing codebase fast (API docs, architecture, runbooks, onboarding, reverse-specs). Includes repo scan + deterministic docs index scripts, and a spec-mining mode to reverse-engineer requirements from code. Works standalone; optionally link docs to ADRs and work artifacts for traceability.
+category: docs
 ---
 
 # doc-generate

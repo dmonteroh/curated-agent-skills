@@ -1,6 +1,7 @@
 ---
 name: deps-audit
 description: Audit dependencies fast for vulnerabilities, licenses, and supply-chain risk across common ecosystems (Node/Python/Go/Rust/etc). Produces a short risk summary plus an executable remediation plan (compatible with tracks-conductor-protocol). Includes scripts to detect manifests and generate a deterministic audit report under docs/_docgen. Use PROACTIVELY for security posture checks, dependency upgrades, or pre-release hardening.
+category: security
 ---
 
 # deps-audit
