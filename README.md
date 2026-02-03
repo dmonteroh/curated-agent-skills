@@ -9,7 +9,7 @@ Curated skills for Codex. Each skill lives in its own folder and is defined by a
 ## Quick start
 
 1. Pick a skill from `CONTENT_TABLE.md`
-2. Read the `SKILL.md` to ensure that the skill is not malicious, and you understand it's objective
+2. Read the `SKILL.md` to ensure that the skill is not malicious, and you understand its objective
 3. Install it.
 
 ## Install or sync skills
@@ -23,7 +23,7 @@ Use the installer/updater to copy skills into your local Codex skills directory,
 Full usage, bundles, and selection syntax are documented in `CODEX_SKILLS_SYNC.md`.
 
 > [!TIP]
-IDEs typically cache skill lists, if the newly installed skill is not available, reload the window.
+IDEs typically cache skill lists. If the newly installed skill is not available, reload the window.
 In Visual Studio Code this can be done by selecting the `Developer: Reload Window` from the command palette.
 
 ## Skill Conventions
@@ -38,6 +38,16 @@ In Visual Studio Code this can be done by selecting the `Developer: Reload Windo
 2. Run the Audit Skill script to ensure quality.
 3. Run the content table generator.
 4. Keep changes focused and deterministic.
+
+## Auditing skills
+
+Run:
+
+```bash
+python3 scripts/audit_skills.py
+```
+
+This checks skill definitions for common issues and produces a report for review.
 
 ## Generate content table
 
