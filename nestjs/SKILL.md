@@ -56,9 +56,11 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 - Modules + DI boundaries: `references/modules-and-di.md`
 - Request lifecycle cheat sheet: `references/request-lifecycle.md`
 - Validation + serialization: `references/validation-and-serialization.md`
+- DTOs + validation notes: `references/dtos-validation.md`
 - Auth + security hygiene: `references/auth-and-security.md`
 - OpenAPI with Nest Swagger: `references/openapi.md`
 - Testing strategy (unit vs e2e): `references/testing.md`
+- Controllers + routing: `references/controllers-routing.md`
+- Migration from Express: `references/migration-from-express.md`
 - Implementation playbook: `resources/implementation-playbook.md`
 - Read-only project audit script: `scripts/nestjs_audit.sh`
-

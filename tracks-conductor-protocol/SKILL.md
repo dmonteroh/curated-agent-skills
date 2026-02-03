@@ -129,6 +129,7 @@ To validate:
 - `references/cdd-sdd-interop.md` for when to create/update context/spec
 - `references/futures.md` for unified Futures handling (file-per-entry + ledger compatibility)
 - `references/execution-playbook.md` for execution, verification, and commit hygiene
+- `references/conductor-interop.md` for mapping to Conductor plugin artifacts
 
 ## Escalation rules (create more spec/context as required)
 

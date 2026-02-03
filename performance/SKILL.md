@@ -83,4 +83,5 @@ For detailed tactics (profiling tools, caching strategies, perf testing), follow
 ## Resources
 
 - `resources/implementation-playbook.md` (deep reference)
+- `resources/optimization-workflow.md` (end-to-end perf workflow)
 - `scripts/perf.sh` (scan + report wrapper)

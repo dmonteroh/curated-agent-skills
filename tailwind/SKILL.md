@@ -58,8 +58,8 @@ This skill is Tailwind-specific and intentionally framework-agnostic (React/Svel
 - Tailwind config essentials (content/safelist/theme/plugins): `references/config.md`
 - Token strategy (CSS variables -> semantic colors): `references/tokens-and-theming.md`
 - Component variants (framework-agnostic patterns): `references/component-variants.md`
+- Design system overview: `references/design-system.md`
 - Responsive + accessibility conventions: `references/responsive-and-a11y.md`
 - Migration + hygiene checklist: `references/migration-and-hygiene.md`
 - Implementation playbook: `resources/implementation-playbook.md`
 - Read-only audit script: `scripts/tailwind_audit.sh`
-

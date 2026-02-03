@@ -81,5 +81,6 @@ Use `references/output-format.md`.
 
 - `references/checklists.md` (mode checklists)
 - `references/output-format.md` (review output contract)
+- `references/ai-review-workflow.md` (AI + multi-agent review flow)
 - `resources/implementation-playbook.md` (deeper patterns)
 - `scripts/review.sh` (scan + report wrapper)

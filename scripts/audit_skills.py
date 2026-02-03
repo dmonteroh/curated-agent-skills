@@ -11,14 +11,23 @@ Checks (intentionally lightweight; no PyYAML dependency):
 - Backticked local file references inside a skill resolve (for refs like `references/x.md`)
 - No network assumptions in SKILL.md (skills should be usable offline)
 - Frontmatter name matches folder name (avoid agent confusion)
+- Name + description token budget (frontmatter) stays within bounds
 """
 
 import re
 from pathlib import Path
 
+try:
+    import tiktoken
+except ModuleNotFoundError:
+    tiktoken = None
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {".git", "scripts"}
+TOKEN_SOFT_LIMIT = 110
+TOKEN_HARD_LIMIT = 120
+TOKEN_ENCODING = "cl100k_base"
+_TOKEN_ENCODER = None
 
 FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 KV_RE = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
@@ -96,13 +105,21 @@ def _find_backtick_paths(text: str) -> set[str]:
     return out
 
 
-def scan_skill(dirpath: Path) -> list[str]:
+def _token_count(text: str) -> int:
+    global _TOKEN_ENCODER
+    if _TOKEN_ENCODER is None:
+        _TOKEN_ENCODER = tiktoken.get_encoding(TOKEN_ENCODING)
+    return len(_TOKEN_ENCODER.encode(text))
+
+
+def scan_skill(dirpath: Path) -> tuple[list[str], list[str]]:
     skill_file = dirpath / "SKILL.md"
     text = skill_file.read_text(encoding="utf-8")
     lines = text.splitlines()
     fm = _parse_frontmatter(text)
 
     issues: list[str] = []
+    warnings: list[str] = []
     name = fm.get("name", "").strip()
     desc = fm.get("description", "").strip()
     category = fm.get("category", "").strip()
@@ -142,11 +159,21 @@ def scan_skill(dirpath: Path) -> list[str]:
     if re.search(r"\bWebFetch\b|https?://raw\.githubusercontent\.com", text, re.I):
         issues.append("network_assumption")
 
-    return issues
+    if name or desc:
+        token_count = _token_count(f"{name} {desc}".strip())
+        if token_count > TOKEN_HARD_LIMIT:
+            issues.append(f"frontmatter_tokens_over_hard_limit:{token_count}")
+        elif token_count > TOKEN_SOFT_LIMIT:
+            warnings.append(f"frontmatter_tokens_over_soft_limit:{token_count}")
+
+    return issues, warnings
 
 
 def main() -> int:
-    skills: list[tuple[str, list[str]]] = []
+    if tiktoken is None:
+        print("error: tiktoken is not installed. Install with: pip install tiktoken")
+        return 2
+    skills: list[tuple[str, list[str], list[str]]] = []
     for entry in sorted(ROOT.iterdir()):
         if not entry.is_dir():
             continue
@@ -154,17 +181,26 @@ def main() -> int:
             continue
         if not (entry / "SKILL.md").is_file():
             continue
-        skills.append((entry.name, scan_skill(entry)))
+        issues, warnings = scan_skill(entry)
+        skills.append((entry.name, issues, warnings))
 
-    bad = [(name, issues) for name, issues in skills if issues]
+    bad = [(name, issues) for name, issues, _ in skills if issues]
+    warn = [(name, warnings) for name, _, warnings in skills if warnings]
 
     print(f"skills: {len(skills)}")
     print(f"skills_with_issues: {len(bad)}")
+    print(f"skills_with_warnings: {len(warn)}")
     if not bad:
+        if warn:
+            for name, warnings in warn:
+                print(f"- {name}: {warnings}")
         return 0
 
     for name, issues in bad:
         print(f"- {name}: {issues}")
+    if warn:
+        for name, warnings in warn:
+            print(f"- {name}: {warnings}")
     return 1
 
 

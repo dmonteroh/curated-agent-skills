@@ -6,7 +6,7 @@ category: ai
 
 # Dispatching Parallel Agents
 
-Parallel dispatch is only useful when tasks are truly independent. The goal is to reduce wall-clock time without creating merge conflicts or duplicated investigation.
+Parallel dispatch is only useful when tasks are truly independent. This skill now also includes **subagent execution** patterns (implementer + reviewers) to finish each partition cleanly.
 
 Core principle: **one agent per independent domain**, with explicit constraints and a deterministic merge plan.
 
@@ -81,7 +81,11 @@ Return:
 
 Dispatch one agent per domain. If your environment supports it, run them concurrently; otherwise run sequentially but keep prompts separate and focused.
 
-### 4) Merge safely (integration gate)
+### 4) Execute with subagents (per domain)
+
+Use the subagent packets and reviewers to implement each domain safely.
+
+### 5) Merge safely (integration gate)
 
 Before merging:
 
@@ -98,14 +102,14 @@ Before merging:
 
 ## Output Contract (Always)
 
-- A partition plan (domain -> agent prompt)
-- One summary per agent: root cause, changes, verification
-- An integration summary: conflicts (if any) + final verification result
+ - A partition plan (domain -> agent prompt)
+ - One summary per agent: root cause, changes, verification
+ - An integration summary: conflicts (if any) + final verification result
 
 ## Composition (Recommended)
 
 - Use this skill to partition work into independent domains and write scope-limited prompts.
-- If you have a spec/plan and want strict per-task verification + review gates, execute each domain using `subagent-driven-development`.
+- Use the included subagent execution flow (implementer + reviewers) to complete each domain.
 
 ## Notes
 
@@ -116,3 +120,8 @@ Before merging:
 
 - `references/codex.md` (Codex usage patterns, including sequential “prompt-parallel” mode)
 - `references/claude.md` (Claude Code-style parallel dispatch example)
+- `references/agent-optimization.md` (baseline -> improve -> validate loop)
+- `references/subagent-execution.md` (implementer + reviewers flow)
+- `references/task-packet-template.md` (task packet)
+- `references/review-packet-template.md` (review packet)
+- `references/codex-exec.md` (subagent dispatch via codex exec)

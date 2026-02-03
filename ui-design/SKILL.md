@@ -1,7 +1,7 @@
 ---
 name: ui-design
 description: "One canonical, framework-agnostic UI/UX design skill: turn requirements into clear UI briefs, flows, component specs, and design-system rules; review UI code against local guidelines; prioritize accessibility, consistency, and developer-hand-off clarity. Not a Google Stitch skill."
-category: frontend
+category: design
 ---
 
 # UI Design
@@ -61,6 +61,6 @@ If Tailwind is in use, treat `tailwind` as an optional helper for implementation
 - Local UI review checklist (offline): `references/web-interface-guidelines.md`
 - Design system contracts (how to write/consume them): `references/design-system-contracts.md`
 - Deliverables + handoff templates: `references/deliverables-and-handoff.md`
+- UI workflow summaries: `references/ui-workflows.md`
 - Deep topics (optional library of patterns): `references/topics/`
 - UI design commands and agents (optional): `commands/`, `agents/`
-

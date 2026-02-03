@@ -65,4 +65,5 @@ Outputs go to `docs/_docgen/deps-audit/` (safe-by-default).
 ## Resources
 
 - `resources/implementation-playbook.md` for tooling references and deeper patterns.
+- `resources/sbom-and-remediation.md` for SBOM + remediation guidance.
 - `scripts/deps.sh` wrapper (scan + report).

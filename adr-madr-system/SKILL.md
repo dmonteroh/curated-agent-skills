@@ -15,6 +15,11 @@ This skill is designed for **spec-driven development (SDD)** and **multi-agent**
 - Making a decision that affects architecture boundaries, persistence, auth/security posture, API style, reliability/SLOs, scaling, or major vendor/tool choices.
 - Changing a previously accepted architectural decision (create a new ADR that supersedes the old one).
 
+Trigger phrases:
+- "We need to decide between X and Y."
+- "Should we adopt <tech/vendor>?"
+- "We’re changing the architecture for <system>."
+
 ## Do not use this skill when
 
 - Capturing minor implementation notes, routine refactors, or small patches with no architectural impact.
@@ -27,6 +32,8 @@ This skill is designed for **spec-driven development (SDD)** and **multi-agent**
 - Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
 
 ## Workflow (SDD + multi-agent)
+
+If requirements are ambiguous or high-risk, run the short brainstorming loop first (one question at a time, 2-3 options with tradeoffs, concise design brief).
 
 ### Step A: Decide if an ADR is required
 
@@ -69,6 +76,13 @@ Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 Output: update docs/adr/README.md to include the new/updated ADR metadata and links.
 Use `references/index-format.md` for the index table format and update rules.
 
+## Output contract (always report)
+
+- New or updated ADR file path(s)
+- Updated ADR index path
+- Link(s) between ADR(s) and spec/track/task artifacts
+- If superseding: old ADR ID and new ADR ID
+
 ## Quality gates
 
 Before finalizing, check `references/quality-gates.md`.
@@ -76,6 +90,11 @@ Before finalizing, check `references/quality-gates.md`.
 ## SDD integration notes
 
 When the ADR is accepted, update the relevant spec/track/task artifact to link to it (and ensure the ADR links back). See `references/sdd-integration.md`.
+
+## Verification
+
+- If you run any script from `scripts/`, report the command(s) and result(s).
+- Do not claim completion without verification output when scripts are used.
 
 ## Optional scripts
 

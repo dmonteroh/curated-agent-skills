@@ -71,4 +71,5 @@ This skill does not require those systems.
 ## Resources
 
 - `references/templates.md` (context file stubs + recommended headings)
+- `references/context-management.md` (context lifecycle and pruning guidance)
 - `scripts/context.sh` (wrapper)

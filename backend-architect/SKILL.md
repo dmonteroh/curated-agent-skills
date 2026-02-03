@@ -60,4 +60,4 @@ This skill is about backend design quality and operability, not framework-specif
 - Operability-first checklist (SLIs/SLOs, golden signals, telemetry): `references/operability-sre.md`
 - API contract hygiene (error shape, pagination, versioning): `references/api-contract-hygiene.md`
 - Backend security coding checklist: `references/backend-security-coding.md`
-
+- Feature delivery workflow: `references/feature-delivery-workflow.md`

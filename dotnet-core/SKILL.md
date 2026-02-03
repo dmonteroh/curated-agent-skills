@@ -43,5 +43,11 @@ This skill focuses on shipping production-grade .NET services with modern patter
 - Minimal APIs: `references/minimal-apis.md`
 - Clean architecture/CQRS (optional): `references/clean-architecture.md`
 - EF Core patterns: `references/entity-framework.md`
+- EF Core best practices: `references/ef-core-best-practices.md`
+- Dapper patterns: `references/dapper-patterns.md`
 - Auth patterns: `references/authentication.md`
 - Cloud-native/containers: `references/cloud-native.md`
+- ASP.NET Core notes: `references/aspnet-core.md`
+- Modern C# notes: `references/modern-csharp.md`
+- .NET performance: `references/performance.md`
+- Blazor notes: `references/blazor.md`

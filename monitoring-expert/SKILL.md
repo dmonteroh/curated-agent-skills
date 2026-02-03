@@ -64,6 +64,7 @@ Load detailed guidance based on context:
 | Performance Testing | `references/performance-testing.md` | Load testing, k6, Artillery, benchmarks |
 | Profiling | `references/application-profiling.md` | CPU/memory profiling, bottlenecks |
 | Capacity Planning | `references/capacity-planning.md` | Scaling, forecasting, budgets |
+| Strategy | `references/observability-strategy.md` | End-to-end observability planning |
 
 ## Constraints
 

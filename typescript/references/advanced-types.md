@@ -195,3 +195,9 @@ const cfg = {
 - `@ts-ignore` for convenience.
 - “Type golf”: extremely clever types that no one can maintain.
 - Using advanced types to avoid writing runtime validation.
+
+## Practical Patterns (Quick)
+
+- Use conditional types for API response narrowing.
+- Use mapped types for config objects and form state.
+- Use template literal types for route or key constraints.

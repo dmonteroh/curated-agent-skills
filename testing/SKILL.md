@@ -102,6 +102,8 @@ Outputs a deterministic report under `docs/_docgen/testing/`.
 - `resources/unit-playbook.md` (unit testing patterns)
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
+- `references/performance-regression.md` (perf budgets + CI gates)
+- `references/unit-test-generation.md` (fast unit test checklist)
 - `references/tdd-iron-laws.md` (TDD loop + verification discipline)
 - `references/testing-anti-patterns.md` (fast test review heuristics)
 - `references/test-report-template.md` (consistent findings + sign-off)
