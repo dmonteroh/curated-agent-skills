@@ -4,9 +4,9 @@ description: Build fast, user-friendly CLI tools with stable command surfaces, p
 category: workflow
 ---
 
-# CLI Developer
+# CLI Tools Skill
 
-This skill is for designing and implementing command-line tools that are safe to script, pleasant for humans, and stable over time.
+Provides guidance for designing and implementing command-line tools that are safe to script, pleasant for humans, and stable over time.
 
 ## Use this skill when
 
@@ -121,9 +121,9 @@ Notes:
 
 - End-to-end playbook + CLI spec template: `resources/implementation-playbook.md`
 - Reference index: `references/README.md`
-- Design patterns: `references/design-patterns.md`
-- UX patterns: `references/ux-patterns.md`
+- Command surface patterns: `references/command-hierarchy-and-flags.md`
+- UX help text patterns: `references/ux-help-text.md`
 - Language notes:
-  - Node: `references/node-cli.md`
-  - Python: `references/python-cli.md`
-  - Go: `references/go-cli.md`
+  - Node: `references/node-frameworks.md`
+  - Python: `references/python-frameworks.md`
+  - Go: `references/go-frameworks.md`

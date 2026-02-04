@@ -6,7 +6,7 @@ category: architecture
 
 # monorepo-engineering
 
-Build monorepos that scale to multiple agents and teams without becoming a ball of mud.
+Provides guidance to build monorepos that scale across teams without becoming a ball of mud.
 
 ## Use this skill when
 
@@ -54,6 +54,7 @@ Build monorepos that scale to multiple agents and teams without becoming a ball 
 2) Choose minimal tooling
 - Prefer the smallest tool that solves the immediate pain.
 - Decision: If the repo already uses Nx/Turbo/Bazel, extend it instead of swapping.
+- Decision: If the repo is small and pain is limited to workspace wiring, recommend package-manager workspaces only.
 - Output: tooling recommendation + rationale.
 
 3) Define the workspace shape
@@ -114,6 +115,7 @@ When you finish, report in this format:
 ## Trigger test
 
 If the user says: "We need affected builds and a clean monorepo layout," activate this skill.
+If the user says: "Our monorepo CI is slow and dependency boundaries are unclear," activate this skill.
 
 ## References (load as needed)
 

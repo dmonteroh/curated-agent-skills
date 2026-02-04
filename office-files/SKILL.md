@@ -6,7 +6,7 @@ category: docs
 
 # Office Files (DOCX / PPTX / XLSX)
 
-This skill handles common workflows for OOXML office files.
+Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 ## Use this skill when
 
@@ -32,6 +32,11 @@ This skill handles common workflows for OOXML office files.
 - Path(s) to the `.docx`, `.pptx`, or `.xlsx` files
 - Desired output format (`md` or `json`) when extracting
 - Intended action: inspect, extract, or diff
+
+## Constraints
+
+- Works on local files only; no network assumptions.
+- Uses stdlib-only scripts; no external dependencies.
 
 ## Safety Rules (Default)
 
@@ -74,6 +79,7 @@ Verification: if you generate a modified file or derived artifact, open it in Of
    - If the user needs comparison, run `office_diff.py`.
    - Output: the command selected and why.
 3. Execute the script and capture results.
+   - If the file is password-protected, corrupted, or otherwise unreadable, stop and request an unlocked copy.
    - Output: key findings (sections, slides, sheets, tables, or diffs) plus any warnings.
 4. Summarize and propose next steps.
    - If content is missing or unclear, ask for a higher-fidelity source or confirm limits.
@@ -111,12 +117,10 @@ Report using this template:
 
 ## Output Contract
 
-When asked to work with an office file, produce:
+When asked to work with an office file:
 
-- What you did (inspect/extract/diff)
-- What you found (key structure + content summary)
-- Any uncertainty (missing evidence, unsupported features)
-- Next steps (how to verify, how to capture missing states)
+- Use the Output format template above.
+- Ensure Gaps/limits captures missing visuals or unsupported elements.
 
 ## References (Optional)
 

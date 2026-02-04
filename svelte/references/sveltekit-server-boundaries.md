@@ -1,6 +1,6 @@
 # SvelteKit Server Boundaries (Hooks, Cookies, Locals, Env)
 
-Use this as a quick map of "what runs where" so you do not leak secrets, break SSR, or accidentally rely on browser APIs.
+Quick map of "what runs where" to avoid leaking secrets, breaking SSR, or relying on browser APIs.
 
 ## The rule of thumb
 
@@ -26,7 +26,7 @@ Avoid:
 
 - Store request-scoped "who is the user/tenant" and small derived facts.
 - Do not put large objects (ORM entities) in locals; re-fetch where needed.
-- Treat locals as trusted only if you validated them in the hook.
+- Treat locals as trusted only if validation happens in the hook.
 
 ## Cookies and sessions
 
@@ -42,7 +42,7 @@ Avoid:
 
 ## Endpoints vs actions
 
-- Use `+server.ts` endpoints when you need:
+- Use `+server.ts` endpoints for:
   - non-form clients
   - custom methods/headers
   - streaming/binary responses
@@ -53,4 +53,3 @@ Avoid:
 - No module-level mutable state that varies by request.
 - No browser APIs in code that can run on the server.
 - No non-serializable values crossing the server->client boundary.
-

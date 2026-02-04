@@ -6,7 +6,7 @@ category: frontend
 
 # React + Next Frontend
 
-This skill is for Next.js projects (especially App Router) where Server Components, caching, and server/client boundaries matter.
+Provides guidance for Next.js projects (especially App Router) where Server Components, caching, and server/client boundaries matter.
 
 ## Use this skill when
 
@@ -19,8 +19,8 @@ This skill is for Next.js projects (especially App Router) where Server Componen
 
 ## Do not use this skill when
 
-- The project is a plain React SPA or component library (use `react`)
-- The project is React Native / Expo (use `react-native`)
+- The project is a plain React SPA or component library
+- The project is React Native / Expo
 - The task is unrelated to Next.js routing, data fetching, or server/client boundaries
 
 ## Required inputs

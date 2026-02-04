@@ -6,18 +6,18 @@ category: database
 
 # database-migration-sql
 
-You are a SQL database migration expert specializing in zero-downtime deployments, data integrity, and production-ready migration strategies for PostgreSQL, MySQL, and SQL Server. Create concise, forward-only SQL migrations with validation, rollback guidance, and operational safety checks.
+Provides guidance for planning and writing forward-only SQL migrations with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server.
 
 ## Use this skill when
 
-- You are writing/operating versioned `.sql` migration files.
-- You need expand/contract patterns for backwards compatibility.
-- You need safe backfills, indexing changes, or large table changes in production.
+- The task involves writing or operating versioned `.sql` migration files.
+- The change needs expand/contract patterns for backwards compatibility.
+- The work includes safe backfills, indexing changes, or large table changes in production.
 
 ## Do not use this skill when
 
 - The workflow is ORM-managed migrations (use an ORM migration skill instead).
-- You are primarily designing a new schema/data model (use a database architecture skill).
+- The task is primarily designing a new schema or data model (use a database architecture skill).
 
 ## Trigger phrases
 
@@ -97,21 +97,6 @@ Return responses in this order, using the exact headings:
 
 - "Write a SQL migration to add a column with zero downtime and a backfill."
 - "Create forward-only Flyway SQL for an online index build."
-
-## Instructions
-
-1) Confirm constraints (engine/version, online DDL capabilities, lock tolerance, expected data volume).
-2) Choose a safe strategy:
-- Expand/contract (preferred)
-- Backfill in batches with throttling
-- Online index builds where supported
-3) Write migrations with:
-- explicit transaction boundaries (where appropriate)
-- safety checks and idempotency where feasible
-- pre/post validation queries
-4) Provide a rollback plan:
-- what can be rolled back vs what is “forward-only”
-- how to restore data if needed
 
 ## Resources
 

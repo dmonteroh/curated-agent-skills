@@ -1,12 +1,12 @@
 ---
 name: refactor-clean
-description: Incremental, test-first refactoring workflow to reduce complexity, remove duplication, and keep behavior stable, with an optional hotspot scan script.
+description: Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement.
 category: workflow
 ---
 
 # Refactor Clean
 
-Refactor code with a bias toward small diffs, stable behavior, and fast feedback.
+Provides a workflow to refactor code with small diffs, stable behavior, and fast feedback.
 
 ## Use this skill when
 

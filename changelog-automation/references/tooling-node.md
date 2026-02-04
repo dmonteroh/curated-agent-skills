@@ -48,6 +48,11 @@ npx husky init
 echo "npx --no -- commitlint --edit \$1" > .husky/commit-msg
 ```
 
+Usage
+
+- Use `npx commitlint --from <base> --to <head>` to validate commits before release.
+- Run `npx standard-version` for manual releases, or `npx semantic-release --dry-run` to preview automated releases.
+
 Verification
 
 - Run `npx commitlint --from HEAD~1 --to HEAD` to validate the latest commit.
@@ -97,6 +102,11 @@ module.exports = {
 }
 ```
 
+Usage
+
+- Run `npm run release` for a normal release.
+- Run `npm run release:dry` to preview the changelog without tagging.
+
 Verification
 
 - Run `npm run release:dry` and confirm a changelog preview appears.
@@ -142,6 +152,11 @@ module.exports = {
   ],
 };
 ```
+
+Usage
+
+- Run `npx semantic-release --dry-run` locally to validate configuration.
+- Use `npx semantic-release` in CI to publish releases.
 
 Verification
 

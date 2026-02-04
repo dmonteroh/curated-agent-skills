@@ -1,12 +1,12 @@
 ---
 name: typescript
-description: TypeScript best-practices + advanced typing for strictness/tsconfig decisions, type-level design, fixing type errors, type-checking performance, and boundary runtime validation.
+description: Provides TypeScript architecture and typing guidance for strictness/tsconfig decisions, advanced type design, fixing type errors, type-checking performance, and boundary runtime validation; use when resolving TypeScript typing or configuration issues.
 category: language
 ---
 
-# TypeScript Pro
+# TypeScript Skill
 
-One canonical TypeScript skill for architecture, day-to-day implementation, and advanced types.
+Provides a deterministic workflow for TypeScript architecture, day-to-day implementation, and advanced types.
 
 ## Use this skill when
 
@@ -91,4 +91,4 @@ Provide results in this format every time:
 ## References (Optional)
 
 - Index: `references/README.md`
-- Implementation playbook: `resources/implementation-playbook.md`
+- Implementation playbook: `references/implementation-playbook.md`

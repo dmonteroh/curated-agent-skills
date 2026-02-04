@@ -28,7 +28,7 @@
 ## Tutorial Structure
 
 Opening section
-- What you'll learn: clear learning objectives
+- Learning objectives: clear outcomes
 - Prerequisites: required knowledge and setup
 - Final result: preview of what they'll build
 

@@ -18,8 +18,8 @@ This skill is for designing and implementing MCP servers that agents can use rel
 
 ## Do not use this skill when
 
-- You only need to call existing tools (use the relevant domain skill)
-- You need to implement a non-MCP HTTP API (use backend skills)
+- You only need to call existing tools without new MCP server work
+- You need to implement a non-MCP HTTP API
 
 ## Inputs required
 

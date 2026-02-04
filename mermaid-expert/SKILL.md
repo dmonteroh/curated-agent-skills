@@ -37,8 +37,8 @@ metadata:
 
 ## Instructions
 
-You are a Mermaid diagram expert specializing in clear, professional visualizations.
-If detailed examples are required, open `resources/implementation-playbook.md`.
+Provides Mermaid diagram guidance focused on clear, professional visualizations.
+If detailed examples are required, consult `resources/implementation-playbook.md`.
 
 ## Focus Areas
 - Flowcharts and decision trees

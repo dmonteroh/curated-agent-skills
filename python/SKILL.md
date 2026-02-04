@@ -4,9 +4,9 @@ description: Build modern Python 3.12+ services and libraries with async pattern
 category: language
 ---
 
-# Python Pro
+# Python Implementation
 
-Modern Python development with a focus on correctness, performance, and maintainability.
+Provides guidance for modern Python development with a focus on correctness, performance, and maintainability.
 
 ## Use this skill when
 
@@ -38,7 +38,8 @@ Modern Python development with a focus on correctness, performance, and maintain
 1. Clarify scope and constraints.
    - Output: confirmed runtime, packaging, and acceptance criteria.
 2. Choose architecture and libraries.
-   - Decision: If web API needed, pick FastAPI or Django; if CLI/script, use standard library + `typer`/`argparse`.
+   - Decision: If the project already mandates a framework, follow it; otherwise keep dependencies minimal and prefer the standard library when possible.
+   - Decision: If a web API is needed, pick FastAPI or Django; if CLI/script, use standard library + `typer`/`argparse`.
    - Output: selected stack and module boundaries.
 3. Choose concurrency model.
    - Decision: If I/O-bound or high concurrency, use `async`/`await`; otherwise stay synchronous.
@@ -56,6 +57,7 @@ Modern Python development with a focus on correctness, performance, and maintain
 - Skipping input validation at API/CLI boundaries
 - Adding heavy dependencies when the stdlib is enough
 - Providing unbounded concurrency or missing timeouts
+- Assuming dependencies or tooling are already available
 
 ## Examples
 
@@ -66,6 +68,11 @@ Modern Python development with a focus on correctness, performance, and maintain
 **Example input**: "Convert this blocking HTTP loop to async." 
 
 **Expected output**: Use `httpx.AsyncClient`, async entrypoint, and note any required event loop changes.
+
+## Trigger test
+
+- "Please refactor this Python service to add async handlers."
+- "Implement a Python CLI to parse logs and add tests."
 
 ## Output Contract (Always)
 

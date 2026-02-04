@@ -6,13 +6,13 @@ category: workflow
 
 # Tech Debt
 
-Run a high-signal technical debt assessment and convert it into an actionable, staged remediation plan.
+Provides a high-signal technical debt assessment and converts it into an actionable, staged remediation plan.
 
 ## Use this skill when
 
 - Dev velocity is slowing, bug rate is increasing, or on-call is painful.
-- You need a debt audit and a prioritized cleanup roadmap.
-- You need an execution plan that can be staffed by a team.
+- A debt audit and prioritized cleanup roadmap are required.
+- An execution plan is needed that can be staffed by a team.
 
 Trigger phrases:
 - “technical debt audit”
@@ -23,7 +23,7 @@ Trigger phrases:
 
 ## Do not use this skill when
 
-- You only need a local refactor of a single module.
+- The request is only for a local refactor of a single module.
 - There is no codebase or telemetry to analyze.
 
 ## Workflow
@@ -37,7 +37,7 @@ Inputs:
 - available evidence: issues, incidents, telemetry, TODOs
 
 Decision:
-- If there is no codebase or evidence to analyze, ask for it and stop.
+- If there is no codebase or evidence to analyze, request it and stop.
 
 Output:
 - scoped target statement

@@ -14,8 +14,8 @@ This skill is for **running migrations safely** (not for authoring SQL/ORM migra
 ## Use this skill when
 
 - Running a production migration/backfill/cutover that can’t be “fire and forget”.
-- You need dashboards/alerts and objective gates (pause, slow down, rollback, proceed).
-- You need a shared, deterministic runbook for the migration.
+- Dashboards/alerts and objective gates (pause, slow down, rollback, proceed) are required.
+- A shared, deterministic runbook is required for the migration.
 
 ## Do not use this skill when
 
@@ -30,7 +30,7 @@ This skill is for **running migrations safely** (not for authoring SQL/ORM migra
 - “cutover checklist”
 - “migration dashboards and alerts”
 
-## Inputs you need
+## Required inputs
 
 - Migration summary: what changes, why, scope, expected duration, rollback complexity.
 - Migration type: schema-only / backfill / online rewrite / cutover / dual-write / reindex.
@@ -38,7 +38,7 @@ This skill is for **running migrations safely** (not for authoring SQL/ORM migra
 - Available telemetry: metrics, logs, traces, dashboards, alerting system.
 - Data correctness expectations: invariants, validation approach, sampling strategy.
 
-## Outputs (what you should produce)
+## Outputs (artifacts produced)
 
 Minimum artifacts (paths are suggestions; adapt to repo conventions):
 - docs/runbooks/migrations/<migration-id>.md (the runbook with gates)
@@ -51,13 +51,13 @@ Templates:
 
 ## Workflow (step-by-step with outputs)
 
-1) Classify the migration (controls what you must observe)
+1) Classify the migration (controls what must be observed)
 - Decide type, blast radius, and rollback complexity.
 - Output: short classification summary to include in the runbook.
 
 2) Define progress metrics (prove it is moving)
 - Pick counters and derived rates (rows processed, throughput, ETA, lag).
-- Decision point: if you cannot instrument metrics, define structured logs and manual sampling cadence.
+- Decision point: if instrumentation is unavailable, define structured logs and manual sampling cadence.
 - Output: a progress metrics list with target values or expected ranges.
 
 3) Define safety metrics (prove it is not hurting prod)
@@ -81,10 +81,10 @@ Templates:
 
 ## Common pitfalls
 
-- Missing baselines, so you can’t detect regressions.
+- Missing baselines, so regressions cannot be detected.
 - Gates with vague language instead of numeric thresholds.
 - No throttle/rollback plan for long-running backfills.
-- Correctness checks that rely on assumptions you can’t measure.
+- Correctness checks that rely on assumptions that cannot be measured.
 - Alerting that pages the wrong team or has no escalation path.
 
 ## Tooling guidance (agnostic)
@@ -94,7 +94,7 @@ This skill does not require a specific stack. Common setups:
 - Dashboards: Grafana / cloud dashboards
 - Alerts: Grafana alerting / PagerDuty / OpsGenie / Slack
 
-If none exist, you can still be “observable” by emitting structured logs + writing a runbook with manual checks and thresholds.
+If none exist, remain “observable” by emitting structured logs + writing a runbook with manual checks and thresholds.
 
 ## Examples
 
@@ -102,19 +102,28 @@ Trigger test prompts:
 - “Create a migration runbook with go/no-go gates for a customer backfill.”
 - “We need dashboards and alerts for a cutover migration.”
 
+Example input:
+- Migration type: backfill
+- Operational constraints: 2-hour maintenance window, batch size throttle
+- Available telemetry: Prometheus metrics + Grafana dashboarding
+- Data correctness: checksum sampling every 10k rows
+
 Example output summary (abbreviated):
 - Runbook: docs/runbooks/migrations/2024-09-customer-backfill.md
 - Dashboard spec: docs/runbooks/migrations/2024-09-customer-backfill-dashboard.md
 - Alerts spec: docs/runbooks/migrations/2024-09-customer-backfill-alerts.md
 - Gates: proceed/pause/rollback thresholds for canary, ramp, full run
 
-## Reporting format (what to return)
+## Output contract (reporting format)
+
+Return a single summary with the following fields, in this order:
 
 - Migration classification (type, blast radius, rollback complexity).
-- Progress metrics + safety metrics with thresholds and sources.
+- Progress metrics with thresholds + sources.
+- Safety metrics with thresholds + sources.
 - Gate table by phase (proceed/pause/rollback).
 - Runbook/dashboard/alerts file paths produced.
-- Risks, assumptions, and any missing instrumentation.
+- Risks, assumptions, and missing instrumentation.
 
 ## References
 

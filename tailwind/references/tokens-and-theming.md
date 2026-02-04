@@ -12,7 +12,7 @@ Goal: keep Tailwind class names stable while allowing theme changes via CSS vari
 - status: `ui.success`, `ui.warning`, `ui.error`
 
 3) Optional product tokens
-- e.g., `tag.*` for colored labels if your UI needs many stable tag colors
+- e.g., `tag.*` for colored labels when the UI needs many stable tag colors
 
 ## Tailwind mapping pattern (semantic)
 
@@ -28,9 +28,9 @@ Example asset: `assets/tailwind.config.example.cjs`
 Put variables in a global stylesheet and scope them:
 
 - `:root` for default theme
-- `.dark` or `[data-theme="dark"]` for dark theme (match your `darkMode` strategy)
+- `.dark` or `[data-theme="dark"]` for dark theme (match the chosen `darkMode` strategy)
 
-Keep the token set small; expand only when you can justify the semantic difference.
+Keep the token set small; expand only when the semantic difference is justified.
 
 ## Typography tokens
 
@@ -40,4 +40,3 @@ Use Tailwind config for:
 - custom font sizes only when needed (2xs, 3xs, etc.)
 
 Avoid scattering `text-[11px]` arbitrary values everywhere unless it is truly an exception.
-

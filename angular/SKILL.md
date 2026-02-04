@@ -4,9 +4,9 @@ description: Build Angular apps with modern standalone APIs, signals, RxJS, rout
 category: frontend
 ---
 
-# Angular Pro
+# Angular Skill
 
-This skill is for Angular web applications and component libraries.
+Provides guidance for Angular web applications and component libraries.
 
 ## Use this skill when
 
@@ -20,6 +20,7 @@ This skill is for Angular web applications and component libraries.
 
 - The project is not Angular
 - You only need general UI design critique
+- The request is framework-agnostic frontend guidance
 
 ## Activation cues
 
@@ -36,7 +37,7 @@ This skill is for Angular web applications and component libraries.
 - Performance constraints (change detection, bundle size)
 - Test expectations (unit, component, integration)
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Clarify scope + constraints
 - Capture feature/change scope, target routes/components, accessibility needs, performance budget.
@@ -84,6 +85,9 @@ Trigger tests:
 - "Refactor this Angular page to use signals and OnPush."
 - "Add lazy-loaded routes with guards and tests for a new feature."
 
+Example input:
+- "We need a standalone Angular profile page with signals, routing, and tests."
+
 Example output (condensed):
 - Scope: Profile page and edit dialog
 - State strategy: Signals for local form state, RxJS for HTTP
@@ -100,10 +104,7 @@ Example output (condensed):
 Reporting format:
 - Scope:
 - State strategy:
+- Changes:
 - Data flow boundaries:
 - Accessibility checks:
 - Verification:
-
-## References (Optional)
-
-- Index: `references/README.md`

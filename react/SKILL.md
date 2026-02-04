@@ -4,9 +4,9 @@ description: "Build React frontends (SPA/library) with modern hooks, state manag
 category: frontend
 ---
 
-# React Pro
+# React
 
-This skill is for React web apps and component libraries that are not tied to a specific meta-framework.
+Provides guidance for React web apps and component libraries that are not tied to a specific meta-framework.
 
 ## Use this skill when
 
@@ -40,7 +40,9 @@ This skill is for React web apps and component libraries that are not tied to a 
    - If app-wide or complex, use a store (Zustand/Redux).
    - If server state, use query caching (React Query/SWR).
    - Output: selected approach with justification.
-4. Implement components with strict TypeScript types and stable keys.
+4. Implement components with the project's typing conventions and stable keys.
+   - If the project uses TypeScript, use explicit prop/state types.
+   - If the project uses JavaScript, document prop/state expectations in code or tests.
    - Output: code changes with notes on key patterns.
 5. Add error handling (error boundaries for UI failures).
    - Output: error boundary usage and fallback UI notes.
@@ -82,7 +84,3 @@ This skill is for React web apps and component libraries that are not tied to a 
 - State decisions
 - Accessibility notes
 - Verification
-
-## References (Optional)
-
-- `references/README.md`

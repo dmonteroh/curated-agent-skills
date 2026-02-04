@@ -1,0 +1,22 @@
+# Terraform Best Practices Checklist
+
+- [ ] Use remote state with locking
+- [ ] Pin Terraform and provider versions
+- [ ] Validate all input variables
+- [ ] Use consistent naming conventions
+- [ ] Tag all resources for cost tracking
+- [ ] Encrypt sensitive data at rest and in transit
+- [ ] Implement least privilege IAM policies
+- [ ] Use modules for reusable components
+- [ ] Document module interfaces
+- [ ] Run `terraform fmt` before commit
+- [ ] Run `terraform validate` in CI/CD
+- [ ] Review plan output before apply
+- [ ] Use data sources instead of hardcoding
+- [ ] Implement automated testing
+- [ ] Use `for_each` instead of `count`
+- [ ] Avoid hardcoded secrets
+- [ ] Enable logging and monitoring
+- [ ] Implement cost optimization strategies
+- [ ] Use lifecycle rules appropriately
+- [ ] Keep modules focused and single-purpose

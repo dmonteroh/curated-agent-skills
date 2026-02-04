@@ -10,7 +10,7 @@ category: workflow
 
 - The user’s requirements are ambiguous, conflicting, or incomplete
 - The cost of “building the wrong thing” is high (irreversible changes, migrations, public APIs)
-- You need a fast, structured way to compare 2–3 approaches and pick one
+- A fast, structured way to compare 2–3 approaches and pick one is needed
 
 **Trigger phrases**
 - "Not sure what the right approach is"
@@ -21,7 +21,7 @@ category: workflow
 ## Do not use this skill when
 
 - The request is already clear enough to plan and implement directly
-- The user asked you to implement now and explicitly does not want upfront design
+- The user explicitly requests immediate implementation without upfront design
 - The work is tiny/low-risk and a design brief would be overhead
 
 ## Required inputs
@@ -33,7 +33,7 @@ category: workflow
 
 ## Overview
 
-Turn fuzzy ideas into a clear, testable design brief via short, structured dialogue.
+Provides a structured dialogue that turns fuzzy ideas into a clear, testable design brief.
 
 Default posture: clarify, do not prematurely implement.
 
@@ -160,7 +160,7 @@ Recommendation: ...
 
 ## References (Optional)
 
-- `resources/implementation-playbook.md`
+- `references/implementation-playbook.md`
 
 ## Scripts
 

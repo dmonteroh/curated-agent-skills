@@ -1,12 +1,12 @@
 ---
 name: postgresql-engineering
-description: "PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when you are targeting Postgres specifically."
+description: "PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when targeting Postgres specifically."
 category: database
 ---
 
 # PostgreSQL Engineering
 
-This skill is Postgres-specific. Use it when you are making schema/data-layer decisions for PostgreSQL (not just writing SQL queries).
+Use this skill for Postgres-specific schema/data-layer decisions (not just SQL query authoring).
 
 ## Use this skill when
 
@@ -66,7 +66,7 @@ This skill is Postgres-specific. Use it when you are making schema/data-layer de
 - Missing indexes on foreign keys (Postgres does not add them automatically).
 - Using JSONB for fields that need frequent filtering or sorting.
 - Adding NOT NULL columns with volatile defaults that rewrite large tables.
-- Relying on UNIQUE with NULLs when you need single-null enforcement.
+- Relying on UNIQUE with NULLs when single-null enforcement is required.
 
 ## Examples
 

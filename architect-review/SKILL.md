@@ -24,9 +24,9 @@ Provides architectural review guidance for system designs and major changes, foc
 
 ## Do not use this skill when
 
-- You need a small code review without architectural impact
+- The task is a small code review without architectural impact
 - The change is minor and local to a single module
-- You lack system context or requirements to assess design
+- Critical system context remains unavailable after asking clarifying questions
 
 ## Instructions
 
@@ -35,6 +35,7 @@ Provides architectural review guidance for system designs and major changes, foc
 - Change description: what is being added/changed and why
 - Constraints: non-functional requirements (scalability, resilience, security, cost)
 - Dependencies: key integrations or platform constraints
+- Success criteria: SLAs, SLOs, or measurable outcomes if available
 - Optional artifacts: diagrams, ADRs, API contracts, deployment topology
 
 ### Workflow
@@ -45,8 +46,10 @@ Provides architectural review guidance for system designs and major changes, foc
    - Output: architecture snapshot + assumptions.
 3. Evaluate decisions against goals and quality attributes.
    - Output: impact rating (High/Medium/Low) + risk list.
+   - Decision: if impact is High, require mitigation and rollback strategy.
 4. Identify architectural violations or anti-patterns.
    - Output: findings with evidence or reasoning.
+   - Decision: classify findings as blocking vs. advisory and require fixes for blocking items.
 5. Recommend improvements with tradeoffs and alternatives.
    - Output: prioritized recommendations with pros/cons.
 6. Define validation and follow-up actions.
@@ -66,10 +69,10 @@ Provides architectural review guidance for system designs and major changes, foc
 - Missing cross-service impact or migration complexity
 
 ## Output contract
-Provide an **Architectural Review Report** using this format:
-- Context summary (including assumptions and open questions)
+Produce an **Architectural Review Report** with labeled sections, in this order:
+- Context summary (assumptions + open questions)
 - Impact rating (High/Medium/Low)
-- Findings and risks
+- Findings and risks (blocking vs. advisory)
 - Recommendations with tradeoffs
 - Validation plan
 - Decisions/ADRs and next steps
@@ -83,7 +86,7 @@ See `references/README.md` for detailed reference guides and knowledge areas.
 **Output (excerpt):**
 - Context summary: current monolith with shared order/payment tables; new services for orders and payments.
 - Impact rating: High (data migration + cross-service transactions).
-- Findings and risks: shared database coupling; missing saga/outbox strategy.
+- Findings and risks: shared database coupling (blocking); missing saga/outbox strategy (blocking).
 - Recommendations with tradeoffs: introduce payment bounded context + event-driven order updates; use saga with compensations.
 - Validation plan: load-test event throughput; run migration rehearsal.
 - Decisions/ADRs and next steps: draft ADR for event schema and ownership.

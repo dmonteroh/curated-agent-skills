@@ -114,4 +114,4 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 ## References (Optional)
 
 - `references/README.md` (index of NestJS deep-dive notes)
-- `resources/implementation-playbook.md`
+- `references/implementation-playbook.md`

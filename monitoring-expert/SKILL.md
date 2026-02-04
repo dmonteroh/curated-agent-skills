@@ -1,6 +1,6 @@
 ---
 name: monitoring-expert
-description: End-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack.
+description: Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack.
 category: observability
 triggers:
   - monitoring
@@ -19,12 +19,12 @@ triggers:
   - bottleneck
 role: specialist
 scope: implementation
-output-format: code
+output-format: markdown
 ---
 
 # Monitoring Expert
 
-Observability and performance specialist implementing comprehensive monitoring, alerting, tracing, and performance testing systems.
+Provides guidance for implementing monitoring, alerting, tracing, and performance testing systems.
 
 ## When to Use This Skill
 
@@ -91,9 +91,19 @@ Load detailed guidance based on context:
 | Tracing | `references/opentelemetry.md` | OpenTelemetry, spans |
 | Alerting | `references/alerting-rules.md` | Prometheus alerts |
 | Dashboards | `references/dashboards.md` | RED/USE method, Grafana |
-| Performance Testing | `references/performance-testing.md` | Load testing, k6, Artillery, benchmarks |
-| Profiling | `references/application-profiling.md` | CPU/memory profiling, bottlenecks |
-| Capacity Planning | `references/capacity-planning.md` | Scaling, forecasting, budgets |
+| Performance Testing (k6) | `references/performance-testing-k6.md` | Load test types, k6 stages |
+| Performance Testing (tools) | `references/performance-testing-tools.md` | Artillery, Locust, JMeter |
+| Performance Testing (scenarios) | `references/performance-testing-scenarios-metrics.md` | Metrics, user journeys |
+| Profiling (Node/Python) | `references/application-profiling-node-python.md` | CPU/memory profiling |
+| Profiling (Go/Java) | `references/application-profiling-go-java.md` | pprof, async-profiler |
+| Profiling (databases) | `references/application-profiling-database.md` | Query profiling |
+| Profiling (APM) | `references/application-profiling-apm.md` | Custom spans, vendor hooks |
+| Profiling (quick reference) | `references/application-profiling-quick-reference.md` | Tooling summary |
+| Capacity Planning (forecasting) | `references/capacity-planning-forecasting.md` | Trends, predict_linear |
+| Capacity Planning (resource models) | `references/capacity-planning-resource-models.md` | CPU, memory, connections |
+| Capacity Planning (scaling) | `references/capacity-planning-scaling.md` | Autoscaling patterns |
+| Capacity Planning (budgets/costs) | `references/capacity-planning-budgets-costs.md` | Budgets, sizing |
+| Capacity Planning (alerts/reference) | `references/capacity-planning-alerts-reference.md` | Alerts, heuristics |
 | Strategy | `references/observability-strategy.md` | End-to-end observability planning |
 
 ## Constraints

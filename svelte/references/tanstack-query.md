@@ -4,7 +4,7 @@ Use TanStack Query for server state (fetching/caching) and mutations with good U
 
 ## Mutation pattern (Svelte components)
 
-Prefer `createMutation` in `.svelte` so you get loading/error states.
+Prefer `createMutation` in `.svelte` to surface loading/error states.
 
 Key convention: pass `onSuccess` / `onError` to `.mutate(variables, callbacks)` so the handler has full local context.
 
@@ -40,4 +40,4 @@ Key convention: pass `onSuccess` / `onError` to `.mutate(variables, callbacks)` 
 
 ## `.execute()` in `.ts` files
 
-When you’re outside component context (load/util files), prefer a direct execute call (pattern depends on your RPC/client layer).
+When outside component context (load/util files), prefer a direct execute call (pattern depends on the RPC/client layer).

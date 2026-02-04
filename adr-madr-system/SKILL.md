@@ -1,29 +1,30 @@
 ---
 name: adr-madr-system
-description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index. Focuses on decision drivers, options, consequences, and supersedes semantics so accepted ADRs remain immutable."
+description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index when documenting or superseding architectural decisions. Focuses on decision drivers, options, consequences, and supersedes semantics so accepted ADRs remain immutable."
 category: architecture
 ---
 
 # ADR MADR System
 
-Create high-quality ADRs (MADR style) as separate files, and keep a lightweight index for discoverability.
+Provides guidance to create high-quality ADRs (MADR style) as separate files and maintain a lightweight index for discoverability.
 
-This skill defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
+Defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
 
 ## Use this skill when
 
 - Making a decision that affects architecture boundaries, persistence, auth/security posture, API style, reliability/SLOs, scaling, or major vendor/tool choices.
 - Changing a previously accepted architectural decision (create a new ADR that supersedes the old one).
 
-Trigger phrases:
+## Do not use this skill when
+
+- Capturing minor implementation notes, routine refactors, or small patches with no architectural impact.
+
+## Trigger phrases
+
 - "We need to decide between X and Y."
 - "Should we adopt <tech/vendor>?"
 - "We’re changing the architecture for <system>."
 - "Document the architecture decision for <topic>."
-
-## Do not use this skill when
-
-- Capturing minor implementation notes, routine refactors, or small patches with no architectural impact.
 
 ## Defaults (override if the repo already has conventions)
 
@@ -31,6 +32,13 @@ Trigger phrases:
 - ADR index: docs/adr/README.md
 - File naming: `ADR-XXXX-short-title.md` (XXXX is zero-padded)
 - Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
+
+## Required inputs
+
+- Decision topic and scope.
+- Known constraints and decision drivers (with source artifacts if available).
+- Existing ADR list or index location (or confirmation to use defaults).
+- Stakeholders or approvers if required by repo conventions.
 
 ## Workflow
 
@@ -52,7 +60,7 @@ Output: a short list of constraints and decision drivers with **links** to the s
 - Drivers: ranked priorities (cost, latency, operability, DX, security, time-to-deliver).
 
 Decision point:
-- If you cannot link to a source artifact, record the owner to confirm before acceptance.
+- If no link to a source artifact is available, record the owner to confirm before acceptance.
 
 ### Step C: Consider options (minimum 2)
 
@@ -70,6 +78,8 @@ Output: a MADR document that includes:
 Use `references/templates.md` for templates.
 
 ### Step E: Apply governance (supersedes, don’t rewrite)
+
+Output: supersedes section populated when replacing an accepted ADR, with the old ADR left intact.
 
 Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 - If changing direction: create a new ADR and mark it as superseding the old one.
@@ -111,7 +121,7 @@ When the ADR is accepted, update the relevant spec/track/task artifact to link t
 
 ## Verification
 
-- If you run any script from `scripts/`, report the command(s) and result(s).
+- If any script from `scripts/` is run, report the command(s) and result(s).
 - Do not claim completion without verification output when scripts are used.
 
 ## Optional scripts

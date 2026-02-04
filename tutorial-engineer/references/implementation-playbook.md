@@ -1,6 +1,6 @@
 # Tutorial Engineer - Implementation Playbook
 
-Use this playbook when you need a reliable tutorial structure, onboarding sequence, or workshop series with quality gates.
+Provides a reliable tutorial structure, onboarding sequence, or workshop series with quality gates.
 
 ## Default Output Contract
 
@@ -11,7 +11,7 @@ Use this playbook when you need a reliable tutorial structure, onboarding sequen
 
 ## Tutorial Types
 
-Pick the smallest format that works.
+Select the smallest format that fits.
 
 - Quickstart: setup + first successful run.
 - Guided build: step-by-step feature implementation.
@@ -35,9 +35,9 @@ Pick the smallest format that works.
 
 A checkpoint should be independently verifiable.
 
-- "You should see X"
-- "Run command Y, expect output Z"
-- "Open endpoint A, expect response B"
+- Expected result: X
+- Command Y should return output Z
+- Endpoint A should return response B
 
 ### 4) Write The Tutorial
 
@@ -60,7 +60,7 @@ A checkpoint should be independently verifiable.
 ### Quickstart Template
 
 - Title
-- What you'll build
+- Result overview
 - Prerequisites
 - Setup
 - Run it

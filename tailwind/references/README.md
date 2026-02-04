@@ -1,6 +1,6 @@
 # Tailwind References Index
 
-Use this index to load only the reference you need.
+Index for loading only the needed reference.
 
 - `config.md`: Tailwind config essentials for `content`, `safelist`, `theme.extend`, and plugins.
 - `tokens-and-theming.md`: CSS variable token strategy and semantic color mapping.

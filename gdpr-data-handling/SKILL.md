@@ -23,8 +23,9 @@ This skill is intentionally **implementation-oriented** (engineers/operators). I
 
 ## Do not use this skill when
 
-- The task is unrelated to gdpr data handling
-- You need a different domain or tool outside this scope
+- The task is unrelated to GDPR data handling
+- Legal interpretation or formal legal advice is required
+- A different domain or tool outside this scope is needed
 
 ## Trigger phrases
 
@@ -35,15 +36,15 @@ This skill is intentionally **implementation-oriented** (engineers/operators). I
 - "processors" / "subprocessors" / "international transfers"
 - "personal data breach" / "breach notification"
 
-## Inputs you need
+## Inputs required
 
-- Systems and datasets in scope (or a repo/architecture you can inspect)
+- Systems and datasets in scope (or a repo/architecture available for inspection)
 - Processing purposes and audiences
 - Current storage locations, access paths, and vendors
 - Existing retention/deletion behaviors and policies
 - Known DSAR/breach procedures (if any)
 
-## Outputs (what you should produce)
+## Outputs produced
 
 Minimum artifacts (paths are suggestions; use existing repo conventions):
 - Data inventory: systems, datasets, fields, owners, purpose, lawful basis
@@ -52,7 +53,7 @@ Minimum artifacts (paths are suggestions; use existing repo conventions):
 - Vendor/transfer notes: processors/subprocessors, DPAs, transfer mechanism notes
 - Breach readiness runbook: detection, triage, notification workflow, evidence capture
 
-Templates and checklists are in `references/` (load as needed).
+Templates and checklists are in `references/README.md` (load as needed).
 
 ## Workflow (fast, high-signal)
 
@@ -108,7 +109,7 @@ Templates and checklists are in `references/` (load as needed).
 
 ## Output contract
 
-Always report the following sections:
+Report the following sections:
 - Summary of scope and assumptions
 - Artifacts produced (with paths)
 - Gaps/risks and recommended next actions

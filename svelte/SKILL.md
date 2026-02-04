@@ -4,9 +4,16 @@ description: "Build Svelte 5 and SvelteKit apps fast: runes/reactivity, componen
 category: frontend
 ---
 
-# Svelte Pro
+# Svelte
 
 One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delivery.
+
+## Inputs
+
+- Target framework and version (Svelte 5 vs SvelteKit).
+- Files, routes, or components in scope.
+- Expected behavior and UI states (loading/error/empty).
+- Constraints (SSR boundaries, data sources, UI libraries).
 
 ## Use this skill when
 
@@ -33,9 +40,9 @@ One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delive
    - If it is a standalone component, treat it as Svelte-only.
    - Output: list the exact files and whether they are Svelte or SvelteKit.
 2. Choose reactivity with intent.
-   - If you need mutable state, use `$state`.
-   - If you need derived values, use `$derived` and avoid side effects.
-   - If you need effects, use `$effect` and always return cleanup.
+   - If mutable state is required, use `$state`.
+   - If derived values are required, use `$derived` and avoid side effects.
+   - If effects are required, use `$effect` and always return cleanup.
    - Output: the runes used and what each one controls.
 3. Define data flow boundaries.
    - If SvelteKit, decide server vs client (+page.server.ts/+layout.server.ts vs client code).

@@ -18,11 +18,10 @@
 
 ## Contrast
 
-- Treat text-on-action colors as tokens (e.g., `text-ui-on-action`) so you do not accidentally ship low contrast.
+- Treat text-on-action colors as tokens (e.g., `text-ui-on-action`) to avoid accidentally shipping low contrast.
 
 ## Breakpoints
 
 - Choose a breakpoint strategy and keep it consistent.
 - Prefer mobile-first class order: base -> `sm:` -> `md:` -> ...
 - Avoid mixing layout paradigms in the same component (grid + flex) unless justified.
-

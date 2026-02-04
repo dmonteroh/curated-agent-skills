@@ -66,6 +66,20 @@ This skill is for writing and reasoning about SQL: correctness first, then perfo
 - `Correctness checks`: NULL handling, duplicate risk, cardinality assumptions.
 - `Performance notes` (optional): EXPLAIN guidance and plan risks.
 - `Assumptions & questions`: anything missing or ambiguous.
+- `Reporting format`:
+
+````
+Summary: <short approach>
+Final SQL:
+```sql
+<query>
+```
+Correctness checks:
+- <checklist items>
+Performance notes: <optional>
+Assumptions & questions:
+- <open questions>
+````
 
 ## Examples
 

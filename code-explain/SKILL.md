@@ -6,7 +6,7 @@ category: docs
 
 # code-explain
 
-Explain code through clear narratives, diagrams, and step-by-step breakdowns.
+Provides code explanations through clear narratives, diagrams, and step-by-step breakdowns.
 
 This skill is intentionally different from `doc-generate`:
 - `code-explain` = explain one subsystem/module/flow extremely well
@@ -78,8 +78,8 @@ This skill is intentionally different from `doc-generate`:
 
 ### Templates (optional)
 
-- `resources/explainer-template.md`
-- `resources/implementation-playbook.md`
+- `references/explainer-template.md`
+- `references/diagram-patterns.md`
 
 ## Output Format
 
@@ -132,4 +132,4 @@ When useful, include a Mermaid diagram (sequence or flowchart).
 
 ## Resources
 
-- `resources/implementation-playbook.md` for detailed examples and templates.
+- `references/README.md` for detailed examples and templates.

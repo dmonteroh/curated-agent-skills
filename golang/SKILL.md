@@ -110,5 +110,6 @@ When executing this skill, report:
 ## References (load as needed)
 
 - Index: `references/README.md`
-- Concurrency patterns + corrected templates: `references/concurrency-patterns.md`
+- Concurrency checklist + footguns: `references/concurrency-checklist.md`
+- Concurrency templates: `references/concurrency-templates.md`
 - Go best practices + authoritative sources: `references/best-practices.md`

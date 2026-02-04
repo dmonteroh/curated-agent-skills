@@ -2,7 +2,7 @@ import sys
 from pypdf import PdfReader
 
 
-# Script to determine whether a PDF has fillable form fields. See references/forms.md.
+# Script to determine whether a PDF has fillable form fields. See references/forms-fillable-fields.md.
 
 
 reader = PdfReader(sys.argv[1])

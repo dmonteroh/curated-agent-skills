@@ -6,7 +6,7 @@ category: devops
 
 # Cloud Architect
 
-Cloud architecture is about making the big platform decisions correctly: boundaries, networks, identity, reliability, and service selection.
+Provides guidance for designing cloud platform architecture: boundaries, networks, identity, reliability, and service selection.
 
 ## Use this skill when
 
@@ -21,6 +21,14 @@ Cloud architecture is about making the big platform decisions correctly: boundar
 - The task is strictly IaC module mechanics or Terraform/OpenTofu state workflows
 - The task is only secrets backend setup/rotation details
 - The task is purely cost optimization without architecture changes
+
+## Required inputs
+
+- Workload overview (users, traffic patterns, data volume, latency needs)
+- Target cloud(s) and any constraints (residency, compliance, contractual)
+- Existing systems or migrations in scope
+- Availability and recovery objectives (SLOs, RPO/RTO targets)
+- Security requirements (data classification, identity model, audit needs)
 
 ## Trigger phrases
 
@@ -70,6 +78,7 @@ Cloud architecture is about making the big platform decisions correctly: boundar
 - Risk register (top risks + mitigations)
 - RPO/RTO and DR approach (if applicable)
 - Implementation plan (phases + verification)
+- Open questions (missing inputs or decisions)
 
 ## Reporting format
 

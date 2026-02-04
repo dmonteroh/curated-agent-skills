@@ -26,7 +26,7 @@ This guide is focused on making dashboards operationally useful and safe (no noi
 
 - Averages hide tail latency; show p95/p99.
 - Percentiles are not aggregatable across dimensions unless computed properly.
-- Always label what you're aggregating by (service, route, instance, tenant).
+- Always label the aggregation dimension (service, route, instance, tenant).
 
 ## Drilldowns
 
@@ -44,7 +44,7 @@ Every overview dashboard should link to:
 
 ## Review Checklist
 
-- Does the top row tell you if you should page someone?
+- Does the top row tell an operator if they should page someone?
 - Can an on-call person find the likely cause within 2-3 clicks?
 - Are panels stable (no constant flapping due to tiny denominators)?
 - Are queries bounded and performant?

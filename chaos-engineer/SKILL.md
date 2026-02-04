@@ -6,18 +6,18 @@ category: observability
 
 # Chaos Engineer
 
-Chaos engineering is *controlled failure injection* with explicit hypotheses, safety gates, and learnings turned into remediation work.
+Provides controlled failure injection with explicit hypotheses, safety gates, and learnings turned into remediation work.
 
 ## Use this skill when
 
-- You want to validate resilience (timeouts/retries/circuit breakers/backpressure)
-- You need a game day plan and runbook
-- You need a failure injection experiment spec (staging/canary/prod)
-- You need to reduce blast radius or improve recovery (MTTR)
+- Validate resilience (timeouts/retries/circuit breakers/backpressure)
+- Produce a game day plan and runbook
+- Produce a failure injection experiment spec (staging/canary/prod)
+- Reduce blast radius or improve recovery (MTTR)
 
 ## Do not use this skill when
 
-- You are still missing basic observability (you can’t define steady state)
+- Steady-state signals cannot be defined because observability is missing
 - The change is low-risk and easily reversible
 
 ## Trigger phrases
@@ -35,6 +35,8 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
 - Observability sources for steady state (metrics, logs, traces)
 - Rollback mechanisms and on-call/communications expectations
 
+If any required inputs are missing, request them before proceeding.
+
 ## Safety Rules (Non-Negotiable)
 
 - Define steady state metrics before injecting failure.
@@ -48,7 +50,7 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
    - Output: scoped system map + dependency list.
 2. Define hypothesis, steady state signals, and guardrails.
    - Output: hypothesis statement + steady state metrics + guardrail thresholds.
-   - Decision: if you cannot define steady state metrics, stop and request observability gaps.
+   - Decision: if steady state metrics cannot be defined, stop and request observability gaps.
 3. Select failure mode and blast radius.
    - Output: failure injection spec (mode, target, environment, % traffic, duration).
    - Decision: if production is in scope and rollback/kill switch is missing, stop and require one.
@@ -73,7 +75,7 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
 - Execution plan (steps + stop conditions)
 - Findings + remediation actions
 
-Use this reporting format every time:
+Reporting format:
 
 ```
 ## Chaos Experiment Report

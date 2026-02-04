@@ -6,7 +6,7 @@ category: workflow
 
 # Changelog Automation
 
-Patterns and tools for automating changelog generation, release notes, and version management.
+Provides patterns and tools for automating changelog generation, release notes, and version management.
 
 ## Use this skill when
 
@@ -37,6 +37,11 @@ Patterns and tools for automating changelog generation, release notes, and versi
 - Release cadence and publication target (e.g., file-only vs. release page)
 - Tooling constraints (language runtime, CI provider)
 
+## Constraints
+
+- Avoid assuming network access unless explicitly required.
+- Keep the workflow self-contained without requiring other skills.
+
 ## Instructions
 
 1. Confirm the source of truth (commits vs. PR labels) and release scope.
@@ -48,7 +53,7 @@ Patterns and tools for automating changelog generation, release notes, and versi
 3. Define classification rules (commit types or labels to sections).
    - Output: a mapping table of change types → changelog sections.
 4. Pick an automation approach and list required files.
-   - Output: tool choice, config files to add/update, and required packages.
+   - Output: tool choice, config files to add/update, and required tools or plugins.
    - Decision: if CI is unavailable, document a local release script instead.
 5. Generate a preview and validate contents.
    - Output: preview summary with missing items or sensitive data to redact.
@@ -72,10 +77,12 @@ Patterns and tools for automating changelog generation, release notes, and versi
 "Set up automated release notes from conventional commits in GitHub Actions."
 
 **Output**
-- Source of truth: conventional commits from `main`.
-- Format: Keep a Changelog with Added/Changed/Fixed.
-- Tooling: semantic-release with `release.config.js` and `.github/workflows/release.yml`.
-- Verification: run dry-run release and compare generated notes.
+- Summary: Automate release notes from `main` using conventional commits.
+- Decisions: Keep a Changelog with Added/Changed/Fixed; semantic-release workflow.
+- Files/Configs: `release.config.js`, `.github/workflows/release.yml`.
+- Commands: `npx semantic-release --dry-run`.
+- Verification: Compare generated notes to commit history.
+- Risks/Follow-ups: Confirm release permissions and secrets.
 
 ## Output contract
 
@@ -83,6 +90,7 @@ Patterns and tools for automating changelog generation, release notes, and versi
 - Automation approach with files and commands to add/update.
 - Verification steps for previewing the changelog.
 - Risks, gaps, or follow-up decisions needed.
+- Reporting format populated as specified below.
 
 ## Reporting format
 

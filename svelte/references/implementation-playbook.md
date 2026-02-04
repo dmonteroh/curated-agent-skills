@@ -1,6 +1,6 @@
-# Svelte Pro - Implementation Playbook
+# Svelte Implementation Playbook
 
-Use this when you need a deterministic sequence for implementing or refactoring Svelte/SvelteKit code.
+Deterministic sequence for implementing or refactoring Svelte/SvelteKit code.
 
 ## Inputs
 

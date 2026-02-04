@@ -7,3 +7,4 @@ Use this index to locate detailed guidance. Each reference supports the TypeScri
 - `advanced-types.md`: Deep dive on generics, conditional/mapped types, and advanced inference patterns.
 - `tsconfig-baseline.md`: Baseline `tsconfig` options with strictness guidance and migration tips.
 - `type-performance.md`: How to diagnose and reduce type-checking slowdowns.
+- `implementation-playbook.md`: Deterministic workflow for type design, error fixes, and strictness changes.

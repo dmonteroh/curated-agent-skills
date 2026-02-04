@@ -1,6 +1,6 @@
 # Grafana Dashboards - Implementation Playbook
 
-Use this playbook when you need a production-ready dashboard pack, review an existing dashboard, or standardize dashboards across teams.
+Use this playbook to produce a production-ready dashboard pack, review an existing dashboard, or standardize dashboards across teams.
 
 ## Inputs
 
@@ -58,7 +58,7 @@ Use this playbook when you need a production-ready dashboard pack, review an exi
 
 Optional templates live in `grafana-dashboards/assets/`.
 
-- `assets/dashboard-templates.json` - minimal dashboard JSON stubs you can copy/adapt
+- `assets/dashboard-templates.json` - minimal dashboard JSON stubs to copy or adapt
 - `assets/alert-templates.json` - example alert rule patterns (structure only)
 
 ## Deep-Dive Reference

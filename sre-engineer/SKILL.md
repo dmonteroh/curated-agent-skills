@@ -105,9 +105,9 @@ Provide a response with the following sections in order:
 ## References
 
 - Index: `references/README.md`
-- SLIs/SLOs: `references/slo-sli-management.md`
-- Error budgets + burn rates: `references/error-budget-policy.md`
-- Monitoring + alerting: `references/monitoring-alerting.md`
-- Toil/automation: `references/automation-toil.md`
-- Incident response + chaos linkage: `references/incident-chaos.md`
+- SLIs/SLOs: `references/sli-definition-patterns.md`, `references/slo-calculations.md`
+- Error budgets: `references/error-budget-fundamentals.md`, `references/burn-rate-alerting.md`, `references/error-budget-policy-template.md`
+- Monitoring + alerting: `references/monitoring-golden-signals.md`, `references/alert-design-examples.md`, `references/runbook-template.md`
+- Toil/automation: `references/toil-definition-inventory.md`, `references/self-healing-automation.md`, `references/runbook-automation.md`
+- Incident response + chaos: `references/incident-response-framework.md`, `references/postmortem-template.md`, `references/chaos-experiment-design.md`
 - Implementation playbook: `references/implementation-playbook.md`

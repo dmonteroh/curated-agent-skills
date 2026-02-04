@@ -6,7 +6,7 @@ category: observability
 
 # performance
 
-One canonical performance skill that merges:
+Provides a unified performance workflow that combines:
 - **Workflow orchestration** (baseline -> profile -> optimize -> validate -> guardrails)
 - **Deep-dive performance engineering** (profiling, observability, load testing, caching, query tuning)
 
@@ -130,6 +130,9 @@ Requirements:
 
 Verification:
 - Confirm the report exists and lists inventory + measurement plan.
+
+Decision:
+- If the script is unavailable or not permitted, follow the workflow phases manually and document equivalent outputs.
 
 ## Examples
 

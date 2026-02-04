@@ -9,3 +9,4 @@
 - `testing.md`: Unit vs e2e testing strategy and setup notes.
 - `controllers-routing.md`: Controller conventions and routing patterns.
 - `migration-from-express.md`: Express-to-Nest migration considerations.
+- `implementation-playbook.md`: Repeatable feature delivery loop.

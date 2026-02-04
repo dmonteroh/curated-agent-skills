@@ -4,9 +4,16 @@ description: "Build cross-platform mobile apps with React Native/Expo: navigatio
 category: frontend
 ---
 
-# React Native Pro
+# React Native
 
-This skill is for React Native and Expo apps.
+Provides guidance for React Native and Expo apps, covering navigation, platform handling, performance, storage, and native module integration.
+
+## Required inputs
+
+- Runtime context (Expo managed or bare React Native)
+- Target platforms (iOS, Android, or both)
+- Navigation approach (Expo Router, React Navigation, or custom)
+- Relevant screens/components and performance or lifecycle constraints
 
 ## Use this skill when
 
@@ -54,6 +61,11 @@ This skill is for React Native and Expo apps.
 ## Example prompt
 
 "Improve scrolling performance in our React Native FlatList screen and make sure it respects safe areas."
+
+## Trigger test
+
+- "We need to add Android back handling in our React Native screen."
+- "Optimize this Expo FlatList screen for smoother scrolling."
 
 ## Output Contract (Always)
 

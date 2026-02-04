@@ -26,7 +26,7 @@ If verification fails: stop and fix before integration.
 Common: `main` or `master`. If unsure, ask or check:
 
 ```sh
-git remote show origin | rg 'HEAD branch'
+git remote show origin | grep 'HEAD branch'
 ```
 
 ## Step 3: Choose one option

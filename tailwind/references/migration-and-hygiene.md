@@ -1,6 +1,6 @@
 # Migration + Hygiene Checklist
 
-Use this when upgrading Tailwind, introducing plugins, or refactoring class strategy.
+Applies when upgrading Tailwind, introducing plugins, or refactoring class strategy.
 
 ## Before changing anything
 
@@ -18,4 +18,3 @@ Use this when upgrading Tailwind, introducing plugins, or refactoring class stra
 - Prefer semantic token classes instead of raw palette usage in app code.
 - Centralize component class contracts (avoid per-callsite reinvention).
 - Document any non-obvious plugin or safelist decisions in the repo.
-

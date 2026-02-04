@@ -1,12 +1,12 @@
 ---
 name: cdd-context
-description: Create and maintain CDD project context docs (product, tech stack, workflow) with optional scaffolding, indexing, validation, and a brief snapshot under docs/context.
+description: Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot.
 category: ai
 ---
 
 # CDD Context
 
-Manage project context as first-class artifacts alongside code. This skill is standalone and does not depend on other skills.
+Provides guidance for managing project context as first-class artifacts alongside code. This skill is standalone and does not depend on other skills.
 
 ## Use this skill when
 
@@ -32,6 +32,12 @@ Manage project context as first-class artifacts alongside code. This skill is st
 - Whether automation scripts are allowed
 - Whether to create/update the brief snapshot
 - Any reporting format preferences
+
+## Constraints
+
+- Honor repository context conventions over defaults.
+- Avoid network calls or time-sensitive assumptions.
+- Do not add dependencies or require other skills.
 
 ## Defaults (override if the repo already has conventions)
 
@@ -59,6 +65,7 @@ Manage project context as first-class artifacts alongside code. This skill is st
 3) Validate structure
 - Confirm required files and headings exist.
 - Output: validation results or missing headings/files.
+- Decision: If fixes are needed and file writes are allowed, add minimal headings; otherwise report gaps.
 
 4) Update context content
 - Edit only relevant sections; avoid rewriting unrelated history.
@@ -68,10 +75,12 @@ Manage project context as first-class artifacts alongside code. This skill is st
 5) Maintain the index
 - Update the managed index block in the context README.
 - Output: confirmation that the index block is up to date.
+- Decision: If index markers are missing and file writes are allowed, add them; otherwise report and skip updates.
 
 6) Create/update brief snapshot (optional)
 - If requested, generate/update `brief.md` as a rehydration snapshot.
 - Output: confirmation that `brief.md` was created or updated.
+- Decision: If not requested or file writes are disallowed, report that the snapshot was skipped.
 
 ## Scripts (optional automation)
 
@@ -110,9 +119,10 @@ Input:
 "Set up context docs in this repo and index them."
 
 Output (report summary):
-- Created `docs/context/product.md`, `docs/context/tech-stack.md`, `docs/context/workflow.md`
-- Updated `docs/context/README.md` index block
-- Validation: passed
+- Summary: Scaffolded core context artifacts and index.
+- Files created/updated: `docs/context/product.md`, `docs/context/tech-stack.md`, `docs/context/workflow.md`, `docs/context/README.md`
+- Validation results: passed
+- Open questions: none
 
 **Example 2: update tech stack context**
 
@@ -120,13 +130,14 @@ Input:
 "We migrated to PostgreSQL; update the tech stack context and refresh the index."
 
 Output (report summary):
-- Updated `docs/context/tech-stack.md` with new datastore details
-- Updated `docs/context/README.md` index block
-- Validation: passed
+- Summary: Updated tech stack context and refreshed index.
+- Files created/updated: `docs/context/tech-stack.md`, `docs/context/README.md`
+- Validation results: passed
+- Open questions: none
 
 ## Output contract
 
-When you run this skill, report in the following format:
+When running this skill, report in the following format:
 - Summary (1–3 bullets)
 - Files created/updated
 - Validation results (or note if not run)

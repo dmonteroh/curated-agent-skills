@@ -1,11 +1,11 @@
-# Tailwind Pro - Implementation Playbook
+# Tailwind Implementation Playbook
 
-Use this when you need a repeatable loop for introducing or refactoring Tailwind usage in an app or design system.
+Provides a repeatable loop for introducing or refactoring Tailwind usage in an app or design system.
 
 ## Inputs
 
 - Project paths that generate class names (framework + folder conventions).
-- Whether theme is:
+- Theme approach:
   - fixed palette (simple)
   - CSS-variable driven (recommended)
 - Component surface being standardized (buttons, inputs, tables, etc.)
@@ -13,7 +13,7 @@ Use this when you need a repeatable loop for introducing or refactoring Tailwind
 ## Default Loop
 
 1) Tailwind config sanity
-- Ensure `content` covers all UI sources.
+- Confirm `content` covers all UI sources.
 - Add a *minimal* `safelist` only when classes are created dynamically.
 - Confirm dark mode strategy.
 
@@ -41,4 +41,3 @@ Use this when you need a repeatable loop for introducing or refactoring Tailwind
 - Over-broad `safelist` patterns (bloats CSS output).
 - Using palette tokens directly everywhere (`blue-500`) instead of semantic tokens (`ui.action`).
 - Dark mode token mismatch (background changes but borders/text do not).
-

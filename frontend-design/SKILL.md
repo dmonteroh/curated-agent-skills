@@ -5,7 +5,7 @@ category: design
 license: Complete terms in LICENSE.txt
 ---
 
-This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
+This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. It focuses on real working code with exceptional attention to aesthetic details and creative choices.
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
@@ -13,7 +13,7 @@ The user provides frontend requirements: a component, page, application, or inte
 
 - Building or styling frontend UI with real code (HTML/CSS/JS, React, Vue, etc.)
 - The user expects a distinct aesthetic direction and production-grade polish
-- You need to translate a brief into a cohesive visual system and layout
+- Translate a brief into a cohesive visual system and layout
 
 ## Do not use this skill when
 
@@ -38,7 +38,7 @@ The user provides frontend requirements: a component, page, application, or inte
 
 ## Design Thinking
 
-Before coding, understand the context and commit to a BOLD aesthetic direction:
+Before coding, the skill establishes context and commits to a BOLD aesthetic direction:
 - **Purpose**: What problem does this interface solve? Who uses it?
 - **Tone**: Pick an extreme: brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc. There are so many flavors to choose from. Use these for inspiration but design one that is true to the aesthetic direction.
 - **Constraints**: Technical requirements (framework, performance, accessibility).
@@ -57,7 +57,7 @@ Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 Focus on:
 - **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics; unexpected, characterful font choices. Pair a distinctive display font with a refined body font.
 - **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
-- **Motion**: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. Use Motion library for React when available. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions. Use scroll-triggering and hover states that surprise.
+- **Motion**: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. If a motion library already exists in the project, it may be used without adding dependencies. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions. Use scroll-triggering and hover states that surprise.
 - **Spatial Composition**: Unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space OR controlled density.
 - **Backgrounds & Visual Details**: Create atmosphere and depth rather than defaulting to solid colors. Add contextual effects and textures that match the overall aesthetic. Apply creative forms like gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, custom cursors, and grain overlays.
 
@@ -67,7 +67,7 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
-Remember: you are capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+Aim for extraordinary creative work by thinking outside the box and committing fully to a distinctive vision.
 
 ## Workflow (Deterministic)
 

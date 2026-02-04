@@ -6,7 +6,7 @@ category: language
 
 # Node.js Backend Patterns
 
-Guidance for building scalable, maintainable Node.js backend applications with modern frameworks, architectural patterns, and operational best practices.
+Provides guidance for building scalable, maintainable Node.js backend applications with modern frameworks, architectural patterns, and operational best practices.
 
 ## Use this skill when
 
@@ -39,20 +39,20 @@ Guidance for building scalable, maintainable Node.js backend applications with m
 
 ## Instructions
 
-1. Confirm goals, constraints, and missing inputs.
+1. Confirms goals, constraints, and missing inputs.
    - Output: a short scope summary and any clarification questions.
-2. Select the architecture and framework approach.
-   - Decision: Express for simplicity or Fastify for performance and schema-driven validation.
+2. Selects the architecture and framework approach.
+   - Decision point: Express for simplicity or Fastify for performance and schema-driven validation.
    - Output: a recommended stack and rationale.
-3. Define the API contract and data model.
-   - Decision: REST vs GraphQL vs RPC based on client needs.
+3. Defines the API contract and data model.
+   - Decision point: REST vs GraphQL vs RPC based on client needs.
    - Output: endpoint list, request/response shapes, and data entities.
-4. Plan middleware, auth, validation, and error handling.
+4. Plans middleware, auth, validation, and error handling.
    - Output: middleware sequence, auth strategy, and error response format.
-5. Plan integrations and operational readiness.
-   - Decision: queue vs synchronous work, caching needs, rate limiting.
+5. Plans integrations and operational readiness.
+   - Decision point: queue vs synchronous work, caching needs, rate limiting.
    - Output: integration checklist and observability requirements.
-6. Provide implementation guidance and verification steps.
+6. Provides implementation guidance and verification steps.
    - Output: ordered build steps and exact checks or tests to run.
 
 ## Common pitfalls
@@ -86,7 +86,7 @@ Output (summary):
 
 ## Output contract
 
-Always respond with these sections:
+Response includes these sections:
 - Summary
 - Decisions (framework, API style, integrations)
 - Implementation steps

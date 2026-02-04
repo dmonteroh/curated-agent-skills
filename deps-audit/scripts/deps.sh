@@ -190,8 +190,8 @@ report() {
     echo
     echo "- Prioritize by severity + exposure + reachability."
     echo "- Prefer minimal, compatible upgrades; avoid broad major bumps unless necessary."
-    echo "- Convert work into tasks/tracks via \`tracks-conductor-protocol\` if this will be executed."
-    echo "- If remediation requires major architectural changes, record an ADR via \`adr-madr-system\`."
+    echo "- Capture remediation work as ordered tasks with effort notes."
+    echo "- Flag items that require architectural or security review."
   } >"$report_file"
 
   echo "OK: wrote $report_file"
@@ -218,4 +218,3 @@ EOF
     exit 2
     ;;
 esac
-

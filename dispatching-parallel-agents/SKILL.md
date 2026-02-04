@@ -31,6 +31,14 @@ Do not use this skill when:
 - “parallelize the investigation”
 - “assign separate agents per module”
 
+## Required Inputs
+
+- Problem statement or goal per domain
+- Evidence per domain (errors, failing tests, logs, repro steps)
+- Allowed scope (files/modules per domain)
+- Constraints (what must not change)
+- Verification expectations (tests, commands, or checks)
+
 ## Workflow (Deterministic)
 
 ### 1) Partition the work
@@ -92,13 +100,13 @@ Output: one task packet per domain, ready to dispatch.
 
 ### 3) Dispatch in parallel
 
-Dispatch one agent per domain. If your environment supports it, run them concurrently; otherwise run sequentially but keep prompts separate and focused.
+Dispatch one agent per domain. If the environment supports it, run them concurrently; otherwise run sequentially while keeping prompts separate and focused.
 
 Output: dispatched prompts with clear ownership per domain.
 
 ### 4) Execute with subagents (per domain)
 
-Use the subagent packets and reviewers to implement each domain safely. If no subagent mechanism exists, perform the implementer and review passes sequentially yourself using the same packets.
+Use the subagent packets and reviewers to implement each domain safely. If no subagent mechanism exists, perform the implementer and review passes sequentially using the same packets.
 
 Output: per-domain implementation summary (root cause, files changed, verification).
 
@@ -149,7 +157,7 @@ Integration Summary:
 ## Notes
 
 - This skill is model-agnostic: it describes *how to split work*, not a specific vendor’s agent API.
-- If your environment has a specific “spawn sub-agent” mechanism, use it. The important part is the partitioning, constraints, and merge gate.
+- If the environment has a specific “spawn sub-agent” mechanism, use it. The important part is the partitioning, constraints, and merge gate.
 - This skill is self-contained and does not rely on other skills.
 
 ## Trigger Test

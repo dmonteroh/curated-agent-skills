@@ -1,22 +1,22 @@
 ---
 name: grafana-dashboards
-description: Create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces.
+description: Provides guidance to create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces.
 category: observability
 ---
 
 # Grafana Dashboards
 
-Create production-ready Grafana dashboards with consistent layout, safe queries, and operator-focused usability.
+Provides production-ready Grafana dashboards with consistent layout, safe queries, and operator-focused usability.
 
 ## Use this skill when
 
-- You need to create or improve Grafana dashboards
-- You need to standardize dashboard layout for on-call usability
-- You need dashboard JSON templates/snippets to start from
+- A request asks to create or improve Grafana dashboards
+- A request asks to standardize dashboard layout for on-call usability
+- A request asks for dashboard JSON templates or snippets
 
 ## Do not use this skill when
 
-- You need end-to-end observability architecture (logs/metrics/traces/alert strategy) beyond dashboards
+- The request is for end-to-end observability architecture beyond dashboards
 - The task is unrelated to Grafana dashboards
 
 ## Trigger phrases
@@ -84,7 +84,7 @@ Create production-ready Grafana dashboards with consistent layout, safe queries,
 
 ## Output contract
 
-Return a report using this format:
+Return a report using this format and keep the section order:
 
 1. Summary
 2. Inputs & Assumptions

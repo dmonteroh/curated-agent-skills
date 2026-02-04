@@ -1,12 +1,12 @@
 ---
 name: backend-architect
-description: "Expert backend architect for designing operable services and APIs: service boundaries, contracts, reliability, integration patterns, and rollout safety. Produces crisp architecture decisions and verification steps. Use PROACTIVELY when creating or changing backend services/APIs."
+description: "Guides backend architecture for operable services and APIs: boundaries, contracts, reliability, integration patterns, and rollout safety. Produces clear architecture decisions and verification steps. Use proactively when creating or changing backend services/APIs."
 category: architecture
 ---
 
 # Backend Architect
 
-This skill is about backend design quality and operability, not framework-specific implementation.
+Provides guidance on backend design quality and operability, not framework-specific implementation.
 
 ## Use this skill when
 
@@ -34,6 +34,7 @@ This skill is about backend design quality and operability, not framework-specif
 - Data domains involved and ownership expectations
 - Non-functional requirements (latency, throughput, availability, consistency, compliance)
 - Existing services or contracts that must be preserved
+- Known constraints, assumptions, and explicitly out-of-scope areas
 
 ## Workflow (Deterministic)
 
@@ -87,7 +88,3 @@ Report in this format:
 Use this skill when a user asks:
 - “Design the backend service boundaries for our new order API.”
 - “Create an operability and rollout plan for a new event-driven integration.”
-
-## References (Optional)
-
-- Index: `references/README.md`

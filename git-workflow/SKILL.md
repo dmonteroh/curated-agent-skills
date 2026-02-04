@@ -17,6 +17,11 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - Base branch name (default: `main`) and remote name (default: `origin`).
 - Risk tolerance for history edits (allowed to rebase/squash? force-with-lease ok?).
 
+## Prerequisites
+
+- `git` CLI is available in the environment.
+- Network access is optional. If offline or no remotes are configured, skip steps that require `git fetch` or `git push`.
+
 ## Use this skill when
 
 - Preparing a clean PR (commit messages, splitting/squashing, rebase onto main).
@@ -93,6 +98,7 @@ Scripts are optional helpers and use only local `git` commands.
 - `scripts/git_prune_local_branches.sh`
   - Usage: `./scripts/git_prune_local_branches.sh [base]`
   - Verifies: lists deleted local branches and prints `OK`.
+  - Notes: attempts `git fetch --prune`; if offline, the script safely continues.
 
 ## Examples
 
@@ -147,3 +153,4 @@ When you run this skill, report in this format:
 ## Core playbooks (load as needed)
 
 - Start with `references/README.md` for the index and summaries.
+- External references are optional; use only if network access is permitted.

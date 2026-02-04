@@ -6,7 +6,7 @@ category: database
 
 # database-cost-optimization
 
-Reduce database spend while keeping performance and reliability intact.
+Provides guidance to reduce database spend while protecting performance and reliability.
 
 ## Use this skill when
 
@@ -35,7 +35,7 @@ Reduce database spend while keeping performance and reliability intact.
 - At least one signal: cost allocation, utilization metrics, or query profile.
 - Reliability requirements (RPO/RTO, HA/SLA, peak windows).
 
-If any required inputs are missing, ask for them before proceeding.
+If required inputs are missing, the skill requests them before proceeding.
 
 ## Workflow
 
@@ -86,7 +86,7 @@ Verification: canary 10%, watch p95 latency < 50ms, rollback if > 65ms
 
 ## Output contract
 
-Provide a report with these sections and keep the format consistent:
+Produces a report with these sections and a consistent format:
 
 ```
 DB Cost Optimization Report

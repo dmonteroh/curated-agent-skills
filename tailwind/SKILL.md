@@ -4,7 +4,7 @@ description: "Build and maintain Tailwind CSS systems fast without framework loc
 category: frontend
 ---
 
-# Tailwind Pro
+# Tailwind CSS
 
 This skill is Tailwind-specific and intentionally framework-agnostic (React/Svelte/Vue/Angular all work).
 
@@ -17,8 +17,8 @@ This skill is Tailwind-specific and intentionally framework-agnostic (React/Svel
 
 ## Do not use this skill when
 
-- You are choosing a frontend framework or component library (use stack-specific skills)
-- You only need UI critique (use UI/UX skills)
+- The task is only selecting a frontend framework or component library
+- The task is only UI critique without Tailwind implementation scope
 
 ## Trigger phrases
 

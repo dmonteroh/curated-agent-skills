@@ -6,7 +6,7 @@ category: language
 
 # .NET Core
 
-Deliver production-grade .NET services with modern patterns and clear verification.
+Provides guidance for production-grade .NET services with modern patterns and clear verification.
 
 ## Use this skill when
 
@@ -18,8 +18,8 @@ Deliver production-grade .NET services with modern patterns and clear verificati
 
 ## Do not use this skill when
 
-- You are working in another language/runtime
-- You only need generic API design guidance without .NET-specific code changes
+- The work is in another language/runtime
+- The task only needs generic API design guidance without .NET-specific code changes
 
 ## Trigger phrases
 

@@ -1,6 +1,6 @@
 # Svelte Deployment Notes
 
-This file is a compact checklist; exact steps depend on your adapter/runtime.
+This file is a compact checklist; exact steps depend on the adapter/runtime.
 
 ## Common gotchas
 

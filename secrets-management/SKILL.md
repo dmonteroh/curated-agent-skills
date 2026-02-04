@@ -6,7 +6,7 @@ category: security
 
 # Secrets Management
 
-This skill is about preventing secret leakage and making secret access auditable and maintainable.
+Provides guidance to prevent secret leakage and make access auditable and maintainable.
 
 ## Trigger phrases
 
@@ -26,6 +26,18 @@ This skill is about preventing secret leakage and making secret access auditable
 
 - You only need local dev values that will never be shared (use `.env` locally, never commit)
 - You cannot secure access to any secrets backend
+
+## Required inputs
+
+- Target environments and workloads (CI/CD, runtime, or both)
+- Current secret locations and owners (source control, env vars, secret managers)
+- Access constraints (identity provider, IAM policies, compliance requirements)
+- Rotation expectations and incident response requirements
+
+## Constraints
+
+- Never request or output real secret values; use placeholders when needed
+- Avoid guidance that depends on external network access or time-sensitive data
 
 ## Workflow (Deterministic)
 
@@ -105,6 +117,7 @@ This skill is about preventing secret leakage and making secret access auditable
 
 ## Resources (Optional)
 
+- References index: `references/README.md`
 - Implementation playbook (patterns + examples): `resources/implementation-playbook.md`
 - Vault setup notes: `references/vault-setup.md`
 - GitHub secrets hygiene: `references/github-secrets.md`

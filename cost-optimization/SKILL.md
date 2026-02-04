@@ -1,26 +1,26 @@
 ---
 name: cost-optimization
-description: "Cloud FinOps and cost governance: tagging/chargeback, budgets/anomaly detection, rightsizing, commitment strategy (RIs/Savings Plans/CUDs), and unit-cost analysis. Produces a prioritized savings plan with verification gates."
+description: "Cloud FinOps cost governance for reducing cloud spend while maintaining reliability. Use when teams need tagging/chargeback, budgets/anomaly detection, rightsizing, commitment strategy (RIs/Savings Plans/CUDs), or unit-cost analysis. Produces a prioritized savings plan with verification gates."
 category: devops
 ---
 
 # Cost Optimization (Cloud FinOps)
 
-This skill is about reducing cloud spend safely while maintaining reliability and performance.
+Provides a deterministic workflow to reduce cloud spend safely while maintaining reliability and performance.
 
 ## Use this skill when
 
-- You need to reduce cloud spend (quick wins + 30/90-day program)
-- You need tagging/label standards and cost allocation
-- You need budgets, alerts, and anomaly detection
-- You need rightsizing and commitment strategy (RIs/Savings Plans/CUDs)
-- You want unit economics (cost per request/job/tenant)
+- A team needs to reduce cloud spend (quick wins + 30/90-day program)
+- A team needs tagging/label standards and cost allocation
+- A team needs budgets, alerts, and anomaly detection
+- A team needs rightsizing and commitment strategy (RIs/Savings Plans/CUDs)
+- A team wants unit economics (cost per request/job/tenant)
 
 ## Do not use this skill when
 
-- You need cloud architecture/platform selection or migrations
-- You need CI/CD or deployment mechanics
-- You need database-specific tuning and cost/performance tradeoffs
+- The request is for cloud architecture/platform selection or migrations
+- The request is for CI/CD or deployment mechanics
+- The request is for database-specific tuning and cost/performance tradeoffs
 
 ## Trigger phrases
 
@@ -44,8 +44,10 @@ This skill is about reducing cloud spend safely while maintaining reliability an
    - Decision: if scope/constraints are unclear, ask for the missing details before continuing.
 2. Establish cost allocation baseline (tags/labels, budgets, anomaly alerts).
    - Output: required tags/labels list + current coverage gaps.
+   - Decision: if tag coverage is too low to attribute costs, define the tagging remediation plan before optimization.
 3. Identify top cost drivers by category and owner.
    - Output: top drivers table with root causes and affected services.
+   - Decision: if billing data is unavailable, request a cost export or dashboard access before continuing.
 4. Build quick wins backlog (idle cleanup, egregious sizing, retention policies).
    - Output: prioritized quick wins with estimated savings ranges and risk level.
 5. Build structural wins plan (autoscaling, commitment strategy, data flow changes).

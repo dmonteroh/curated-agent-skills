@@ -1,6 +1,6 @@
 ---
 name: ui-visual-validator
-description: Verify UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs). Catch regressions, design-system drift, responsive breakage, and visual accessibility issues (focus visibility, contrast, readability).
+description: Verifies UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs) to catch regressions, design-system drift, responsive breakage, and visual accessibility issues.
 category: design
 ---
 
@@ -10,10 +10,10 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 
 ## Use this skill when
 
-- You need to confirm a UI change is actually correct (not just "different")
-- You want to catch visual regressions before merge/release
-- You need a deterministic checklist for responsive + state coverage
-- You need a visual accessibility pass (focus visibility, contrast concerns, readability)
+- Confirming a UI change is actually correct (not just "different")
+- Catching visual regressions before merge/release
+- Needing a deterministic checklist for responsive + state coverage
+- Running a visual accessibility pass (focus visibility, contrast concerns, readability)
 
 ### Trigger phrases
 
@@ -25,8 +25,8 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 
 ## Do not use this skill when
 
-- You are designing a UI or exploring new layouts
-- You have no visual evidence and cannot provide a URL + repro steps
+- Designing a UI or exploring new layouts
+- Lacking visual evidence and a URL + repro steps
 
 ## Required inputs
 
@@ -98,6 +98,7 @@ Use this exact section order:
 
 - Report scaffold script: `scripts/visual_report.sh`
 - Usage: `./scripts/visual_report.sh "<subject>" <output-path>`
+- Requirements: bash, standard coreutils (`date`, `mkdir`, `dirname`).
 - Verification: confirm the report file exists and open it to fill in findings.
 
 ## References (Optional)

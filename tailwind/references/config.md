@@ -1,6 +1,6 @@
 # Tailwind Config Essentials (content, safelist, theme, plugins)
 
-This is intentionally short. Verify specifics against your Tailwind version docs.
+This is intentionally short. Verify specifics against the Tailwind version docs.
 
 ## `content`
 
@@ -9,7 +9,7 @@ Goal: include every path that can produce Tailwind class names at build time.
 Checklist:
 
 - include app sources (e.g., `src/**/*.{ts,js,html,svelte,vue,tsx,jsx}`)
-- include component libraries that ship templates (if you use them)
+- include component libraries that ship templates
 - include MD/MDX if class names appear there
 
 Failure mode:
@@ -22,7 +22,7 @@ Use only when class names are constructed dynamically (string concatenation, CMS
 
 Rules:
 
-- prefer *tight* patterns scoped to a namespace you own (e.g., `ui-`).
+- prefer *tight* patterns scoped to a namespace owned by the system (e.g., `ui-`).
 - prefer enumerating explicit class lists when the set is small.
 - keep variants explicit (`hover`, `focus`, `disabled`, etc.)
 
@@ -52,5 +52,4 @@ Pick one strategy and make it consistent:
 
 Keep plugins minimal and intentional.
 
-- if you add plugins, document *why* and how they change class surfaces
-
+- if plugins are added, document *why* and how they change class surfaces

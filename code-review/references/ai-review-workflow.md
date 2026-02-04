@@ -1,21 +1,22 @@
-# AI Review Workflow (Condensed)
+# AI-Assisted Review Workflow (Condensed)
 
 ## Scope
 
 - Security, performance, architecture, maintainability, tests.
-- Use static analysis first, then AI for context-sensitive issues.
+- Prefer static analysis first, then AI for context-sensitive issues.
 
-## Suggested Toolchain
+## Local Tooling (optional)
 
-- CodeQL or Semgrep for security.
-- SonarQube for code smells.
-- Snyk for dependencies.
+- Run local static analysis tools already available in the repo.
+- Record when tooling is unavailable rather than assuming results.
 
-## Multi-Agent Review
+## Workflow
 
-- Dispatch domain reviewers (security, perf, architecture).
-- Merge findings with severity ranking.
-- Resolve conflicts before final report.
+1) Collect diff context and run optional scans.
+2) Summarize the change intent and constraints.
+3) Apply the mode checklists to identify risks and gaps.
+4) Draft findings with severity and concrete fixes.
+5) Deliver the final report in the output format.
 
 ## Output Expectations
 

@@ -30,7 +30,7 @@ One testing skill that covers:
 - "make our tests faster/flaky"
 - "mock the API so frontend can proceed"
 
-## Inputs you need
+## Required inputs
 
 - Code or behavior to test (files, diff, or explicit requirements).
 - Target runtime/framework (language + test runner).
@@ -95,7 +95,7 @@ Goal: test API behavior with strong signal and enable parallel development witho
 Use when:
 - Frontend/client work needs stable API behavior before the backend is ready.
 - Integration tests need to replace third-party/partner APIs with deterministic stubs.
-- You want API contract confidence (schemas, error shapes, pagination/auth semantics).
+- API contract confidence is needed (schemas, error shapes, pagination/auth semantics).
 
 Defaults:
 - Prefer in-process stubs/mocks where possible (cheapest, least brittle).
@@ -131,6 +131,15 @@ Use this format whenever the skill runs:
 Trigger test prompts:
 - "Add unit tests for the new validation function"
 - "Create a testing strategy for our checkout flow"
+
+Example output (unit mode):
+- Mode: unit
+- Scope: src/validators/email.ts validation paths
+- Assumptions: email regex is authoritative
+- Work completed: added coverage for success/error cases
+- Files touched or created: src/validators/email.test.ts
+- Tests run: `npm test -- email.test.ts`
+- Risks/gaps + recommended follow-ups: add property-based tests
 
 ## Quick start (in a real repo)
 

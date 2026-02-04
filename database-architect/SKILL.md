@@ -6,7 +6,7 @@ category: database
 
 # Database Architect
 
-This skill is DB-architecture and modeling focused (not query-by-query tuning).
+Provides database architecture and modeling guidance (not query-by-query tuning).
 
 ## Use this skill when
 
@@ -30,35 +30,35 @@ This skill is DB-architecture and modeling focused (not query-by-query tuning).
 
 ## Workflow (Deterministic)
 
-1) Inputs (must be explicit)
-- Entities + invariants (what must always be true).
-- Access patterns (reads/writes, filters/sorts/joins, hot paths).
-- Scale targets (rows, QPS, retention, growth).
-- Consistency + latency requirements (and what can be eventually consistent).
-Output: requirements summary with assumptions and open questions.
+1) Collect inputs (must be explicit)
+- Captures entities + invariants (what must always be true).
+- Captures access patterns (reads/writes, filters/sorts/joins, hot paths).
+- Captures scale targets (rows, QPS, retention, growth).
+- Captures consistency + latency requirements (and what can be eventually consistent).
+Produces: requirements summary with assumptions and open questions.
 
-2) Pick the storage model
-- Start with the simplest model that fits invariants and access patterns.
-- Consider operational complexity and failure modes, not just raw throughput.
+2) Select the storage model
+- Starts with the simplest model that fits invariants and access patterns.
+- Considers operational complexity and failure modes, not just raw throughput.
 Decision: If invariants require strong relational constraints, prefer relational.
 Decision: If primary access is time-windowed append, prefer time-series/partitioning.
-Output: 2-3 candidate storage models with tradeoffs.
+Produces: 2-3 candidate storage models with tradeoffs.
 
 3) Model the data
-- Tables/collections, primary keys, relationships.
-- Constraints for invariants (NOT NULL, UNIQUE, CHECK, FK where appropriate).
-- Indexes for real access paths (not theoretical ones).
-Output: schema sketch + index plan tied to access patterns.
+- Defines tables/collections, primary keys, relationships.
+- Specifies constraints for invariants (NOT NULL, UNIQUE, CHECK, FK where appropriate).
+- Maps indexes to real access paths (not theoretical ones).
+Produces: schema sketch + index plan tied to access patterns.
 
 4) Plan evolution + safety
-- Migration steps (expand/contract when needed).
-- Backups, rollback strategy, and validation plan.
-Output: migration/rollback plan with verification steps.
+- Describes migration steps (expand/contract when needed).
+- Documents backups, rollback strategy, and validation plan.
+Produces: migration/rollback plan with verification steps.
 
 5) Synthesize recommendation
-- Choose the primary option and note why alternatives were rejected.
-- Provide operational risks and mitigations.
-Output: final recommendation in the reporting format below.
+- Selects the primary option and notes why alternatives were rejected.
+- Provides operational risks and mitigations.
+Produces: final recommendation in the reporting format below.
 
 ## Common pitfalls
 

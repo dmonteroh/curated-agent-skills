@@ -32,23 +32,23 @@ category: database
 
 ## Workflow (step-by-step)
 
-1. **Confirm scope and baseline.**
+1. **Confirms scope and baseline.**
    - Output: concise problem statement + baseline metrics table.
-2. **Collect evidence.**
-   - Gather query plans (`EXPLAIN`/equivalent), slow query logs, and lock/connection stats.
+2. **Collects evidence.**
+   - Gathers query plans (`EXPLAIN`/equivalent), slow query logs, and lock/connection stats.
    - Output: evidence summary and the top 3–5 suspects.
-3. **Classify the bottleneck (decision points).**
+3. **Classifies the bottleneck (decision points).**
    - If plans show sequential/full scans on selective filters → propose index or rewrite.
    - If lock waits dominate → reduce transaction scope, adjust isolation, batch writes.
    - If pool saturation → right-size pool, check DB max connections, add timeouts.
    - If IO/bloat → vacuum/analyze/rebuild strategy and data retention plan.
    - Output: primary bottleneck class + supporting evidence.
-4. **Design fixes with rollout safety.**
-   - Provide 1–3 ranked options with risks, expected impact, and required changes.
-   - Include zero/low-downtime rollout guidance (concurrent index builds where supported).
+4. **Designs fixes with rollout safety.**
+   - Provides 1–3 ranked options with risks, expected impact, and required changes.
+   - Includes zero/low-downtime rollout guidance (concurrent index builds where supported).
    - Output: recommended change set + verification criteria.
-5. **Validate and guard against regressions.**
-   - Specify before/after metrics, plan diffs, and any test/benchmark additions.
+5. **Validates and guards against regressions.**
+   - Specifies before/after metrics, plan diffs, and any test/benchmark additions.
    - Output: validation checklist + rollback plan.
 
 ## Common pitfalls to avoid
@@ -75,6 +75,8 @@ category: database
 - “Can you help fix a slow JOIN query with high IO?”
 
 ## Output format
+
+Produces a report with these sections:
 
 - **Summary**: 2–3 sentence diagnosis.
 - **Evidence**: key metrics, plans, and logs used.

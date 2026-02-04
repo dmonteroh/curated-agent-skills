@@ -6,7 +6,7 @@ category: devops
 
 # Deployment Engineer
 
-This skill is for shipping changes safely: pipelines, releases, progressive delivery, and operational guardrails.
+Provides guidance for shipping changes safely with pipelines, releases, progressive delivery, and operational guardrails.
 
 ## Use this skill when
 
@@ -30,10 +30,19 @@ This skill is for shipping changes safely: pipelines, releases, progressive deli
 - "add config validation gate"
 - "GitOps deployment workflow"
 
+## Required inputs
+
+- Repo/tooling context (CI system, deployment tooling, runtime platform)
+- Environments and promotion path
+- Release cadence and change windows
+- SLOs or error budget constraints
+- Constraints (compliance, approvals, security requirements)
+
 ## Workflow (Deterministic)
 
 1. Capture inputs (repo/tooling, environments, release cadence, constraints, SLOs).
    - Output: input checklist and missing info questions.
+   - If inputs are missing, stop and list questions before proceeding.
 2. Map environments and promotion path (dev -> staging -> prod).
    - Output: environment map with promotion rules.
 3. Define quality gates and config validation.
@@ -63,9 +72,14 @@ This skill is for shipping changes safely: pipelines, releases, progressive deli
 
 **Example response outline**
 - Pipeline: PR checks -> build -> test -> validate-config -> deploy-staging -> canary-prod -> verify
-- Rollout: 10% canary for 15 minutes; rollback on 5xx > threshold
+- Rollout: 10% canary for a defined window; rollback on 5xx > threshold
 - Config validation: schema + env diff checks in `validate-config`
 - Runbook: deploy, pause, rollback, and troubleshooting steps
+
+## Trigger test
+
+- "Create a release workflow with approvals and rollback triggers."
+- "Add a canary rollout with validation gates before production."
 
 ## Output format
 
@@ -77,7 +91,7 @@ Return these sections in order:
 5. Runbook & Observability
 6. Open Questions / Risks
 
-## Output Contract (Always)
+## Output contract (Always)
 
 - Pipeline stage diagram (or bullet list) with gates and required artifacts
 - Rollout/rollback plan and stop conditions

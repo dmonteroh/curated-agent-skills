@@ -1,6 +1,6 @@
 ---
 name: google-stitch-ai
-description: Create DESIGN.md summaries from Google Stitch projects or offline assets, and refine Stitch-ready UI prompts using extracted design tokens.
+description: Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens.
 category: ai
 allowed-tools:
   - "Read"
@@ -9,7 +9,7 @@ allowed-tools:
 
 # Google Stitch AI
 
-One combined skill for Stitch workflows:
+Provides two workflows for Stitch tasks:
 - **Design System Synthesis**: Generate `DESIGN.md` from Stitch projects or provided assets.
 - **Prompt Enhancement**: Turn vague UI ideas into structured, Stitch-optimized prompts.
 
@@ -34,13 +34,14 @@ One combined skill for Stitch workflows:
 
 ## Required inputs
 
-- **Mode A (DESIGN.md)**: Stitch MCP access *or* offline assets (HTML/CSS export plus screenshots).
-- **Mode B (Prompt Enhancement)**: Draft prompt plus target platform (web/mobile) and optional `DESIGN.md`.
+- **Mode A (DESIGN.md)**: Stitch project data (exported files or offline assets), screenshots, and project title.
+- **Mode B (Prompt Enhancement)**: Draft prompt, target platform (web/mobile), and optional `DESIGN.md`.
 
 ## Decision points
 
-- If Stitch MCP access is available, use it for accurate theme data.
-- If MCP is unavailable, rely on offline HTML/CSS and screenshots.
+- If the request includes both a design summary and prompt refinement, complete Mode A first, then Mode B.
+- If Stitch project data is provided, use it for accurate theme data.
+- If only offline HTML/CSS and screenshots are provided, rely on those sources.
 - If key inputs are missing (palette, typography, layout), ask for them before final output.
 
 ## Mode A: DESIGN.md Synthesis
@@ -48,7 +49,7 @@ One combined skill for Stitch workflows:
 ### Step-by-step
 
 1. **Choose retrieval path.**
-   - If MCP is available, collect project metadata + screen HTML/screenshot.
+   - If Stitch project data is provided, collect metadata + screen HTML/screenshot.
    - If offline, collect HTML/CSS export + screenshots + project title.
    - **Output:** asset bundle summary.
 2. **Extract visual theme details.**
@@ -106,6 +107,7 @@ One combined skill for Stitch workflows:
 - **Mode A:** Provide `DESIGN.md`, plus any open questions for missing tokens.
 - **Mode B:** Provide enhanced prompt in Markdown and state whether `DESIGN.md` was used.
 - If `DESIGN.md` is missing, recommend creating it via Mode A.
+- End with the reporting format described below.
 
 ## Common pitfalls to avoid
 
@@ -148,7 +150,7 @@ Provide results in this structure:
 ```
 ## Output
 - Mode: DESIGN.md | Prompt
-- Inputs used: MCP | Offline (list assets)
+- Inputs used: Project data | Offline assets (list assets)
 - Files created/updated: <paths or none>
 - Open questions: <list or none>
 ```

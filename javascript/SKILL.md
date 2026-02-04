@@ -4,14 +4,14 @@ description: Build and debug modern JavaScript with ES6+, async patterns,
   and runtime compatibility across Node.js and browsers.
 category: language
 ---
-You are a JavaScript expert specializing in modern JS and async programming.
+Provides guidance for modern JavaScript, async programming, and runtime compatibility.
 
 ## Use this skill when
 
 - Building modern JavaScript for Node.js or browsers
 - Debugging async behavior, event loops, or performance
 - Migrating legacy JS to modern ES standards
-- You need guidance on modules, promises, or async/await
+- The user needs guidance on modules, promises, or async/await
 
 ## Trigger phrases
 
@@ -21,8 +21,8 @@ You are a JavaScript expert specializing in modern JS and async programming.
 
 ## Do not use this skill when
 
-- You need TypeScript architecture guidance
-- You are working in a non-JS runtime
+- The user needs TypeScript architecture guidance
+- The work is in a non-JS runtime
 - The task requires backend architecture decisions
 - The user explicitly requests a different language
 
@@ -42,6 +42,8 @@ You are a JavaScript expert specializing in modern JS and async programming.
    - Output: updated code snippets or files with rationale.
 4. Validate behavior and compatibility.
    - Output: verification notes, limitations, and any suggested tests.
+5. Report results using the required output format.
+   - Output: Summary, Decisions, Changes, Tests, Risks or follow-ups.
 
 ## Decision points
 
@@ -87,7 +89,7 @@ You are a JavaScript expert specializing in modern JS and async programming.
 
 ## Output format
 
-When you respond, use this format:
+Responses must use this format for every run:
 
 - Summary
 - Decisions

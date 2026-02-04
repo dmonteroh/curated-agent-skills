@@ -4,18 +4,18 @@ description: Write safe, portable shell scripts (POSIX/Bash) for automation and 
 category: workflow
 ---
 
-# Shell Scripting Pro
+# Shell Scripting
 
 ## Use this skill when
 
 - Writing Bash or POSIX shell scripts for automation
 - Building CI/CD helpers, installers, or local tooling
-- You need portable, reliable command-line glue
+- Need portable, reliable command-line glue
 
 ## Do not use this skill when
 
 - The task requires another language runtime or SDK
-- You need interactive TUI apps or rich UIs
+- Building interactive TUI apps or rich UIs
 - The job is primarily configuration (use native config instead)
 
 ## Trigger phrases
@@ -34,7 +34,7 @@ category: workflow
 
 ## Workflow (Deterministic)
 
-1. Confirm scope and portability.
+1. Provide scope and portability confirmation.
    - Decision: if the script must run under `/bin/sh`, choose POSIX; otherwise use Bash.
    - Output: a short checklist of constraints (shell, OS, inputs, outputs).
 2. Define interface and usage.
@@ -67,11 +67,12 @@ category: workflow
 
 ## Output contract
 
-- `Summary`: what the script does and target shell.
-- `Assumptions`: any inferred paths, OS, or tools.
-- `Script`: the full script content or file changes.
-- `Usage`: example command line invocation.
-- `Verification`: commands to validate behavior (no network assumptions).
+- Report in the following order:
+  - `Summary`: what the script does and target shell.
+  - `Assumptions`: any inferred paths, OS, or tools.
+  - `Script`: the full script content or file changes.
+  - `Usage`: example command line invocation.
+  - `Verification`: commands to validate behavior (no network assumptions).
 
 ## Trigger test
 

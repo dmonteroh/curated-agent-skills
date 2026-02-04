@@ -49,9 +49,8 @@ Always render:
 
 Prefer `+server.ts` when:
 
-- request is not a form (API client)
-- you need streaming/binary
-- you need custom auth/header semantics per call
+- the request is not a form (API client)
+- streaming/binary responses are required
+- custom auth/header semantics are required per call
 
 Otherwise, actions are usually the fastest, safest default for app mutations.
-

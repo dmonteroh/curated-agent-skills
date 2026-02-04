@@ -1,22 +1,24 @@
 ---
 name: api-documenter
-description: Create or improve API documentation (OpenAPI, AsyncAPI, GraphQL) for
-  developer-facing APIs, including interactive docs, code examples, and portal content.
+description: Create or improve API documentation (OpenAPI, AsyncAPI, GraphQL) when
+  developer-facing APIs need accurate docs, interactive references, and code examples.
 category: docs
 ---
+# API Documenter
+
 Provides API documentation guidance focused on accurate, developer-friendly docs that reduce integration time.
 
 ## Use this skill when
 
-- You need to create or update API documentation for public or internal users
-- You must author or refine OpenAPI, AsyncAPI, or GraphQL docs
-- You need interactive docs, SDK snippets, or onboarding materials
-- You want to audit documentation for completeness and accuracy
+- The task requires creating or updating API documentation for public or internal users
+- The task requires authoring or refining OpenAPI, AsyncAPI, or GraphQL docs
+- The request includes interactive docs, SDK snippets, or onboarding materials
+- The task is an audit of documentation completeness and accuracy
 
 ## Do not use this skill when
 
 - The task is only backend implementation with no documentation work
-- You only need an informal note or meeting summary
+- The request is only an informal note or meeting summary
 - There is no API surface or interface to document
 
 ## Trigger phrases
@@ -78,7 +80,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 
 ## Output contract
 
-Report results in this format:
+Report results in this format and order (use "None" when not applicable):
 
 - Summary: what was documented or updated
 - Spec updates: files or sections created/changed
@@ -89,7 +91,12 @@ Report results in this format:
 ## Examples
 
 **Input**: "Document the Payments API and add OpenAPI examples."
-**Output**: Documentation plan, updated OpenAPI outline, example request/response snippets, and a QA checklist.
+**Output**:
+- Summary: Documented Payments API auth, endpoints, errors, and examples.
+- Spec updates: Added new OpenAPI paths, schemas, and example payloads.
+- Docs output: Wrote onboarding and endpoint pages with one example per endpoint.
+- Open questions: Confirm required scopes for refund endpoints.
+- Verification: Spec/doc consistency check not run (inputs missing).
 
 **Trigger test prompts**
 

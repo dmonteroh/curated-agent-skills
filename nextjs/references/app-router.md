@@ -1,6 +1,6 @@
 # App Router Patterns
 
-Use this for file conventions, layouts, route groups, and advanced routing patterns.
+Provides file conventions, layouts, route groups, and advanced routing patterns.
 
 ## File Conventions
 

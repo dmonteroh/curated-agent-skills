@@ -75,6 +75,9 @@ scripts/tcd.sh intake "Title"
 - Output: new TD file + updated `work_index.md` intake table.
 - Template and quality bar: `references/templates.md`.
 
+Decision point:
+- If the intake is unclear or missing a success signal, revise the TD before promotion.
+
 ### 2) Promote intake -> task brief
 
 When accepted, promote the TD to an executable task brief:
@@ -84,6 +87,9 @@ scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md
 ```
 
 - Output: new task brief + updated `task_status.md` + updated index tables.
+
+Decision point:
+- If the work is not actionable yet, keep it as intake and add required discovery notes.
 
 ### 3) Organize into a track (spec + plan)
 
@@ -96,11 +102,17 @@ scripts/tcd.sh track "Track title"
 - Output: track folder with `spec.md`, `plan.md`, `context.md` + updated tracks registry/index.
 - Track templates: `references/templates.md`.
 
+Decision point:
+- If multiple tasks share dependencies or milestones, group them under a single track.
+
 ### 4) Execute using workflow patterns
 
 Execution is performed per task (TDD/workflow checkpoints, verification, commit hygiene):
 - Output: implementation updates plus task status transitions.
 - Follow `references/execution-playbook.md` as the default execution protocol.
+
+Decision point:
+- If execution needs new context or spec updates, update the track files before coding.
 
 ### 5) Futures + ADR integration
 
@@ -126,6 +138,13 @@ To validate:
 - index blocks exist and cover all artifacts
 - required sections exist in intake/tasks/tracks
 
+## Common mistakes to avoid
+
+- Skipping the intake template quality bar before promotion.
+- Creating tracks without linking tasks in `tracks.md` and `work_index.md`.
+- Letting task status drift from actual execution state.
+- Editing managed index blocks by hand instead of using the scripts.
+
 ## Scripts
 
 Entry point:
@@ -147,13 +166,13 @@ scripts/tcd.sh validate
 
 ## Output contract
 
-When this skill runs, report:
+When this skill runs, report using this format:
 
-- Actions taken (init, intake, promote, track, future, index, validate)
-- Files created/updated with paths
-- Any status transitions applied
-- Any missing inputs or follow-ups needed
-- Validation results (command + outcome)
+- Actions: init/intake/promote/track/future/index/validate as used
+- Files: created/updated paths
+- Status: transitions applied or unchanged
+- Follow-ups: missing inputs or next steps
+- Validation: command + outcome
 
 ## Examples
 

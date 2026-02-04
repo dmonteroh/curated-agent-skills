@@ -6,7 +6,7 @@ from pypdf import PdfReader, PdfWriter
 from extract_form_field_info import get_field_info
 
 
-# Fills fillable form fields in a PDF. See references/forms.md.
+# Fills fillable form fields in a PDF. See references/forms-fillable-fields.md.
 
 
 def fill_pdf_fields(input_pdf_path: str, fields_json_path: str, output_pdf_path: str):

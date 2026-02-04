@@ -10,6 +10,6 @@
 
 ## Notes
 
-- Use CSS variables for theming.
-- Prefer semantic names (`primary`, `surface`) over raw colors.
+- CSS variables support theming.
+- Semantic names (`primary`, `surface`) are preferred over raw colors.
 - Keep tokens centralized in `tailwind.config.*` and global CSS.

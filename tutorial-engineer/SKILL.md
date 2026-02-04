@@ -8,9 +8,9 @@ category: docs
 
 ## Use this skill when
 
-- You need to create a tutorial, onboarding guide, or workshop
-- You need a progressive, hands-on walkthrough from code or requirements
-- You must translate complex concepts into teachable steps
+- A tutorial, onboarding guide, or workshop is needed
+- A progressive, hands-on walkthrough from code or requirements is required
+- Complex concepts must be translated into teachable steps
 
 **Trigger phrases**
 
@@ -22,7 +22,7 @@ category: docs
 ## Do not use this skill when
 
 - The task is unrelated to creating tutorials or learning materials
-- The user only needs a quick answer, not a guided learning path
+- A quick answer is enough and a guided learning path is unnecessary
 - The request is for documentation types like API reference or changelog
 
 ## Instructions
@@ -52,8 +52,6 @@ category: docs
 - If the scope is too large for a single tutorial, propose splitting into modules.
 - If examples are non-runnable, label them as pseudo and explain how to validate.
 
-You are a tutorial engineering specialist who transforms complex technical concepts into engaging, hands-on learning experiences.
-
 ## References
 See `references/README.md` for detailed pedagogy, formats, and writing guidelines.
 
@@ -73,7 +71,7 @@ See `references/README.md` for detailed pedagogy, formats, and writing guideline
 
 **Example output excerpt**
 
-"Step 2: Register the OAuth callback route. Update apps/web/src/auth.ts with the callback handler. Run `npm test auth` and confirm you see `OAuth callback registered` in the test output."
+"Step 2: Register the OAuth callback route. Update apps/web/src/auth.ts with the callback handler. Run `npm test auth` and confirm the test output includes `OAuth callback registered`."
 
 ## Trigger Test
 
@@ -85,9 +83,10 @@ See `references/README.md` for detailed pedagogy, formats, and writing guideline
 Provide the following in order:
 
 1. **Scope summary**: audience, goal, prerequisites.
-2. **Tutorial Markdown**: the full walkthrough.
-3. **Verification checklist**: how to validate each stage.
-4. **Assumptions or open questions**.
+2. **Objectives**: measurable outcomes and checkpoints.
+3. **Tutorial Markdown**: the full walkthrough.
+4. **Verification checklist**: how to validate each stage.
+5. **Assumptions or open questions**.
 
 ## Reporting Format
 
@@ -96,5 +95,3 @@ Provide the following in order:
 - Tutorial:
 - Verification:
 - Assumptions/Questions:
-
-Remember: Your goal is to create tutorials that transform learners from confused to confident, ensuring they not only understand the code but can apply concepts independently.
