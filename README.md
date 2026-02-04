@@ -55,6 +55,10 @@ Run:
 
 This checks skill definitions for common issues and produces a report for review. Auditing requires the `tiktoken` library. See `scripts/auditing/README.md` for setup, usage, and references used to build the checklist.
 
+## Skill install locations
+
+See `SKILL_INSTALL_LOCATIONS.md` for project‑level and user‑level install paths across Codex and other agents, plus notes on how to target a specific folder.
+
 ## Generate content table
 
 Run:

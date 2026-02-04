@@ -6,12 +6,14 @@ Script: `scripts/codex_skills_sync.py`
 
 ## What It Does
 
-- Copies selected skill folders (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills`).
+- Copies selected skill folders (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills`). You can use `--dest` to have them installed in a specific folder
 - Lets you select skills by name, index, or range.
 - Safe-by-default:
   - does not overwrite existing installed skills unless you pass `--force`
   - does not delete anything unless you pass `--prune`
   - when overwriting with `--force`, backups are opt-in via `--backup`
+
+For a broader overview of project‑level vs user‑level install paths (Codex + other agents), see `SKILL_INSTALL_LOCATIONS.md`.
 
 ## Quick Start (Interactive)
 
@@ -97,7 +99,7 @@ Install specific skills by name:
 ./scripts/codex_skills_sync.py --select "tracks-conductor-protocol,adr-madr-system"
 ```
 
-Install everything:
+Install everything (not recommended):
 
 ```sh
 ./scripts/codex_skills_sync.py --all
@@ -106,7 +108,19 @@ Install everything:
 Install to a custom directory:
 
 ```sh
-./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react,svelte"
+./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react,typescript"
+```
+
+Install into a project‑level folder (repo‑local):
+
+```sh
+./scripts/codex_skills_sync.py --dest "./.codex/skills" --select "react,typescript"
+```
+
+Install into a user‑level folder (home‑level):
+
+```sh
+./scripts/codex_skills_sync.py --dest "~/.codex/skills" --select "react,typescript"
 ```
 
 Overwrite existing installed skills:
@@ -146,7 +160,7 @@ Show version:
 - `all` or `*`
 - indices: `1,4,8`
 - ranges: `1-5`
-- names: `react,svelte`
+- names: `react,typescript`
 - mixed: `1-5,react`
 
 ## Output
