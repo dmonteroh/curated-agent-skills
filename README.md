@@ -1,4 +1,4 @@
-# codex-curated-skills
+# curated-agent-skills
 
 Curated skills for Codex. Each skill lives in its own folder and is defined by a `SKILL.md` file.
 
