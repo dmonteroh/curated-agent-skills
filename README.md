@@ -1,10 +1,15 @@
 # curated-agent-skills
 
-Curated skills for Codex. Each skill lives in its own folder and is defined by a `SKILL.md` file.
+Curated skills for Codex. Each skill lives under `skills/<skill-name>/` and is defined by a `SKILL.md` file.
 
 ## What’s here
 
 `SKILL.md` files are the source of truth for each skill’s name, description, category, and workflow. The repo also includes a generated content table for quick discovery.
+
+## Requirements
+
+- Python 3.10+ to run scripts in `scripts/`
+- Optional: `tiktoken` for exact token checks in the audit script
 
 ## Quick start
 
@@ -28,7 +33,7 @@ In Visual Studio Code this can be done by selecting the `Developer: Reload Windo
 
 ## Skill Conventions
 
-- One skill per top-level folder (excluding `scripts`).
+- One skill per folder under `skills/`.
 - Keep skill definitions in `SKILL.md` with minimal, readable frontmatter, including a `category`.
 - Prefer scripts and referenced assets over duplicating long instructions.
 
@@ -40,20 +45,28 @@ Use it as a starting template or merge it into your existing `AGENTS.md`. The fi
 
 ## Contributing
 
-1. Add or update a skill folder with `SKILL.md`.
+1. Add or update a skill folder under `skills/` with `SKILL.md`.
 2. Run the Audit Skill script to ensure quality.
 3. Run the content table generator.
 4. Keep changes focused and deterministic.
 
 ## Auditing skills
 
-Run:
+Run (recommended):
 
 ```bash
-.venv/bin/python scripts/audit_skills.py
+./scripts/audit-skills.sh
 ```
 
-This checks skill definitions for common issues and produces a report for review. Auditing requires the `tiktoken` library. See `scripts/auditing/README.md` for setup, usage, and references used to build the checklist.
+This creates a local `.venv`, installs audit dependencies, and runs the audit with token checks enabled.
+
+If you explicitly want to skip token checks:
+
+```bash
+./scripts/audit-skills.sh --no-token-checks
+```
+
+See `scripts/auditing/README.md` for setup, usage, and references used to build the checklist.
 
 ## Skill install locations
 

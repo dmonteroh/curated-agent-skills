@@ -17,7 +17,7 @@ This is a concise execution protocol for implementing tasks created with Tracks 
    - Make the minimal change to satisfy one acceptance criterion at a time
    - Run checks frequently
 5. Record completion:
-   - Update `docs/project/task_status.md`
+   - Update task frontmatter (`status:`)
    - Rebuild `docs/project/work_index.md` via `tcd.sh index`
 
 ## Batch execution (recommended for large tasks)

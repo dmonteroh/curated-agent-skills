@@ -6,7 +6,7 @@ Script: `scripts/codex_skills_sync.py`
 
 ## What It Does
 
-- Copies selected skill folders (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills`). You can use `--dest` to have them installed in a specific folder
+- Copies selected skill folders from `skills/` (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills`). You can use `--dest` to have them installed in a specific folder
 - Lets you select skills by name, index, or range.
 - Safe-by-default:
   - does not overwrite existing installed skills unless you pass `--force`
@@ -28,7 +28,7 @@ Runs interactively (prompts for install directory and which skills to install):
 Install the recommended OS-level bundle (workflow/protocol + indexing):
 
 ```sh
-./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,git-workflow,cdd-context,doc-generate,dispatching-parallel-agents,mermaid-expert,subagent-driven-development,tracks-conductor-protocol,prompt-engineering"
+./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,git-workflow,cdd-context,doc-generate,dispatching-parallel-agents,mermaid-expert,tracks-conductor-protocol,prompt-engineering"
 ```
 
 Install the recommended architecture bundle (system + backend + cloud; no DB-architect):

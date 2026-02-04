@@ -37,7 +37,7 @@ This skill is intentionally optimized for speed:
 
 - Intake drafts: docs/project/to-do/ (TD-YYYYMMDD-*.md)
 - Task briefs: docs/project/tasks/ (S##-T-YYYYMMDD-*.md)
-- Task status: docs/project/task_status.md
+- Task status: task frontmatter (`status:`) in each task brief (mirrored into `work_index.md`)
 - Tracks registry: docs/project/tracks.md
 - Tracks: docs/project/tracks/<track-slug>/{spec.md,plan.md,context.md}
 - Work index (managed blocks): docs/project/work_index.md
@@ -86,7 +86,7 @@ When accepted, promote the TD to an executable task brief:
 scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md
 ```
 
-- Output: new task brief + updated `task_status.md` + updated index tables.
+- Output: new task brief + updated index tables.
 
 Decision point:
 - If the work is not actionable yet, keep it as intake and add required discovery notes.
@@ -189,7 +189,7 @@ Assistant output (summary format):
 
 - Actions: `track`, `task`, `index`
 - Files: `docs/project/tracks/auth-token-migration/spec.md`, `docs/project/tasks/S01-T-20240215-auth-token-migration.md`
-- Status: `task_status.md` updated to `planned`
+- Status: task frontmatter updated to `Approved` and index refreshed
 - Validation: `scripts/tcd.sh validate` (passed)
 
 ## References

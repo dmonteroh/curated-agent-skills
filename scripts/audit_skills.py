@@ -14,15 +14,18 @@ Checks (intentionally lightweight; no PyYAML dependency):
 - Name + description token budget (frontmatter) stays within bounds
 """
 
+import argparse
 import re
+import sys
 from pathlib import Path
 
 try:
-    import tiktoken
+    import tiktoken  # type: ignore
 except ModuleNotFoundError:
     tiktoken = None
 
 ROOT = Path(__file__).resolve().parents[1]
+SKILLS_ROOT = ROOT / "skills"
 SKIP_DIRS = {".git", "scripts"}
 TOKEN_SOFT_LIMIT = 110
 TOKEN_HARD_LIMIT = 120
@@ -110,11 +113,13 @@ def _find_backtick_paths(text: str) -> set[str]:
 def _token_count(text: str) -> int:
     global _TOKEN_ENCODER
     if _TOKEN_ENCODER is None:
+        if tiktoken is None:
+            raise RuntimeError("tiktoken is required for token counting")
         _TOKEN_ENCODER = tiktoken.get_encoding(TOKEN_ENCODING)
     return len(_TOKEN_ENCODER.encode(text))
 
 
-def scan_skill(dirpath: Path) -> tuple[list[str], list[str]]:
+def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
     skill_file = dirpath / "SKILL.md"
     text = skill_file.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -161,35 +166,60 @@ def scan_skill(dirpath: Path) -> tuple[list[str], list[str]]:
     if re.search(r"\bWebFetch\b|https?://raw\.githubusercontent\.com", text, re.I):
         issues.append("network_assumption")
 
-    if name or desc:
+    if token_checks and (name or desc):
         token_count = _token_count(f"{name} {desc}".strip())
         if token_count > TOKEN_HARD_LIMIT:
             issues.append(f"frontmatter_tokens_over_hard_limit:{token_count}")
         elif token_count > TOKEN_SOFT_LIMIT:
             warnings.append(f"frontmatter_tokens_over_soft_limit:{token_count}")
 
-    skill_tokens = _token_count(text)
-    if skill_tokens > SKILL_MD_HARD_TOKEN_LIMIT:
-        issues.append(f"skill_md_tokens_over_hard_limit:{skill_tokens}")
-    elif skill_tokens > SKILL_MD_SOFT_TOKEN_LIMIT:
-        warnings.append(f"skill_md_tokens_over_soft_limit:{skill_tokens}")
+    if token_checks:
+        skill_tokens = _token_count(text)
+        if skill_tokens > SKILL_MD_HARD_TOKEN_LIMIT:
+            issues.append(f"skill_md_tokens_over_hard_limit:{skill_tokens}")
+        elif skill_tokens > SKILL_MD_SOFT_TOKEN_LIMIT:
+            warnings.append(f"skill_md_tokens_over_soft_limit:{skill_tokens}")
 
     return issues, warnings
 
 
-def main() -> int:
-    if tiktoken is None:
-        print("error: tiktoken is not installed. Install with: pip install tiktoken")
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="audit-skills",
+        description="Repo-wide skill quality/performance audit.",
+    )
+    parser.add_argument(
+        "--no-token-checks",
+        action="store_true",
+        help="Skip token checks even if tiktoken is available.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+    token_checks = not args.no_token_checks
+    if token_checks and tiktoken is None:
+        msg = (
+            "error: tiktoken is required for token checks.\n"
+            "Install dependencies:\n"
+            "  python3 -m pip install -r scripts/requirements-audit.txt\n"
+            "Or run with --no-token-checks to skip token-based checks."
+        )
+        print(msg, file=sys.stderr)
         return 2
     skills: list[tuple[str, list[str], list[str]]] = []
-    for entry in sorted(ROOT.iterdir()):
+    if not SKILLS_ROOT.is_dir():
+        print("error: skills/ folder not found")
+        return 1
+    for entry in sorted(SKILLS_ROOT.iterdir()):
         if not entry.is_dir():
             continue
         if entry.name.startswith(".") or entry.name in SKIP_DIRS:
             continue
         if not (entry / "SKILL.md").is_file():
             continue
-        issues, warnings = scan_skill(entry)
+        issues, warnings = scan_skill(entry, token_checks=token_checks)
         skills.append((entry.name, issues, warnings))
 
     bad = [(name, issues) for name, issues, _ in skills if issues]
@@ -213,4 +243,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

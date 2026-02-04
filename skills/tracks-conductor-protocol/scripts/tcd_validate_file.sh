@@ -40,6 +40,29 @@ require_heading() {
   fi
 }
 
+require_frontmatter_field() {
+  field="$1"
+  first_line="$(head -n 1 "$file" || true)"
+  if [ "$first_line" != "---" ]; then
+    echo "missing frontmatter block: $file" >&2
+    return 1
+  fi
+  awk -v key="$field" '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { exit 1 }
+    in_fm {
+      k=$0
+      sub(/:.*/, "", k)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+      if (k==key) { exit 0 }
+    }
+    END { exit 1 }
+  ' "$file" || {
+    echo "missing frontmatter field: $field ($file)" >&2
+    return 1
+  }
+}
+
 case "$kind" in
   intake)
     require_heading "## Status"
@@ -52,6 +75,7 @@ case "$kind" in
     require_heading "## Links"
     ;;
   task)
+    require_frontmatter_field "status"
     require_heading "## Intent"
     require_heading "## Scope"
     require_heading "## Dependencies"
@@ -91,4 +115,3 @@ case "$kind" in
 esac
 
 echo "OK: $kind $file"
-

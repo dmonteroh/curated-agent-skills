@@ -12,7 +12,6 @@ futures_dir="${TCD_FUTURES_DIR:-$project_dir/futures}"
 
 work_index="${TCD_WORK_INDEX:-$project_dir/work_index.md}"
 tracks_registry="${TCD_TRACKS_REGISTRY:-$project_dir/tracks.md}"
-task_status="${TCD_TASK_STATUS:-$project_dir/task_status.md}"
 
 start_end_replace() {
   file="$1"
@@ -61,6 +60,29 @@ extract_status() {
   ' "$1"
 }
 
+extract_frontmatter_field() {
+  # Extract a field from YAML frontmatter at the top of the file.
+  # Usage: extract_frontmatter_field <file> <key>
+  file="$1"
+  key="$2"
+  awk -v key="$key" '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { exit }
+    in_fm {
+      k=$0
+      sub(/:.*/, "", k)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+      if (k==key) {
+        v=$0
+        sub(/^[^:]*:/, "", v)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+        print v
+        exit
+      }
+    }
+  ' "$file"
+}
+
 tmp="$(mktemp)"
 cleanup() { rm -f "$tmp" "$tmp".*; }
 trap cleanup EXIT
@@ -68,32 +90,14 @@ trap cleanup EXIT
 mkdir -p "$project_dir"
 touch "$work_index"
 
-# Build a best-effort task id -> status map from task_status.md.
-# Expected: sections like "## In Progress" containing lines that include the task id.
-task_map="$tmp.taskmap"
-: >"$task_map"
-if [ -f "$task_status" ]; then
-  awk '
-    function flush() {}
-    /^##[[:space:]]+/ {
-      status = $0
-      sub(/^##[[:space:]]+/, "", status)
-      next
-    }
-    {
-      # Extract task ids from arbitrary lines.
-      while (match($0, /(S[0-9][0-9]-T-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[a-z0-9-]+)/)) {
-        id = substr($0, RSTART, RLENGTH)
-        print id "\t" status
-        $0 = substr($0, RSTART + RLENGTH)
-      }
-    }
-  ' "$task_status" | awk '!seen[$1]++' >"$task_map"
-fi
-
 task_status_for() {
-  # $1 = task id
-  awk -v id="$1" '$1==id{print $2; exit}' "$task_map"
+  # $1 = task file path
+  status="$(extract_frontmatter_field "$1" "status")"
+  if [ -n "$status" ]; then
+    printf "%s" "$status"
+  else
+    printf "%s" "Draft"
+  fi
 }
 
 # --- Intake table ---
@@ -128,7 +132,7 @@ awk 'NR<=3{print; next} $0 ~ /^\\| TD-/{print}' "$intake_block" | sort -t '|' -k
 } >"$tmp.intake.final"
 start_end_replace "$work_index" "<!-- TCD:INTAKE:START -->" "<!-- TCD:INTAKE:END -->" "$tmp.intake.final"
 
-# --- Tasks table (best-effort; status truth lives in task_status.md) ---
+# --- Tasks table (status lives in task frontmatter) ---
 tasks_block="$tmp.tasks"
 {
   echo "<!-- TCD:TASKS:START -->"
@@ -144,7 +148,7 @@ tasks_block="$tmp.tasks"
       date="$(printf "%s" "$base" | sed -n 's/^S[0-9][0-9]-T-\([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\).*/\1/p')"
       title="$(extract_first_h1 "$f")"
       rel="./tasks/$base"
-      status="$(task_status_for "$id")"
+      status="$(task_status_for "$f")"
       printf '| %s | %s | %s | %s | %s | %s |  |  |  |\n' "$id" "$title" "${status:-}" "${seq:-}" "${date:-}" "$rel"
     done
   fi

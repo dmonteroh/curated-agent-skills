@@ -45,7 +45,8 @@ if [ -z "$seq" ]; then
 fi
 
 slug="$(slugify "$title")"
-file="$tasks_dir/${seq}-T-$today-$slug.md"
+id="${seq}-T-$today-$slug"
+file="$tasks_dir/$id.md"
 
 if [ -e "$file" ]; then
   echo "refusing to overwrite: $file" >&2
@@ -53,6 +54,17 @@ if [ -e "$file" ]; then
 fi
 
 {
+  echo "---"
+  echo "id: $id"
+  echo "status: Draft"
+  if [ -n "$track" ]; then
+    echo "track: $track"
+  fi
+  if [ -n "$intake_id" ]; then
+    echo "intake: $intake_id"
+  fi
+  echo "---"
+  echo
   echo "# $seq - $title"
   echo
   echo "## Intent"

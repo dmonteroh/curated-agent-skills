@@ -12,33 +12,11 @@ tracks_dir="${TCD_TRACKS_DIR:-$project_dir/tracks}"
 futures_dir="${TCD_FUTURES_DIR:-$project_dir/futures}"
 
 work_index="${TCD_WORK_INDEX:-$project_dir/work_index.md}"
-task_status="${TCD_TASK_STATUS:-$project_dir/task_status.md}"
 tracks_registry="${TCD_TRACKS_REGISTRY:-$project_dir/tracks.md}"
 
 context_dir="${TCD_CONTEXT_DIR:-docs/context}"
 
 mkdir -p "$todo_dir" "$tasks_dir" "$tracks_dir" "$futures_dir" "$context_dir"
-
-# Seed task_status.md if missing (kept intentionally minimal; teams can expand).
-if [ ! -f "$task_status" ]; then
-  cat >"$task_status" <<'EOF'
-# Task Status
-
-Source of truth for task lifecycle.
-
-## Draft
-
-## Approved
-
-## In Progress
-
-## Review
-
-## Blocked
-
-## Done (most recent)
-EOF
-fi
 
 # Seed tracks registry if missing.
 if [ ! -f "$tracks_registry" ]; then

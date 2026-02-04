@@ -28,6 +28,7 @@ from typing import Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+SKILLS_ROOT = REPO_ROOT / "skills"
 VERSION = "0.1.0"
 
 
@@ -49,12 +50,13 @@ def default_dest() -> Path:
 
 def skill_dirs(repo_root: Path) -> list[Path]:
     out: list[Path] = []
-    for entry in sorted(repo_root.iterdir()):
+    skills_root = repo_root / "skills"
+    if not skills_root.is_dir():
+        return out
+    for entry in sorted(skills_root.iterdir()):
         if not entry.is_dir():
             continue
         if entry.name.startswith("."):
-            continue
-        if entry.name in {"scripts"}:
             continue
         if (entry / "SKILL.md").is_file():
             out.append(entry)
@@ -144,8 +146,9 @@ class CopyPlan:
 
 def plan_copies(repo_root: Path, dest_root: Path, names: Iterable[str]) -> list[CopyPlan]:
     plans: list[CopyPlan] = []
+    skills_root = repo_root / "skills"
     for name in names:
-        src = repo_root / name
+        src = skills_root / name
         if not (src / "SKILL.md").is_file():
             raise ValueError(f"not a skill directory: {src}")
         plans.append(CopyPlan(src=src, dest=dest_root / name))
@@ -255,7 +258,7 @@ def main(argv: list[str]) -> int:
         return 0
 
     if not repo_skills:
-        eprint("error: no skills found in repo (no folders with SKILL.md).")
+        eprint("error: no skills found in repo (expected skills/ folder with SKILL.md entries).")
         return 1
 
     # Selection precedence: --all > --select > interactive prompt
@@ -299,6 +302,7 @@ def main(argv: list[str]) -> int:
 
     # Human-facing summary to stderr so stdout stays pipe-friendly.
     eprint(f"repo: {REPO_ROOT}")
+    eprint(f"skills: {REPO_ROOT / 'skills'}")
     eprint(f"dest: {dest_root}")
     eprint(f"selected: {len(selected)} skill(s)")
     if dry_run:

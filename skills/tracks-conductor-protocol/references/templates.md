@@ -68,6 +68,13 @@ Out of scope:
 Filename: `S##-T-YYYYMMDD-<short-slug>.md`
 
 ```markdown
+---
+id: S##-T-YYYYMMDD-<short-slug>
+status: Draft
+track: <optional>
+intake: TD-YYYYMMDD-<short-slug>
+---
+
 # S## - <Title>
 
 ## Intent

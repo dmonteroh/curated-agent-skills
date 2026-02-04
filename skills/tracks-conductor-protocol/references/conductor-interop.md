@@ -7,7 +7,7 @@ Conductor is a plugin-driven workflow that maps closely to Tracks Conductor Prot
 - `/conductor:setup` -> `scripts/tcd.sh init`
 - `/conductor:new-track` -> `scripts/tcd.sh track "<Track title>"`
 - `/conductor:implement` -> `references/execution-playbook.md`
-- `/conductor:status` -> `docs/project/work_index.md` + `docs/project/task_status.md`
+- `/conductor:status` -> task frontmatter (`status:`) + `docs/project/work_index.md`
 - `/conductor:revert` -> use VCS tools + track/task registry
 - `/conductor:manage` -> archive/restore tracks under `docs/project/tracks/`
 

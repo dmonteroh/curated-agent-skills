@@ -12,7 +12,7 @@
 
 ### 3) Multi-agent protocol (encouraged when feasible)
 
-- If work can be partitioned safely and both skills are available, prefer parallelization: use `dispatching-parallel-agents` to split scope, then `subagent-driven-development` to execute with verification/review gates.
+- If work can be partitioned safely, prefer parallelization using `dispatching-parallel-agents` for both partitioning and the subagent execution flow (implementer + reviewers), including verification/review gates.
 
 ### 4) Verification culture (non-negotiable)
 

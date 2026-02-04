@@ -16,7 +16,7 @@ Promotion rule:
 
 ## Task briefs
 
-Status is tracked centrally in `docs/project/task_status.md` (source of truth), and mirrored in the Work Index table.
+Status is tracked in task frontmatter (`status:`) and mirrored in the Work Index table.
 
 Allowed statuses:
 - Draft

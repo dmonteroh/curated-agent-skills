@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SKILLS_ROOT = ROOT / "skills"
 
 
 def _strip_quotes(s: str) -> str:
@@ -68,12 +69,12 @@ def _escape_table_cell(s: str) -> str:
 
 def load_skills() -> list[tuple[str, str, str]]:
     skills: list[tuple[str, str, str]] = []
-    for entry in sorted(ROOT.iterdir()):
+    if not SKILLS_ROOT.is_dir():
+        return skills
+    for entry in sorted(SKILLS_ROOT.iterdir()):
         if not entry.is_dir():
             continue
         if entry.name.startswith("."):
-            continue
-        if entry.name == "scripts":
             continue
 
         skill_file = entry / "SKILL.md"
