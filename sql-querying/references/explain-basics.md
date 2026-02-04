@@ -15,4 +15,4 @@ High-signal checks:
 - Are row estimates wildly off? (stats issues)
 - Are you accidentally multiplying rows via joins?
 
-For DB-wide indexing strategy, statistics, and systemic tuning, use `database-performance`.
+If improvements require indexing strategy, statistics maintenance, or systemic tuning, call it out as out of scope and request direction.

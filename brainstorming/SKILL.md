@@ -12,11 +12,24 @@ category: workflow
 - The cost of “building the wrong thing” is high (irreversible changes, migrations, public APIs)
 - You need a fast, structured way to compare 2–3 approaches and pick one
 
+**Trigger phrases**
+- "Not sure what the right approach is"
+- "We need to decide between a few options"
+- "Let's do a quick design/plan first"
+- "Requirements are still fuzzy"
+
 ## Do not use this skill when
 
 - The request is already clear enough to plan and implement directly
 - The user asked you to implement now and explicitly does not want upfront design
 - The work is tiny/low-risk and a design brief would be overhead
+
+## Required inputs
+
+- The user's current goal or problem statement (even if vague)
+- Known constraints (time, scope, tech, risk, compliance)
+- Success criteria or definition of done (if known)
+- Stakeholders/users and any explicit non-goals (if known)
 
 ## Overview
 
@@ -31,11 +44,13 @@ Default posture: clarify, do not prematurely implement.
 - Briefly inspect current project context (relevant docs/files) when available.
 - Ask one question at a time; prefer multiple choice when it speeds decisions.
 - Clarify: purpose, users, constraints, success criteria, non-goals.
+- **Output:** a short problem statement and list of open questions.
 
 ### 2) Explore approaches
 
 - Propose 2-3 approaches with tradeoffs against the stated constraints.
 - Make a recommendation, and explain why it wins *for this context*.
+- **Output:** 2–3 options with pros/cons/risks and a recommendation.
 
 ### 3) Present the design brief (incremental validation)
 
@@ -47,6 +62,19 @@ Default posture: clarify, do not prematurely implement.
   - main flows and key states
   - risks + mitigations
   - validation (how we know it worked)
+- **Output:** a design brief plus a confirmation request.
+
+### 4) Decide next step
+
+- If the user is ready, ask to move to execution planning.
+- If not, continue the question loop.
+- **Output:** a single next-step question.
+
+### Decision points
+
+- If constraints make all options invalid, ask which constraint can change.
+- If the user rejects the recommendation, return to step 2 with updated criteria.
+- If the user wants to implement, move to execution planning.
 
 ## After the Design
 
@@ -75,12 +103,65 @@ Do not assume other skills exist; treat any integrations as optional.
 - **Incremental validation** - Present design in sections, validate each
 - **Be flexible** - Go back and clarify when something doesn't make sense
 
+## Common pitfalls
+
+- Skipping constraints and non-goals during questioning
+- Listing options without explaining tradeoffs
+- Producing a design brief without asking for confirmation
+- Moving into implementation without explicit user approval
+
+## Examples
+
+**Input**
+"We need to improve onboarding but aren't sure what to build yet. Can you help us pick a direction?"
+
+**Output (abridged)**
+- Problem & success: reduce drop-off in first session by 20% without increasing support load.
+- Approaches:
+  1) Guided walkthrough (pros: fast; cons: brittle)
+  2) Goal-based checklist (pros: flexible; cons: requires UX work)
+- Recommendation: checklist, aligns with user diversity.
+- Design brief: goals, non-goals, constraints, risks, verification.
+- Next step: "Want an execution plan next?"
+
+## Trigger test
+
+- "I'm not sure which architecture to choose—can you help me decide?"
+- "We need a short design brief before coding; requirements are still fuzzy."
+
 ## Output Contract (Always)
 
 - A 3–7 bullet problem statement + success criteria
 - 2–3 approaches with pros/cons and a recommendation
 - A design brief with explicit non-goals, risks, and a verification plan
 
-## Resources (Optional)
+## Reporting format
+
+```md
+## Problem & Success
+- ...
+
+## Approaches
+1) Option A — pros/cons/risks
+2) Option B — pros/cons/risks
+Recommendation: ...
+
+## Design Brief
+- Goals:
+- Non-goals:
+- Constraints:
+- Key flows/states:
+- Risks & mitigations:
+- Verification plan:
+
+## Next Step
+- ...
+```
+
+## References (Optional)
 
 - `resources/implementation-playbook.md`
+
+## Scripts
+
+- None. Use instructions only unless the user requests automation.

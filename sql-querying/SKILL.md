@@ -1,12 +1,19 @@
 ---
 name: sql-querying
-description: Write correct, maintainable SQL and design queries (joins, CTEs, window functions) for OLTP/analytics. Use for query authoring and query-level reasoning; for DB-wide performance diagnosis use database-performance, and for schema architecture use database-architect / postgresql-engineering.
+description: Write correct, maintainable SQL queries (joins, CTEs, window functions) and reason about their results for OLTP or analytics tasks.
 category: database
 ---
 
 # SQL Querying
 
 This skill is for writing and reasoning about SQL: correctness first, then performance, then readability.
+
+## Required inputs
+
+- Target database/dialect (and version if relevant)
+- Tables, columns, and key relationships (PK/FK)
+- Desired output shape (columns, filters, grouping, ordering)
+- Sample data or edge cases, if available
 
 ## Use this skill when
 
@@ -17,27 +24,98 @@ This skill is for writing and reasoning about SQL: correctness first, then perfo
 
 ## Do not use this skill when
 
-- You need DB-wide performance diagnosis (index strategy, lock contention, pool sizing) — use `database-performance`
-- You need to design a schema/data model from scratch — use `database-architect` (or `postgresql-engineering` if Postgres-specific)
-- You need ORM-specific guidance — use an ORM/database migration skill
+- You need DB-wide performance diagnosis (index strategy, lock contention, pool sizing)
+- You need to design a schema/data model from scratch
+- You need ORM-specific or query-builder-only guidance
+
+## Trigger phrases
+
+- "Write a SQL query to ..."
+- "Why does this query return duplicates?"
+- "Convert this report logic into a CTE/window function"
+- "Explain what this SQL query returns"
 
 ## Workflow (Deterministic)
 
-1. Confirm target database/dialect (Postgres/MySQL/SQL Server/etc.).
-2. Write the simplest correct query first.
-3. Validate correctness with representative inputs (including edge cases).
-4. Use EXPLAIN to validate plan changes.
-5. If performance requires new indexes or systemic tuning, escalate to `database-performance`.
+1. Confirm requirements and dialect.
+   - Output: short requirement summary + open questions.
+   - Decision: if required inputs are missing, ask questions and stop.
+2. Draft the simplest correct query.
+   - Output: draft SQL + brief shape explanation (joins/CTEs/windows).
+3. Validate correctness against edge cases.
+   - Output: checklist of NULL/duplicate/cardinality behaviors.
+   - Decision: if results are wrong, revise joins/filters/aggregations and re-check.
+4. Evaluate query-level performance.
+   - Output: EXPLAIN guidance or expected plan changes.
+   - Decision: if improvements require schema/index/system tuning, call it out as out of scope and request direction.
+5. Finalize response.
+   - Output: final SQL + reporting format in the Output Contract.
+
+## Common pitfalls
+
+- Filtering on a LEFT JOINed table in the WHERE clause (turns into INNER JOIN)
+- Aggregations that ignore NULL handling or duplicate multiplicative joins
+- Using `NOT IN` with NULL-able subqueries (prefer `NOT EXISTS`)
+- Missing deterministic `ORDER BY` for top-N or pagination queries
+- Time-based filters without clarifying time zones or inclusive/exclusive bounds
 
 ## Output Contract (Always)
 
-- Final query (formatted) and a short explanation of shape (joins/CTEs/windows)
-- Correctness notes (NULL handling, duplicate risk, cardinality assumptions)
-- Optional: EXPLAIN guidance and what to look for
+- `Summary`: 1-2 sentences on approach.
+- `Final SQL`: formatted query.
+- `Correctness checks`: NULL handling, duplicate risk, cardinality assumptions.
+- `Performance notes` (optional): EXPLAIN guidance and plan risks.
+- `Assumptions & questions`: anything missing or ambiguous.
+
+## Examples
+
+**Example 1: Rolling 7-day revenue**
+
+User request:
+"Show daily revenue with a 7-day rolling average for the last 30 days."
+
+Response (excerpt):
+
+```sql
+SELECT
+  day,
+  revenue,
+  AVG(revenue) OVER (
+    ORDER BY day
+    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+  ) AS rolling_7d_avg
+FROM daily_sales
+WHERE day >= CURRENT_DATE - INTERVAL '30 days'
+ORDER BY day;
+```
+
+Correctness checks: rolling window uses ROWS frame to avoid grouping ties; date filter is inclusive.
+
+**Example 2: Customers with no completed orders**
+
+User request:
+"List customers who have never completed an order."
+
+Response (excerpt):
+
+```sql
+SELECT c.id, c.email
+FROM customers c
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM orders o
+  WHERE o.customer_id = c.id
+    AND o.status = 'completed'
+);
+```
+
+Correctness checks: `NOT EXISTS` avoids NULL pitfalls from `NOT IN`.
+
+## Trigger test
+
+- "Write a SQL query that returns the top 3 products per category."
+- "Explain what rows this join produces and how to fix duplicates."
 
 ## References (Optional)
 
-- Patterns: `references/query-patterns.md`
-- Window functions: `references/window-functions.md`
-- Dialect notes: `references/dialect-notes.md`
-- EXPLAIN basics: `references/explain-basics.md`
+- See `references/README.md` for indexed topics and summaries.

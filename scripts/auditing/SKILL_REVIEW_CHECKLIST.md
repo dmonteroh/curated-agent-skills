@@ -19,6 +19,8 @@ Use this checklist to keep skills consistent with AGENTS_prepend.md, the provide
 - Covers common mistakes or pitfalls.
 - Avoids time-sensitive guidance unless clearly labeled as such.
 - Keeps the skill **independent**: do not require other skills to be installed to follow the instructions.
+- Avoid persona/voice shifts. Skills are tools, not agent identities.
+- Use third-person, tool-style descriptions (e.g., “Provides…”, “Produces…”, “Use this skill to…”), not “You are…” or “I can…”.
 
 **Examples & Output**
 - Concrete examples or input/output pairs.
@@ -37,9 +39,12 @@ Use this checklist to keep skills consistent with AGENTS_prepend.md, the provide
 
 **References & Decomposition**
 - If any reference/playbook is long, split it into smaller, purpose‑built files (by phase, role, or task).
-- Add a short `references/README.md` (or equivalent index) that links to each reference file with 1–2 line summaries.
+- Add a short `references/README.md` (or equivalent index) when:
+  - There are **2+ reference files**, or
+  - A single reference is **large** (roughly >1200 tokens) or clearly multi‑topic.
 - Keep `SKILL.md` concise; move deep detail into `references/` and point to the index.
 - Ensure references are scoped to the skill and don’t duplicate other skills’ instructions.
+- References should be tool‑style and neutral (no persona/voice shifts, no project‑specific flair).
 
 **Size & Progressive Disclosure**
 - SKILL.md stays concise (prefer < 500 lines).

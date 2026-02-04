@@ -1,14 +1,12 @@
 ---
 name: cdd-context
-description: Create and maintain project context artifacts (CDD) as living documentation under docs/context/. Includes scripts to scaffold minimal context files, validate required sections, and maintain a deterministic context index. Works standalone; if other skills are available, use them for implementation details.
+description: Create and maintain CDD project context docs (product, tech stack, workflow) with optional scaffolding, indexing, validation, and a brief snapshot under docs/context.
 category: ai
 ---
 
 # CDD Context
 
-Manage project context as first-class artifacts alongside code.
-
-This skill is intentionally lightweight and drop-in: if a project has no existing context system, it can scaffold a minimal one; if it does, it validates and updates it without assuming any other skills exist.
+Manage project context as first-class artifacts alongside code. This skill is standalone and does not depend on other skills.
 
 ## Use this skill when
 
@@ -19,6 +17,21 @@ This skill is intentionally lightweight and drop-in: if a project has no existin
 ## Do not use this skill when
 
 - The request is a one-line change and context is already clear.
+- The user explicitly forbids documentation or file edits.
+
+## Activation cues (trigger phrases)
+
+- "set up context docs" / "docs/context is missing"
+- "update product context" / "update tech stack context" / "update workflow context"
+- "create a context brief" / "rehydration snapshot"
+
+## Inputs required
+
+- Repo root (current working directory)
+- Existing context conventions (directory or filenames), if any
+- Whether automation scripts are allowed
+- Whether to create/update the brief snapshot
+- Any reporting format preferences
 
 ## Defaults (override if the repo already has conventions)
 
@@ -31,9 +44,38 @@ This skill is intentionally lightweight and drop-in: if a project has no existin
 - Optional (recommended) rehydration snapshot:
   - docs/context/brief.md
 
-## Quick start
+## Workflow (single canonical process)
 
-In the target repo:
+1) Discover existing context
+- Locate any existing context directory and files (prefer repo conventions).
+- Output: chosen context directory and list of existing context files.
+- Decision: If an existing system is present, do not scaffold unless requested.
+
+2) Scaffold missing core files (optional)
+- If allowed, scaffold minimal stubs for missing core files.
+- Output: list of created files (or note that no files were created).
+- Decision: If file writes are not allowed, only report missing artifacts.
+
+3) Validate structure
+- Confirm required files and headings exist.
+- Output: validation results or missing headings/files.
+
+4) Update context content
+- Edit only relevant sections; avoid rewriting unrelated history.
+- Add an “Open questions” section when information is uncertain.
+- Output: updated file paths and a short change summary.
+
+5) Maintain the index
+- Update the managed index block in the context README.
+- Output: confirmation that the index block is up to date.
+
+6) Create/update brief snapshot (optional)
+- If requested, generate/update `brief.md` as a rehydration snapshot.
+- Output: confirmation that `brief.md` was created or updated.
+
+## Scripts (optional automation)
+
+Use these only if the user allows file writes and scripts:
 
 ```sh
 ./cdd-context/scripts/context.sh init
@@ -42,34 +84,60 @@ In the target repo:
 ./cdd-context/scripts/context.sh validate
 ```
 
-## Workflow (single canonical process)
+Environment overrides:
+- `CONTEXT_DIR` (default `docs/context`)
+- `CONTEXT_INDEX` (default `docs/context/README.md`)
+- `CONTEXT_BRIEF_FILE` (default `docs/context/brief.md`)
 
-1) Verify context exists
-- If docs/context/ is missing, create it.
-- If core artifacts are missing, scaffold minimal stubs (don’t block).
+Verification step:
+- Run `./cdd-context/scripts/context.sh validate` after scaffolding or edits.
 
-2) Confirm context freshness
-- Product context: what are we building and why?
-- Tech stack: what is the stack and key constraints?
-- Workflow: how do we work and what are the quality gates?
+Required tools:
+- POSIX shell with standard Unix utilities (`mkdir`, `cat`, `grep`, `awk`, `sort`, `mktemp`, `date`).
 
-3) Update context only when needed
-- Prefer small edits; avoid rewriting history without reason.
-- When in doubt, add a short “Open questions” section rather than guessing.
+## Common pitfalls
 
-4) Keep it discoverable
-- Maintain a deterministic index in docs/context/README.md using a managed block.
+- Overwriting existing context instead of honoring repo conventions.
+- Missing the index markers in `docs/context/README.md`.
+- Treating `brief.md` as the source of truth (it is a snapshot).
+- Leaving stale “Open questions” unanswered after decisions are made.
 
-## Compatibility space (optional)
+## Examples
 
-If the repo also uses:
-- task/track systems: link context artifacts from those docs
-- ADRs: link context to ADR indexes and vice-versa
+**Example 1: scaffold context**
 
-This skill does not require those systems.
+Input:
+"Set up context docs in this repo and index them."
 
-## Resources
+Output (report summary):
+- Created `docs/context/product.md`, `docs/context/tech-stack.md`, `docs/context/workflow.md`
+- Updated `docs/context/README.md` index block
+- Validation: passed
 
-- `references/templates.md` (context file stubs + recommended headings)
-- `references/context-management.md` (context lifecycle and pruning guidance)
-- `scripts/context.sh` (wrapper)
+**Example 2: update tech stack context**
+
+Input:
+"We migrated to PostgreSQL; update the tech stack context and refresh the index."
+
+Output (report summary):
+- Updated `docs/context/tech-stack.md` with new datastore details
+- Updated `docs/context/README.md` index block
+- Validation: passed
+
+## Output contract
+
+When you run this skill, report in the following format:
+- Summary (1–3 bullets)
+- Files created/updated
+- Validation results (or note if not run)
+- Open questions
+
+## Trigger test
+
+The following prompts should activate this skill:
+- "Create docs/context with product, tech stack, and workflow context."
+- "Update the workflow context and refresh the context index."
+
+## References
+
+- `references/README.md` (index)

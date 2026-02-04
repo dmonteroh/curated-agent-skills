@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Implement distinctive, production-grade frontend UI (code) with high design quality. Use when you are asked to build or style components/pages/apps and you must output working UI code. For design briefs/specs/reviews (no code), use ui-design instead.
+description: Implement distinctive, production-grade frontend UI code with high design quality. Use when asked to build or style components/pages/apps and deliver working UI code; avoid for design-only briefs without implementation.
 category: design
 license: Complete terms in LICENSE.txt
 ---
@@ -8,6 +8,33 @@ license: Complete terms in LICENSE.txt
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
+
+## Use this skill when
+
+- Building or styling frontend UI with real code (HTML/CSS/JS, React, Vue, etc.)
+- The user expects a distinct aesthetic direction and production-grade polish
+- You need to translate a brief into a cohesive visual system and layout
+
+## Do not use this skill when
+
+- The task is design critique or high-level UI feedback without implementation
+- The request is purely backend, data, or infrastructure work
+- The user only wants a neutral or default UI with minimal styling
+
+## Trigger phrases
+
+- "Build a landing page" or "design a page" with code output
+- "Create a component" or "style this UI" with implementation required
+- "Make this frontend look premium/polished/distinct" with real HTML/CSS/JS
+- "Implement the UI" with a design brief, brand, or visual direction
+
+## Inputs to confirm
+
+- Target framework or stack (plain HTML/CSS/JS, React, Vue, etc.)
+- Constraints: accessibility, performance, browser support, design system rules
+- Assets provided (logos, copy, images, brand colors, fonts)
+- Interaction scope (static, subtle motion, rich motion)
+- Delivery expectations (single file, component file, multiple files)
 
 ## Design Thinking
 
@@ -40,4 +67,71 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
-Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+Remember: you are capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+## Workflow (Deterministic)
+
+1. **Clarify inputs and constraints.**
+   - Confirm framework, assets, accessibility requirements, and output format.
+   - **Output:** A short checklist of confirmed inputs and any open questions.
+2. **Choose the aesthetic direction.**
+   - Pick one bold, coherent visual language aligned with purpose and audience.
+   - **Output:** 3–5 design adjectives and 1–2 standout signature moments.
+3. **Define the visual system.**
+   - Typography pairing, color palette, spacing scale, and component motifs.
+   - **Decision point:** If fonts/assets are not provided, use locally available fonts and avoid external network fetches.
+   - **Output:** Token list (CSS variables) and rationale for each choice.
+4. **Lay out structure and hierarchy.**
+   - Compose layout, grid, and content flow; introduce intentional asymmetry.
+   - **Output:** A brief layout outline (sections/components and hierarchy).
+5. **Implement production-grade code.**
+   - Build HTML/CSS/JS (or framework code) with accessibility and responsiveness.
+   - **Output:** Working UI code, scoped to the requested format.
+6. **Refine polish and motion.**
+   - Add purposeful animations, hover states, and micro-interactions.
+   - **Output:** Motion list with durations/easing and where applied.
+7. **Self-review against pitfalls.**
+   - Verify aesthetic cohesion, legibility, and performance.
+   - **Output:** A quick checklist confirming adherence and any tradeoffs.
+
+## Common pitfalls to avoid
+
+- Reusing generic AI aesthetics (default fonts, bland palettes, predictable layouts)
+- Over-animating everything instead of a few high-impact moments
+- Mixing multiple aesthetic styles that dilute the visual direction
+- Ignoring accessibility, responsive behavior, or content hierarchy
+- Overusing external assets or fonts that require network access
+
+## Output contract (Always)
+
+- Confirmed inputs and constraints
+- Chosen aesthetic direction and signature moments
+- Visual system tokens (typography, colors, spacing)
+- Implementation code with brief structure notes
+- Motion/interaction summary
+- Verification steps or manual checks
+
+## Reporting format
+
+- **Design summary:** aesthetic direction + signature moments
+- **System tokens:** typography, color, spacing, effects
+- **Implementation:** code blocks + file layout (if multi-file)
+- **Interactions:** motion/hover behaviors and intent
+- **Checks:** accessibility, responsiveness, and performance notes
+
+## Examples
+
+**Example input**
+"Build a premium analytics dashboard hero section in React with a dark, editorial feel. Include a headline, KPI cards, and a subtle animated background."
+
+**Example output (abbreviated)**
+- Design summary: editorial dark theme with serif headline + neon data accents; signature moment is the animated data grid glow.
+- System tokens: `--bg-0`, `--bg-1`, `--accent`, `--radius-lg`, typography pair.
+- Implementation: React component + CSS module with layout grid.
+- Interactions: cards lift on hover, background shimmer loop.
+- Checks: contrast meets WCAG AA, motion reduced via prefers-reduced-motion.
+
+## Trigger test
+
+- "Implement a striking landing page hero in HTML/CSS with a retro-futuristic vibe."
+- "Create a styled pricing card component in React with a premium look."

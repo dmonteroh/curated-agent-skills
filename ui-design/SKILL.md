@@ -6,61 +6,105 @@ category: design
 
 # UI Design
 
-This skill is design + review + specification. It is intentionally framework-agnostic.
-
-If Tailwind is in use, treat `tailwind` as an optional helper for implementation details (tokens/config/class hygiene). Do not assume Tailwind exists.
+This skill is design + review + specification. It is intentionally framework-agnostic and does not assume any implementation stack.
 
 ## Use this skill when
 
-- Requirements are unclear and you need a UI brief + flow before implementing
-- Designing components and states (loading/empty/error/disabled)
-- Defining or enforcing a design system contract (tokens, surfaces, status hierarchy)
+- Requirements are unclear and you need a UI brief + flow before implementation
+- Defining component behaviors and states (loading/empty/error/disabled)
+- Defining or enforcing design-system rules (tokens, surfaces, status hierarchy)
 - Reviewing UI code for accessibility and consistency using local guidelines
 
 ## Do not use this skill when
 
-- The user asks you to implement the UI code (use frontend skills; this skill produces the design/spec)
-- The task is “Google Stitch” specific (that is a different skill)
+- The user explicitly wants UI code implementation only
+- The task is “Google Stitch” specific
 
-## Workflow (Deterministic)
+## Trigger phrases
 
-1) Clarify intent
-- Who is the user, what is the job-to-be-done, what is “done”?
-- Constraints: density vs delight, desktop vs mobile, light/dark, localization.
+- “Create a UI brief” or “design spec for this feature”
+- “Define components and states”
+- “Review this UI for accessibility/consistency”
+- “Establish design system rules/tokens”
 
-2) Produce a UI brief (design-level contract)
-- Goals / non-goals
-- Primary flow (happy path)
-- Secondary flows (error/empty/offline/permission)
-- Information hierarchy + navigation placement
+## Required inputs
 
-3) Component/spec layer
-- Component list with responsibilities and states
-- Data contracts at the boundary (what props/data each component needs)
-- Interaction rules (keyboard/focus, confirm dialogs, destructive actions)
+- Target platform(s) and form factor (web, mobile, desktop; responsive needs)
+- Primary user goal and success criteria
+- Constraints (density vs delight, accessibility level, branding, localization)
+- If reviewing code: files/links and any local UI guidelines
 
-4) Design system rules (only if needed)
-- Tokens and surfaces (canvas/surface stack)
-- Status hierarchy (error/warn/success) to avoid visual noise
-- A “Theme Usage Contract” style doc if the project requires enforceable rules
+## Workflow (deterministic)
 
-5) Review / verification
-- Run an accessibility + UI checklist.
-- If available, apply local guidelines: `references/web-interface-guidelines.md`.
+1) Clarify intent and constraints
+   - Output: concise requirements summary + explicit assumptions.
 
-## Output Contract (Always)
+2) Produce the UI brief (design-level contract)
+   - Output: goals/non-goals, primary flow, secondary flows, hierarchy + navigation notes.
 
-- UI brief (goals/non-goals + flows)
-- Component/state list (with acceptance criteria)
-- A11y notes (focus/labels/keyboard)
-- If reviewing code: findings in `file:line` style and a short remediation plan
+3) Specify components and states
+   - Output: component list with responsibilities, states, data/prop contracts, interaction rules.
 
-## Resources (Optional)
+4) Define design-system rules (only if needed)
+   - Output: token/surface rules, status hierarchy, optional theme usage contract.
 
-- Implementation playbook: `resources/implementation-playbook.md`
-- Local UI review checklist (offline): `references/web-interface-guidelines.md`
-- Design system contracts (how to write/consume them): `references/design-system-contracts.md`
-- Deliverables + handoff templates: `references/deliverables-and-handoff.md`
-- UI workflow summaries: `references/ui-workflows.md`
-- Deep topics (optional library of patterns): `references/topics/`
-- UI design commands and agents (optional): `commands/`, `agents/`
+5) Review/verification
+   - Output: checklist-based findings with remediation plan and validation steps.
+
+## Decision points
+
+- If the user only wants implementation, confirm whether a design/spec is still needed before proceeding.
+- If design-system rules already exist, reference them and avoid inventing new tokens.
+- If platform is unclear, ask for the primary target before drafting the brief.
+
+## Common pitfalls to avoid
+
+- Skipping empty/error/permission states in the flow
+- Overloading the UI with multiple status colors or competing emphasis
+- Missing keyboard/focus/label requirements in interactive components
+- Providing pixel-perfect visuals when the user asked for structural guidance only
+
+## Examples
+
+**Input**: “We need a billing settings screen, but requirements are fuzzy.”
+
+**Output (summary)**:
+- UI brief: goals/non-goals, primary + secondary flows, hierarchy notes
+- Component list: tables, forms, confirmation dialog, loading/empty states
+- A11y notes: focus order, labels, error summary
+
+## Output contract (always)
+
+Use this reporting format:
+
+```md
+# UI Brief
+- Goals:
+- Non-goals:
+- Primary flow:
+- Secondary flows:
+- Hierarchy/navigation notes:
+
+# Component + State Specs
+- <Component>: responsibilities, states, data/props, interactions, acceptance criteria
+
+# Accessibility Notes
+- Focus/keyboard:
+- Labels/ARIA:
+- Motion/contrast:
+
+# Review Findings (if reviewing code)
+- blocker: `file:line` issue -> fix + verify step
+- should-fix: `file:line` issue -> fix + verify step
+- nice-to-have: `file:line` issue -> fix + verify step
+```
+
+## Trigger test (quick)
+
+- “Draft a UI brief and component spec for a data export flow.”
+- “Review this UI code for accessibility and consistency issues.”
+
+## Resources (optional)
+
+- `resources/implementation-playbook.md`
+- `references/README.md`

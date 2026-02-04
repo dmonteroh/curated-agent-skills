@@ -1,6 +1,6 @@
 ---
 name: ui-visual-validator
-description: Verify UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs). Catch regressions, design-system drift, responsive breakage, and visual accessibility issues (focus visibility, contrast, readability). Use PROACTIVELY as a final quality gate before merge.
+description: Verify UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs). Catch regressions, design-system drift, responsive breakage, and visual accessibility issues (focus visibility, contrast, readability).
 category: design
 ---
 
@@ -15,30 +15,91 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 - You need a deterministic checklist for responsive + state coverage
 - You need a visual accessibility pass (focus visibility, contrast concerns, readability)
 
+### Trigger phrases
+
+- "validate the UI visually"
+- "check for visual regressions"
+- "compare before/after screenshots"
+- "confirm responsive layouts" or "check breakpoints"
+- "verify focus/contrast visually"
+
 ## Do not use this skill when
 
-- You are designing a UI (use a design skill instead)
+- You are designing a UI or exploring new layouts
 - You have no visual evidence and cannot provide a URL + repro steps
+
+## Required inputs
+
+- Evidence: before/after screenshots or recordings, or a URL with repro steps
+- Intended change: what should be different and why
+- Scope: pages/components/states that are in scope
+- Constraints: target viewports, themes, or environments (if any)
 
 ## Workflow (Deterministic)
 
-1. Collect evidence: before/after, viewports, theme, relevant states.
-2. Convert the intended change into a checklist of goals.
-3. Validate each goal against evidence and actively hunt regressions.
-4. Require state coverage (hover/focus/disabled/loading/error/empty) when relevant.
-5. Always include a visual accessibility check.
-6. Output a verdict: `pass` | `fail` | `partial` | `needs-evidence`.
+1. **Inventory evidence**
+   - Output: evidence table listing filename/URL, viewport, theme, state, environment.
+   - If evidence is missing, stop and output `needs-evidence` with a retest plan.
+2. **Translate intent into goals**
+   - Output: checklist of visual goals (one line per goal).
+3. **Diff pass (what changed)**
+   - Output: bullet list of observed diffs (objective, no judgments).
+4. **Validation pass (is it correct)**
+   - For each goal, mark `met`, `not met`, or `needs-evidence` and cite evidence.
+5. **State + responsive coverage**
+   - Output: coverage matrix for default/hover/focus/active/disabled/loading/error/empty and breakpoints.
+   - Decision: if a required state/breakpoint is missing, downgrade verdict to `partial` or `needs-evidence`.
+6. **Visual accessibility checks**
+   - Output: focus visibility findings, contrast concerns, text scaling/wrapping issues.
+7. **Verdict + next actions**
+   - Decision rules:
+     - `pass`: all goals met, no regressions, coverage complete.
+     - `partial`: goals mostly met but missing coverage or minor regressions.
+     - `fail`: any critical regression or goal not met.
+     - `needs-evidence`: missing evidence blocks evaluation.
+
+## Common pitfalls to avoid
+
+- Calling a change "correct" without listing visible evidence.
+- Skipping focus/contrast checks because the change seems minor.
+- Ignoring states that are in scope (loading/error/empty) for the component.
+- Mixing subjective language with objective observations.
 
 ## Output Contract (Always)
 
-- **Verdict**: pass/fail/partial/needs-evidence
-- **Observations (objective)**: what is visible
-- **Regressions**: unintended diffs
-- **Accessibility (visual)**: focus visibility + contrast concerns + readability
-- **Responsive**: breakpoints covered + issues
-- **Retest plan**: what evidence is missing and how to collect it
+Use this exact section order:
 
-## Resources (Optional)
+1. **Verdict**: pass/fail/partial/needs-evidence
+2. **Evidence Inventory**: list of artifacts with viewport/theme/state
+3. **Goals**: checklist with status per goal
+4. **Observations (Objective)**: what is visible
+5. **Intended Diffs Observed**: which goals are satisfied
+6. **Regressions / Unintended Changes**: anything unexpected
+7. **Accessibility (Visual)**: focus visibility, contrast concerns, readability
+8. **Responsive + State Coverage**: breakpoints and states covered + gaps
+9. **Issues (With Severity)**: blocker/major/minor/nit
+10. **Retest Plan**: missing evidence + how to capture it
 
-- Deep-dive playbook + report template: `resources/implementation-playbook.md`
+## Examples
+
+**Trigger test prompts**
+
+- "Please validate these before/after screenshots of the settings page for regressions."
+- "Can you check the responsive behavior and focus visibility for this modal?"
+
+**Output snippet**
+
+- Verdict: partial
+- Evidence Inventory: `settings-desktop-before.png` (1280x800, light, default)
+- Goals: [ ] Updated button padding (needs-evidence at 768px)
+- Regressions / Unintended Changes: Hover state missing from evidence
+
+## Optional automation
+
 - Report scaffold script: `scripts/visual_report.sh`
+- Usage: `./scripts/visual_report.sh "<subject>" <output-path>`
+- Verification: confirm the report file exists and open it to fill in findings.
+
+## References (Optional)
+
+- Index: `references/README.md`

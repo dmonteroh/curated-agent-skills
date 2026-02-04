@@ -32,7 +32,7 @@ When asked to produce a diagram:
 - Prefer simple node IDs and explicit labels.
 - Avoid special characters in node IDs (use labels for readable text).
 - Use `%%` comments for clarification.
-- When in doubt, validate in Mermaid Live Editor.
+- When in doubt, validate in your target renderer or local preview.
 
 ## Reusable Patterns
 

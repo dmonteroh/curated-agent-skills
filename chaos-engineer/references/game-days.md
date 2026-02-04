@@ -5,8 +5,8 @@
 ```yaml
 game_day:
   name: "Database Failover Drill"
-  date: "2025-01-15"
-  time: "10:00-12:00 PST"
+  date: "YYYY-MM-DD"
+  time: "HH:MM-HH:MM TZ"
   environment: "staging"  # Start in staging
 
   objectives:
@@ -48,7 +48,7 @@ game_day:
 
   communication_plan:
     announcement_channel: "#game-day-announcements"
-    war_room: "Zoom link: https://..."
+    war_room: "Video call link"
     status_updates_every: "5 minutes"
     escalation_contacts:
       - name: "VP Engineering"
@@ -75,7 +75,7 @@ game_day:
       measurement: "time to acknowledge incident"
 
   post_mortem:
-    scheduled_for: "2025-01-16 14:00"
+    scheduled_for: "YYYY-MM-DD HH:MM TZ"
     template: "game-day-retro.md"
     required_attendees: "all participants"
 ```
@@ -85,7 +85,7 @@ game_day:
 ```markdown
 # Database Failover Game Day Runbook
 
-**Date**: January 15, 2025
+**Date**: YYYY-MM-DD
 **Duration**: 2 hours
 **Environment**: Staging
 
@@ -101,15 +101,15 @@ game_day:
 
 ## Timeline
 
-### 10:00 - Introduction (10 min)
+### T+0 - Introduction (10 min)
 - Facilitator explains objectives
 - Review scenarios and success criteria
 - Confirm roles and communication channels
 - Remind everyone: this is a learning exercise
 
-### 10:10 - Scenario 1: Primary DB Failure (30 min)
+### T+10m - Scenario 1: Primary DB Failure (30 min)
 
-**T+0 (10:10)** - Inject failure
+**T+0** - Inject failure
 ```bash
 aws rds reboot-db-instance \
   --db-instance-identifier staging-primary \
@@ -136,15 +136,15 @@ aws rds reboot-db-instance \
 - Were customers impacted?
 - What manual interventions needed?
 
-### 10:40 - Debrief Scenario 1 (10 min)
+### T+40m - Debrief Scenario 1 (10 min)
 - What went well?
 - What could improve?
 - Any surprises?
 - Action items identified
 
-### 10:50 - Scenario 2: Network Partition (20 min)
+### T+50m - Scenario 2: Network Partition (20 min)
 
-**T+0 (10:50)** - Inject failure
+**T+0** - Inject failure
 ```bash
 # Block database security group ingress
 aws ec2 revoke-security-group-ingress \
@@ -166,9 +166,9 @@ aws ec2 revoke-security-group-ingress \
 - [ ] Check user-facing error messages
 - [ ] Track degraded service duration
 
-### 11:10 - Debrief Scenario 2 (10 min)
+### T+70m - Debrief Scenario 2 (10 min)
 
-### 11:20 - Scenario 3: Surprise! (20 min)
+### T+80m - Scenario 3: Surprise! (20 min)
 
 **Facilitator Note**: Don't announce this scenario details beforehand.
 Test true incident response capability.
@@ -193,7 +193,7 @@ for i in range(100):
 - [ ] Cross-team coordination
 - [ ] Escalation decisions
 
-### 11:40 - Final Debrief & Wrap-up (20 min)
+### T+100m - Final Debrief & Wrap-up (20 min)
 
 **Debrief Questions**:
 1. What worked well?
@@ -272,8 +272,8 @@ class GameDayMetrics:
 # Example usage
 metrics = GameDayMetrics(
     scenario_name="Database Failover",
-    start_time=datetime(2025, 1, 15, 10, 10, 0),
-    end_time=datetime(2025, 1, 15, 10, 12, 30),
+    start_time=datetime.fromisoformat("YYYY-MM-DDTHH:MM:SS"),
+    end_time=datetime.fromisoformat("YYYY-MM-DDTHH:MM:SS"),
     time_to_detect_seconds=15.0,
     time_to_respond_seconds=45.0,
     time_to_recover_seconds=150.0,
@@ -345,7 +345,7 @@ surprise_scenarios:
 ```markdown
 # Game Day Report: Database Failover
 
-**Date**: January 15, 2025
+**Date**: YYYY-MM-DD
 **Participants**: 12
 **Duration**: 2 hours
 **Environment**: Staging
@@ -394,12 +394,12 @@ improvements needed.
 
 | Action | Owner | Due Date | Priority |
 |--------|-------|----------|----------|
-| Add alert for RDS failover events | @sre-team | Jan 20 | P0 |
-| Update dashboard with replica lag | @platform | Jan 22 | P1 |
-| Document cache invalidation behavior | @dev-team | Jan 25 | P1 |
-| Add connection pool monitoring | @sre-team | Jan 27 | P0 |
-| Update escalation contact list | @manager | Jan 18 | P2 |
-| Tune application retry backoff | @dev-team | Feb 1 | P1 |
+| Add alert for RDS failover events | @sre-team | T+7d | P0 |
+| Update dashboard with replica lag | @platform | T+9d | P1 |
+| Document cache invalidation behavior | @dev-team | T+12d | P1 |
+| Add connection pool monitoring | @sre-team | T+14d | P0 |
+| Update escalation contact list | @manager | T+5d | P2 |
+| Tune application retry backoff | @dev-team | T+19d | P1 |
 
 ## Lessons Learned
 
@@ -410,7 +410,7 @@ improvements needed.
 
 ## Next Game Day
 
-**Proposed Date**: March 15, 2025
+**Proposed Date**: YYYY-MM-DD
 **Scenario**: Multi-region failover
 **Scope**: Production (with safeguards)
 

@@ -1,55 +1,108 @@
 ---
 name: devops-engineer
-description: "Day-2 operations and platform engineering: Docker/containerization, Kubernetes runtime patterns, environment hygiene, operational readiness, and incident response. Use when improving ops reliability or running infrastructure. For CI/CD pipeline design and rollout automation, prefer deployment-engineer."
+description: "Operate and evolve runtime infrastructure: containerization, Kubernetes operations, platform engineering, and operational readiness. Use for reliability, runtime configuration, or incident response prep; not for CI/CD pipeline architecture or release automation design."
 category: devops
 ---
 
 # DevOps Engineer
 
-This skill is for operating and evolving systems: containers, Kubernetes, platform engineering, and incident response readiness.
+This skill guides operational work on runtime platforms and day-2 reliability.
 
 ## Use this skill when
 
-- Containerizing applications (Dockerfiles, images, runtime constraints)
-- Kubernetes configuration and operations (deployments/services/ingress, resource limits)
-- Platform engineering and self-service “golden paths”
-- Operational readiness: health checks, runbooks, on-call hygiene
-- Incident response support: triage, stabilization, postmortem follow-ups
+- Containerizing applications (Dockerfile/image/runtime constraints)
+- Operating Kubernetes workloads (deployments/services/ingress, probes, resource limits)
+- Building platform engineering “golden paths” and self-service templates
+- Improving operational readiness (health checks, runbooks, on-call hygiene)
+- Supporting incident response readiness or stabilization
 
 ## Do not use this skill when
 
-- The task is primarily CI/CD pipeline design, rollout safety, or release automation (use `deployment-engineer`)
+- The task is primarily CI/CD pipeline architecture, release automation design, or SCM workflows
+- The task is purely application feature work with no runtime/ops impact
 
-## Non-Negotiable Rules
+## Trigger phrases
 
-- No manual infra changes as the “source of truth” (prefer declarative configs/IaC where available).
-- Don’t ship `latest` tags to production.
+- "containerize", "Dockerfile", "image size"
+- "Kubernetes deployment", "ingress", "readiness probe"
+- "resource requests/limits", "OOM", "CPU throttling"
+- "runbook", "on-call", "incident response"
+- "platform engineering", "golden path"
+
+## Required inputs
+
+- Service/workload name and environment
+- Runtime surface (Docker, Kubernetes, VM, managed service)
+- Current deploy/rollback mechanism
+- Constraints (SLOs, security posture, budget)
+- Change request or target outcome
+
+## Non-negotiable rules
+
+- No manual infra changes as the source of truth; prefer declarative configs/IaC.
+- Do not ship `latest` tags to production.
 - Always define resource requests/limits for production workloads.
-- Don’t require interactivity in automated environments.
+- Avoid interactive steps in automated environments.
 
 ## Workflow (Deterministic)
 
-1. Identify the operational goal and constraints (SLOs, security posture, budget).
-2. Identify the runtime surface (Docker, Kubernetes, host/VM, managed service).
-3. Make the smallest safe change first.
-4. Add verification: readiness/health checks, metrics, and rollback path.
-5. Document runbook notes and ownership.
+1. Clarify the operational goal and constraints.
+   - Output: one-paragraph goal statement and constraints list.
+2. Identify the runtime surface and ownership.
+   - Decision: If Kubernetes, plan manifest changes; if Docker/VM, plan image/runtime changes.
+   - Output: selected runtime path and owners.
+3. Propose the smallest safe change.
+   - Decision: If risk is high, propose phased rollout or canary with rollback guardrails.
+   - Output: change list with risk notes.
+4. Add verification and rollback steps.
+   - Output: concrete validation steps, metrics to watch, rollback procedure.
+5. Update operational artifacts.
+   - Output: runbook updates, alert/dashboard follow-ups, ownership notes.
+
+## Common pitfalls
+
+- Changing runtime settings without updating runbooks or alerts
+- Missing probes or resource limits in production
+- Assuming rollback exists without testing or documenting it
+- Editing runtime state manually instead of updating declarative configs
+
+## Examples
+
+**Example 1: Containerization hardening**
+Input: "Make the API container slimmer and safer for prod."
+Output:
+- Summary: tighten base image, non-root user, pinned tag.
+- Proposed changes: multi-stage build, drop dev deps, add USER.
+- Verification: run image scan, validate startup and health checks.
+- Rollback: revert image tag, redeploy previous digest.
+- Follow-ups: document image build constraints in runbook.
+
+**Example 2: Kubernetes readiness**
+Input: "Our service keeps failing readiness checks after deploy."
+Output:
+- Summary: align readiness probes with startup behavior.
+- Proposed changes: adjust probe path/timeouts, add startup probe.
+- Verification: watch rollout status, monitor readiness success rate.
+- Rollback: rollback deployment revision and restore probe config.
+- Follow-ups: update runbook with probe guidance.
 
 ## Output Contract (Always)
 
-- Proposed change(s) with rationale
-- Verification steps (how to validate success and detect regression)
-- Rollback/stabilization steps
-- Any required operational follow-ups (alerts, dashboards, runbooks)
+Report in this format:
 
-## Resources (Optional)
+```
+## Summary
+## Proposed Changes
+## Verification
+## Rollback
+## Follow-ups
+```
 
-- Deep-dive playbook: `resources/implementation-playbook.md`
-- GitHub Actions (only when integrating runtime concerns, not pipeline architecture): `references/github-actions.md`
-- Docker patterns: `references/docker-patterns.md`
-- Kubernetes patterns: `references/kubernetes.md`
-- Terraform/IaC notes (runtime-facing): `references/terraform-iac.md`
-- Deployment strategies (runtime implications only): `references/deployment-strategies.md`
-- Platform engineering: `references/platform-engineering.md`
-- Release artifacts (runtime-facing): `references/release-automation.md`
-- Incident response: `references/incident-response.md`
+## References
+
+- `references/README.md`
+
+## Trigger test
+
+- "Add resource limits and probes to our Kubernetes deployment."
+- "Create a runbook and rollback steps for the container runtime."

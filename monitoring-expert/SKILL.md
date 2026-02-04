@@ -1,6 +1,6 @@
 ---
 name: monitoring-expert
-description: End-to-end observability (logs/metrics/traces/alerts) and performance signals (profiling/load tests/capacity planning). Use when instrumenting services, setting alert strategy, or building an observability stack. For Grafana dashboard implementation/JSON, prefer grafana-dashboards if available.
+description: End-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack.
 category: observability
 triggers:
   - monitoring
@@ -26,10 +26,6 @@ output-format: code
 
 Observability and performance specialist implementing comprehensive monitoring, alerting, tracing, and performance testing systems.
 
-## Role Definition
-
-You are a senior SRE with 10+ years of experience in production systems. You specialize in the three pillars of observability: logs, metrics, and traces. You build monitoring systems that enable quick incident response, proactive issue detection, and performance optimization.
-
 ## When to Use This Skill
 
 - Setting up application monitoring
@@ -42,13 +38,47 @@ You are a senior SRE with 10+ years of experience in production systems. You spe
 - Application profiling and bottleneck analysis
 - Capacity planning and resource forecasting
 
+## Do Not Use This Skill When
+
+- The request is only for a single vendor UI walkthrough with no implementation decisions
+- The system already has a finalized observability plan and only needs routine execution
+- The user wants unrelated security auditing or code review not tied to monitoring
+
+## Activation Cues
+
+- “Add observability/monitoring to this service”
+- “We need logs/metrics/traces/alerts”
+- “Set up Prometheus/Grafana/Loki/Jaeger/OpenTelemetry”
+- “Design an alert strategy or SLO/SLA monitoring”
+- “Plan performance tests or profiling for bottlenecks”
+
+## Required Inputs
+
+- Service overview (architecture, language/runtime, deployment model)
+- Current telemetry stack (if any) and constraints
+- Critical user journeys or business KPIs
+- Traffic profile and latency/error targets
+- Compliance or data handling constraints (PII, retention)
+
 ## Core Workflow
 
-1. **Assess** - Identify what needs monitoring
-2. **Instrument** - Add logging, metrics, traces
-3. **Collect** - Set up aggregation and storage
-4. **Visualize** - Create dashboards
-5. **Alert** - Configure meaningful alerts
+1. **Scope goals** - Confirm critical paths, SLIs/SLOs, and stakeholders.
+   - Output: Monitoring goals and scope statement.
+2. **Plan instrumentation** - Define logs, metrics, and traces to add.
+   - Decision: If no tracing is feasible, prioritize logs + metrics with correlation IDs.
+   - Output: Instrumentation backlog with owners and acceptance criteria.
+3. **Select collection/storage** - Choose agents, pipelines, retention, and cardinality limits.
+   - Decision: If managed services are mandated, align to vendor-specific exporters and limits.
+   - Output: Telemetry architecture and data flow summary.
+4. **Design dashboards** - Build RED/USE-based views and service KPIs.
+   - Output: Dashboard spec (panels, queries, refresh, owners).
+5. **Define alerting** - Set thresholds, burn-rate alerts, and paging policies.
+   - Decision: If alert volume is high, switch to error budget or anomaly alerts.
+   - Output: Alert policy and routing matrix.
+6. **Performance & capacity** - Plan load tests, profiling, and capacity models.
+   - Output: Test plan, profiling targets, and capacity assumptions.
+7. **Verify & roll out** - Validate signals, run smoke checks, and document runbooks.
+   - Output: Verification checklist and operational handoff notes.
 
 ## Reference Guide
 
@@ -82,12 +112,58 @@ Load detailed guidance based on context:
 - Use string interpolation in logs (use structured fields)
 - Skip correlation IDs in distributed systems
 
+## Common Pitfalls
+
+- High-cardinality labels that explode metric storage
+- Alerts without ownership or runbook links
+- Dashboards without clear users or decision intent
+- Traces sampled too aggressively to diagnose latency spikes
+- Missing retention policies or log redaction
+
 ## Knowledge Reference
 
 Prometheus, Grafana, ELK Stack, Loki, Jaeger, OpenTelemetry, DataDog, New Relic, CloudWatch, structured logging, RED metrics, USE method, k6, Artillery, Locust, JMeter, clinic.js, pprof, py-spy, async-profiler, capacity planning
 
-## Related Skills
+## Examples
 
-- This skill is standalone.
-- If a repo has a specialized Grafana dashboard skill, use it for dashboard JSON/panel authoring.
-- Otherwise, use `references/dashboards.md` here and produce a minimal dashboard spec.
+**Example 1: Instrumentation plan**
+
+Input: “Add observability to our Node.js API and define alerts for latency.”
+
+Output:
+- Goals: 95th percentile latency < 400ms; error rate < 1%
+- Instrumentation: JSON logs with request_id, `http.server.duration` histogram, traces for `/checkout`
+- Alerting: 5m burn-rate alert on latency, error budget alert on 4xx/5xx
+
+**Example 2: Performance testing**
+
+Input: “We need load tests to validate 2x traffic before launch.”
+
+Output:
+- k6 scenario: ramp 50 → 200 VUs over 10m, steady for 15m
+- Targets: `/search`, `/checkout`, `/login`
+- Pass criteria: p95 < 500ms, error rate < 0.5%
+
+## Output Contract
+
+When executing this skill, respond with the following sections:
+
+- **Summary**: One-paragraph overview of the monitoring plan.
+- **Assumptions & Inputs**: Any inferred context or missing data.
+- **Instrumentation Plan**: Logs/metrics/traces to add, with owners.
+- **Telemetry Architecture**: Collection, storage, retention, limits.
+- **Dashboards**: Panel list and KPIs.
+- **Alerting**: Policies, thresholds, routing.
+- **Performance & Capacity**: Test plan and profiling targets.
+- **Verification**: Steps to confirm signals and alerting work.
+- **Risks & Follow-ups**: Gaps or decisions needed.
+
+## References
+
+See `references/README.md` for the index of detailed playbooks.
+
+## Trigger Test
+
+If the user asks:
+- “Design an observability stack for our microservice.”
+- “Set up logging, metrics, and tracing with alerting.”

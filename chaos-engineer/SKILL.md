@@ -20,6 +20,21 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
 - You are still missing basic observability (you can’t define steady state)
 - The change is low-risk and easily reversible
 
+## Trigger phrases
+
+- "Design a chaos experiment" or "create a chaos test plan"
+- "Run a game day" or "plan a resilience drill"
+- "Inject failures" or "simulate outages"
+- "Validate resilience" or "test blast radius"
+
+## Required inputs
+
+- System scope and critical path (services, dependencies, owners)
+- Failure mode to test (latency, packet loss, dependency outage, resource exhaustion)
+- Environments available and allowable blast radius
+- Observability sources for steady state (metrics, logs, traces)
+- Rollback mechanisms and on-call/communications expectations
+
 ## Safety Rules (Non-Negotiable)
 
 - Define steady state metrics before injecting failure.
@@ -30,11 +45,27 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
 ## Workflow (Deterministic)
 
 1. Map critical paths and dependencies.
-2. Define hypothesis + steady state + guardrails.
-3. Choose blast radius (env, scope, % traffic, duration).
-4. Define rollback triggers and a kill switch.
-5. Execute, observe, stop on guardrails.
-6. Document findings and convert into fixes.
+   - Output: scoped system map + dependency list.
+2. Define hypothesis, steady state signals, and guardrails.
+   - Output: hypothesis statement + steady state metrics + guardrail thresholds.
+   - Decision: if you cannot define steady state metrics, stop and request observability gaps.
+3. Select failure mode and blast radius.
+   - Output: failure injection spec (mode, target, environment, % traffic, duration).
+   - Decision: if production is in scope and rollback/kill switch is missing, stop and require one.
+4. Define safety plan and rollback workflow.
+   - Output: rollback triggers, kill switch steps, communications plan.
+5. Execute and monitor.
+   - Output: execution log with timestamps, guardrail observations, and stop/continue decision.
+   - Decision: if any guardrail breaches, rollback immediately.
+6. Capture findings and remediation.
+   - Output: findings summary + prioritized remediation tickets.
+
+## Common pitfalls
+
+- Injecting failures without steady state metrics or clear SLOs.
+- Expanding blast radius before validating smaller scopes.
+- Missing rollback automation or unclear ownership during execution.
+- Treating a chaos experiment as a load test without hypotheses.
 
 ## Output Contract (Always)
 
@@ -42,11 +73,52 @@ Chaos engineering is *controlled failure injection* with explicit hypotheses, sa
 - Execution plan (steps + stop conditions)
 - Findings + remediation actions
 
+Use this reporting format every time:
+
+```
+## Chaos Experiment Report
+- Scope:
+- Hypothesis:
+- Steady State Signals:
+- Guardrails:
+- Failure Injection:
+- Blast Radius:
+- Rollback Plan:
+- Execution Steps:
+- Stop Conditions:
+- Findings:
+- Remediation Actions:
+```
+
+## Examples
+
+**Trigger test prompts**
+- "Design a chaos experiment to test payment gateway timeouts in staging."
+- "Create a game day plan to simulate a dependency outage."
+
+**Example input**
+- Goal: Validate retry behavior when the payment gateway is unavailable.
+- Scope: Checkout service + gateway client.
+- Environment: Staging only.
+- Failure mode: 100% gateway timeout for 5 minutes.
+
+**Example output (abbreviated)**
+```
+## Chaos Experiment Report
+- Scope: Checkout service + payment gateway client
+- Hypothesis: When the gateway times out, retries activate and users receive a friendly failure within 2s.
+- Steady State Signals: Error rate < 0.1%, P95 latency < 400ms
+- Guardrails: Error rate > 2%, latency > 800ms
+- Failure Injection: Force gateway timeout responses
+- Blast Radius: Staging, 100% traffic, 5 minutes
+- Rollback Plan: Disable fault injection flag; verify error rate normalizes
+- Execution Steps: Pre-check steady state, enable flag, monitor, disable
+- Stop Conditions: Guardrail breach or manual kill switch
+- Findings: Retries succeeded, user errors returned cleanly
+- Remediation Actions: Add circuit breaker metrics dashboard
+```
+
 ## Resources (Optional)
 
 - End-to-end playbook + templates: `resources/implementation-playbook.md`
-- Experiment design deep dive: `references/experiment-design.md`
-- Game day facilitation: `references/game-days.md`
-- Infra failure patterns: `references/infrastructure-chaos.md`
-- Kubernetes experiments: `references/kubernetes-chaos.md`
-- Tools and automation patterns: `references/chaos-tools.md`
+- Reference index: `references/README.md`

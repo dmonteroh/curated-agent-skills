@@ -19,35 +19,76 @@ This skill is for Angular web applications and component libraries.
 ## Do not use this skill when
 
 - The project is not Angular
-- You only need general UI design critique (use `ui-design`)
+- You only need general UI design critique
+
+## Activation cues
+
+- "Build an Angular component" / "refactor an Angular component"
+- "Use signals" / "RxJS vs signals" / "NgRx store"
+- "Angular routing" / "guard" / "resolver" / "lazy load"
+- "Angular tests" / "TestBed" / "Component harness"
+
+## Inputs to collect
+
+- Target components/routes/services and current pain points
+- State boundaries and data sources (HTTP, signals, store)
+- Accessibility requirements (keyboard, focus order, labeling)
+- Performance constraints (change detection, bundle size)
+- Test expectations (unit, component, integration)
 
 ## Workflow (Deterministic)
 
 1) Clarify scope + constraints
-- Feature/change scope, target routes/components, accessibility needs, performance budget.
+- Capture feature/change scope, target routes/components, accessibility needs, performance budget.
+- Outputs: scope summary and acceptance criteria.
 
 2) Choose state strategy (default order)
-- Local component state with signals.
-- RxJS for async streams and boundary integration (HTTP, events).
-- NgRx only when you truly need global, event-driven app state (large apps, complex workflows).
+- If state is local to a component and UI-driven, use signals.
+- If state is async or shared via streams/IO boundaries, use RxJS.
+- If state must be global, event-driven, and shared across many features, use NgRx.
+- Outputs: selected state strategy with rationale and boundaries.
 
 3) Define component boundaries
-- Inputs/outputs and what owns the state.
+- Specify inputs/outputs, ownership of state, and what is purely presentational.
 - Avoid “smart-everywhere”: keep containers thin and components reusable.
+- Outputs: component tree with state owners and data flow.
 
 4) Implement with Angular hygiene
 - Prefer standalone components and `OnPush`.
 - Prefer template `async` pipe over manual subscriptions.
 - Keep effects/side effects explicit and testable.
+- Outputs: implementation plan or code changes list.
 
 5) Routing + data loading
 - Keep routing declarative; lazy-load where it matters.
 - Ensure error/loading states exist for route-level data.
+- Outputs: route config updates and loading/error strategy.
 
 6) Verify
 - Unit tests for services and pure logic.
 - Component tests for UI + state interactions.
 - One negative case for critical flows (validation/auth/guard).
+- Outputs: verification checklist with exact test targets.
+
+## Common pitfalls to avoid
+
+- Mixing signals and RxJS without clear ownership boundaries
+- Manual subscriptions in templates instead of `async` pipe
+- Shared mutable state in components that should be inputs/outputs
+- Missing loading/error states for route-level data
+- Unmocked dependencies in component tests
+
+## Examples
+
+Trigger tests:
+- "Refactor this Angular page to use signals and OnPush."
+- "Add lazy-loaded routes with guards and tests for a new feature."
+
+Example output (condensed):
+- Scope: Profile page and edit dialog
+- State strategy: Signals for local form state, RxJS for HTTP
+- Changes: `ProfileComponent`, `ProfileService`, `profile.routes.ts`
+- Tests: `ProfileService` unit tests, component harness tests
 
 ## Output Contract (Always)
 
@@ -56,11 +97,13 @@ This skill is for Angular web applications and component libraries.
 - Accessibility notes (keyboard/focus/labels)
 - Verification plan (tests + manual checks)
 
+Reporting format:
+- Scope:
+- State strategy:
+- Data flow boundaries:
+- Accessibility checks:
+- Verification:
+
 ## References (Optional)
 
-- Components + signals patterns: `references/components.md`
-- RxJS patterns: `references/rxjs.md`
-- NgRx patterns (only when needed): `references/ngrx.md`
-- Routing patterns: `references/routing.md`
-- Testing patterns: `references/testing.md`
-
+- Index: `references/README.md`

@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Scaffold a visual validation report.
 # Usage:
-#   ./scripts/visual_report.sh "Login modal" docs/qa/visual/VR-2026-01-31-login-modal.md
+#   ./scripts/visual_report.sh "Login modal" docs/qa/visual/VR-YYYY-MM-DD-login-modal.md
 
 SUBJECT="${1:-}"
 OUT="${2:-}"

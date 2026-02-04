@@ -32,6 +32,12 @@ In Visual Studio Code this can be done by selecting the `Developer: Reload Windo
 - Keep skill definitions in `SKILL.md` with minimal, readable frontmatter, including a `category`.
 - Prefer scripts and referenced assets over duplicating long instructions.
 
+## AGENTS_prepend.md
+
+`AGENTS_prepend.md` is a ready-to-use snippet you can add to your project’s `AGENTS.md` to guide how agents discover and apply skills. It provides a lightweight protocol for skill selection, ambiguity handling, multi-agent use, and verification culture.
+
+Use it as a starting template or merge it into your existing `AGENTS.md`. The file is loaded into the promp context for every request, keep it concise for better performance, and do not repeat information already found on a project's `README.md`.
+
 ## Contributing
 
 1. Add or update a skill folder with `SKILL.md`.
@@ -44,10 +50,10 @@ In Visual Studio Code this can be done by selecting the `Developer: Reload Windo
 Run:
 
 ```bash
-python3 scripts/audit_skills.py
+.venv/bin/python scripts/audit_skills.py
 ```
 
-This checks skill definitions for common issues and produces a report for review.
+This checks skill definitions for common issues and produces a report for review. Auditing requires the `tiktoken` library. See `scripts/auditing/README.md` for setup, usage, and references used to build the checklist.
 
 ## Generate content table
 

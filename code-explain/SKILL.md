@@ -19,13 +19,71 @@ This skill is intentionally different from `doc-generate`:
 - Producing step-by-step breakdowns with diagrams
 - Teaching patterns or debugging reasoning
 
+### Trigger phrases
+
+- "Explain how this code works"
+- "Walk me through this module"
+- "Give me a high-level + detailed breakdown"
+- "Where would I change this safely?"
+
 ## Do not use this skill when
 
 - The request is to implement new features or refactors
 - You only need API docs or user documentation
 - There is no code or design to analyze
 
-## Default output (deterministic)
+## Instructions
+
+### Required inputs
+
+- Code scope (file paths, modules, or snippet)
+- Goal and audience (onboarding, debugging, review)
+- Any constraints (length, diagram preference)
+
+### Workflow (with outputs)
+
+1) **Confirm scope and artifacts**
+   - If code references are missing, request them before proceeding.
+   - Output: a scoped list of files/components to explain.
+2) **Build a high-level mental model**
+   - Identify responsibilities, dependencies, and primary entry points.
+   - Output: a short outline of components and interactions.
+3) **Trace control flow**
+   - Walk through the critical execution path step-by-step.
+   - Output: ordered flow narrative with key branches.
+4) **Trace data flow and invariants**
+   - Track data transformations, state changes, and invariants.
+   - Output: data movement summary and invariants list.
+5) **Surface pitfalls and edges**
+   - Note failure modes, tricky conditions, and non-obvious behavior.
+   - Output: edge case list with impact notes.
+6) **Identify safe change points**
+   - Call out extension points, seams, and high-risk areas.
+   - Output: change guidance tied to components.
+7) **Optional diagram decision**
+   - If the flow is multi-step or non-linear, include a Mermaid diagram.
+   - Output: a diagram section or a brief note explaining omission.
+
+### Decision points
+
+- If the scope is too broad, propose a narrower focus and wait for confirmation.
+- If the user asks for changes or refactors, switch to guidance-only and ask for confirmation before implementation.
+- If there is no runnable code, provide a design-level explanation and state assumptions.
+
+### Common pitfalls to avoid
+
+- Mixing explanation with implementation changes.
+- Skipping inputs/outputs or invariants.
+- Overusing diagrams when a short narrative is clearer.
+
+### Templates (optional)
+
+- `resources/explainer-template.md`
+- `resources/implementation-playbook.md`
+
+## Output Format
+
+### Output contract (deterministic)
 
 Produce a single explainer in this structure:
 1) **What it is** (1–3 sentences)
@@ -39,24 +97,38 @@ Produce a single explainer in this structure:
 
 When useful, include a Mermaid diagram (sequence or flowchart).
 
-## Instructions
+### Reporting format
 
-- Assess structure, dependencies, and complexity hotspots.
-- Explain the high-level flow, then drill into key components.
-- Use diagrams, pseudocode, or examples when useful.
-- Call out pitfalls, edge cases, and key terminology.
-- If you need templates, open:
-  - `resources/explainer-template.md`
-  - `resources/implementation-playbook.md` (deeper patterns)
+- Scope: `<files/modules>`
+- Assumptions: `<if any>`
+- Explainer: `<sections 1-8>`
+- Diagram: `<mermaid or omitted>`
 
-If Mermaid diagrams are needed and the `mermaid-expert` skill is available, prefer it for diagram syntax/pattern quality.
+## Examples
 
-## Output Format
+### Example request
 
-- High-level summary of purpose and flow
-- Step-by-step walkthrough of key parts
-- Diagram or annotated snippet when helpful
-- Pitfalls, edge cases, and suggested next steps
+"Explain how the auth middleware and session refresh flow work in `src/auth` and `src/session`."
+
+### Example output (abbrev.)
+
+- Scope: `src/auth`, `src/session`
+- Assumptions: None
+- Explainer:
+  1) What it is: ...
+  2) Key inputs/outputs: ...
+  3) Control flow: ...
+  4) Data flow: ...
+  5) Edge cases and failure modes: ...
+  6) Where to change it safely: ...
+  7) Suggested tests: ...
+  8) Next steps: ...
+- Diagram: Omitted (linear flow)
+
+## Trigger test
+
+- "Can you walk me through `src/payments` and explain the data flow?"
+- "Explain the request lifecycle for this controller and where I can add hooks."
 
 ## Resources
 

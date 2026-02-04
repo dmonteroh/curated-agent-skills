@@ -6,7 +6,7 @@ category: observability
 
 # migration-observability
 
-This skill is for **running migrations safely** (not for writing migration SQL/ORM steps). It focuses on:
+This skill is for **running migrations safely** (not for authoring SQL/ORM migration steps). It focuses on:
 - progress visibility (are we moving? how fast? ETA?)
 - safety signals (are we harming prod? are errors rising? is lag growing?)
 - runbook gates (objective go/no-go thresholds and rollback triggers)
@@ -15,12 +15,28 @@ This skill is for **running migrations safely** (not for writing migration SQL/O
 
 - Running a production migration/backfill/cutover that can’t be “fire and forget”.
 - You need dashboards/alerts and objective gates (pause, slow down, rollback, proceed).
-- Multiple agents/people need a shared, deterministic runbook for the migration.
+- You need a shared, deterministic runbook for the migration.
 
 ## Do not use this skill when
 
 - The change is a tiny, low-risk schema tweak with trivial rollback.
 - You’re only authoring migration scripts (this skill is about operating them).
+
+## Trigger phrases
+
+- “migration runbook”
+- “backfill observability”
+- “go/no-go gates”
+- “cutover checklist”
+- “migration dashboards and alerts”
+
+## Inputs you need
+
+- Migration summary: what changes, why, scope, expected duration, rollback complexity.
+- Migration type: schema-only / backfill / online rewrite / cutover / dual-write / reindex.
+- Operational constraints: maintenance window, allowed error budget, throttling knobs.
+- Available telemetry: metrics, logs, traces, dashboards, alerting system.
+- Data correctness expectations: invariants, validation approach, sampling strategy.
 
 ## Outputs (what you should produce)
 
@@ -33,41 +49,43 @@ Templates:
 - `references/runbook-template.md`
 - `references/metrics-and-gates.md`
 
-## Workflow (fast, bulletproof)
+## Workflow (step-by-step with outputs)
 
 1) Classify the migration (controls what you must observe)
-- Type: schema-only / backfill / online rewrite / cutover / dual-write / reindex
-- Blast radius: tables touched, write path impact, worst-case rollback complexity
-- Duration: seconds / minutes / hours / days
+- Decide type, blast radius, and rollback complexity.
+- Output: short classification summary to include in the runbook.
 
 2) Define progress metrics (prove it is moving)
-- rows processed / total rows (or batches complete)
-- throughput (rows/sec, batches/min)
-- ETA (derived)
-- lag vs source (if there is replication/dual-write)
+- Pick counters and derived rates (rows processed, throughput, ETA, lag).
+- Decision point: if you cannot instrument metrics, define structured logs and manual sampling cadence.
+- Output: a progress metrics list with target values or expected ranges.
 
 3) Define safety metrics (prove it is not hurting prod)
-Pick the ones that match your system:
-- DB health: CPU, memory, I/O, disk space, connection pool saturation
-- Query health: p95/p99 latency for top queries, lock waits, deadlocks
-- App health: request error rate, p95/p99 latency, timeouts
-- Data correctness: mismatch rate, invariant violations, checksum diffs (sampled)
+- Select DB, query, app, and correctness signals that exist today.
+- Decision point: if a metric is missing, either add lightweight instrumentation or choose a proxy metric.
+- Output: a safety metrics list with thresholds and measurement sources.
 
 4) Turn metrics into gates (objective go/no-go)
-For each phase, write:
-- **Proceed** criteria (green)
-- **Pause/Throttle** criteria (yellow)
-- **Rollback** criteria (red)
+- Write Proceed (green), Pause/Throttle (yellow), Rollback (red) per phase.
+- Decision point: if rollback is impossible, define a “stop and stabilize” gate plus explicit escalation steps.
+- Output: a gate table for each phase.
 
-5) Run the migration with controlled execution
-- Start with a canary (small cohort/table slice).
-- Use bounded batches and explicit throttling knobs.
-- Verify invariants continuously (spot checks + automated checks if possible).
+5) Build the runbook, dashboard, and alert specs
+- Use the templates to capture phases, checks, and thresholds.
+- Output: the three runbook artifacts in your repo structure.
 
-6) Post-migration verification and closeout
-- Data correctness checks (spot + systematic where feasible)
-- Performance regression check (baseline vs after)
-- Document lessons learned and permanent guardrails
+6) Execute with controls and document outcomes
+- Start with a canary, ramp cautiously, and validate invariants continuously.
+- Decision point: if any gate triggers, follow the runbook’s pause/rollback steps.
+- Output: a short closeout section with verification results and follow-ups.
+
+## Common pitfalls
+
+- Missing baselines, so you can’t detect regressions.
+- Gates with vague language instead of numeric thresholds.
+- No throttle/rollback plan for long-running backfills.
+- Correctness checks that rely on assumptions you can’t measure.
+- Alerting that pages the wrong team or has no escalation path.
 
 ## Tooling guidance (agnostic)
 
@@ -77,3 +95,27 @@ This skill does not require a specific stack. Common setups:
 - Alerts: Grafana alerting / PagerDuty / OpsGenie / Slack
 
 If none exist, you can still be “observable” by emitting structured logs + writing a runbook with manual checks and thresholds.
+
+## Examples
+
+Trigger test prompts:
+- “Create a migration runbook with go/no-go gates for a customer backfill.”
+- “We need dashboards and alerts for a cutover migration.”
+
+Example output summary (abbreviated):
+- Runbook: docs/runbooks/migrations/2024-09-customer-backfill.md
+- Dashboard spec: docs/runbooks/migrations/2024-09-customer-backfill-dashboard.md
+- Alerts spec: docs/runbooks/migrations/2024-09-customer-backfill-alerts.md
+- Gates: proceed/pause/rollback thresholds for canary, ramp, full run
+
+## Reporting format (what to return)
+
+- Migration classification (type, blast radius, rollback complexity).
+- Progress metrics + safety metrics with thresholds and sources.
+- Gate table by phase (proceed/pause/rollback).
+- Runbook/dashboard/alerts file paths produced.
+- Risks, assumptions, and any missing instrumentation.
+
+## References
+
+- `references/README.md`

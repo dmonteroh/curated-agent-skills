@@ -1,6 +1,6 @@
 ---
 name: performance
-description: End-to-end performance optimization skill combining orchestration (workflow) and deep-dive engineering. Establishes baselines, profiles bottlenecks, proposes fixes with measurable impact, and adds regression guardrails. Includes a safe-by-default perf wrapper script to capture repo signals and write a deterministic report. Use PROACTIVELY for latency/throughput/resource issues, scalability work, or perf gating.
+description: End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating.
 category: observability
 ---
 
@@ -20,7 +20,20 @@ One canonical performance skill that merges:
 ## Do not use this skill when
 
 - The task is feature work with no performance goals.
-- There is no way to measure (no metrics/traces/profiles and cannot run tests locally).
+- There is no way to measure and you cannot establish any baseline or plan to measure.
+
+## Activation cues (trigger phrases)
+
+- "slow", "latency", "p95", "p99", "throughput", "RPS", "perf regression"
+- "optimize", "profile", "bottleneck", "hot path", "slow query"
+- "capacity planning", "load test", "performance budget"
+
+## Required inputs
+
+- Target system scope (service, endpoint, user journey, or UI flow)
+- Environment constraints (staging/prod-like, hardware limits, data volume)
+- Success metrics (latency percentiles, throughput, error rate, cost)
+- Known incidents or regressions (if any)
 
 ## Quick start (fast path)
 
@@ -42,12 +55,18 @@ Output:
 - metrics: p50/p95/p99, throughput, error rate, cost, Core Web Vitals
 - constraints: budget, deadline, infra limits, rollout strategy
 
+Decision:
+- If goals are unclear, request scope + success metrics before proceeding.
+
 ### Phase 1: Baseline
 
 Output:
 - current baseline numbers
 - how measured (tooling + environment)
 - known bottlenecks/hypotheses
+
+Decision:
+- If no baseline is possible, document missing telemetry and propose a minimal measurement plan.
 
 ### Phase 2: Profile to find real bottlenecks
 
@@ -58,6 +77,10 @@ Collect (as available):
 - tracing (distributed traces, span timing)
 - frontend (Core Web Vitals, bundle size, render costs)
 
+Output:
+- ranked bottlenecks with evidence (top 3 by impact)
+- trace/profile artifacts or pointers
+
 ### Phase 3: Optimize by layer (measure after each change)
 
 - Database: indexes, query plans, N+1 elimination, pooling
@@ -65,23 +88,81 @@ Collect (as available):
 - Frontend: bundles, critical path, lazy loading, caching headers
 - Infrastructure: autoscaling, resource limits, CDN, network
 
+Output:
+- proposed fixes with estimated impact and risk
+- measurement plan for each change
+
 ### Phase 4: Validate + guardrails
 
 - Load tests / perf tests (safe environments only)
 - Perf budgets and regression gates in CI (if feasible)
 - Observability dashboards + alerts
 
-## Deep-dive reference (engineering)
+Output:
+- before/after comparison table
+- guardrails and owners
 
-For detailed tactics (profiling tools, caching strategies, perf testing), follow `resources/implementation-playbook.md`.
+## Common pitfalls
 
-## Integration notes
+- Optimizing before baselining or profiling
+- Changing multiple variables at once and losing causality
+- Reporting improvements without describing the environment
+- Relying on production-only changes without safe rollout plans
 
-- If perf work becomes structured (multiple phases/tasks), use `tracks-conductor-protocol` to create a track + tasks.
-- If the optimization requires a major architectural decision, record it via `adr-madr-system`.
+## Tools & scripts
+
+`scripts/perf.sh` is a safe-by-default helper that scans repo signals and emits a deterministic report.
+
+Usage:
+
+```sh
+./performance/scripts/perf.sh scan
+./performance/scripts/perf.sh report
+```
+
+Outputs:
+- `docs/_docgen/performance/raw/inventory.md`
+- `docs/_docgen/performance/REPORT.md`
+
+Requirements:
+- POSIX shell
+- `rg` (optional; falls back to `find`)
+
+Verification:
+- Confirm the report exists and lists inventory + measurement plan.
+
+## Examples
+
+Trigger test prompts:
+- "Our checkout p95 jumped to 1.8s last release. Find the bottleneck."
+- "Set up a performance budget and guardrails for this API."
+
+Input/output example:
+
+Input: "Profile the slowest endpoint in staging and propose fixes."
+
+Output:
+- Baseline numbers (environment + tooling)
+- Top bottleneck evidence (profile or trace)
+- 2-3 fixes with estimated impact
+- Validation plan (how to re-measure)
+
+## Output contract (reporting format)
+
+When this skill runs, respond with:
+
+- Summary (scope + goals)
+- Baseline (metrics, environment, tooling)
+- Bottlenecks (ranked, evidence-linked)
+- Recommendations (fixes, impact, risk)
+- Validation plan (tests, measurements, success criteria)
+- Guardrails (budgets, alerts, owners)
+- Open questions or missing data
+
+## References
+
+See `references/README.md` for detailed tactics, workflows, and source material.
 
 ## Resources
 
-- `resources/implementation-playbook.md` (deep reference)
-- `resources/optimization-workflow.md` (end-to-end perf workflow)
 - `scripts/perf.sh` (scan + report wrapper)

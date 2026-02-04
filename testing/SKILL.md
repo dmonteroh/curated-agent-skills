@@ -1,15 +1,15 @@
 ---
 name: testing
-description: "Unified testing skill for speed + quality. Supports two modes: unit test generation and end-to-end/automation strategy. Includes safe-by-default scripts to scaffold test plans and generate a deterministic testing report. Works standalone; if stack-specific testing skills exist, prefer them for framework/tooling details."
+description: "Create unit tests, API tests, and automation strategies with clear decision points, pitfalls, and deterministic reporting via local scripts."
 category: workflow
 ---
 
 # testing
 
-One canonical testing skill that combines:
-- **unit**: generate and improve unit tests quickly with strong edge-case focus
-- **automation**: end-to-end / integration / CI strategy and reliability (flakiness, runtime, reporting)
-- **api**: API-focused testing and lightweight mocking for parallel development (no dedicated specialist skill needed)
+One testing skill that covers:
+- **unit**: generate or improve unit tests with edge-case coverage
+- **automation**: integration/E2E strategy, CI feedback loops, and stability
+- **api**: API behavior testing and deterministic mocking
 
 ## Use this skill when
 
@@ -22,6 +22,27 @@ One canonical testing skill that combines:
 
 - There is no code or behavior defined to test.
 - The only requirement is an informal discussion of testing theory.
+
+## Trigger phrases
+
+- "add tests for this change"
+- "write a testing plan"
+- "make our tests faster/flaky"
+- "mock the API so frontend can proceed"
+
+## Inputs you need
+
+- Code or behavior to test (files, diff, or explicit requirements).
+- Target runtime/framework (language + test runner).
+- Constraints: CI limits, runtime budgets, and determinism requirements.
+- Access to the repo for file edits, if writing tests.
+
+## Mode selection (decision guide)
+
+- If the user asks for new/updated tests for code changes, choose **unit**.
+- If the user asks for test strategy, CI gating, or flakiness fixes, choose **automation**.
+- If the focus is API contracts or mocking dependencies, choose **api**.
+- If none apply, ask for clarification and stop.
 
 ## Modes
 
@@ -36,12 +57,15 @@ Workflow:
    - boundary conditions
    - error handling
    - state transitions
-3) Add minimal fixtures/mocks and avoid over-mocking.
-4) Ensure tests are deterministic and fast.
+3) Decide if mocks are required:
+   - If external I/O exists, stub at the boundary.
+   - If logic is pure, avoid mocking entirely.
+4) Implement minimal fixtures and assertions.
+5) Ensure tests are deterministic and fast.
 
 Output:
-- test file(s) + brief explanation
-- gaps / follow-ups
+- Test file(s) + brief explanation
+- Gaps, risks, and follow-ups
 
 ### Mode: automation (E2E/integration strategy)
 
@@ -50,7 +74,9 @@ Goal: build a fast, reliable feedback loop with the right test mix.
 Workflow:
 1) Define critical journeys and risks (auth, payments, data integrity, permissions).
 2) Choose test layers:
-   - unit -> integration -> contract -> E2E (as needed)
+   - If unit coverage is low, start there.
+   - If cross-service behavior is risky, add integration/contract tests.
+   - If business-critical flows fail end-to-end, add E2E tests.
 3) Design for stability:
    - hermetic environments where possible
    - test data management
@@ -59,8 +85,8 @@ Workflow:
    - smoke suite, full suite, perf gates (if relevant), reporting
 
 Output:
-- recommended test pyramid + tooling
-- execution plan and CI integration steps
+- Recommended test pyramid + tooling
+- Execution plan and CI integration steps
 
 ### Mode: api (API testing + mocking, pragmatic)
 
@@ -81,6 +107,31 @@ Outputs:
 - Mock/stub approach (in-process vs mock server) + scenarios
 - Fixtures and how to regenerate them
 
+## Common pitfalls to avoid
+
+- Over-mocking internals instead of stubbing boundaries.
+- Non-deterministic fixtures (randomness without seeding).
+- Slow E2E suites without smoke tests.
+- Retrying tests that hide real failures.
+
+## Output contract (always report)
+
+Use this format whenever the skill runs:
+
+- Mode: unit | automation | api
+- Scope: what code/flows were covered
+- Assumptions: constraints or unknowns
+- Work completed: tests added/strategy decided
+- Files touched or created
+- Tests run: commands or “not run”
+- Risks/gaps + recommended follow-ups
+
+## Examples
+
+Trigger test prompts:
+- "Add unit tests for the new validation function"
+- "Create a testing strategy for our checkout flow"
+
 ## Quick start (in a real repo)
 
 ```sh
@@ -90,15 +141,15 @@ Outputs:
 
 Outputs a deterministic report under `docs/_docgen/testing/`.
 
-## Integration notes
+Script usage and verification:
+- `./testing/scripts/test.sh plan` writes `docs/_docgen/testing/PLAN.md`.
+- `./testing/scripts/test.sh report` writes `docs/_docgen/testing/REPORT.md`.
+- Verify by opening the generated file; the script does not run tests.
+- Optional: install `rg` for faster file counting (fallback uses `find`).
 
-- Convert testing work into tasks/tracks via `tracks-conductor-protocol` when non-trivial.
-- If tests reveal an architectural decision (e.g., contract strategy, isolation approach), record an ADR via `adr-madr-system`.
-- For code review alignment, use `code-review` to enforce “tests required” gates.
-- For performance-related tests, coordinate with `performance`.
+## References
 
-## Resources
-
+- `references/README.md` (index of reference material)
 - `resources/unit-playbook.md` (unit testing patterns)
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)

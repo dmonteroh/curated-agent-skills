@@ -21,18 +21,53 @@ This skill is for React web apps and component libraries that are not tied to a 
 - The project is Next.js / App Router / Server Components (use `nextjs`)
 - The project is React Native / Expo (use `react-native`)
 
+## Trigger phrases
+
+- "Build a React component" / "refactor React hooks"
+- "Add React state management" / "context vs Redux"
+- "Fix React performance" / "optimize rendering"
+- "Write React tests" / "RTL for components"
+
 ## Workflow (Deterministic)
 
 1. Clarify requirements and constraints (a11y, perf budget, responsiveness, browser support).
+   - Output: short list of functional + non-functional requirements.
 2. Define component boundaries and props/state contracts.
-3. Choose state strategy:
-   - local state first
-   - context for cross-cutting UI state
-   - a store (Zustand/Redux) only when needed
-   - query caching for server state
-4. Implement with strict TypeScript types and stable keys.
+   - Output: component list with props/state table.
+3. Choose state strategy.
+   - If state is local to a component, keep it local.
+   - If shared across sibling branches, use context.
+   - If app-wide or complex, use a store (Zustand/Redux).
+   - If server state, use query caching (React Query/SWR).
+   - Output: selected approach with justification.
+4. Implement components with strict TypeScript types and stable keys.
+   - Output: code changes with notes on key patterns.
 5. Add error handling (error boundaries for UI failures).
+   - Output: error boundary usage and fallback UI notes.
 6. Verify with tests and manual checks (keyboard navigation, loading/error states).
+   - Output: test plan + any executed checks.
+
+## Common pitfalls to avoid
+
+- Overusing global state for local UI concerns.
+- Missing `key` stability in lists, causing render churn.
+- Uncontrolled/controlled input mismatch in forms.
+- Skipping accessibility checks for focus/ARIA.
+- Fetching server state without caching or error handling.
+
+## Examples
+
+**Input**: "Create a reusable `UserCard` component with loading and error states."
+
+**Output**:
+- Implemented `UserCard` with props for `user`, `isLoading`, and `error`.
+- Added skeleton + error fallback UI and proper aria labels.
+- Tests added for loading and error rendering.
+
+## Trigger test
+
+- User prompt: "Refactor this React component to use hooks and add tests."
+- User prompt: "We need a shared React context for theme state."
 
 ## Output Contract (Always)
 
@@ -41,12 +76,13 @@ This skill is for React web apps and component libraries that are not tied to a 
 - Accessibility notes (keyboard/focus/ARIA)
 - Verification plan (tests + how to validate behavior)
 
+## Reporting Format
+
+- Summary
+- State decisions
+- Accessibility notes
+- Verification
+
 ## References (Optional)
 
-- Hooks patterns: `references/hooks-patterns.md`
-- State management: `references/state-management.md`
-- Performance: `references/performance.md`
-- Best practices: `references/best-practices.md`
-- Testing: `references/testing-react.md`
-- Component scaffolding: `references/component-scaffolding.md`
-- Migration (class -> hooks): `references/migration-class-to-modern.md`
+- `references/README.md`

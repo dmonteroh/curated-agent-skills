@@ -1,6 +1,6 @@
 ---
 name: adr-madr-system
-description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index. Optimized for spec-driven development and multi-agent workflows: enforces decision drivers, considered options, consequences, and \"supersedes\" semantics instead of editing accepted ADRs. Works standalone; if other skills exist, use them for domain/tech guidance, but keep ADRs as the decision source of truth."
+description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index. Focuses on decision drivers, options, consequences, and supersedes semantics so accepted ADRs remain immutable."
 category: architecture
 ---
 
@@ -8,7 +8,7 @@ category: architecture
 
 Create high-quality ADRs (MADR style) as separate files, and keep a lightweight index for discoverability.
 
-This skill is designed for **spec-driven development (SDD)** and **multi-agent** work: it defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
+This skill defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
 
 ## Use this skill when
 
@@ -19,6 +19,7 @@ Trigger phrases:
 - "We need to decide between X and Y."
 - "Should we adopt <tech/vendor>?"
 - "We’re changing the architecture for <system>."
+- "Document the architecture decision for <topic>."
 
 ## Do not use this skill when
 
@@ -31,9 +32,7 @@ Trigger phrases:
 - File naming: `ADR-XXXX-short-title.md` (XXXX is zero-padded)
 - Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
 
-## Workflow (SDD + multi-agent)
-
-If requirements are ambiguous or high-risk, run the short brainstorming loop first (one question at a time, 2-3 options with tradeoffs, concise design brief).
+## Workflow
 
 ### Step A: Decide if an ADR is required
 
@@ -42,13 +41,18 @@ Output: 3-5 bullets answering:
 - Why now (what triggered it)?
 - What scope is affected?
 
-If this is an architectural decision with cross-cutting impact, write an ADR.
+Decision point:
+- If the decision is cross-cutting or long-lived, proceed with an ADR.
+- If it is a local implementation detail, stop and capture a brief note elsewhere.
 
 ### Step B: Pull inputs from the spec
 
 Output: a short list of constraints and decision drivers with **links** to the spec/track/task artifacts.
 - Constraints: must/must-not/should, deadlines, platform limits, compliance.
 - Drivers: ranked priorities (cost, latency, operability, DX, security, time-to-deliver).
+
+Decision point:
+- If you cannot link to a source artifact, record the owner to confirm before acceptance.
 
 ### Step C: Consider options (minimum 2)
 
@@ -76,6 +80,14 @@ Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 Output: update docs/adr/README.md to include the new/updated ADR metadata and links.
 Use `references/index-format.md` for the index table format and update rules.
 
+### Step G: Self-check pitfalls
+
+Output: a short checklist of “done” confirmations.
+- Every section in the template is present (no missing headings).
+- Decision drivers are ranked and referenced in the rationale.
+- Consequences include at least one tradeoff.
+- Supersedes section present when replacing an accepted ADR.
+
 ## Output contract (always report)
 
 - New or updated ADR file path(s)
@@ -83,9 +95,15 @@ Use `references/index-format.md` for the index table format and update rules.
 - Link(s) between ADR(s) and spec/track/task artifacts
 - If superseding: old ADR ID and new ADR ID
 
+Reporting format:
+- ADRs: <list of ADR file paths>
+- Index: <ADR index path>
+- Links: <spec/track/task references>
+- Supersedes: <old ADR ID -> new ADR ID or "none">
+
 ## Quality gates
 
-Before finalizing, check `references/quality-gates.md`.
+Before finalizing, check `references/quality-gates.md` and `references/README.md` for the latest guidance.
 
 ## SDD integration notes
 
@@ -102,3 +120,35 @@ When the ADR is accepted, update the relevant spec/track/task artifact to link t
 - `scripts/update_index.sh` rebuilds the ADR index block deterministically from ADR files.
 - `scripts/validate_adr.sh` validates that a single MADR file contains required sections.
 - `scripts/validate_repo.sh` validates all ADRs in a repo and checks index coverage.
+
+Script requirements:
+- POSIX shell, `awk`, `sed`, `grep` (or `rg`), `date`, and standard coreutils.
+- No network access required.
+
+Script usage:
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/new_adr.sh "Use PostgreSQL"`
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/update_index.sh`
+- `./adr-madr-system/scripts/validate_adr.sh docs/adr/ADR-0001-sample.md`
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/validate_repo.sh`
+
+Script verification:
+- Capture script output and include it in the final report when used.
+
+## Common pitfalls
+
+- Editing accepted ADRs instead of superseding them.
+- Missing links back to the motivating spec/track/task.
+- Skipping decision drivers and ending up with untraceable rationale.
+- Forgetting to update the ADR index in the same change.
+
+## Examples
+
+Trigger test prompts:
+- "We need to decide between Kafka and SQS for event delivery."
+- "Document the architecture decision for multi-tenant storage isolation."
+
+Example output (reporting format):
+- ADRs: docs/adr/ADR-0007-event-delivery.md
+- Index: docs/adr/README.md
+- Links: `docs/specs/eventing.md#L40`
+- Supersedes: `none`

@@ -1,72 +1,132 @@
 ---
 name: refactor-clean
-description: Refactor code safely and quickly using clean-code + SOLID principles with an incremental, test-first workflow. Includes a lightweight hotspot scan script to find high-impact refactor targets. Use PROACTIVELY for refactoring tangled code, reducing duplication/complexity, and preparing modules for new features without behavior regressions.
+description: Incremental, test-first refactoring workflow to reduce complexity, remove duplication, and keep behavior stable, with an optional hotspot scan script.
 category: workflow
 ---
 
 # Refactor Clean
 
-Refactor code with a bias toward **speed**, **small diffs**, and **behavioral stability**.
-
-This skill consolidates duplicate refactoring skills into one canonical workflow.
+Refactor code with a bias toward small diffs, stable behavior, and fast feedback.
 
 ## Use this skill when
 
 - Refactoring tangled or hard-to-maintain code.
 - Reducing duplication, complexity, or code smells.
-- Improving testability and design consistency.
-- Preparing modules/components for new features.
-- Cleaning up a large codebase with accumulated debt (but still via incremental steps).
+- Improving testability or design consistency.
+- Preparing modules for new features without regressions.
 
 ## Do not use this skill when
 
-- You only need a tiny targeted fix (refactor cost outweighs benefit).
+- A small, targeted fix is all that is needed.
 - Refactoring is blocked by policy, deadlines, or change freeze.
-- The request is documentation-only.
+- The request is documentation-only or purely stylistic.
 
-## Workflow (best results, best speed)
+## Trigger phrases
 
-1) Clarify intent + constraints
-- What is the behavior that must not change?
-- What scope is allowed? What is off-limits?
-- What “done” looks like (tests, perf budget, style constraints).
+- "refactor"
+- "clean up this code"
+- "reduce duplication"
+- "simplify this module"
+- "address code smells"
+- "technical debt"
+
+## Required inputs
+
+- Target files/modules or a clear scope boundary.
+- Behavior that must not change (invariants, contracts, API expectations).
+- Allowed change scope and any constraints (deadlines, perf budgets, style rules).
+- Available tests or how to verify changes.
+
+## Workflow
+
+1) Confirm intent and scope
+   - If scope or invariants are unclear, ask clarifying questions before editing.
+   - Output: a one-paragraph scope statement and non-goals.
 
 2) Establish a safety net
-- Identify and run existing tests and/or add minimal characterization tests.
-- If tests are missing, add the smallest set that protects the refactor seam.
+   - If tests exist, run the most relevant subset.
+   - If tests are missing, add minimal characterization tests for refactor seams.
+   - Output: list of tests to run and any new tests added.
 
-3) Find hotspots (fast)
-- Run `scripts/scan_hotspots.sh` to locate high-impact targets.
-- Prefer refactors that reduce risk quickly:
-  - duplicate logic
-  - large files/modules
-  - long functions
-  - high churn areas (if git history is available in the repo you are working in)
+3) Identify hotspots
+   - Run `scripts/scan_hotspots.sh` or use manual heuristics.
+   - Output: 1–3 targets with a short risk/impact note each.
 
-4) Plan the refactor in small slices
-- Sequence changes so each step is reviewable and revertible.
-- Prefer interface-preserving refactors (rename/extract/inline/encapsulate).
+4) Plan small slices
+   - If the change is large or risky, propose a staged plan before editing.
+   - Prefer interface-preserving steps (rename, extract, inline, encapsulate).
+   - Output: ordered steps with risk notes.
 
 5) Refactor incrementally
-- One small change at a time; keep behavior stable.
-- Keep diffs focused; avoid opportunistic rewrites.
+   - Make one small change at a time and keep diffs focused.
+   - Avoid mixing behavior changes with cleanup unless explicitly required.
+   - Output: brief log of each completed slice.
 
-6) Verify + communicate
-- Run tests and targeted regressions.
-- Summarize what changed, why it’s safer, and what to watch.
+6) Verify and report
+   - Run tests and targeted checks after the refactor.
+   - If verification cannot be run, state what should be run.
+   - Output: verification results and any remaining risks.
 
-## Output format (when asked for a plan)
+## Common pitfalls
 
-- Hotspots + why they matter
-- Proposed steps (ordered), with risk notes
-- Verification plan (tests + targeted checks)
+- Broad rewrites without a safety net.
+- Mixing formatting changes with structural changes.
+- Skipping a plan for large or risky changes.
+- Letting refactors drift into new feature work.
 
-## Integration notes
+## Script: `scripts/scan_hotspots.sh`
 
-- If work needs structured intake/spec/planning, use `tracks-conductor-protocol` to create tasks/tracks.
-- If a refactor changes architecture boundaries or introduces a major new pattern, record an ADR via `adr-madr-system`.
+- Purpose: quick inventory of large files and TODO/FIXME density.
+- Usage: `HOTSPOT_LIMIT=20 sh scripts/scan_hotspots.sh`
+- Requirements: POSIX shell; uses `rg` if available, otherwise `find`, `wc`, `awk`, `sort`, `head`.
+- Verification: output should include "Largest Files" and "TODO / FIXME Counts" sections.
 
-## Resources
+## Examples
 
-- `resources/implementation-playbook.md` for patterns and examples.
-- `scripts/scan_hotspots.sh` for a quick hotspot inventory.
+**Example 1: request for incremental refactor**
+
+Input: "Refactor `orders.py` to remove duplication. Keep API behavior identical and tests are in pytest."
+
+Expected output (summary):
+
+- Scope: `orders.py` duplication cleanup, no API changes.
+- Hotspots: repeated pricing logic, long validation function.
+- Plan: extract pricing helpers, consolidate validation, run pytest subset.
+- Verification: `pytest tests/orders`.
+
+**Example 2: request for plan only**
+
+Input: "Give me a plan to clean up this payment service without changing behavior."
+
+Expected output (summary):
+
+- Hotspots and risks identified.
+- Ordered refactor slices with rationale.
+- Test/verification plan.
+
+## Output contract
+
+When this skill runs, report:
+
+- Scope and invariants.
+- Hotspots or target areas with brief rationale.
+- Plan or changes made (ordered, small slices).
+- Risks or follow-up recommendations.
+- Verification performed or explicitly not run.
+
+## Reporting format
+
+- Scope:
+- Hotspots:
+- Changes or Plan:
+- Risks:
+- Verification:
+
+## Trigger test
+
+- "Can you refactor this module to reduce duplication without changing behavior?"
+- "Clean up the legacy service and keep tests passing."
+
+## References
+
+- `references/README.md` for detailed playbooks and checklists.

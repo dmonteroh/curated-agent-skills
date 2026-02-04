@@ -65,7 +65,7 @@ wait
 3. Run:
 
 ```bash
-/Users/daniel.montero/repo/codex-curated-skills/.venv/bin/python scripts/audit_skills.py
+.venv/bin/python scripts/audit_skills.py
 ```
 
 ## Quality Gates

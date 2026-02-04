@@ -18,31 +18,60 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 ## Do not use this skill when
 
 - The service is not NestJS (use the stack-specific skill instead)
-- You only need generic architecture guidance (use backend-architect)
+- You only need generic architecture guidance without NestJS specifics
+
+## Trigger phrases
+
+- "Add a NestJS controller/service/module"
+- "Fix NestJS DI error" / "can't resolve dependencies"
+- "Add validation/serialization/pipes/guards/interceptors"
+- "Add Swagger/OpenAPI docs in NestJS"
+- "Write NestJS e2e tests"
+
+## Required inputs
+
+- Target NestJS repository or file paths
+- Desired endpoint or module behavior
+- Auth requirements and error/response expectations
+- Existing test runner/commands (if available)
 
 ## Workflow (Deterministic)
 
 1) Identify the surface
-- New endpoint, cross-cutting behavior (auth/validation/logging), or module refactor.
+- Decide whether this is a new endpoint, cross-cutting behavior, or module refactor.
+- Output: a short scope statement listing endpoints/modules affected.
 
 2) Lock boundaries
-- Decide the module that owns the behavior.
-- Export only what downstream modules must consume.
+- Decide the owning module and whether a new module is required.
+- If multiple modules need the same provider, extract a shared module and export only necessary providers.
+- Output: module ownership + export list.
 
 3) Define contracts
 - DTOs: request/response shapes, validation rules, serialization rules.
-- Errors: what can fail, which status codes, and what payload shape.
+- Errors: failure cases, status codes, payload shape.
+- Output: DTO list + error map.
 
-4) Implement along the Nest request pipeline
-- **Pipes**: validate/transform inputs.
-- **Guards**: authn/authz + access decisions.
-- **Interceptors**: logging/metrics, mapping responses, timeouts.
-- **Filters**: exception -> consistent HTTP response.
+4) Plan the request pipeline
+- Choose global vs route-scoped wiring for pipes/guards/interceptors/filters.
+- If behavior is cross-cutting, prefer global or module-scoped providers.
+- Output: pipeline plan (what runs where).
 
-5) Verify
-- Unit tests for providers (pure logic).
-- E2E tests for routes (HTTP + Nest wiring).
-- One negative test per endpoint (validation/authz/error mapping).
+5) Implement
+- Update modules/providers/controllers and wire the pipeline pieces.
+- Output: file list + brief change summary.
+
+6) Verify
+- Unit tests for providers and e2e tests for routes.
+- Include at least one negative test per endpoint (validation/authz/error mapping).
+- Output: test commands or manual checks + expected status codes.
+
+## Common pitfalls
+
+- Leaking providers across modules without explicit exports.
+- Missing global ValidationPipe, leading to DTOs not enforcing rules.
+- Using class-transformer without enabling serialization options.
+- Inconsistent error shape when filters are not applied.
+- Forgetting to document DTOs with Swagger decorators.
 
 ## Output Contract (Always)
 
@@ -51,16 +80,38 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 - DTO validation/serialization rules
 - Verification steps (tests or manual curl + expected status codes)
 
+**Reporting format**
+- Scope
+- Contracts
+- Pipeline
+- Changes
+- Verification
+
+## Examples
+
+**Example request**
+"Add a POST /projects endpoint with DTO validation and Swagger docs. Ensure auth guard and add an e2e test."
+
+**Example response outline**
+- Scope: `ProjectsModule`, `ProjectsController`, `ProjectsService`
+- Contracts: `CreateProjectDto`, validation rules, error map
+- Pipeline: `AuthGuard` on controller, `ValidationPipe` global
+- Changes: list of files touched
+- Verification: `npm run test:e2e -- projects`, expected `201` and `400`
+
+## Trigger test
+
+- "Create a NestJS module for billing and wire DTO validation"
+- "NestJS dependency injection error: can't resolve LoggerService"
+
+## Scripts
+
+- `scripts/nestjs_audit.sh`: read-only audit for common NestJS hygiene issues.
+  - Requirements: `rg` (ripgrep) installed locally.
+  - Usage: run from the root of a NestJS project repository.
+  - Verification: report findings; no files are modified.
+
 ## References (Optional)
 
-- Modules + DI boundaries: `references/modules-and-di.md`
-- Request lifecycle cheat sheet: `references/request-lifecycle.md`
-- Validation + serialization: `references/validation-and-serialization.md`
-- DTOs + validation notes: `references/dtos-validation.md`
-- Auth + security hygiene: `references/auth-and-security.md`
-- OpenAPI with Nest Swagger: `references/openapi.md`
-- Testing strategy (unit vs e2e): `references/testing.md`
-- Controllers + routing: `references/controllers-routing.md`
-- Migration from Express: `references/migration-from-express.md`
-- Implementation playbook: `resources/implementation-playbook.md`
-- Read-only project audit script: `scripts/nestjs_audit.sh`
+- `references/README.md` (index of NestJS deep-dive notes)
+- `resources/implementation-playbook.md`

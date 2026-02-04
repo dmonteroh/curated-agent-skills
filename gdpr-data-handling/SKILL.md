@@ -26,6 +26,23 @@ This skill is intentionally **implementation-oriented** (engineers/operators). I
 - The task is unrelated to gdpr data handling
 - You need a different domain or tool outside this scope
 
+## Trigger phrases
+
+- "GDPR compliance" / "GDPR review" / "privacy by design"
+- "lawful basis" / "consent management" / "legitimate interest assessment"
+- "DSAR" / "data subject request" / "right to be forgotten"
+- "data retention" / "deletion policy" / "data minimization"
+- "processors" / "subprocessors" / "international transfers"
+- "personal data breach" / "breach notification"
+
+## Inputs you need
+
+- Systems and datasets in scope (or a repo/architecture you can inspect)
+- Processing purposes and audiences
+- Current storage locations, access paths, and vendors
+- Existing retention/deletion behaviors and policies
+- Known DSAR/breach procedures (if any)
+
 ## Outputs (what you should produce)
 
 Minimum artifacts (paths are suggestions; use existing repo conventions):
@@ -35,41 +52,93 @@ Minimum artifacts (paths are suggestions; use existing repo conventions):
 - Vendor/transfer notes: processors/subprocessors, DPAs, transfer mechanism notes
 - Breach readiness runbook: detection, triage, notification workflow, evidence capture
 
-Templates and checklists are in `resources/` (load as needed).
+Templates and checklists are in `references/` (load as needed).
 
 ## Workflow (fast, high-signal)
 
-1) Map the processing
-- What personal data is processed, where it flows, who can access it, where it is stored.
+1) Scope the processing
+- Output: scope summary, data types, environments, and assumptions.
 
-2) Establish purpose + lawful basis
-- Be explicit per processing purpose (don’t default to consent).
+2) Build a data inventory + flow map
+- Output: data inventory table with systems, fields, owners, purposes, lawful basis.
 
-3) Implement privacy by design/default
-- Data minimization, least privilege, access logging, encryption, redaction, safe defaults.
+3) Choose lawful basis per purpose
+- Decision: if consent is required, include consent collection + withdrawal plan.
+- Output: lawful basis mapping and justification per purpose.
 
-4) Build DSAR capability
-- Access/export/rectify/erase/restrict/object flows with auditability and safeguards.
+4) Design privacy by default controls
+- Decision: if sensitive/special categories, add stricter access + logging.
+- Output: control list (minimization, access, encryption, logging, redaction).
 
-5) Retention and deletion
-- Enforce retention in code/DB/jobs; document exceptions (legal holds).
+5) Define DSAR workflows
+- Decision: if the task is DSAR-specific, prioritize runbook + tooling first.
+- Output: DSAR runbook (verification, timelines, export format, deletion rules).
 
-6) Vendors and transfers (if applicable)
-- Track processors, access scope, and transfer mechanism notes; avoid surprises.
+6) Set retention + deletion
+- Decision: if legal holds apply, document exceptions and approval gate.
+- Output: retention schedule + deletion mechanism notes.
 
-7) Operationalize
-- Add monitoring/alerts for DSAR/breach workflows and runbook gates.
+7) Capture processor/transfer requirements
+- Decision: if vendors or cross-border transfers exist, include transfer mechanism notes.
+- Output: processor/subprocessor register and transfer notes.
 
-## Instructions
+8) Prepare breach readiness
+- Output: breach readiness runbook with triage, notification, evidence capture.
 
-- Clarify goals, constraints, and required inputs.
-- Apply relevant best practices and validate outcomes.
-- Provide actionable steps and verification.
-- If detailed patterns/templates are required, open:
-  - `resources/implementation-playbook.md`
-  - `resources/templates.md`
+9) Validate gaps
+- Output: compliance checklist with open gaps + owners.
 
-## Resources
+## Common pitfalls to avoid
 
-- `resources/implementation-playbook.md` for detailed patterns and examples.
-- `resources/templates.md` for copy/paste templates (data inventory, DSAR runbook, retention, vendor/transfers, breach readiness).
+- Treating consent as the default lawful basis without justification.
+- Relying on policy-only retention with no technical enforcement.
+- Incomplete DSAR coverage (missing backups, archives, or linked systems).
+- Missing audit trails for consent changes or DSAR actions.
+- Ignoring processor/subprocessor access paths and transfer documentation.
+
+## Examples
+
+**Example 1: System design review**
+- Input: "Review our EU customer onboarding flow for GDPR compliance and produce required artifacts."
+- Output: data inventory, lawful basis mapping, DSAR runbook, retention schedule, breach runbook.
+
+**Example 2: DSAR readiness**
+- Input: "Implement DSAR handling for our SaaS product, including export and deletion workflows."
+- Output: DSAR runbook, data source list, deletion exceptions, verification checklist.
+
+## Output contract
+
+Always report the following sections:
+- Summary of scope and assumptions
+- Artifacts produced (with paths)
+- Gaps/risks and recommended next actions
+- Decisions made (lawful basis, retention exceptions, transfers)
+
+## Reporting format
+
+Use this structure in your final response:
+
+```
+## Summary
+- ...
+
+## Artifacts
+- ...
+
+## Decisions & Assumptions
+- ...
+
+## Gaps & Next Actions
+- ...
+```
+
+## Trigger test
+
+Prompts that should activate this skill:
+- "Create a GDPR data inventory and retention plan for our EU users."
+- "We need DSAR workflows and lawful basis mapping for our customer data."
+
+## References
+
+- Start with `references/README.md` for the index.
+- `references/templates.md` provides copy/paste templates (data inventory, DSAR runbook, retention, vendor/transfers, breach readiness).

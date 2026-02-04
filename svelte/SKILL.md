@@ -6,7 +6,7 @@ category: frontend
 
 # Svelte Pro
 
-One canonical Svelte skill optimized for speed and correct implementation.
+One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delivery.
 
 ## Use this skill when
 
@@ -18,40 +18,79 @@ One canonical Svelte skill optimized for speed and correct implementation.
 ## Do not use this skill when
 
 - The project is React/Next/Angular (use stack-specific skills)
+- The task is purely backend or infrastructure work
+
+## Activation cues
+
+- “Svelte 5”, “SvelteKit”, “runes”, “$state”, “$derived”
+- “+page.svelte”, “+layout.ts”, “load function”, “form actions”
+- “hydration mismatch”, “SSR boundary”, “SvelteKit routing”
 
 ## Workflow (Deterministic)
 
-1. Confirm Svelte vs SvelteKit surface:
-   - component-only (library/app) vs SvelteKit route/layout.
-2. Choose the right reactive primitive:
-   - `$state` for mutable state
-   - `$derived` for computed values
-   - `$effect` for side effects (cleanup required)
-3. Keep state local; push shared state down into self-contained components when possible.
-4. For SvelteKit:
-   - pick where code runs (server vs client)
-   - ensure data is serializable across SSR boundaries
-   - use layouts/error boundaries/loading states intentionally
-5. Verify behavior:
-   - loading/error/empty states
-   - keyboard navigation/focus
-   - SSR correctness (no request-global state)
+1. Identify the surface.
+   - If the change is in `+page.svelte`/`+layout.svelte`, treat it as SvelteKit.
+   - If it is a standalone component, treat it as Svelte-only.
+   - Output: list the exact files and whether they are Svelte or SvelteKit.
+2. Choose reactivity with intent.
+   - If you need mutable state, use `$state`.
+   - If you need derived values, use `$derived` and avoid side effects.
+   - If you need effects, use `$effect` and always return cleanup.
+   - Output: the runes used and what each one controls.
+3. Define data flow boundaries.
+   - If SvelteKit, decide server vs client (+page.server.ts/+layout.server.ts vs client code).
+   - Ensure data passed to the client is serializable.
+   - For mutations, default to form `actions` with progressive enhancement.
+   - Output: a short description of the data path and SSR boundary.
+4. Implement UI behavior and states.
+   - Provide loading/error/empty states.
+   - Preserve keyboard navigation and focus management.
+   - Output: a list of UI states and accessibility behaviors addressed.
+5. Verify and document behavior.
+   - If tests exist, run the smallest relevant set.
+   - Otherwise, define a manual repro for the primary flow and one edge case.
+   - Output: the verification steps to run.
+
+## Common pitfalls to avoid
+
+- Module-level state that leaks across SSR requests
+- Passing non-serializable values over the server/client boundary
+- Using `$effect` for derived computation instead of `$derived`
+- Mixing legacy event patterns with Svelte 5 runes inconsistently
+
+## Examples
+
+**Input**: “Add a SvelteKit form action that validates email and shows errors.”
+
+**Output**:
+- Scope: src/routes/signup/+page.svelte, src/routes/signup/+page.server.ts (SvelteKit)
+- Changes: add `actions` handler, client form enhancement, error rendering
+- Data flow: form `actions` -> serialized errors -> client UI
+- Edge cases: invalid email, server failure
+- Verification: submit valid/invalid email, confirm error rendering
+
+**Input**: “Refactor this Svelte 5 component to compute totals reactively.”
+
+**Output**:
+- Scope: `CartSummary.svelte` (Svelte)
+- Changes: `$derived` total, `$state` for mutable inputs
+- Edge cases: empty cart
+- Verification: update quantities and observe totals
 
 ## Output Contract (Always)
 
-- The change (component/route) and what state/data flow it relies on
-- Edge cases handled (loading/error/empty, SSR)
-- Verification steps (how to prove it works)
+Report in this format:
+- Scope:
+- Changes:
+- Data/state flow:
+- Edge cases:
+- Verification:
 
-## Resources (Optional)
+## Trigger test
 
-- Runes + snippets + common mistakes: `references/runes-and-snippets.md`
-- Template directives (`@attach`, `@render`, `@const`, etc.): `references/template-directives.md`
-- SvelteKit structure (routes/layouts/errors/SSR): `references/sveltekit-structure.md`
-- SvelteKit data flow (load, form actions, serialization): `references/sveltekit-data-flow.md`
-- SvelteKit server boundaries (hooks, cookies, locals, env): `references/sveltekit-server-boundaries.md`
-- SvelteKit forms/actions (progressive enhancement, fail/redirect, invalidation): `references/sveltekit-forms-actions.md`
-- Components + libraries (Bits UI/shadcn-svelte/web components): `references/components-and-libraries.md`
-- TanStack Query patterns (mutations, server state): `references/tanstack-query.md`
-- Deployment notes (adapters, Vite/pnpm gotchas): `references/deployment.md`
-- Implementation playbook: `resources/implementation-playbook.md`
+- “Our `+page.svelte` load is failing serialization; fix the data flow.”
+- “Convert this Svelte 4 component to Svelte 5 runes.”
+
+## References (Optional)
+
+- Index and summaries: `references/README.md`

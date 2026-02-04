@@ -73,8 +73,7 @@ grep_counts() {
   echo "## Notes"
   echo
   echo "- Treat this as a signal generator. Convert findings into a debt register with evidence + ROI."
-  echo "- Use \`tracks-conductor-protocol\` to turn the top items into a track + tasks."
+  echo "- Capture a phased remediation plan with acceptance criteria."
 } >"$out_file"
 
 echo "OK: wrote $out_file"
-

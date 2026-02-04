@@ -20,40 +20,97 @@ output-format: code
 
 # Terraform Engineer
 
-Senior Terraform engineer specializing in infrastructure as code across AWS, Azure, and GCP with expertise in modular design, state management, and production-grade patterns.
+Deliver production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
 
-## Role Definition
+## Use this skill when
 
-You are a senior DevOps engineer with 10+ years of infrastructure automation experience. You specialize in Terraform 1.5+ with multi-cloud providers, focusing on reusable modules, secure state management, and enterprise compliance. You build scalable, maintainable infrastructure code.
+- Building or updating Terraform modules and root configurations
+- Setting up remote state, locking, and workspace strategies
+- Configuring AWS, Azure, or GCP providers safely
+- Refactoring existing IaC for reuse, security, or compliance
+- Adding infrastructure testing or policy checks
 
-## When to Use This Skill
+## Do not use this skill when
 
-- Building Terraform modules for reusability
-- Implementing remote state with locking
-- Configuring AWS, Azure, or GCP providers
-- Setting up multi-environment workflows
-- Implementing infrastructure testing
-- Migrating to Terraform or refactoring IaC
+- The task is not Terraform-based infrastructure as code
+- The request is purely high-level cloud architecture with no IaC changes
+- The repo uses a different IaC tool (e.g., Pulumi, CloudFormation) exclusively
 
-## Core Workflow
+## Trigger phrases
 
-1. **Analyze infrastructure** - Review requirements, existing code, cloud platforms
-2. **Design modules** - Create composable, validated modules with clear interfaces
-3. **Implement state** - Configure remote backends with locking and encryption
-4. **Secure infrastructure** - Apply security policies, least privilege, encryption
-5. **Test and validate** - Run terraform plan, policy checks, automated tests
+- "Terraform module" or "module interface"
+- "remote state" or "state locking"
+- "terraform plan" or "terraform apply"
+- "AWS provider" or "AzureRM provider"
+- "GCP provider" or "Google provider"
 
-## Reference Guide
+## Trigger test
 
-Load detailed guidance based on context:
+- "Build a Terraform module for an S3 bucket with logging and tags."
+- "Refactor this Terraform root module to use remote state and workspaces."
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Modules | `references/module-patterns.md` | Creating modules, inputs/outputs, versioning |
-| State | `references/state-management.md` | Remote backends, locking, workspaces, migrations |
-| Providers | `references/providers.md` | AWS/Azure/GCP configuration, authentication |
-| Testing | `references/testing.md` | terraform plan, terratest, policy as code |
-| Best Practices | `references/best-practices.md` | DRY patterns, naming, security, cost tracking |
+## Required inputs
+
+- Target cloud(s) and provider versions
+- Environment list (dev/stage/prod) and naming conventions
+- State backend requirements (location, encryption, locking)
+- Security/compliance expectations (tagging, IAM, encryption)
+- Module boundaries and expected inputs/outputs
+- Verification expectations (plan-only, tests, policy checks)
+
+## Workflow
+
+1. Confirm scope and constraints.
+   - Output: summarized assumptions and missing inputs.
+   - Decision: if required inputs are missing, ask before coding.
+2. Map module and root structure.
+   - Output: module boundaries, inputs/outputs, and file layout.
+   - Decision: if refactoring, document compatibility risks and migration steps.
+3. Implement providers and versions.
+   - Output: provider blocks, version constraints, and required providers.
+   - Decision: if multiple clouds, separate providers with explicit aliases.
+4. Configure state and environments.
+   - Output: backend configuration, locking/encryption settings, workspace strategy.
+   - Decision: if production, require remote state and locking; otherwise explain exceptions.
+5. Build resources and module logic.
+   - Output: Terraform code with variables, outputs, and validation blocks.
+6. Add security and cost controls.
+   - Output: tagging strategy, IAM least privilege notes, encryption settings.
+7. Verify behavior.
+   - Output: planned commands or tests run with expected results.
+
+## Common pitfalls to avoid
+
+- Using local state for production environments
+- Skipping input validation and relying on provider errors
+- Hardcoding environment-specific values in modules
+- Omitting provider version constraints or required providers
+- Mixing aliases/providers without explicit mapping
+
+## Examples
+
+**Example request**
+"Create a Terraform module for an AWS S3 bucket with versioning, encryption, and tags. Provide module inputs and a root usage example."
+
+**Example response outline**
+- Module files: `main.tf`, `variables.tf`, `outputs.tf`
+- Variables: `bucket_name`, `tags`, `enable_versioning`
+- State: backend configuration note for S3 + DynamoDB
+- Usage: root module example with provider pinning
+
+## Output contract
+
+When this skill runs, report in this format:
+
+- Summary: what was built/changed and why
+- Assumptions: any defaults or constraints applied
+- Files changed: list of Terraform files touched
+- Validation: commands run or suggested (plan, validate, tests)
+- Follow-ups: missing inputs or recommended next steps
+
+## References
+
+Use `references/README.md` to load detailed guidance by topic.
 
 ## Constraints
 
@@ -89,10 +146,3 @@ When implementing Terraform solutions, provide:
 ## Knowledge Reference
 
 Terraform 1.5+, HCL syntax, AWS/Azure/GCP providers, remote backends (S3, Azure Blob, GCS), state locking (DynamoDB, Azure Blob leases), workspaces, modules, dynamic blocks, for_each/count, terraform plan/apply, terratest, tflint, Open Policy Agent, cost estimation
-
-## Related Skills
-
-- **Cloud Architect** - Cloud platform design
-- **DevOps Engineer** - CI/CD integration
-- **Security Engineer** - Security compliance
-- **Kubernetes Specialist** - K8s infrastructure provisioning

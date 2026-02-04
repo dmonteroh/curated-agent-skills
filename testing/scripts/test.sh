@@ -89,7 +89,7 @@ report_cmd() {
     echo "- Choose mode: unit vs automation."
     echo "- Add/adjust tests for the changed behavior."
     echo "- If flakiness exists, quarantine and fix root causes."
-    echo "- Convert the plan into tasks via tracks-conductor-protocol if needed."
+    echo "- Convert the plan into tasks in your tracker if needed."
   } >"$report"
   echo "OK: wrote $report"
 }
@@ -115,4 +115,3 @@ EOF
     exit 2
     ;;
 esac
-
