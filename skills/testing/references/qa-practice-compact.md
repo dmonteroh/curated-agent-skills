@@ -1,6 +1,6 @@
 # QA Practice (Compact, High-ROI)
 
-This is not “manual QA theater.” Use it when automation is not enough, or when you need fast risk discovery.
+This is not “manual QA theater.” Use it when automation is not enough, or when fast risk discovery is needed.
 
 ## Exploratory testing charter (60 minutes)
 
@@ -25,7 +25,7 @@ Coverage: <what was explored> | Risks: <new risks found>
 
 ## Accessibility smoke checks (fast)
 
-- Keyboard-only: can you reach and operate primary controls?
+- Keyboard-only: can primary controls be reached and operated?
 - Focus visibility: is focus clearly visible at all times?
 - Labels: inputs have labels; icon-only buttons have accessible names.
 - Contrast: primary text on background and text-on-action are readable.
@@ -46,4 +46,3 @@ Test depth should track risk:
   - one happy path automated test at the right layer
   - one negative case at the boundary most likely to break
   - deterministic repro steps for any known issue
-

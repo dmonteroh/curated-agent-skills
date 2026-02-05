@@ -19,7 +19,7 @@ Provides guidance for designing and implementing command-line tools that are saf
 ## Do not use this skill when
 
 - The task is not a CLI/terminal tool
-- You are designing a GUI/web UX
+- The task is designing a GUI/web UX
 
 ## Trigger phrases
 

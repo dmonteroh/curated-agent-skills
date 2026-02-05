@@ -29,7 +29,6 @@ Avoid:
 
 ## Versioning approach (at the boundary level)
 
-- Keep most packages private unless you truly need to publish them.
+- Keep most packages private unless publishing is required.
 - Use workspace protocol (e.g., `workspace:*`) for internal deps.
 - Keep dependency updates centralized and automated where possible.
-

@@ -1,6 +1,6 @@
 ---
 name: auth-implementation-patterns
-description: Provides authentication and authorization implementation patterns (JWT, OAuth2/OIDC, sessions, RBAC) to design, implement, and troubleshoot secure access control systems.
+description: Provides authentication and authorization implementation patterns (JWT, OAuth2/OIDC, sessions, RBAC) for designing, implementing, or reviewing secure access control in applications and APIs.
 category: security
 ---
 
@@ -29,6 +29,11 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Identity store (users, tenants, service accounts) and data sensitivity
 - Compliance or regulatory constraints (if any)
 - Existing auth infrastructure, integrations, and migration constraints
+
+## Constraints
+
+- Non-negotiable policies (credential storage, audit, encryption, or data residency)
+- Legacy protocols or clients that must remain supported
 
 ## Workflow
 
@@ -64,7 +69,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 
 ## Output contract
 
-Provide a concise report with the following sections:
+The skill produces a concise report with the following sections:
 
 - Auth scope summary
 - Strategy decision (session, JWT, OAuth2/OIDC) and flow rationale
@@ -96,7 +101,7 @@ Example output summary:
 - Strategy decision: JWT access + refresh tokens with short TTLs and rotation.
 - Token/session lifecycle: validate iss/aud/exp, rotate refresh, revoke on logout.
 - Authorization model: RBAC roles mapped to tenant-scoped permissions.
-- Secrets/key management: rotate signing keys quarterly, store in HSM/KMS.
+- Secrets/key management: rotate signing keys on a defined cadence, store in HSM/KMS.
 - Hardening checklist: no localStorage tokens, CSRF for cookie flows, rate limits.
 - Implementation plan: login, refresh, logout, middleware, automated tests.
 - Open questions: token storage constraints on mobile, audit log retention.
@@ -108,7 +113,7 @@ Example output summary:
 
 ## Safety
 
-- Never log secrets, tokens, or credentials.
+- Avoid logging secrets, tokens, or credentials.
 - Enforce least privilege and secure storage for keys.
 
 ## Resources

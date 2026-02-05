@@ -41,6 +41,12 @@ Core capabilities:
 - Constraints (formats, existing doc conventions, compliance needs).
 - Sources of truth beyond code (if any).
 
+## Constraints and assumptions
+
+- Uses local repo evidence only; no network assumptions.
+- Does not install dependencies or modify package manifests.
+- Writes documentation outputs only under the target repo path.
+
 ## Quick start (fast path)
 
 1) Run the repo scan (optional but recommended).
@@ -126,24 +132,24 @@ Decision points:
 ## Scripts
 
 **`scripts/doc.sh` (wrapper)**
-- Usage: `./scripts/doc.sh [scan|index|spec]`
+- Usage: `./skills/doc-generate/scripts/doc.sh [scan|index|spec]`
 - Requires: POSIX shell, standard core utilities.
 - Verification: command prints an "OK" line and writes expected files.
 
 **`scripts/docscan.sh`**
-- Usage: `./scripts/docscan.sh`
+- Usage: `./skills/doc-generate/scripts/docscan.sh`
 - Requires: POSIX shell, `find`, `wc`, `date`; optional `rg` for speed.
 - Output: docs/_docgen/inventory.md plus an "OK" line.
 - Verification: open the inventory file and confirm counts match repo signals.
 
 **`scripts/update_docs_index.sh`**
-- Usage: `./scripts/update_docs_index.sh`
+- Usage: `./skills/doc-generate/scripts/update_docs_index.sh`
 - Requires: POSIX shell, `find`, `sort`, `awk`, `mktemp`.
 - Output: updates index block inside docs/README.md.
 - Verification: confirm the managed block lists all docs except `docs/_docgen/`.
 
 **`scripts/spec_mine.sh`**
-- Usage: `./scripts/spec_mine.sh`
+- Usage: `./skills/doc-generate/scripts/spec_mine.sh`
 - Requires: POSIX shell.
 - Output: docs/specs/reverse-spec.md (created only if missing).
 - Verification: confirm the reverse-spec template exists and is populated with placeholders.
@@ -163,6 +169,7 @@ Summary:
 - Evidence sources used:
 - Open questions/gaps:
 - Scripts run (with outputs):
+- Verification:
 - Follow-up recommendations:
 ```
 

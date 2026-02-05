@@ -1,10 +1,10 @@
 # Go Concurrency Templates
 
-Use these templates for bounded, cancellation-aware concurrency. The examples are minimal and focus on safe shutdown and ownership.
+Provides templates for bounded, cancellation-aware concurrency. The examples are minimal and focus on safe shutdown and ownership.
 
 ## Pattern: Worker pool (bounded, cancellable)
 
-Use when you have a stream of jobs and want fixed concurrency.
+Applies when there is a stream of jobs and fixed concurrency is required.
 
 ```go
 package workerpool
@@ -63,7 +63,7 @@ func Run(ctx context.Context, workers int, jobs <-chan Job, process func(context
 
 ## Pattern: Fan-out / fan-in pipeline (with cancellation)
 
-Use when you have staged transformations and want parallelism per-stage.
+Applies when there are staged transformations and parallelism per-stage is required.
 
 Key idea: each stage:
 - reads from `in`,
@@ -154,7 +154,7 @@ func merge(ctx context.Context, cs ...<-chan int) <-chan int {
 
 ## Pattern: “N goroutines, fail fast” with `errgroup`
 
-Use when you want:
+Applies when the workflow needs to:
 - return the first error,
 - cancel the rest,
 - optionally cap concurrency.
@@ -210,7 +210,7 @@ func fetchAll(ctx context.Context, urls []string, maxConcurrent int) ([]string, 
 
 ## Pattern: Graceful shutdown (context + waitgroup)
 
-Use in `main` to stop background goroutines and servers cleanly.
+Applies in `main` to stop background goroutines and servers cleanly.
 
 ```go
 package shutdown

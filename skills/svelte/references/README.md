@@ -1,6 +1,6 @@
 # Svelte Skill References
 
-Use these references for deeper detail when needed.
+This index provides deeper detail for the Svelte skill when needed.
 
 - `runes-and-snippets.md`: Runes overview, snippets usage, and common mistakes.
 - `template-directives.md`: Template directives such as `@attach`, `@render`, and `@const`.

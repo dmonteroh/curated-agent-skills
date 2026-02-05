@@ -12,7 +12,7 @@ Use:
 
 ## When to publish packages
 
-Publish only when you truly have external consumers (other repos/orgs) and youâ€™re willing to support the API.
+Publish only when there are external consumers (other repos/orgs) and the team is willing to support the API.
 
 ## Versioning modes
 
@@ -21,6 +21,5 @@ Publish only when you truly have external consumers (other repos/orgs) and youâ€
 
 ## Release hygiene
 
-- Make releases reproducible (tagged commits, changelog, build provenance if you care).
+- Make releases reproducible (tagged commits, changelog, build provenance when required).
 - Keep build artifacts out of the repo unless intentionally tracked.
-

@@ -1,11 +1,11 @@
 # TDD Iron Laws (Compact)
 
-Use this when you want high signal tests and a tight feedback loop. Keep it pragmatic: TDD is a tool, not a religion.
+Use this to keep high-signal tests and a tight feedback loop. Keep it pragmatic: TDD is a tool, not a religion.
 
 ## The three laws (what “TDD” actually means)
 
 1) Do not write production code unless it is to make a failing test pass.
-2) If you didn't watch the test fail, you don't know what it proves.
+2) If the test failure was not observed, the proof is unknown.
 3) Every unit of production behavior should be defended by a test that failed first (or it's not TDD).
 
 ## Red / Green / Refactor loop
@@ -18,9 +18,9 @@ Use this when you want high signal tests and a tight feedback loop. Keep it prag
 
 Before claiming a test is “good”:
 
-- You observed it fail for the expected reason.
+- The failure was observed for the expected reason.
 - The failure message is understandable.
-- The test would fail if you remove/break the behavior.
+- The test would fail if the behavior is removed or broken.
 
 ## Where TDD pays off most
 
@@ -28,4 +28,3 @@ Before claiming a test is “good”:
 - concurrency, retries, idempotency
 - data transformations and boundary validation
 - bug fixes (write the regression test first)
-

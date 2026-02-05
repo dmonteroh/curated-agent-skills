@@ -1,6 +1,6 @@
 ---
 name: nodejs
-description: Design and implement production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration for backend applications.
+description: Use when building production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration.
 category: language
 ---
 
@@ -42,15 +42,15 @@ Provides guidance for building scalable, maintainable Node.js backend applicatio
 1. Confirms goals, constraints, and missing inputs.
    - Output: a short scope summary and any clarification questions.
 2. Selects the architecture and framework approach.
-   - Decision point: Express for simplicity or Fastify for performance and schema-driven validation.
+   - Decision point: if simplicity or broad compatibility is needed, pick Express; if performance or schema-driven validation is critical, pick Fastify.
    - Output: a recommended stack and rationale.
 3. Defines the API contract and data model.
-   - Decision point: REST vs GraphQL vs RPC based on client needs.
+   - Decision point: if clients need flexible querying, choose GraphQL; if they need stable HTTP contracts, choose REST; if internal service calls dominate, choose RPC.
    - Output: endpoint list, request/response shapes, and data entities.
 4. Plans middleware, auth, validation, and error handling.
    - Output: middleware sequence, auth strategy, and error response format.
 5. Plans integrations and operational readiness.
-   - Decision point: queue vs synchronous work, caching needs, rate limiting.
+   - Decision point: if work is long-running or retriable, use a queue; if latency is critical, keep it synchronous and cache where appropriate.
    - Output: integration checklist and observability requirements.
 6. Provides implementation guidance and verification steps.
    - Output: ordered build steps and exact checks or tests to run.

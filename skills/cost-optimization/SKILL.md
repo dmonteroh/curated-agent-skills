@@ -10,7 +10,7 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 
 ## Use this skill when
 
-- A team needs to reduce cloud spend (quick wins + 30/90-day program)
+- A team needs to reduce cloud spend (quick wins + longer-term program)
 - A team needs tagging/label standards and cost allocation
 - A team needs budgets, alerts, and anomaly detection
 - A team needs rightsizing and commitment strategy (RIs/Savings Plans/CUDs)

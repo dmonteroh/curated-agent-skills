@@ -6,6 +6,8 @@ category: workflow
 
 # Shell Scripting
 
+Provides guidance for writing safe, portable shell scripts for automation, CI helpers, and command-line glue.
+
 ## Use this skill when
 
 - Writing Bash or POSIX shell scripts for automation
@@ -31,6 +33,12 @@ category: workflow
 - Target platforms (Linux/macOS/containers)
 - Expected inputs/outputs and exit codes
 - Files or directories the script should touch
+
+## Non-Negotiable Rules
+
+- Default to portable constructs unless Bash is explicitly required.
+- Quote variables and paths; avoid unguarded globbing.
+- Keep scripts deterministic and idempotent when practical.
 
 ## Workflow (Deterministic)
 
@@ -73,6 +81,23 @@ category: workflow
   - `Script`: the full script content or file changes.
   - `Usage`: example command line invocation.
   - `Verification`: commands to validate behavior (no network assumptions).
+
+## Reporting format
+
+````text
+Summary:
+- ...
+Assumptions:
+- ...
+Script:
+```sh
+...
+```
+Usage:
+- ...
+Verification:
+- ...
+````
 
 ## Trigger test
 

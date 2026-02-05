@@ -1,6 +1,6 @@
 # Bisect (Find the Regression Commit)
 
-Use when you know:
+Use when both are known:
 - a "good" commit (or tag)
 - a "bad" commit (often HEAD)
 
@@ -31,4 +31,3 @@ git bisect start HEAD <known-good-sha-or-tag>
 git bisect run ./scripts/test.sh
 git bisect reset
 ```
-

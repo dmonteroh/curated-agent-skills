@@ -1,12 +1,12 @@
 # Mermaid Expert - Implementation Playbook
 
-Use this playbook when the task benefits from concrete, reusable diagram patterns and consistently rendered Mermaid output.
+This playbook is for tasks that benefit from concrete, reusable diagram patterns and consistently rendered Mermaid output.
 
 ## Default Output Contract
 
-When asked to produce a diagram:
+When producing a diagram:
 
-- Ask for the *purpose* and *audience* (on-call, dev, exec, onboarding).
+- Request the *purpose* and *audience* (on-call, dev, exec, onboarding).
 - Choose the minimal diagram type that answers the question.
 - Produce:
   - A basic Mermaid diagram (render-safe)
@@ -32,7 +32,7 @@ When asked to produce a diagram:
 - Prefer simple node IDs and explicit labels.
 - Avoid special characters in node IDs (use labels for readable text).
 - Use `%%` comments for clarification.
-- When in doubt, validate in your target renderer or local preview.
+- When in doubt, validate in the target renderer or local preview.
 
 ## Reusable Patterns
 
@@ -119,4 +119,4 @@ flowchart LR
 
 ## Reference Files
 
-For deeper patterns, see `mermaid-expert/references/`.
+For deeper patterns, see `references/`.

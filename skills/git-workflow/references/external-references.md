@@ -1,6 +1,6 @@
 # External References (Curated)
 
-Use these when you want deeper background, alternative workflows, or examples.
+Use these for deeper background, alternative workflows, or examples.
 
 Community skills (inspiration):
 
@@ -24,4 +24,3 @@ git-scm reference:
 GitHub Docs (workflows, PRs, actions):
   https://docs.github.com/
 ```
-

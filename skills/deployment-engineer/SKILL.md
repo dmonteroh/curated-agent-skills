@@ -7,6 +7,7 @@ category: devops
 # Deployment Engineer
 
 Provides guidance for shipping changes safely with pipelines, releases, progressive delivery, and operational guardrails.
+Produces deployment workflow recommendations without requiring other skills.
 
 ## Use this skill when
 
@@ -83,7 +84,7 @@ Provides guidance for shipping changes safely with pipelines, releases, progress
 
 ## Output format
 
-Return these sections in order:
+Provide these sections in order:
 1. Summary
 2. Pipeline Stages & Gates
 3. Rollout & Rollback Plan

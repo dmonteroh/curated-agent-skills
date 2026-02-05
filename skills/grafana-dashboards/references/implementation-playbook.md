@@ -23,7 +23,7 @@ Use this playbook to produce a production-ready dashboard pack, review an existi
   - Has units, thresholds, and sane time ranges.
   - Has drilldowns (links to logs/traces or detailed dashboards).
 - Avoid misleading aggregations (especially percentiles and averages).
-- Avoid high-cardinality queries that will melt your metrics backend.
+- Avoid high-cardinality queries that overload metrics backends.
 
 ## Standard Layout (Recommended)
 
@@ -56,7 +56,7 @@ Use this playbook to produce a production-ready dashboard pack, review an existi
 
 ## Assets
 
-Optional templates live in `grafana-dashboards/assets/`.
+Optional templates live in `assets/`.
 
 - `assets/dashboard-templates.json` - minimal dashboard JSON stubs to copy or adapt
 - `assets/alert-templates.json` - example alert rule patterns (structure only)

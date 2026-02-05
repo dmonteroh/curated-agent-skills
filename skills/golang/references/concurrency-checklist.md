@@ -1,6 +1,6 @@
 # Go Concurrency Checklist
 
-Use this reference to validate concurrency designs and spot common failure modes.
+Provides a checklist to validate concurrency designs and spot common failure modes.
 
 ## Defaults
 

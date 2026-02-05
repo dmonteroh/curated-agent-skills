@@ -1,6 +1,6 @@
 # CLI Developer - Implementation Playbook
 
-Use this playbook to produce a usable CLI design + implementation plan (and to avoid common CLI footguns).
+Provides a playbook to produce a usable CLI design + implementation plan (and to avoid common CLI footguns).
 
 ## Inputs (Ask First)
 

@@ -10,9 +10,9 @@ Provides guidance for managing project context as first-class artifacts alongsid
 
 ## Use this skill when
 
-- Starting work in a repo and you need stable context (what/why/how) before making changes.
-- The team wants consistent, discoverable context artifacts for humans and agents.
-- You need to update context after meaningful changes (product direction, stack, workflow).
+- Starting work in a repo and stable context (what/why/how) is needed before making changes.
+- A team wants consistent, discoverable context artifacts for humans and agents.
+- Context needs updates after meaningful changes (product direction, stack, workflow).
 
 ## Do not use this skill when
 

@@ -69,7 +69,7 @@ Usage
 
 Verification
 
-- Run your commit linter against sample commits.
+- Run the commit linter against sample commits.
 
 ## Checklist for Clean Release Notes
 

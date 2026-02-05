@@ -46,10 +46,10 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
    - Output: bullet list of observed diffs (objective, no judgments).
 4. **Validation pass (is it correct)**
    - For each goal, mark `met`, `not met`, or `needs-evidence` and cite evidence.
-5. **State + responsive coverage**
+5. **Responsive + state coverage**
    - Output: coverage matrix for default/hover/focus/active/disabled/loading/error/empty and breakpoints.
    - Decision: if a required state/breakpoint is missing, downgrade verdict to `partial` or `needs-evidence`.
-6. **Visual accessibility checks**
+6. **Accessibility (Visual) checks**
    - Output: focus visibility findings, contrast concerns, text scaling/wrapping issues.
 7. **Verdict + next actions**
    - Decision rules:
@@ -100,6 +100,7 @@ Use this exact section order:
 - Usage: `./scripts/visual_report.sh "<subject>" <output-path>`
 - Requirements: bash, standard coreutils (`date`, `mkdir`, `dirname`).
 - Verification: confirm the report file exists and open it to fill in findings.
+- Template reference: `references/report-template.md` (matches output contract order).
 
 ## References (Optional)
 

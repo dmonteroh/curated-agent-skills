@@ -16,8 +16,8 @@ Provides guidance for planning and writing forward-only SQL migrations with zero
 
 ## Do not use this skill when
 
-- The workflow is ORM-managed migrations (use an ORM migration skill instead).
-- The task is primarily designing a new schema or data model (use a database architecture skill).
+- The workflow is ORM-managed migrations rather than raw SQL files.
+- The task is primarily designing a new schema or data model.
 
 ## Trigger phrases
 

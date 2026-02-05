@@ -1,8 +1,8 @@
 ---
 name: tutorial-engineer
 description: Creates step-by-step technical tutorials and onboarding guides from
-  code or system requirements. Transforms complex concepts into progressive,
-  hands-on learning experiences for developers.
+  code or system requirements when teams need progressive, hands-on learning
+  paths for developers.
 category: docs
 ---
 
@@ -24,6 +24,13 @@ category: docs
 - The task is unrelated to creating tutorials or learning materials
 - A quick answer is enough and a guided learning path is unnecessary
 - The request is for documentation types like API reference or changelog
+
+## Required Inputs
+
+- Target audience and baseline knowledge
+- Desired outcome and scope (feature, workflow, or system)
+- Available code, repo path, or requirements to teach from
+- Environment constraints or assumptions (tools, OS, access)
 
 ## Instructions
 
@@ -51,6 +58,12 @@ category: docs
 - If inputs are missing (code, repo path, target audience), ask focused questions before drafting.
 - If the scope is too large for a single tutorial, propose splitting into modules.
 - If examples are non-runnable, label them as pseudo and explain how to validate.
+
+## Constraints
+
+- Avoid assuming network access unless explicitly provided.
+- Keep commands safe-by-default and warn about destructive steps.
+- Ensure every tutorial step has a verification or expected output.
 
 ## References
 See `references/README.md` for detailed pedagogy, formats, and writing guidelines.

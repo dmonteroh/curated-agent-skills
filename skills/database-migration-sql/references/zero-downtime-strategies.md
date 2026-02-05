@@ -12,26 +12,18 @@ CREATE INDEX CONCURRENTLY idx_users_email_verified ON users(email_verified);
 **Phase 2: Backfill (batching)**
 
 ```sql
-DO $$
-DECLARE
-    batch_size INT := 10000;
-    rows_updated INT;
-BEGIN
-    LOOP
-        UPDATE users
-        SET email_verified = (email_confirmation_token IS NOT NULL)
-        WHERE id IN (
-            SELECT id FROM users
-            WHERE email_verified IS NULL
-            LIMIT batch_size
-        );
-
-        GET DIAGNOSTICS rows_updated = ROW_COUNT;
-        EXIT WHEN rows_updated = 0;
-        COMMIT;
-        PERFORM pg_sleep(0.1);
-    END LOOP;
-END $$;
+-- Repeat this statement in separate transactions until rows_updated = 0.
+WITH batch AS (
+    SELECT id
+    FROM users
+    WHERE email_verified IS NULL
+    ORDER BY id
+    LIMIT 10000
+)
+UPDATE users
+SET email_verified = (email_confirmation_token IS NOT NULL)
+FROM batch
+WHERE users.id = batch.id;
 ```
 
 **Phase 3: Contract (after app deploy)**

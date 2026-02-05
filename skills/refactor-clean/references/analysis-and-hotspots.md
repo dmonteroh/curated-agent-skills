@@ -35,5 +35,5 @@ Use this reference to identify high-impact refactor targets and gauge severity.
 
 ## Hotspot Scan Guidance
 
-- Use `scripts/scan_hotspots.sh` for a quick inventory of large files and TODO/FIXME density.
+- Use `skills/refactor-clean/scripts/scan_hotspots.sh` for a quick inventory of large files and TODO/FIXME density.
 - If the script is unavailable, prioritize files with the most churn, largest line counts, and highest bug density.

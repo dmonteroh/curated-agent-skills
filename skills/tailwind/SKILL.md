@@ -29,46 +29,46 @@ This skill is Tailwind-specific and intentionally framework-agnostic (React/Svel
 
 ## Inputs required
 
-- Repo paths that generate class names (templates, components, CMS templates)
-- Whether class names are dynamically generated
-- Current theming approach (CSS variables vs hard-coded palette)
-- Tailwind config location (if non-standard)
+- Requires repo paths that generate class names (templates, components, CMS templates)
+- Requires whether class names are dynamically generated
+- Requires current theming approach (CSS variables vs hard-coded palette)
+- Requires Tailwind config location (if non-standard)
 
 ## Workflow (Deterministic)
 
-1) Confirm constraints
-- Framework(s) in use (only for content globs and file conventions).
-- Whether class names are dynamic (needs safelist strategy).
-- Whether theming uses CSS variables (recommended) vs hard-coded palette.
-Output: constraints summary and any open gaps.
+1) Collect constraints
+- Identifies framework(s) in use (for content globs and file conventions).
+- Determines whether class names are dynamic (safelist strategy).
+- Confirms whether theming uses CSS variables vs hard-coded palette.
+Output: produces constraints summary and any open gaps.
 
 2) Establish tokens + theme surface
-- Pick a small semantic token set (canvas/surface/text/border/action + status colors).
-- Map Tailwind `theme.extend.colors` to CSS variables (design tokens).
-- Define typography tokens (fonts, sizes, line-heights) intentionally.
-Output: token list and `theme.extend` map (or change list).
+- Defines a small semantic token set (canvas/surface/text/border/action + status colors).
+- Maps Tailwind `theme.extend.colors` to CSS variables (design tokens).
+- Defines typography tokens (fonts, sizes, line-heights) intentionally.
+Output: produces token list and `theme.extend` map (or change list).
 
 3) Configure Tailwind correctly
-- `content`: include all template/code paths that generate class names.
-- `safelist`: only when class names are dynamic; use patterns with tight scope.
-- `darkMode`: choose explicit strategy (often `class`).
-Output: proposed config changes with rationale.
+- Ensures `content` includes all template/code paths that generate class names.
+- Adds `safelist` only when class names are dynamic; uses patterns with tight scope.
+- Sets `darkMode` to an explicit strategy (often `class`).
+Output: produces proposed config changes with rationale.
 
 4) Component patterns (no framework lock-in)
-- Use stable class contracts per component (base + variants + sizes + states).
-- Prefer data-attributes for variants when that reduces conditional class sprawl.
-- Keep "utility soup" from leaking into every callsite.
-Output: component contract(s) with examples.
+- Defines stable class contracts per component (base + variants + sizes + states).
+- Prefers data-attributes for variants when that reduces conditional class sprawl.
+- Keeps "utility soup" from leaking into every callsite.
+Output: produces component contract(s) with examples.
 
 5) Verify
-- Build output includes expected classes (no missing styles in prod).
-- Responsive + focus states work.
-- Dark mode works and contrast is acceptable.
-Output: verification checklist with pass/fail notes.
+- Confirms build output includes expected classes (no missing styles in prod).
+- Confirms responsive + focus states work.
+- Confirms dark mode works and contrast is acceptable.
+Output: produces verification checklist with pass/fail notes.
 
 ## Decision points
 
-- If class names are dynamic, add a tight `safelist`; otherwise omit it.
+- If class names are dynamic, include a tight `safelist`; otherwise omit it.
 - If theme changes should not touch markup, use CSS variables in `theme.extend`.
 - If multiple frameworks exist, union their template globs in `content`.
 

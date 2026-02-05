@@ -1,6 +1,6 @@
 # Component Scaffolding
 
-Use this when you need to scaffold a React Native component with consistent structure, types, tests, styles, and a11y.
+Provides scaffolding guidance for React Native components with consistent structure, types, tests, styles, and a11y.
 
 ## Goals
 

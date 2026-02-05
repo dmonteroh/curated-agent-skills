@@ -31,5 +31,5 @@ This playbook intentionally stays lean. Use it as a navigation aid, not a textbo
 ## Output artifacts (recommended)
 
 - `docs/_docgen/performance/REPORT.md` (generated summary)
-- `docs/performance/budgets.md` (what we enforce)
+- `docs/performance/budgets.md` (enforced budgets)
 - `docs/performance/runbooks.md` (how to diagnose regressions)

@@ -1,6 +1,6 @@
 # Test Report Template (Compact)
 
-Use this when you need a deterministic, decision-friendly report (PR comment, release gate, incident follow-up).
+Use this for a deterministic, decision-friendly report (PR comment, release gate, incident follow-up).
 
 ```md
 # Test Report: <feature/change>
@@ -53,4 +53,3 @@ Scope: <unit / integration / e2e / perf / security>
 - HIGH: major functionality broken, serious perf regression.
 - MED: partial feature break with workaround.
 - LOW: minor edge/cosmetic.
-

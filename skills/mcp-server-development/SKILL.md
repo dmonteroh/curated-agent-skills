@@ -6,7 +6,7 @@ category: ai
 
 # MCP Server Development
 
-This skill is for designing and implementing MCP servers that agents can use reliably.
+Provides guidance for designing and implementing MCP servers that agents can use reliably.
 
 ## Use this skill when
 
@@ -113,4 +113,6 @@ This skill is for designing and implementing MCP servers that agents can use rel
 - Schema + output conventions: `references/contracts.md`
 - Error handling patterns: `references/errors.md`
 - Evaluation playbook: `references/evals.md`
-- Protocol + SDK notes (compact): `references/sdk/`
+- Protocol quick reference: `references/protocol-quickref.md`
+- Python SDK notes: `references/python-sdk-notes.md`
+- TypeScript SDK notes: `references/typescript-sdk-notes.md`

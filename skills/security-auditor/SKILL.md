@@ -1,12 +1,13 @@
 ---
 name: security-auditor
 description: Provides a structured security audit workflow for DevSecOps,
-  application security, and compliance readiness, including threat modeling,
-  testing, and remediation planning.
+  application security, and compliance readiness, used for scoped assessments,
+  threat modeling, testing, and remediation planning.
 category: security
 ---
-Provides a structured security audit workflow for DevSecOps, application security,
-and compliance readiness.
+Provides a structured security audit workflow for scoped assessments, threat
+modeling, testing, and remediation planning across DevSecOps, application
+security, and compliance readiness.
 
 ## Use this skill when
 
@@ -67,7 +68,7 @@ and compliance readiness.
 
 ## Output contract
 
-When you run this skill, respond with a report that includes:
+When this skill runs, respond with a report that includes:
 
 - Scope and constraints
 - Threat model summary and attack surface highlights

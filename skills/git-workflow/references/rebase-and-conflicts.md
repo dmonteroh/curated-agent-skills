@@ -48,7 +48,7 @@ git add <files>
 git rebase --continue
 ```
 
-4) If you realize the strategy is wrong
+4) If the strategy is wrong
 ```sh
 git rebase --abort
 ```
@@ -59,4 +59,3 @@ git rebase --abort
   - consider squashing earlier commits or using `git rerere` (reuse recorded resolution)
 - Conflicts in lockfiles:
   - prefer regenerating lockfiles from a clean install rather than hand-editing
-

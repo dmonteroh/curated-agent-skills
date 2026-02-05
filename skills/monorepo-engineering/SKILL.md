@@ -28,14 +28,14 @@ Provides guidance to build monorepos that scale across teams without becoming a 
 - "cache builds" / "remote cache"
 - "Nx/Turbo/Bazel setup"
 
-## Inputs you need
+## Required inputs
 
 - Current repo structure (folders, package manager, build tools).
 - CI environment and typical workflows (PR vs main vs nightly).
 - Pain points (slow builds, flaky cache, dependency chaos).
 - Publishing needs (private only vs public packages).
 
-## Outputs (what you should produce)
+## Outputs
 
 - Proposed repo layout (`apps/`, `packages/`, optional `tools/`).
 - Boundary rules (allowed dependency directions, shared package criteria).
@@ -92,7 +92,7 @@ Provides guidance to build monorepos that scale across teams without becoming a 
 
 ## Output contract (report format)
 
-When you finish, report in this format:
+Report in this format:
 
 - Summary: 2–3 sentences on the recommended direction.
 - Layout: bullet list of top-level folders and rules.

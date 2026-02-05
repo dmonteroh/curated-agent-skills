@@ -10,6 +10,7 @@ Defines the process for filling PDFs without fillable fields by placing text ann
 - Output image directory
 - `fields.json` describing bounding boxes and values
 - Desired `output.pdf`
+- Commands assume the working directory is the skill root (`pdf-files/`).
 
 ## Requirements
 
@@ -20,7 +21,7 @@ Defines the process for filling PDFs without fillable fields by placing text ann
 
 ### 1) Render pages to images
 
-- Command: `python3 pdf-files/scripts/convert_pdf_to_images.py input.pdf output_dir/`
+- Command: `python3 ./scripts/convert_pdf_to_images.py input.pdf output_dir/`
 - Output: `page_*.png` images for each page.
 
 ### 2) Define `fields.json`
@@ -65,18 +66,18 @@ Create a JSON file that includes page metadata and form field bounding boxes. Bo
 
 ### 3) Create validation images
 
-- Command: `python3 pdf-files/scripts/create_validation_image.py 1 fields.json output_dir/page_1.png validation.png`
+- Command: `python3 ./scripts/create_validation_image.py 1 fields.json output_dir/page_1.png validation.png`
 - Output: `validation.png` with red entry boxes and blue label boxes.
 
 ### 4) Validate bounding boxes
 
-- Command: `python3 pdf-files/scripts/check_bounding_boxes.py fields.json`
+- Command: `python3 ./scripts/check_bounding_boxes.py fields.json`
 - Output: `SUCCESS` if boxes are valid.
 - Verification: inspect `validation.png` to confirm red boxes cover only input areas.
 
 ### 5) Fill the PDF with annotations
 
-- Command: `python3 pdf-files/scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
+- Command: `python3 ./scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
 - Output: `output.pdf` with annotations added.
 
 ### 6) Verify placement

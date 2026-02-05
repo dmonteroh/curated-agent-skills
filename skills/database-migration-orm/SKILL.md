@@ -6,7 +6,7 @@ category: database
 
 # Database Migration (ORM)
 
-This skill is intentionally ORM-oriented. If the repo uses raw SQL migration files, follow a raw SQL migration workflow instead of ORM-driven tooling.
+Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separate raw SQL migration process.
 
 ## Use this skill when
 
@@ -17,7 +17,7 @@ This skill is intentionally ORM-oriented. If the repo uses raw SQL migration fil
 ## Do not use this skill when
 
 - The project uses forward-only SQL migration files as the primary mechanism
-- You are only tuning queries or doing general performance analysis
+- The task is only query tuning or general performance analysis
 
 ## Trigger phrases
 

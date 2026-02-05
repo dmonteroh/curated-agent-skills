@@ -9,18 +9,19 @@ Provides a deterministic process for identifying fillable fields in a PDF and wr
 - `input.pdf`
 - Desired `output.pdf` location
 - Values to populate in `field_values.json`
+- Commands assume the working directory is the skill root (`pdf-files/`).
 
 ## Steps
 
 ### 1) Detect fillable fields
 
-- Command: `python3 pdf-files/scripts/check_fillable_fields.py input.pdf`
+- Command: `python3 ./scripts/check_fillable_fields.py input.pdf`
 - Output: stdout indicating whether fields exist.
 - Decision: if no fields exist, switch to `forms-visual-annotations.md`.
 
 ### 2) Extract field metadata
 
-- Command: `python3 pdf-files/scripts/extract_form_field_info.py input.pdf fields.json`
+- Command: `python3 ./scripts/extract_form_field_info.py input.pdf fields.json`
 - Output: `fields.json` with field metadata.
 
 Schema excerpt:
@@ -66,7 +67,7 @@ Create a JSON array that maps field IDs to values. For checkboxes and radio grou
 
 ### 4) Fill the PDF
 
-- Command: `python3 pdf-files/scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
+- Command: `python3 ./scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
 - Output: `output.pdf` with filled form fields.
 - Verification: open `output.pdf` and confirm values render correctly.
 

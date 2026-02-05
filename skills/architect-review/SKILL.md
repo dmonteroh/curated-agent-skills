@@ -41,6 +41,7 @@ Provides architectural review guidance for system designs and major changes, foc
 ### Workflow
 1. Confirm scope and inputs; list missing context.
    - Output: concise context summary + open questions.
+   - Decision: if the change is minor/local, state that the skill is not applicable and stop.
    - Decision: if critical context is missing, ask targeted questions and pause.
 2. Map the current architecture and change impact.
    - Output: architecture snapshot + assumptions.
@@ -69,13 +70,14 @@ Provides architectural review guidance for system designs and major changes, foc
 - Missing cross-service impact or migration complexity
 
 ## Output contract
-Produce an **Architectural Review Report** with labeled sections, in this order:
+Produce an **Architectural Review Report** using Markdown headings with these exact labels, in this order:
 - Context summary (assumptions + open questions)
 - Impact rating (High/Medium/Low)
 - Findings and risks (blocking vs. advisory)
 - Recommendations with tradeoffs
 - Validation plan
 - Decisions/ADRs and next steps
+Format each section as bullet points; label each finding as `blocking` or `advisory`.
 
 ## References
 See `references/README.md` for detailed reference guides and knowledge areas.

@@ -35,7 +35,19 @@ WHERE status IS NULL;
 
 ## Example rollback script (PostgreSQL)
 
-Requirements: `psql`, `pg_dump`.
+Requirements: `bash`, `psql`, `pg_dump`.
+
+Usage:
+
+```bash
+./rollback.sh <migration_version> <database_name>
+```
+
+Verification:
+
+```bash
+psql -d <database_name> -c "SELECT version FROM schema_migrations ORDER BY applied_at DESC LIMIT 1;"
+```
 
 ```bash
 #!/bin/bash

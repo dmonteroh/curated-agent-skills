@@ -129,9 +129,9 @@ for i in range(100):
 **Debrief Questions**:
 1. What worked well?
 2. What didn't work?
-3. What surprised us?
-4. What are our top 3 action items?
-5. When should we run this again?
+3. What surprised the team?
+4. What are the top 3 action items?
+5. When should the next run occur?
 
 ## Post-Game Checklist
 
@@ -140,7 +140,7 @@ for i in range(100):
 - [ ] Collect all observer notes
 - [ ] Export metrics and dashboards
 - [ ] Schedule post-mortem meeting
-- [ ] Send thank-you to participants
+- [ ] Send appreciation note to participants
 - [ ] Create action item tickets
 - [ ] Update runbooks based on learnings
 ```

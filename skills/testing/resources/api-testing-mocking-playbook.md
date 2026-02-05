@@ -1,6 +1,6 @@
 # API Testing + Mocking Playbook (General, Tool-Agnostic)
 
-This playbook exists so you *don't* need a separate “API mocking specialist” skill.
+This playbook avoids requiring a separate “API mocking specialist” skill.
 
 ## Principles
 
@@ -18,7 +18,7 @@ This playbook exists so you *don't* need a separate “API mocking specialist”
 
 2) Test-time HTTP stub server (good for integration tests)
 - Start a local stub server during tests.
-- Useful when multiple components talk HTTP and you want realistic request verification.
+- Useful when multiple components talk HTTP and realistic request verification is needed.
 
 3) Standalone mock server (only when consumers need it)
 - Use when a frontend team or multiple repos need a stable API surface before backend exists.
@@ -44,8 +44,8 @@ Optional, but high-value:
 
 - Store fixtures as files under `testdata/` (or your repo convention).
 - Prefer **small** fixtures and composable builders.
-- If you record from live environments, scrub secrets/PII and snapshot only what you need.
-- If you need “randomness”, use a seed and print it on failure.
+- If recording from live environments, scrub secrets/PII and snapshot only what is needed.
+- If randomness is required, use a seed and print it on failure.
 
 ## Contract confidence (without becoming “contract testing heavy”)
 
@@ -63,4 +63,3 @@ Lightweight checks that pay off:
 - For external integrations:
   - at least one deterministic stubbed integration test exists
   - timeouts/retries are covered if they exist in production
-

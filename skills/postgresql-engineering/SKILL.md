@@ -74,15 +74,28 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 "Design a Postgres schema for orders, users, and line items with a safe migration plan."
 
 **Example response (abridged)**
-- Requirements: key entities, top queries, retention, scale assumptions.
-- Schema: `users`, `orders`, `line_items` tables with NOT NULL, UNIQUE, FK, and CHECK constraints.
-- Types: BIGINT identity PKs, NUMERIC for money, TIMESTAMPTZ for event time.
-- Indexes: `orders(user_id, created_at)`, `line_items(order_id)`.
-- Migration plan: expand/contract steps with rollback and verification queries.
+1) Requirements summary + assumptions
+- Entities: users, orders, line_items; access paths for user history and order lookup.
+- Assumptions: moderate write load, quarterly schema changes.
+
+2) Schema proposal
+- `users`, `orders`, `line_items` with NOT NULL, UNIQUE, FK, and CHECK constraints tied to invariants.
+
+3) Data type decisions
+- BIGINT identity PKs, NUMERIC for money, TIMESTAMPTZ for event time.
+
+4) Index plan
+- `orders(user_id, created_at)`, `line_items(order_id)`.
+
+5) Operational features
+- No partitioning; RLS not required.
+
+6) Migration plan
+- Expand/contract steps with rollback and verification queries.
 
 ## Output Contract (Always)
 
-Provide a report with these sections in order:
+Provide a report using this exact structure and ordering:
 
 1) Requirements summary + assumptions
 2) Schema proposal (tables/columns/constraints tied to invariants)

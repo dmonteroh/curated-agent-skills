@@ -1,6 +1,6 @@
 ---
 name: nestjs
-description: "Build and evolve NestJS backends fast with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Optimized for spec-driven work: deterministic steps, clear output contracts, and verification gates."
+description: "Build and evolve NestJS backends with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Use when adding or refactoring NestJS endpoints/modules and needing deterministic steps, output contracts, and verification gates."
 category: language
 ---
 
@@ -63,6 +63,7 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 6) Verify
 - Unit tests for providers and e2e tests for routes.
 - Include at least one negative test per endpoint (validation/authz/error mapping).
+- If no automated tests exist, provide manual checks with expected status codes.
 - Output: test commands or manual checks + expected status codes.
 
 ## Common pitfalls

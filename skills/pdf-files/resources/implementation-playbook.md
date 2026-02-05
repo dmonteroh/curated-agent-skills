@@ -2,6 +2,8 @@
 
 Provides a deterministic workflow for PDF extraction, rendering, and form filling. Use this playbook to standardize outputs and verification steps.
 
+Commands assume the working directory is the skill root (`pdf-files/`).
+
 ## First decision: digital vs scanned
 
 - Digital/text PDF:
@@ -21,13 +23,13 @@ Provides a deterministic workflow for PDF extraction, rendering, and form fillin
 ### Path A: Fillable fields exist
 
 1) Detect fields:
-- Run: `python3 pdf-files/scripts/check_fillable_fields.py input.pdf`
+- Run: `python3 ./scripts/check_fillable_fields.py input.pdf`
 
 2) Inspect field names/metadata:
-- Run: `python3 pdf-files/scripts/extract_form_field_info.py input.pdf fields.json`
+- Run: `python3 ./scripts/extract_form_field_info.py input.pdf fields.json`
 
 3) Fill by field name:
-- Run: `python3 pdf-files/scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
+- Run: `python3 ./scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
 
 4) Verify:
 - Open `output.pdf` and confirm values render and are not clipped.
@@ -35,15 +37,15 @@ Provides a deterministic workflow for PDF extraction, rendering, and form fillin
 ### Path B: No fillable fields (visual placement)
 
 1) Render pages to images:
-- Run: `python3 pdf-files/scripts/convert_pdf_to_images.py input.pdf out_dir/`
+- Run: `python3 ./scripts/convert_pdf_to_images.py input.pdf out_dir/`
 
 2) Determine bounding boxes for each value.
 
 3) Validate bounding boxes visually:
-- Run: `python3 pdf-files/scripts/create_validation_image.py 1 fields.json out_dir/page_1.png validation.png`
+- Run: `python3 ./scripts/create_validation_image.py 1 fields.json out_dir/page_1.png validation.png`
 
 4) Fill by annotations at coordinates:
-- Run: `python3 pdf-files/scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
+- Run: `python3 ./scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
 
 5) Verify:
 - Open `output.pdf` and confirm placement and font size.
@@ -59,5 +61,5 @@ Provides a deterministic workflow for PDF extraction, rendering, and form fillin
 
 ## Deep dives
 
-- Advanced tools and recipes: `pdf-files/references/README.md`
-- Detailed form guidance and scripts: `pdf-files/references/forms-fillable-fields.md` and `pdf-files/references/forms-visual-annotations.md`
+- Advanced tools and recipes: `references/README.md`
+- Detailed form guidance and scripts: `references/forms-fillable-fields.md` and `references/forms-visual-annotations.md`

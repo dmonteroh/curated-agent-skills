@@ -38,6 +38,10 @@ Provides deterministic, verifiable workflows for extracting text or tables, conv
 - Form field values (if filling)
 - Constraints (read-only, no network, retention limits)
 
+## Path conventions
+
+Commands assume the working directory is the skill root (`pdf-files/`). Adjust paths if running from another directory.
+
 ## Workflow
 
 ### 1) Intake and safety
@@ -48,7 +52,7 @@ Provides deterministic, verifiable workflows for extracting text or tables, conv
 ### 2) Inspect and classify
 
 - Actions: determine whether the PDF is text-based or scanned and check for fillable fields.
-- Command: `python3 pdf-files/scripts/check_fillable_fields.py input.pdf`
+- Command: `python3 ./scripts/check_fillable_fields.py input.pdf`
 - Output: classification (text vs scanned; fillable vs non-fillable) and chosen path.
 - Decision:
   - If fillable fields exist, follow `references/forms-fillable-fields.md`.
@@ -57,7 +61,7 @@ Provides deterministic, verifiable workflows for extracting text or tables, conv
 ### 3) Extract or render
 
 - Actions: extract text/tables with available local tools, or render pages to images.
-- Command: `python3 pdf-files/scripts/convert_pdf_to_images.py input.pdf output_dir/`
+- Command: `python3 ./scripts/convert_pdf_to_images.py input.pdf output_dir/`
 - Output: extracted text/tables or `page_*.png` images with recorded paths.
 
 ### 4) Fill forms (if needed)
@@ -75,37 +79,37 @@ Provides deterministic, verifiable workflows for extracting text or tables, conv
 Dependencies: Python 3, `pypdf`, `pdf2image`, `Pillow`. `pdf2image` requires Poppler binaries available on `PATH`.
 
 - `scripts/check_fillable_fields.py`
-  - Usage: `python3 pdf-files/scripts/check_fillable_fields.py input.pdf`
+  - Usage: `python3 ./scripts/check_fillable_fields.py input.pdf`
   - Output: stdout indicates whether fields exist.
   - Verification: include stdout in the report.
 
 - `scripts/extract_form_field_info.py`
-  - Usage: `python3 pdf-files/scripts/extract_form_field_info.py input.pdf fields.json`
+  - Usage: `python3 ./scripts/extract_form_field_info.py input.pdf fields.json`
   - Output: `fields.json` with field metadata.
   - Verification: spot-check page numbers and field IDs.
 
 - `scripts/fill_fillable_fields.py`
-  - Usage: `python3 pdf-files/scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
+  - Usage: `python3 ./scripts/fill_fillable_fields.py input.pdf field_values.json output.pdf`
   - Output: filled `output.pdf`.
   - Verification: open the output PDF and confirm field values.
 
 - `scripts/convert_pdf_to_images.py`
-  - Usage: `python3 pdf-files/scripts/convert_pdf_to_images.py input.pdf output_dir/`
+  - Usage: `python3 ./scripts/convert_pdf_to_images.py input.pdf output_dir/`
   - Output: `page_*.png` images.
   - Verification: open at least one page image.
 
 - `scripts/create_validation_image.py`
-  - Usage: `python3 pdf-files/scripts/create_validation_image.py page_number fields.json input.png output.png`
+  - Usage: `python3 ./scripts/create_validation_image.py page_number fields.json input.png output.png`
   - Output: validation image with bounding boxes.
   - Verification: confirm red/blue boxes align with intended areas.
 
 - `scripts/check_bounding_boxes.py`
-  - Usage: `python3 pdf-files/scripts/check_bounding_boxes.py fields.json`
+  - Usage: `python3 ./scripts/check_bounding_boxes.py fields.json`
   - Output: success/failure messages.
   - Verification: require `SUCCESS` before continuing.
 
 - `scripts/fill_pdf_form_with_annotations.py`
-  - Usage: `python3 pdf-files/scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
+  - Usage: `python3 ./scripts/fill_pdf_form_with_annotations.py input.pdf fields.json output.pdf`
   - Output: filled `output.pdf` with annotations.
   - Verification: open the output PDF and confirm placement.
 

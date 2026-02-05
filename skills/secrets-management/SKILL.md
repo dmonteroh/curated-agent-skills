@@ -41,6 +41,10 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 
 ## Workflow (Deterministic)
 
+0) Confirm required inputs
+- If any required input is missing, request it before proceeding.
+- Output: list of missing inputs or a confirmation to proceed.
+
 1) Inventory secrets
 - List secret types, owners, environments, and rotation requirements.
 - Identify where secrets are currently stored and where they can leak (logs, artifacts, env dumps).

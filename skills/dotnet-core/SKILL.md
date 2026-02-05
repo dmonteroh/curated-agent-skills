@@ -80,7 +80,9 @@ Provides guidance for production-grade .NET services with modern patterns and cl
 - Files updated with DTOs, handlers, DbContext changes, and auth policy
 - Verification steps (tests run or manual curl examples)
 
-## Output format
+## Output contract
+
+Report results in this order:
 
 - Summary (what changed and why)
 - Changes (files touched with key code additions)

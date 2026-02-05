@@ -1,6 +1,6 @@
 # Worktrees (Parallel Branch Work)
 
-Worktrees let you work on multiple branches at once without stashing or switching.
+Worktrees enable parallel branches without stashing or switching.
 
 ## Recommended convention (avoid pollution)
 
@@ -27,7 +27,7 @@ git worktree prune
 
 Safety tips:
 - Each worktree has its own working directory; commits are shared.
-- Remove worktrees you no longer need to avoid confusion.
+- Remove unused worktrees to avoid confusion.
 
 ## Baseline verification (high-signal habit)
 

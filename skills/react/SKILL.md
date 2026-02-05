@@ -18,8 +18,8 @@ Provides guidance for React web apps and component libraries that are not tied t
 
 ## Do not use this skill when
 
-- The project is Next.js / App Router / Server Components (use `nextjs`)
-- The project is React Native / Expo (use `react-native`)
+- The project uses Next.js App Router or React Server Components
+- The project is React Native / Expo
 
 ## Trigger phrases
 
@@ -27,6 +27,13 @@ Provides guidance for React web apps and component libraries that are not tied t
 - "Add React state management" / "context vs Redux"
 - "Fix React performance" / "optimize rendering"
 - "Write React tests" / "RTL for components"
+
+## Required inputs
+
+- Target components, screens, or features
+- Known constraints (design system, a11y bar, perf goals, supported browsers)
+- Current state/data flow and API expectations
+- Test tooling in use (RTL/Vitest/Jest) and any existing test patterns
 
 ## Workflow (Deterministic)
 
@@ -84,3 +91,7 @@ Provides guidance for React web apps and component libraries that are not tied t
 - State decisions
 - Accessibility notes
 - Verification
+
+## References
+
+- `references/README.md`

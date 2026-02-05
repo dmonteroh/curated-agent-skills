@@ -10,15 +10,15 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 ## Use this skill when
 
-- You need to read/extract content from `.docx`, `.pptx`, or `.xlsx`
-- You need to compare two versions of an office file (visual/textual diff)
-- You need to turn an office file into a human-readable summary (Markdown)
-- You need quick, deterministic structure inspection (sheets/slides/parts)
+- The user needs to read/extract content from `.docx`, `.pptx`, or `.xlsx`
+- The user needs to compare two versions of an office file (visual/textual diff)
+- The user needs to turn an office file into a human-readable summary (Markdown)
+- The task needs quick, deterministic structure inspection (sheets/slides/parts)
 
 ## Do not use this skill when
 
 - The file is not OOXML (e.g. `.doc`, `.xls`, `.ppt`)
-- You need high-fidelity editing with tracked changes / advanced formatting (request a template or use a dedicated doc workflow)
+- The task requires high-fidelity editing with tracked changes or advanced formatting (request a template or use a dedicated doc workflow)
 
 ## Trigger phrases
 
@@ -48,22 +48,23 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 All scripts are stdlib-only and work without external Python deps.
 Required: Python 3 with access to the local filesystem.
+Run from the repo root with `skills/office-files/scripts/...`, or from the skill folder with `scripts/...`.
 
 - Inspect package structure:
   ```bash
-  python3 office-files/scripts/office_inspect.py path/to/file.docx
+  python3 skills/office-files/scripts/office_inspect.py path/to/file.docx
   ```
 - Extract to Markdown:
   ```bash
-  python3 office-files/scripts/office_extract.py path/to/file.pptx --format md > out.md
+  python3 skills/office-files/scripts/office_extract.py path/to/file.pptx --format md > out.md
   ```
 - Extract to JSON (for downstream tooling):
   ```bash
-  python3 office-files/scripts/office_extract.py path/to/file.xlsx --format json > out.json
+  python3 skills/office-files/scripts/office_extract.py path/to/file.xlsx --format json > out.json
   ```
 - Diff two office files (text diff):
   ```bash
-  python3 office-files/scripts/office_diff.py old.docx new.docx
+  python3 skills/office-files/scripts/office_diff.py old.docx new.docx
   ```
 
 Verification: if you generate a modified file or derived artifact, open it in Office or LibreOffice to confirm the content matches expectations.

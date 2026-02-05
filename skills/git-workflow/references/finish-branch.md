@@ -4,8 +4,8 @@ This playbook is a pragmatic end-of-work routine: verify, then choose how to int
 
 ## Preconditions
 
-- You believe implementation is complete.
-- You have a test command (or other verification command) that proves it.
+- Implementation is believed complete.
+- A test command (or other verification command) is available.
 
 ## Step 1: Verify (non-negotiable)
 
@@ -23,7 +23,7 @@ If verification fails: stop and fix before integration.
 
 ## Step 2: Identify the base branch
 
-Common: `main` or `master`. If unsure, ask or check:
+Common: `main` or `master`. If unknown, check:
 
 ```sh
 git remote show origin | grep 'HEAD branch'
@@ -32,13 +32,13 @@ git remote show origin | grep 'HEAD branch'
 ## Step 3: Choose one option
 
 1) Merge locally
-- Good when you control the repo state and want a direct merge.
+- Good when the repo state is controlled and a direct merge is desired.
 
 2) Push and open a PR
 - Default for team workflows.
 
 3) Keep the branch as-is
-- Good when you’re not ready to integrate.
+- Good when not ready to integrate.
 
 4) Discard the work
 - Only with explicit confirmation.
@@ -78,7 +78,7 @@ PR body template:
 - 
 ```
 
-(Use your hosting tooling to create the PR; exact commands vary.)
+(Use hosting tooling to create the PR; exact commands vary.)
 
 ## Option 3: Keep as-is
 

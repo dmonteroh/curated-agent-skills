@@ -33,6 +33,12 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 - Any policy constraints (severity threshold, license allow/deny list).
 - Output location preference (default: `docs/_docgen/deps-audit/`).
 
+## Constraints
+
+- Uses local tooling only; no network access assumptions.
+- Does not install or modify dependencies.
+- Writes outputs only under the specified repo path.
+
 ## Workflow
 
 1) Scope and detect manifests
@@ -72,6 +78,7 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 
 Report a concise summary with the following sections:
 
+- Format: markdown with headings and bullet lists.
 - Detected ecosystems + evidence files.
 - Tools executed and missing tools (with suggested commands).
 - Top vulnerabilities (severity, package, version, reachability, fix).
@@ -84,8 +91,9 @@ Report a concise summary with the following sections:
 `scripts/deps.sh` provides `scan` and `report` commands.
 
 - Usage:
-  - `./deps-audit/scripts/deps.sh scan`
-  - `./deps-audit/scripts/deps.sh report`
+  - `./skills/deps-audit/scripts/deps.sh scan`
+  - `./skills/deps-audit/scripts/deps.sh report`
+  - Optional: set `DEPS_REPO_ROOT=/path/to/repo` to target another repo.
 - Required tools (best-effort only): `npm`, `pnpm`, `yarn`, `pip-audit`, `govulncheck`, `cargo-audit`.
 - Verification:
   - Confirm docs/_docgen/deps-audit/REPORT.md exists.

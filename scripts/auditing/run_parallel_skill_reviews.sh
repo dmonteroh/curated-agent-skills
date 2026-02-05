@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHECKLIST="$ROOT/scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
-PDFTXT="$ROOT/scripts/auditing/agent_skills_pdf.txt"
+PDFTXT="$ROOT/scripts/auditing/resources/agent_skills_pdf.txt"
 LOGDIR="$ROOT/scripts/auditing/logs"
 BATCH_SIZE=10
 PYTHON_BIN="${PYTHON_BIN:-python3}"
@@ -52,7 +52,7 @@ run_skill() {
   local skill_dir="$ROOT/skills/$skill"
   local log="$LOGDIR/${skill}.log"
 
-  codex exec --sandbox workspace-write "Task: Evaluate skills/${skill}/SKILL.md against scripts/auditing/SKILL_REVIEW_CHECKLIST.md and update it (and any files under skills/${skill}/ if needed) to fully comply. Apply changes directly.\nScope: Only touch files under ${skill_dir}. You may read ${CHECKLIST} and ${PDFTXT}. Do not edit files outside ${skill_dir}.\nRules:\n- Keep the skill independent; do not require other skills to be installed.\n- Do not add brainstorming-gate or multi-agent dependencies.\n- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).\n- If anything is ambiguous, STOP and output QUESTIONS (do not guess).\n- Avoid time-sensitive facts or external network assumptions.\n- If splitting references, create references/README.md as an index.\n- Measure reference file size using tiktoken (cl100k_base). Use the existing venv: ${ROOT}/.venv/bin/python. If a single reference exceeds ~1200 tokens or is clearly multi-topic, split it and add/update references/README.md.\nOutput:\n- Files changed\n- Summary of edits\n- Verification run (if any)" >"$log" 2>&1 &
+  codex exec --sandbox workspace-write "Task: Evaluate skills/${skill}/SKILL.md against scripts/auditing/SKILL_REVIEW_CHECKLIST.md and update it (and any files under skills/${skill}/ if needed) to fully comply. Apply changes directly.\nScope: Only touch files under ${skill_dir}. You may read ${CHECKLIST} and ${PDFTXT}. Do not edit files outside ${skill_dir}.\nRules:\n- Keep the skill independent; do not require other skills to be installed.\n- Do not add brainstorming-gate or multi-agent dependencies.\n- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).\n- Do not delete or prune reference files. Splitting oversized references is required; removal is not allowed.\n- If anything is ambiguous, STOP and output QUESTIONS (do not guess).\n- Avoid time-sensitive facts or external network assumptions.\n- If splitting references, create references/README.md as an index.\n- Measure reference file size using tiktoken (cl100k_base). Use the existing venv: ${ROOT}/.venv/bin/python. If a single reference exceeds ~1200 tokens or is clearly multi-topic, split it and add/update references/README.md.\nOutput:\n- Files changed\n- Summary of edits\n- Verification run (if any)" >"$log" 2>&1 &
 }
 
 count=0

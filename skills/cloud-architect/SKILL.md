@@ -39,29 +39,29 @@ Provides guidance for designing cloud platform architecture: boundaries, network
 
 ## Workflow (Deterministic)
 
-1. Clarify goals and constraints (SLOs, compliance, residency, budget guardrails).
+1. Clarifies goals and constraints (SLOs, compliance, residency, budget guardrails).
    - Output: constraints list + success criteria.
-2. Draw boundaries (system boundary + trust boundaries + data classification).
+2. Defines boundaries (system boundary + trust boundaries + data classification).
    - Output: boundary summary + data classification table.
-3. Choose the dominant platform pattern (serverless vs containers vs VM-based).
+3. Selects the dominant platform pattern (serverless vs containers vs VM-based).
    - Decision: If workload is spiky/event-driven and ops-light, prefer serverless; if portability/control dominates, prefer containers; if legacy/strict kernel needs, prefer VMs.
    - Output: chosen pattern + rationale + rejected options.
-4. Design landing zone + environment layout (prod vs non-prod, accounts/subscriptions/projects).
+4. Designs landing zone + environment layout (prod vs non-prod, accounts/subscriptions/projects).
    - Output: environment map + isolation rationale.
-5. Design networking (CIDR plan, ingress/egress, private connectivity, DNS).
+5. Designs networking (CIDR plan, ingress/egress, private connectivity, DNS).
    - Decision: If compliance requires private connectivity, include private endpoints/links; otherwise document public ingress with protections.
    - Output: network diagram notes + CIDR plan.
-6. Design identity (human + workload identity; least privilege; break-glass).
+6. Designs identity (human + workload identity; least privilege; break-glass).
    - Output: IAM model summary + break-glass approach.
-7. Design data/state (managed first; backups/PITR; lifecycle/retention).
+7. Designs data/state (managed first; backups/PITR; lifecycle/retention).
    - Decision: If data residency or latency needs are strict, pin storage/DB regions and document replication limits.
    - Output: data services list + backup/retention plan.
-8. Design reliability/DR (multi-AZ by default; RPO/RTO; test restores).
+8. Designs reliability/DR (multi-AZ by default; RPO/RTO; test restores).
    - Decision: If RPO/RTO requires cross-region, pick DR tier (pilot light/warm standby/active-active) and justify.
    - Output: DR strategy + target RPO/RTO.
-9. Define observability requirements (golden signals, correlation IDs, alert boundaries).
+9. Defines observability requirements (golden signals, correlation IDs, alert boundaries).
    - Output: observability checklist + alerting scope.
-10. Produce a phased implementation plan + verification gates.
+10. Produces a phased implementation plan + verification gates.
    - Output: phased plan with verification criteria.
 
 ## Common pitfalls to avoid

@@ -6,7 +6,7 @@ category: design
 
 # UI Design
 
-This skill is design + review + specification. It is intentionally framework-agnostic and does not assume any implementation stack.
+Provides UI design and review guidance that turns requirements into briefs, flows, component specs, and design-system rules. It is intentionally framework-agnostic and does not assume any implementation stack.
 
 ## Use this skill when
 
@@ -33,6 +33,7 @@ This skill is design + review + specification. It is intentionally framework-agn
 - Primary user goal and success criteria
 - Constraints (density vs delight, accessibility level, branding, localization)
 - If reviewing code: files/links and any local UI guidelines
+- If platform-specific behavior matters: local standards or product conventions
 
 ## Workflow (deterministic)
 
@@ -56,6 +57,7 @@ This skill is design + review + specification. It is intentionally framework-agn
 - If the user only wants implementation, confirm whether a design/spec is still needed before proceeding.
 - If design-system rules already exist, reference them and avoid inventing new tokens.
 - If platform is unclear, ask for the primary target before drafting the brief.
+- If platform standards are missing, request local guidelines instead of assuming defaults.
 
 ## Common pitfalls to avoid
 
@@ -63,6 +65,7 @@ This skill is design + review + specification. It is intentionally framework-agn
 - Overloading the UI with multiple status colors or competing emphasis
 - Missing keyboard/focus/label requirements in interactive components
 - Providing pixel-perfect visuals when the user asked for structural guidance only
+- Assuming platform conventions without local confirmation
 
 ## Examples
 
@@ -75,7 +78,7 @@ This skill is design + review + specification. It is intentionally framework-agn
 
 ## Output contract (always)
 
-Use this reporting format:
+Use this reporting format, in this order:
 
 ```md
 # UI Brief

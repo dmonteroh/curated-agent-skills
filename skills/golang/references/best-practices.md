@@ -1,6 +1,6 @@
 # Go Best Practices (High Signal)
 
-These are the rules of thumb that tend to produce the best Go code in multi-agent, multi-contributor environments.
+Provides rules of thumb that tend to produce the best Go code in collaborative environments.
 
 ## Core principles
 
@@ -58,4 +58,3 @@ Go blog: Pipelines and cancellation patterns:
 Go blog: Context usage (cancellation/deadlines):
   https://go.dev/blog/context
 ```
-

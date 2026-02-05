@@ -6,7 +6,7 @@ category: observability
 
 # migration-observability
 
-This skill is for **running migrations safely** (not for authoring SQL/ORM migration steps). It focuses on:
+Provides guidance for **running migrations safely** (not for authoring SQL/ORM migration steps). It focuses on:
 - progress visibility (are we moving? how fast? ETA?)
 - safety signals (are we harming prod? are errors rising? is lag growing?)
 - runbook gates (objective go/no-go thresholds and rollback triggers)
@@ -20,7 +20,7 @@ This skill is for **running migrations safely** (not for authoring SQL/ORM migra
 ## Do not use this skill when
 
 - The change is a tiny, low-risk schema tweak with trivial rollback.
-- You’re only authoring migration scripts (this skill is about operating them).
+- Only authoring migration scripts (this skill is about operating them).
 
 ## Trigger phrases
 
@@ -116,7 +116,7 @@ Example output summary (abbreviated):
 
 ## Output contract (reporting format)
 
-Return a single summary with the following fields, in this order:
+Return a single summary using labeled bullets with the following fields, in this order:
 
 - Migration classification (type, blast radius, rollback complexity).
 - Progress metrics with thresholds + sources.

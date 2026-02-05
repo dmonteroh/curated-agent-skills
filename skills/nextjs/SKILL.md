@@ -15,12 +15,14 @@ Provides guidance for Next.js projects (especially App Router) where Server Comp
 - Handling server vs client component boundaries
 - Implementing data fetching, caching, revalidation, and streaming/Suspense
 - Implementing form actions / server actions (where supported)
+- The task targets App Router usage (or mixed routing where App Router is in scope)
 - Trigger phrases: "App Router", "Server Components", "server actions", "route handlers", "layout/page", "loading.tsx", "use client"
 
 ## Do not use this skill when
 
 - The project is a plain React SPA or component library
 - The project is React Native / Expo
+- The task is strictly Pages Router-specific
 - The task is unrelated to Next.js routing, data fetching, or server/client boundaries
 
 ## Required inputs
@@ -70,6 +72,7 @@ Provides guidance for Next.js projects (especially App Router) where Server Comp
 ## Output Contract (Always)
 
 - Code changes with explicit server/client boundary notes
+- Router type confirmation and scope summary
 - Data fetching + caching behavior explanation
 - Error/loading state behavior
 - Verification steps (dev repro + tests if present)

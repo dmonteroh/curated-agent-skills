@@ -1,6 +1,8 @@
 # Migration script patterns
 
-## Forward-only SQL template
+## Forward-only SQL templates
+
+**Transactional DDL (no concurrent index)**
 
 ```sql
 -- V042__add_orders_status.sql
@@ -8,10 +10,21 @@ BEGIN;
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_status
+CREATE INDEX IF NOT EXISTS idx_orders_status
     ON orders(status);
 
 COMMIT;
+```
+
+**Non-transactional DDL (concurrent index)**
+
+```sql
+-- V043__add_orders_status_index.sql
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT;
+
+-- PostgreSQL: CREATE INDEX CONCURRENTLY cannot run inside a transaction.
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_status
+    ON orders(status);
 ```
 
 ## Naming guidance

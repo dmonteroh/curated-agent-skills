@@ -1,12 +1,12 @@
 ---
 name: tracks-conductor-protocol
-description: Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use when you need structured work management for SDD/CDD.
+description: Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD.
 category: workflow
 ---
 
 # Tracks Conductor Protocol
 
-A single, unified work-management protocol for **intake -> planning -> execution** that fits **SDD** (spec-driven development) and **CDD** (context-driven development), and scales to **multiple agents**.
+A single, unified work-management protocol for **intake -> planning -> execution** that fits **SDD** (spec-driven development) and **CDD** (context-driven development), and scales to larger teams.
 
 This skill is intentionally optimized for speed:
 - One command to initialize work structure
@@ -16,9 +16,9 @@ This skill is intentionally optimized for speed:
 
 ## Use this skill when
 
-- You need to intake work, formalize it into task briefs, group it into tracks, plan it, and execute it.
-- You want an indexing/registry system (like ADR indexes) that stays consistent across agents.
-- You want to ensure specs/context are created and updated as required (SDD + CDD hygiene).
+- Needing to intake work, formalize it into task briefs, group it into tracks, plan it, and execute it.
+- Requiring an indexing/registry system (like ADR indexes) that stays deterministic across contributors.
+- Ensuring specs/context are created and updated as required (SDD + CDD hygiene).
 
 ## Do not use this skill when
 
@@ -43,6 +43,10 @@ This skill is intentionally optimized for speed:
 - Work index (managed blocks): docs/project/work_index.md
 - CDD context: docs/context/{product.md,tech-stack.md,workflow.md}
 
+Environment overrides:
+- `TCD_PROJECT_DIR`, `TCD_TODO_DIR`, `TCD_TASKS_DIR`, `TCD_TRACKS_DIR`, `TCD_FUTURES_DIR`
+- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`
+
 ## Core principles
 See `references/README.md` for core principles, traceability rules, and escalation guidance.
 
@@ -63,6 +67,7 @@ scripts/tcd.sh init
 ```
 
 - Output: directory structure + seeded index blocks + context stubs.
+- If scripts are unavailable, manually create the folders and seed `work_index.md` and `tracks.md` using `references/index-format.md`.
 
 ### 1) Intake (To-Do Draft)
 
@@ -74,6 +79,7 @@ scripts/tcd.sh intake "Title"
 
 - Output: new TD file + updated `work_index.md` intake table.
 - Template and quality bar: `references/templates.md`.
+- If scripts are unavailable, create the TD file from the template and append it to the intake table format in `references/index-format.md`.
 
 Decision point:
 - If the intake is unclear or missing a success signal, revise the TD before promotion.
@@ -87,6 +93,7 @@ scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md
 ```
 
 - Output: new task brief + updated index tables.
+- If scripts are unavailable, create the task file from `references/templates.md` and update the tasks table in `work_index.md`.
 
 Decision point:
 - If the work is not actionable yet, keep it as intake and add required discovery notes.
@@ -101,6 +108,7 @@ scripts/tcd.sh track "Track title"
 
 - Output: track folder with `spec.md`, `plan.md`, `context.md` + updated tracks registry/index.
 - Track templates: `references/templates.md`.
+- If scripts are unavailable, create the track folder and update `tracks.md` and `work_index.md` using `references/index-format.md`.
 
 Decision point:
 - If multiple tasks share dependencies or milestones, group them under a single track.
@@ -118,7 +126,8 @@ Decision point:
 
 - Output: new Future or ADR entry, plus index updates.
 - If a requirement is deferred but architecture-sensitive: record it as a Future (see `references/futures.md`).
-- If a decision is current and architectural: record it as an ADR using your repo's ADR format.
+- If a decision is current and architectural: record it as an ADR using the repo's ADR format.
+- If scripts are unavailable, add Future entries by following `references/futures.md` and update the Futures block in `work_index.md`.
 
 ## Indexing + decision points
 See `references/README.md` for managed index blocks, decision points, and common mistakes.
@@ -172,7 +181,7 @@ When this skill runs, report using this format:
 - Files: created/updated paths
 - Status: transitions applied or unchanged
 - Follow-ups: missing inputs or next steps
-- Validation: command + outcome
+- Validation: command + outcome (or `not run`)
 
 ## Examples
 

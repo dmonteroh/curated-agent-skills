@@ -55,7 +55,7 @@ Use this playbook to run safe, repeatable chaos experiments with clear hypothese
 
 ```yaml
 name: <short-name>
-objective: <what we want to learn>
+objective: <what the experiment should learn>
 hypothesis: <given/when/then>
 
 steady_state:
@@ -95,10 +95,12 @@ results:
 
 ## Reference Files
 
-Use these when you need concrete manifests/tools/examples:
+Use these references when concrete manifests/tools/examples are needed:
 
-- `references/experiment-design.md`
-- `references/game-days.md`
-- `references/infrastructure-chaos.md`
-- `references/kubernetes-chaos.md`
-- `references/chaos-tools.md`
+- `references/README.md`
+- `references/experiment-quick-reference.md`
+- `references/experiment-template.md`
+- `references/game-day-runbook.md`
+- `references/infra-quick-reference.md`
+- `references/k8s-litmus-chaosengine.md`
+- `references/chaos-tools-quick-reference.md`

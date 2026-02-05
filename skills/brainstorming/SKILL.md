@@ -35,28 +35,28 @@ category: workflow
 
 Provides a structured dialogue that turns fuzzy ideas into a clear, testable design brief.
 
-Default posture: clarify, do not prematurely implement.
+Default posture is to clarify and avoid premature implementation.
 
 ## Workflow
 
 ### 1) Understand the idea (question loop)
 
-- Briefly inspect current project context (relevant docs/files) when available.
-- Ask one question at a time; prefer multiple choice when it speeds decisions.
-- Clarify: purpose, users, constraints, success criteria, non-goals.
+- Briefly inspects current project context (relevant docs/files) when available.
+- Asks one question at a time; prefers multiple choice when it speeds decisions.
+- Clarifies: purpose, users, constraints, success criteria, non-goals.
 - **Output:** a short problem statement and list of open questions.
 
 ### 2) Explore approaches
 
-- Propose 2-3 approaches with tradeoffs against the stated constraints.
-- Make a recommendation, and explain why it wins *for this context*.
+- Proposes 2-3 approaches with tradeoffs against the stated constraints.
+- Makes a recommendation and explains why it wins *for this context*.
 - **Output:** 2–3 options with pros/cons/risks and a recommendation.
 
 ### 3) Present the design brief (incremental validation)
 
-- Present a short design brief and ask for confirmation.
-- If the user disagrees, return to the question loop and iterate.
-- Cover only what matters for decision-making:
+- Presents a short design brief and asks for confirmation.
+- If the user disagrees, returns to the question loop and iterates.
+- Covers only what matters for decision-making:
   - goals / non-goals
   - scope boundaries
   - main flows and key states
@@ -66,8 +66,8 @@ Default posture: clarify, do not prematurely implement.
 
 ### 4) Decide next step
 
-- If the user is ready, ask to move to execution planning.
-- If not, continue the question loop.
+- If the user is ready, asks to move to execution planning.
+- If not, continues the question loop.
 - **Output:** a single next-step question.
 
 ### Decision points
@@ -80,28 +80,28 @@ Default posture: clarify, do not prematurely implement.
 
 ### Documentation (optional)
 
-- If the repo has a preferred planning/spec protocol, adapt the brief to that format.
-- Otherwise, write a design note to an agreed path (example):
+- If the repo has a preferred planning/spec protocol, adapts the brief to that format.
+- Otherwise, writes a design note to an agreed path (example):
 
 ```text
 docs/plans/YYYY-MM-DD-<topic>-design.md
 ```
 
-Do not assume other skills exist; treat any integrations as optional.
+Does not assume other skills exist; treats any integrations as optional.
 
 ### Implementation (optional)
 
-- Ask: "Ready to move from design to execution?"
-- If proceeding, produce a small execution plan (milestones + verification).
+- Asks: "Ready to move from design to execution?"
+- If proceeding, produces a small execution plan (milestones + verification).
 
 ## Key Principles
 
-- **One question at a time** - Don't overwhelm with multiple questions
-- **Multiple choice preferred** - Easier to answer than open-ended when possible
-- **YAGNI ruthlessly** - Remove unnecessary features from all designs
-- **Explore alternatives** - Always propose 2-3 approaches before settling
-- **Incremental validation** - Present design in sections, validate each
-- **Be flexible** - Go back and clarify when something doesn't make sense
+- **One question at a time** - Avoids overwhelming with multiple questions
+- **Multiple choice preferred** - Keeps answers easier than open-ended when possible
+- **YAGNI ruthlessly** - Removes unnecessary features from all designs
+- **Explore alternatives** - Proposes 2-3 approaches before settling
+- **Incremental validation** - Presents design in sections and validates each
+- **Be flexible** - Returns to clarification when something doesn't make sense
 
 ## Common pitfalls
 
@@ -134,6 +134,7 @@ Do not assume other skills exist; treat any integrations as optional.
 - A 3–7 bullet problem statement + success criteria
 - 2–3 approaches with pros/cons and a recommendation
 - A design brief with explicit non-goals, risks, and a verification plan
+- A single next-step question
 
 ## Reporting format
 

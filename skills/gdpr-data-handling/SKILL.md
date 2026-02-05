@@ -6,9 +6,9 @@ category: security
 
 # GDPR Data Handling
 
-Practical implementation guide for GDPR-compliant data processing, privacy controls, and operational workflows.
+Provides an implementation-focused guide for GDPR-compliant data processing, privacy controls, and operational workflows.
 
-This skill is intentionally **implementation-oriented** (engineers/operators). It does not replace legal counsel; it helps turn requirements into concrete artifacts and verifiable behaviors.
+Focuses on engineering/operator execution and does not replace legal counsel. Produces concrete artifacts and verifiable behaviors from privacy requirements.
 
 ## Use this skill when
 
@@ -43,6 +43,12 @@ This skill is intentionally **implementation-oriented** (engineers/operators). I
 - Current storage locations, access paths, and vendors
 - Existing retention/deletion behaviors and policies
 - Known DSAR/breach procedures (if any)
+
+## Constraints
+
+- Provides engineering/operational guidance, not legal advice.
+- Avoids time-sensitive or jurisdiction-specific interpretations beyond GDPR basics.
+- Requires local system context; do not assume external network access or third-party data.
 
 ## Outputs produced
 

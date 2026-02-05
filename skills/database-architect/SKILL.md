@@ -10,6 +10,8 @@ Provides database architecture and modeling guidance (not query-by-query tuning)
 
 ## Use this skill when
 
+Use this skill when durable data-layer decisions are needed, not short-term query fixes.
+
 - Choosing a database or storage pattern (relational, document, time-series, search)
 - Designing schemas, constraints, and indexes for real access patterns
 - Planning sharding/partitioning/replication and lifecycle policies
@@ -25,8 +27,16 @@ Provides database architecture and modeling guidance (not query-by-query tuning)
 
 ## Do not use this skill when
 
-- You only need query tuning or a single slow query fix
-- You need vendor-specific operational runbooks
+- Only query tuning or a single slow query fix is needed
+- Vendor-specific operational runbooks are required
+
+## Required inputs
+
+- Entities + invariants (what must always be true)
+- Access patterns (reads/writes, filters/sorts/joins, hot paths)
+- Scale targets (rows, QPS, retention, growth)
+- Consistency + latency requirements
+- Migration constraints (downtime tolerance, rollback expectations)
 
 ## Workflow (Deterministic)
 
@@ -35,6 +45,7 @@ Provides database architecture and modeling guidance (not query-by-query tuning)
 - Captures access patterns (reads/writes, filters/sorts/joins, hot paths).
 - Captures scale targets (rows, QPS, retention, growth).
 - Captures consistency + latency requirements (and what can be eventually consistent).
+Decision: If critical inputs are missing, pause and ask targeted questions before proceeding.
 Produces: requirements summary with assumptions and open questions.
 
 2) Select the storage model
@@ -42,17 +53,20 @@ Produces: requirements summary with assumptions and open questions.
 - Considers operational complexity and failure modes, not just raw throughput.
 Decision: If invariants require strong relational constraints, prefer relational.
 Decision: If primary access is time-windowed append, prefer time-series/partitioning.
+Decision: If OLTP + analytics needs diverge, recommend separating systems with a clear source of truth.
 Produces: 2-3 candidate storage models with tradeoffs.
 
 3) Model the data
 - Defines tables/collections, primary keys, relationships.
 - Specifies constraints for invariants (NOT NULL, UNIQUE, CHECK, FK where appropriate).
 - Maps indexes to real access paths (not theoretical ones).
+Decision: If read performance dominates and invariants allow, denormalize with compensating checks.
 Produces: schema sketch + index plan tied to access patterns.
 
 4) Plan evolution + safety
 - Describes migration steps (expand/contract when needed).
 - Documents backups, rollback strategy, and validation plan.
+Decision: If the change is breaking or large, use expand/contract with staged verification.
 Produces: migration/rollback plan with verification steps.
 
 5) Synthesize recommendation

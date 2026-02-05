@@ -4,4 +4,6 @@
 - `contracts.md`: Input/output schema conventions, hints, and stability rules.
 - `errors.md`: Error shapes, messaging guidance, and actionable patterns.
 - `evals.md`: Evaluation scenarios, regression tracking, and run tips.
-- `sdk/`: Compact notes on MCP protocol/SDK usage and server setup.
+- `protocol-quickref.md`: JSON-RPC lifecycle and MCP method families.
+- `python-sdk-notes.md`: Practical MCP SDK checklist for Python.
+- `typescript-sdk-notes.md`: Practical MCP SDK checklist for TypeScript.

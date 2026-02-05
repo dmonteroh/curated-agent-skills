@@ -15,15 +15,15 @@ Provides two workflows for Stitch tasks:
 
 ## Use this skill when
 
-- You need a `DESIGN.md` that captures a Stitch project’s design language.
-- You want to enhance a prompt for Stitch or similar UI generators.
-- You have Stitch-exported HTML/CSS and screenshots and need a structured summary.
+- A `DESIGN.md` is needed to capture a Stitch project’s design language.
+- A prompt needs enhancement for Stitch or similar UI generators.
+- Stitch-exported HTML/CSS and screenshots need a structured summary.
 
 ## Do not use this skill when
 
-- You need user research, product strategy, or a full UX design brief.
-- You must invent a brand identity without any assets or inputs.
-- You require cross-skill dependencies or multi-agent orchestration.
+- The request needs user research, product strategy, or a full UX design brief.
+- The request requires inventing a brand identity without assets or inputs.
+- The request depends on cross-skill dependencies or multi-agent orchestration.
 
 ## Activation cues (trigger phrases)
 
@@ -42,7 +42,7 @@ Provides two workflows for Stitch tasks:
 - If the request includes both a design summary and prompt refinement, complete Mode A first, then Mode B.
 - If Stitch project data is provided, use it for accurate theme data.
 - If only offline HTML/CSS and screenshots are provided, rely on those sources.
-- If key inputs are missing (palette, typography, layout), ask for them before final output.
+- If key inputs are missing (palette, typography, layout), request them before final output.
 
 ## Mode A: DESIGN.md Synthesis
 
@@ -99,7 +99,7 @@ Provides two workflows for Stitch tasks:
    - Specific changes (only if editing an existing design).
    - **Output:** enhanced prompt in Markdown.
 4. **Check for missing details.**
-   - Ask for missing platform or target audience info.
+   - Request missing platform or target audience info.
    - **Output:** question list (if needed).
 
 ## Output contract

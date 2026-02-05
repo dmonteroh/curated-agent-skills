@@ -23,11 +23,14 @@ cat > "$OUT" <<EOF2
 
 Date: ${DATE}
 Scope: <pages/components>
-Evidence: <filenames/urls>
 
 ## Verdict
 
 <pass|fail|partial|needs-evidence>
+
+## Evidence Inventory
+
+- <artifact> (<viewport>, <theme>, <state>, <environment>)
 
 ## Goals
 
@@ -46,28 +49,17 @@ Evidence: <filenames/urls>
 
 - 
 
-## Accessibility Visual Checks
+## Accessibility (Visual)
 
 - Focus visibility: <ok|concerns>
 - Contrast concerns: <none|list>
 - Text scaling/wrapping: <ok|concerns>
 
-## Responsive Checks
+## Responsive + State Coverage
 
-- Mobile: <ok|issues>
-- Tablet: <ok|issues>
-- Desktop: <ok|issues>
-
-## State Coverage
-
-- default: <ok|missing>
-- hover: <ok|missing>
-- focus (keyboard): <ok|missing>
-- active/pressed: <ok|missing>
-- disabled: <ok|missing>
-- loading: <ok|missing>
-- error: <ok|missing>
-- empty/no-data: <ok|missing>
+- Breakpoints: Mobile <ok|issues>, Tablet <ok|issues>, Desktop <ok|issues>
+- States: default <ok|missing>, hover <ok|missing>, focus (keyboard) <ok|missing>, active/pressed <ok|missing>, disabled <ok|missing>, loading <ok|missing>, error <ok|missing>, empty/no-data <ok|missing>
+- Coverage gaps: <list missing states/viewport/theme>
 
 ## Issues (With Severity)
 

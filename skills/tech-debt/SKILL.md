@@ -50,7 +50,7 @@ Output:
 Collect quick signals using repo scans, issue trackers, incident notes, and build/test logs.
 
 Optional script:
-- Run `./scripts/debt_scan.sh` in the target repo to generate a quick signal report.
+- Run the skill script from the target repo root (for example, `skills/tech-debt/scripts/debt_scan.sh`) or copy it into the repo and run `./debt_scan.sh` to generate a quick signal report.
 
 Decision:
 - If scripts cannot run, document manual scan findings instead.
@@ -109,8 +109,11 @@ Output:
 
 `scripts/debt_scan.sh` runs a quick, read-only scan in the target repo.
 
-Usage:
-- `./scripts/debt_scan.sh`
+Usage (run from the target repo root):
+- `skills/tech-debt/scripts/debt_scan.sh`
+
+Output:
+- Writes a Markdown report to `docs/_docgen/tech_debt_scan.md` (or the configured output path).
 
 Environment variables:
 - `DEBT_SCAN_OUT_DIR` (default: `docs/_docgen`)

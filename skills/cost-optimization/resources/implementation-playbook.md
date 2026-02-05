@@ -12,20 +12,20 @@ Use this playbook when you need a concrete cost-reduction plan, a cost review ri
 ## Deliverables (Pick What Fits)
 
 - Top cost drivers list with owners and expected savings.
-- 10-30 day action plan (quick wins), plus 90-day program (structural wins).
+- Short-term action plan (quick wins), plus longer-term program (structural wins).
 - Tagging/labeling policy + coverage plan.
 - A "stop the bleed" checklist for incident-level cost spikes.
 - Verification checklist (ensure savings without regressions).
 
 ## Workflow
 
-### 1) Establish Visibility (Day 0)
+### 1) Establish Visibility (Initial)
 
 - Define required tags/labels and owners.
 - Ensure cost allocation works at the dimension you need (team/service/env/tenant).
 - Set budgets and alerts (including anomaly detection if available).
 
-### 2) Identify The Big Rocks (Day 1)
+### 2) Identify The Big Rocks (Baseline)
 
 Ask: which *category* dominates?
 
@@ -36,7 +36,7 @@ Ask: which *category* dominates?
 - Observability (logs/metrics/traces)
 - Managed services (queues, serverless, search)
 
-### 3) Quick Wins (Days 1-7)
+### 3) Quick Wins (Short-Term)
 
 - Turn off idle resources (especially non-prod).
 - Delete orphaned resources (disks, snapshots, IPs, load balancers).
@@ -44,7 +44,7 @@ Ask: which *category* dominates?
 - Apply lifecycle policies for logs and object storage.
 - Reduce high-cardinality metrics and noisy logs.
 
-### 4) Structural Wins (Days 7-90)
+### 4) Structural Wins (Long-Term)
 
 - Autoscaling for variable workloads.
 - Commit to capacity only after utilization evidence.

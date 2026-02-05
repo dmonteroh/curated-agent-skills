@@ -35,7 +35,7 @@ Provides controlled failure injection with explicit hypotheses, safety gates, an
 - Observability sources for steady state (metrics, logs, traces)
 - Rollback mechanisms and on-call/communications expectations
 
-If any required inputs are missing, request them before proceeding.
+If any required inputs are missing, the agent requests them before proceeding.
 
 ## Safety Rules (Non-Negotiable)
 
@@ -57,7 +57,7 @@ If any required inputs are missing, request them before proceeding.
 4. Define safety plan and rollback workflow.
    - Output: rollback triggers, kill switch steps, communications plan.
 5. Execute and monitor.
-   - Output: execution log with timestamps, guardrail observations, and stop/continue decision.
+   - Output: execution log with ordered steps, guardrail observations, and stop/continue decision.
    - Decision: if any guardrail breaches, rollback immediately.
 6. Capture findings and remediation.
    - Output: findings summary + prioritized remediation tickets.
@@ -75,7 +75,7 @@ If any required inputs are missing, request them before proceeding.
 - Execution plan (steps + stop conditions)
 - Findings + remediation actions
 
-Reporting format:
+Reporting format (use this in the final response):
 
 ```
 ## Chaos Experiment Report

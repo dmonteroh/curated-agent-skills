@@ -6,7 +6,7 @@ category: ai
 
 # Dispatching Parallel Agents
 
-Parallel dispatch is only useful when tasks are truly independent. This skill includes a **subagent execution** pattern (implementer + reviewers) to finish each partition cleanly.
+Parallel dispatch is only useful when tasks are truly independent. This skill provides a **subagent execution** pattern (implementer + reviewers) to finish each partition cleanly.
 
 Core principle: **one agent per independent domain**, with explicit constraints and a deterministic merge plan.
 
@@ -93,7 +93,7 @@ Definition of done:
 Return:
 - Root cause
 - Exact changes made (files)
-- How you verified
+- Verification
 ```
 
 Output: one task packet per domain, ready to dispatch.

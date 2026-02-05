@@ -20,7 +20,7 @@ output-format: code
 
 # Terraform Engineer
 
-Deliver production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
+Provides production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
 
 ## Use this skill when
 
@@ -100,11 +100,12 @@ Deliver production-grade Terraform infrastructure code with modular design, secu
 
 ## Output contract
 
-When this skill runs, report in this format:
+When this skill runs, report using these headings in order:
 
 - Summary: what was built/changed and why
-- Assumptions: any defaults or constraints applied
-- Files changed: list of Terraform files touched
+- Assumptions: defaults or constraints applied
+- Files changed: Terraform files touched
+- Deliverables: module structure, backend config, provider config, usage example
 - Validation: commands run or suggested (plan, validate, tests)
 - Follow-ups: missing inputs or recommended next steps
 
@@ -134,14 +135,9 @@ Use `references/README.md` to load detailed guidance by topic.
 - Skip input validation
 - Commit .terraform directories
 
-## Output Templates
+## Reporting format
 
-When implementing Terraform solutions, provide:
-1. Module structure (main.tf, variables.tf, outputs.tf)
-2. Backend configuration for state
-3. Provider configuration with versions
-4. Example usage with tfvars
-5. Brief explanation of design decisions
+Use the output contract headings exactly and keep each section concise.
 
 ## Knowledge Reference
 

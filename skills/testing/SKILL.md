@@ -1,12 +1,12 @@
 ---
 name: testing
-description: "Create unit tests, API tests, and automation strategies with clear decision points, pitfalls, and deterministic reporting via local scripts."
+description: "Create unit tests, API contract tests, and automation strategies for existing codebases with clear decision points, pitfalls, and deterministic reporting via local scripts."
 category: workflow
 ---
 
-# testing
+# Testing
 
-One testing skill that covers:
+Provides a single testing skill that covers:
 - **unit**: generate or improve unit tests with edge-case coverage
 - **automation**: integration/E2E strategy, CI feedback loops, and stability
 - **api**: API behavior testing and deterministic mocking
@@ -30,6 +30,11 @@ One testing skill that covers:
 - "make our tests faster/flaky"
 - "mock the API so frontend can proceed"
 
+## Trigger test
+
+- "Add unit tests for the new validation function."
+- "Create a testing strategy for our checkout flow."
+
 ## Required inputs
 
 - Code or behavior to test (files, diff, or explicit requirements).
@@ -52,18 +57,22 @@ Goal: maximize coverage of changed behavior with maintainable tests.
 
 Workflow:
 1) Identify units under test + seams (pure functions, modules, services).
+   - Output: target list with boundaries to isolate.
 2) Enumerate scenarios:
    - happy path
    - boundary conditions
    - error handling
    - state transitions
-3) Decide if mocks are required:
-   - If external I/O exists, stub at the boundary.
-   - If logic is pure, avoid mocking entirely.
+   - Output: scenario matrix mapped to tests.
+3) Decide if mocks are required.
+   - Decision: if external I/O exists, stub at the boundary; if logic is pure, avoid mocking.
+   - Output: mock/stub plan with rationale.
 4) Implement minimal fixtures and assertions.
+   - Output: test files and fixtures added or updated.
 5) Ensure tests are deterministic and fast.
+   - Output: test run command or manual verification steps.
 
-Output:
+Outputs:
 - Test file(s) + brief explanation
 - Gaps, risks, and follow-ups
 
@@ -73,18 +82,20 @@ Goal: build a fast, reliable feedback loop with the right test mix.
 
 Workflow:
 1) Define critical journeys and risks (auth, payments, data integrity, permissions).
-2) Choose test layers:
-   - If unit coverage is low, start there.
-   - If cross-service behavior is risky, add integration/contract tests.
-   - If business-critical flows fail end-to-end, add E2E tests.
-3) Design for stability:
+   - Output: risk list and high-value flows.
+2) Choose test layers.
+   - Decision: if unit coverage is low, start there; if cross-service behavior is risky, add integration/contract tests; if business-critical flows fail end-to-end, add E2E tests.
+   - Output: recommended test pyramid.
+3) Design for stability.
    - hermetic environments where possible
    - test data management
    - retries only at the framework edge (avoid hiding bugs)
-4) Add CI quality gates:
+   - Output: stability plan and data strategy.
+4) Add CI quality gates.
    - smoke suite, full suite, perf gates (if relevant), reporting
+   - Output: CI steps with gating criteria.
 
-Output:
+Outputs:
 - Recommended test pyramid + tooling
 - Execution plan and CI integration steps
 
@@ -101,6 +112,18 @@ Defaults:
 - Prefer in-process stubs/mocks where possible (cheapest, least brittle).
 - Use a standalone mock server only when consumers truly need it.
 - Keep fixtures deterministic; avoid randomness unless explicitly seeded.
+
+Workflow:
+1) Identify API contracts, consumers, and change scope.
+   - Output: endpoints/contracts and consumers list.
+2) Select test layers for contract confidence.
+   - Decision: if behavior is local, use unit/integration; if cross-service, add contract/E2E.
+   - Output: test layer mapping by endpoint or scenario.
+3) Choose mock/stub approach.
+   - Decision: prefer in-process stubs; use standalone mock servers only when consumers need it.
+   - Output: mock/stub plan and ownership.
+4) Define deterministic fixtures and regeneration steps.
+   - Output: fixture inventory and refresh instructions.
 
 Outputs:
 - API test plan (what to cover + where: unit/integration/e2e)
@@ -127,11 +150,6 @@ Use this format whenever the skill runs:
 - Risks/gaps + recommended follow-ups
 
 ## Examples
-
-Trigger test prompts:
-- "Add unit tests for the new validation function"
-- "Create a testing strategy for our checkout flow"
-
 Example output (unit mode):
 - Mode: unit
 - Scope: src/validators/email.ts validation paths
@@ -144,15 +162,15 @@ Example output (unit mode):
 ## Quick start (in a real repo)
 
 ```sh
-./testing/scripts/test.sh plan
-./testing/scripts/test.sh report
+./skills/testing/scripts/test.sh plan
+./skills/testing/scripts/test.sh report
 ```
 
 Outputs a deterministic report under `docs/_docgen/testing/`.
 
 Script usage and verification:
-- `./testing/scripts/test.sh plan` writes `docs/_docgen/testing/PLAN.md`.
-- `./testing/scripts/test.sh report` writes `docs/_docgen/testing/REPORT.md`.
+- `./skills/testing/scripts/test.sh plan` writes `docs/_docgen/testing/PLAN.md`.
+- `./skills/testing/scripts/test.sh report` writes `docs/_docgen/testing/REPORT.md`.
 - Verify by opening the generated file; the script does not run tests.
 - Optional: install `rg` for faster file counting (fallback uses `find`).
 

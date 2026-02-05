@@ -48,7 +48,7 @@ Provides a deterministic workflow for TypeScript architecture, day-to-day implem
    - If migration is required, propose incremental steps (file-by-file or package-by-package).
    - Output: concrete code changes or refactor steps, avoiding new `any` and `@ts-ignore`.
 5. Verify and report.
-   - Output: suggested verification commands and any remaining risks.
+   - Output: suggested verification commands, expected outcomes, and any remaining risks.
 
 ## Common pitfalls to avoid
 
@@ -63,9 +63,9 @@ Provide results in this format every time:
 
 1. Summary: 1–3 bullets describing the change.
 2. Types/Code: updated type definitions or code fixes.
-3. Config/Migration: `tsconfig` adjustments and rollout steps (if any).
+3. Config/Migration: `tsconfig` adjustments and rollout steps (or “None”).
 4. Verification: commands run or to run (with expected outcomes).
-5. Risks/Follow-ups: remaining concerns or next steps.
+5. Risks/Follow-ups: remaining concerns or next steps (or “None”).
 
 ## Examples
 
@@ -73,9 +73,11 @@ Provide results in this format every time:
 "We ingest webhook JSON and keep getting `unknown` errors. Can you model the payload and validate it?"
 
 **Expected output (sketch)**
-- Summary: Added `WebhookPayload` discriminated union + runtime parsing.
-- Types/Code: `type WebhookPayload = ...` and `parseWebhookPayload(...)`.
-- Verification: `tsc --noEmit`, unit test for invalid payload.
+1. Summary: Added `WebhookPayload` discriminated union and runtime parsing.
+2. Types/Code: `type WebhookPayload = ...`; `parseWebhookPayload(...)` using runtime guards.
+3. Config/Migration: None.
+4. Verification: `tsc --noEmit` (no errors), unit test for invalid payload.
+5. Risks/Follow-ups: None.
 
 ## Trigger test
 

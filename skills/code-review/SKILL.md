@@ -30,6 +30,11 @@ It replaces overlapping code-review skills by providing explicit review modes:
 - "Review this PR for correctness and security."
 - "Give a fast code review with findings and questions."
 
+## Trigger test
+
+- "Please review this diff for quality and performance issues."
+- "Audit these changes for security risks and test gaps."
+
 ## Required inputs
 
 - Diff, PR link, or changed files list.
@@ -63,6 +68,11 @@ Output:
 - If the diff is huge, sample by risk: auth, money, data integrity, concurrency.
 - If requirements are missing or ambiguous, ask clarifying questions before findings.
 
+Output:
+- changed files summary
+- high-risk areas to prioritize
+- open questions (if any)
+
 ### 3) Run automated signals (best-effort)
 
 - Run `scripts/review.sh scan` to collect:
@@ -71,6 +81,10 @@ Output:
   - TODO/FIXME hotspots
 - If project tooling exists, run it (tests/linters). If not available, note it.
 - If `git` is unavailable, document that the scan used a full-repo fallback.
+
+Output:
+- scan artifacts paths
+- tooling results or missing-tool notes
 
 ### 4) Manual review by mode
 
@@ -84,6 +98,10 @@ Decision points:
 - If changes touch auth, secrets, or input parsing, include `security`.
 - If changes touch hot paths, queries, or batch jobs, include `performance`.
 - If no tests exist for new behavior, record a test gap.
+
+Output:
+- mode-specific notes
+- draft findings list with severity
 
 ### 5) Produce feedback in a deterministic format
 

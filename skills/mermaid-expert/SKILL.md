@@ -11,15 +11,15 @@ metadata:
 
 ## Use this skill when
 
-- You need Mermaid diagram code for system, process, or data visuals.
-- You want help selecting the right Mermaid diagram type and syntax.
-- You need both basic and styled diagram variants with explanations.
+- Mermaid diagram code is needed for system, process, or data visuals.
+- Guidance is needed to select the right Mermaid diagram type and syntax.
+- Both basic and styled diagram variants with explanations are required.
 
 ## Do not use this skill when
 
 - The request is not about Mermaid diagrams or diagram structure.
-- The user needs a rendered image or non-Mermaid diagram tooling only.
-- The user requires live network rendering or external design assets.
+- A rendered image or non-Mermaid diagram tooling is required.
+- Live network rendering or external design assets are required.
 
 ## Trigger phrases
 

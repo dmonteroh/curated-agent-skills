@@ -1,10 +1,10 @@
 # Tool Selection (Pragmatic)
 
-Choose the minimal tool that solves your actual pain.
+Choose the minimal tool that solves the repo's actual pain.
 
 ## Package manager / workspaces
 
-- Prefer pnpm workspaces when you want:
+- Prefer pnpm workspaces when teams want:
   - fast installs
   - strict dependency graph
   - good monorepo ergonomics
@@ -19,7 +19,6 @@ Yarn/npm workspaces can also work; choose what the repo already uses unless ther
 
 ## Decision heuristic
 
-1) If you are already on Nx/Turbo/Bazel: improve the existing system first.
-2) If you are JS/TS only and want speed: Turbo is often the simplest.
-3) If you are polyglot and correctness/hermetic builds matter: consider Bazel.
-
+1) If the repo already uses Nx/Turbo/Bazel: improve the existing system first.
+2) If the repo is JS/TS only and speed is the main driver: Turbo is often the simplest.
+3) If the repo is polyglot and correctness/hermetic builds matter: consider Bazel.

@@ -1,6 +1,6 @@
 # Secrets Management - Implementation Playbook
 
-Use this playbook when you need a concrete secrets architecture, rollout plan, or incident-safe operating model.
+Use this playbook for a concrete secrets architecture, rollout plan, or incident-safe operating model.
 
 ## Default Deliverables
 
@@ -29,8 +29,8 @@ Use this playbook when you need a concrete secrets architecture, rollout plan, o
 
 Prefer dedicated secrets backends for anything beyond trivial use.
 
-- HashiCorp Vault: best when you need dynamic secrets, advanced auth methods, or multi-platform support.
-- Cloud-native secrets managers: best when you are primarily in one cloud and want tight integrations.
+- HashiCorp Vault: best when dynamic secrets, advanced auth methods, or multi-platform support are required.
+- Cloud-native secrets managers: best for single-cloud environments with tight integrations.
 - CI-only secret stores (e.g., GitHub/GitLab secrets): acceptable for small scopes but becomes hard to govern at scale.
 
 ### 2) Access Model

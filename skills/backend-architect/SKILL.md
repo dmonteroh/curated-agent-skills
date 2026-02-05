@@ -1,14 +1,16 @@
 ---
 name: backend-architect
-description: "Guides backend architecture for operable services and APIs: boundaries, contracts, reliability, integration patterns, and rollout safety. Produces clear architecture decisions and verification steps. Use proactively when creating or changing backend services/APIs."
+description: Guides backend architecture for operable services and APIs, covering boundaries, contracts, reliability, integration patterns, and rollout safety. Use when designing or changing backend services/APIs and their operability plans.
 category: architecture
 ---
 
 # Backend Architect
 
-Provides guidance on backend design quality and operability, not framework-specific implementation.
+Provides backend architecture guidance focused on design quality and operability, not framework-specific implementation.
 
 ## Use this skill when
+
+Use this skill when the user needs architecture decisions for backend services or APIs.
 
 - Designing a new service/API or changing service boundaries
 - Defining contracts (request/response, events, schemas) and compatibility rules
@@ -17,11 +19,15 @@ Provides guidance on backend design quality and operability, not framework-speci
 
 ## Do not use this skill when
 
+Do not use this skill when the user only needs implementation details without architectural impact.
+
 - You only need a local code fix with no architectural impact
 - You need deep physical database tuning or schema refactoring beyond service boundaries
 - You only need stack-specific implementation guidance
 
 ## Trigger phrases
+
+Trigger phrases include:
 
 - “Design a new backend service for…"
 - “Define the API contract and versioning plan for…"
@@ -36,10 +42,10 @@ Provides guidance on backend design quality and operability, not framework-speci
 - Existing services or contracts that must be preserved
 - Known constraints, assumptions, and explicitly out-of-scope areas
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Capture constraints
-- Output: constraint summary with explicit NFR targets and “done” criteria.
+- Output: constraint summary with explicit NFR targets, regulatory needs, and “done” criteria.
 - Decision: If any NFRs or compliance constraints are unknown, ask for them before proposing architecture.
 
 2) Define boundaries
@@ -51,12 +57,16 @@ Provides guidance on backend design quality and operability, not framework-speci
 - Decision: If the change is breaking, include versioning and migration steps before finalizing.
 
 4) Plan failure modes + operability
-- Output: reliability plan covering timeouts, retries, circuit breakers, and telemetry fields.
-- Decision: If sync vs async is unclear, choose based on latency, consistency, and failure isolation tradeoffs.
+- Output: reliability plan covering timeouts, retries, circuit breakers, telemetry fields, alerts, and dashboards.
+- Decision: If sync vs async is unclear, select based on latency, consistency, and failure isolation tradeoffs.
 
 5) Rollout plan
 - Output: rollout sequence with migration steps, rollback strategy, and verification gates.
 - Decision: If rollout risk is high, require canary or feature-flagged release.
+
+6) Assemble final report
+- Output: response formatted exactly per the Output Contract sections.
+- Decision: If any required input is missing, include it in Open questions and flag assumptions.
 
 ## Common pitfalls to avoid
 
@@ -77,11 +87,12 @@ Provides guidance on backend design quality and operability, not framework-speci
 
 ## Output Contract (Always)
 
-Report in this format:
+Produce a report using this format:
 - Architecture sketch: boundaries + contract summary + 2-3 alternatives with tradeoffs
-- Chosen approach + rationale
-- Risks + mitigations
+- Decision: chosen approach + rationale
+- Risks: top risks + mitigations
 - Verification plan: tests, observability checks, rollout gates
+- Open questions: missing inputs or assumptions to confirm
 
 ## Trigger test
 

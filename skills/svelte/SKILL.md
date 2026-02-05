@@ -6,7 +6,7 @@ category: frontend
 
 # Svelte
 
-One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delivery.
+Provides a canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delivery.
 
 ## Inputs
 
@@ -72,7 +72,8 @@ One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delive
 **Output**:
 - Scope: src/routes/signup/+page.svelte, src/routes/signup/+page.server.ts (SvelteKit)
 - Changes: add `actions` handler, client form enhancement, error rendering
-- Data flow: form `actions` -> serialized errors -> client UI
+- Data/state flow: form `actions` -> serialized errors -> client UI
+- UI/accessibility: inline error summary, focus on first invalid field
 - Edge cases: invalid email, server failure
 - Verification: submit valid/invalid email, confirm error rendering
 
@@ -81,6 +82,8 @@ One canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delive
 **Output**:
 - Scope: `CartSummary.svelte` (Svelte)
 - Changes: `$derived` total, `$state` for mutable inputs
+- Data/state flow: cart items -> `$derived` total
+- UI/accessibility: empty state messaging, keyboard-friendly inputs
 - Edge cases: empty cart
 - Verification: update quantities and observe totals
 
@@ -90,6 +93,7 @@ Report in this format:
 - Scope:
 - Changes:
 - Data/state flow:
+- UI/accessibility:
 - Edge cases:
 - Verification:
 

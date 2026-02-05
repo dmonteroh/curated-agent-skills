@@ -1,18 +1,18 @@
 ---
 name: prompt-engineering
-description: Design, test, and ship production prompts fast using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Always return a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts.
+description: Designs, tests, and ships production prompts using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts.
 category: ai
 ---
 
 # prompt-engineering
 
-One canonical skill that combines:
+Provides one canonical skill that combines:
 - **Patterns** (few-shot, structured outputs, safety, evaluation)
 - **Applied workflows** (draft -> test -> iterate -> deploy/monitor)
 
-## Non-negotiable rule
+## Non-negotiable requirement
 
-When creating or updating a prompt, ALWAYS include the complete prompt text in a single copy/paste block. Do not describe a prompt without showing it.
+When creating or updating a prompt, this skill always includes the complete prompt text in a single copy/paste block. It does not describe a prompt without showing it.
 
 ## Use this skill when
 
@@ -89,7 +89,7 @@ When creating or updating a prompt, ALWAYS include the complete prompt text in a
 
 ## Output contract
 
-When this skill runs, ALWAYS provide:
+When this skill runs, it always provides:
 
 - **Prompt block**: a single copy/paste block with the full prompt text.
 - **Assumptions**: any assumptions made due to missing inputs.
@@ -99,7 +99,7 @@ When this skill runs, ALWAYS provide:
 
 ## Reporting format
 
-Use this exact structure in your response:
+Use this exact structure in the response:
 
 1) Summary
 2) Prompt (copy/paste)

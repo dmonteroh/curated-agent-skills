@@ -40,6 +40,13 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 - Existing ADR list or index location (or confirmation to use defaults).
 - Stakeholders or approvers if required by repo conventions.
 
+## Constraints and conventions
+
+- Follow any existing ADR templates, numbering, or status policies in the repo.
+- Keep ADRs as append-only history; use superseding instead of edits.
+- Keep ADR and index paths consistent within the same change.
+- Prefer repo-local paths or already-provided URLs; do not assume network access.
+
 ## Workflow
 
 ### Step A: Decide if an ADR is required
@@ -55,7 +62,7 @@ Decision point:
 
 ### Step B: Pull inputs from the spec
 
-Output: a short list of constraints and decision drivers with **links** to the spec/track/task artifacts.
+Output: a short list of constraints and decision drivers with **links or paths** to spec/track/task artifacts (repo-local preferred).
 - Constraints: must/must-not/should, deadlines, platform limits, compliance.
 - Drivers: ranked priorities (cost, latency, operability, DX, security, time-to-deliver).
 
@@ -104,12 +111,14 @@ Output: a short checklist of “done” confirmations.
 - Updated ADR index path
 - Link(s) between ADR(s) and spec/track/task artifacts
 - If superseding: old ADR ID and new ADR ID
+- Verification commands/results when scripts are used
 
 Reporting format:
 - ADRs: <list of ADR file paths>
 - Index: <ADR index path>
 - Links: <spec/track/task references>
 - Supersedes: <old ADR ID -> new ADR ID or "none">
+- Verification: <commands/results or "none">
 
 ## Quality gates
 
@@ -142,7 +151,9 @@ Script usage:
 - `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/validate_repo.sh`
 
 Script verification:
+- Ensure the command exits with status 0 before claiming success.
 - Capture script output and include it in the final report when used.
+- If a script fails, stop and report the error output instead of continuing.
 
 ## Common pitfalls
 

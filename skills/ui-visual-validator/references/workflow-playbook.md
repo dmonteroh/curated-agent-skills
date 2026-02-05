@@ -71,7 +71,7 @@ For each relevant component/page, confirm visually:
 
 If a state is missing from evidence, call it out.
 
-### Step 5 - Accessibility Visual Checks (No Tools Required)
+### Step 5 - Accessibility (Visual) Checks (No Tools Required)
 
 - Focus indicator is:
   - present on all interactive elements
@@ -86,13 +86,15 @@ If a state is missing from evidence, call it out.
   - line-height too tight
   - wrapping that breaks layouts
 
-### Step 6 - Responsive Checks
+### Step 6 - Responsive + State Coverage Summary
 
 - No overlapping text.
 - No clipped content.
 - Touch targets are not too small.
 - Sticky headers/footers do not cover content.
 - Modals/drawers remain usable on small screens.
+
+Report responsive results alongside the state coverage list to match the output contract.
 
 ### Step 7 - Severity & Next Actions
 

@@ -88,8 +88,11 @@ Assumptions & questions:
 User request:
 "Show daily revenue with a 7-day rolling average for the last 30 days."
 
-Response (excerpt):
+Response (formatted):
 
+````text
+Summary: Uses a window function to compute a 7-day rolling average per day.
+Final SQL:
 ```sql
 SELECT
   day,
@@ -102,16 +105,24 @@ FROM daily_sales
 WHERE day >= CURRENT_DATE - INTERVAL '30 days'
 ORDER BY day;
 ```
-
-Correctness checks: rolling window uses ROWS frame to avoid grouping ties; date filter is inclusive.
+Correctness checks:
+- Rolling window uses ROWS frame to avoid grouping ties.
+- Date filter is inclusive for the last 30 days.
+Performance notes: n/a
+Assumptions & questions:
+- Confirm target timezone for `day` and `CURRENT_DATE`.
+````
 
 **Example 2: Customers with no completed orders**
 
 User request:
 "List customers who have never completed an order."
 
-Response (excerpt):
+Response (formatted):
 
+````text
+Summary: Uses a `NOT EXISTS` anti-join to find customers with no completed orders.
+Final SQL:
 ```sql
 SELECT c.id, c.email
 FROM customers c
@@ -122,8 +133,13 @@ WHERE NOT EXISTS (
     AND o.status = 'completed'
 );
 ```
-
-Correctness checks: `NOT EXISTS` avoids NULL pitfalls from `NOT IN`.
+Correctness checks:
+- `NOT EXISTS` avoids NULL pitfalls from `NOT IN`.
+- Only `status = 'completed'` qualifies an order.
+Performance notes: n/a
+Assumptions & questions:
+- Confirm whether cancelled or refunded orders should count.
+````
 
 ## Trigger test
 

@@ -6,7 +6,7 @@ category: language
 
 # golang
 
-Write Go that is simple, correct, and production-ready. Default to the standard library and Go idioms.
+Provides guidance for writing simple, correct, production-ready Go. Defaults to the standard library and Go idioms.
 
 This skill covers concurrency patterns (worker pools, pipelines, cancellation, graceful shutdown) and common footguns (goroutine leaks, racy access, channel misuse).
 
@@ -37,14 +37,14 @@ This skill covers concurrency patterns (worker pools, pipelines, cancellation, g
 ## Workflow (fast + high-signal)
 
 1) Confirm constraints
-- Ask for missing required inputs.
+- Requests missing required inputs.
 - Output: confirmed Go version, runtime context, and constraints.
 
-Decision: If constraints are unclear, stop and ask before coding.
+Decision: If constraints are unclear, stop and request clarification before coding.
 
 2) Choose the simplest design that works
-- Prefer sequential code until concurrency is required.
-- Prefer clear ownership:
+- Prefers sequential code until concurrency is required.
+- Prefers clear ownership:
   - channels for ownership transfer / pipelines
   - mutexes for shared state
 - Output: proposed design and whether concurrency is needed.
@@ -52,19 +52,19 @@ Decision: If constraints are unclear, stop and ask before coding.
 Decision: If concurrency is not required, keep the solution sequential.
 
 3) Build cancellation, bounds, and ownership
-- Every goroutine must have an exit path.
-- Use `context.Context` for cancellation/timeouts and to stop work promptly.
-- Add bounded concurrency for fan-out (semaphore / `errgroup.SetLimit`).
+- Ensures every goroutine has an exit path.
+- Uses `context.Context` for cancellation/timeouts and to stop work promptly.
+- Adds bounded concurrency for fan-out (semaphore / `errgroup.SetLimit`). Only use `errgroup` if the module already includes `golang.org/x/sync`; otherwise use `sync.WaitGroup` + error channel.
 - Output: list of goroutines, their owners, and cancellation signals.
 
 4) Implement changes and document behavior
-- Keep APIs small; return errors with context.
+- Keeps APIs small; returns errors with context.
 - Output: change summary and key files touched.
 
 5) Validate with the right tools
-- `go test ./...`
-- `go test -race ./...` (when concurrency is involved)
-- Bench/profile only after establishing a baseline (`go test -bench`, `pprof`).
+- Runs `go test ./...`.
+- Runs `go test -race ./...` when concurrency is involved.
+- Bench/profiles only after establishing a baseline (`go test -bench`, `pprof`).
 - Output: verification commands run and results, or a reason if skipped.
 
 ## Concurrency defaults (opinionated)
@@ -106,6 +106,12 @@ When executing this skill, report:
 - Files changed (with paths).
 - Verification commands run and results (or why skipped).
 - Risks, edge cases, or follow-ups.
+
+Reporting format:
+- Summary
+- Files changed
+- Verification
+- Risks/follow-ups
 
 ## References (load as needed)
 

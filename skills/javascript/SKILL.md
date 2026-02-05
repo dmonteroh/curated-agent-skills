@@ -1,7 +1,7 @@
 ---
 name: javascript
-description: Build and debug modern JavaScript with ES6+, async patterns,
-  and runtime compatibility across Node.js and browsers.
+description: Build and debug modern JavaScript (ES6+) with async patterns and
+  Node.js/browser compatibility when authoring, modernizing, or diagnosing JS.
 category: language
 ---
 Provides guidance for modern JavaScript, async programming, and runtime compatibility.
@@ -31,6 +31,7 @@ Provides guidance for modern JavaScript, async programming, and runtime compatib
 - Target runtime(s): Node.js, browser, or both
 - Module system expectations (ESM, CJS, or bundler-managed)
 - Performance constraints or compatibility targets
+- Testing expectations or tooling constraints (if any)
 
 ## Instructions
 
@@ -87,17 +88,18 @@ Provides guidance for modern JavaScript, async programming, and runtime compatib
 - Changes: Updated `api.js` to share a single pending promise.
 - Tests: Suggested async test cases for overlapping calls.
 
-## Output format
+## Output contract
 
 Responses must use this format for every run:
 
 - Summary
 - Decisions
 - Changes
-- Tests
+- Tests (or state "Not run" with reason)
 - Risks or follow-ups
 
-Support both Node.js and browser environments. Include JSDoc comments.
+Ensure guidance covers Node.js and browser environments when requested.
+Include JSDoc comments when adding or modifying functions.
 
 ## Trigger test
 

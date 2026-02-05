@@ -20,7 +20,7 @@ Provides a unified performance workflow that combines:
 ## Do not use this skill when
 
 - The task is feature work with no performance goals.
-- There is no way to measure and you cannot establish any baseline or plan to measure.
+- There is no way to measure and no feasible baseline plan.
 
 ## Activation cues (trigger phrases)
 

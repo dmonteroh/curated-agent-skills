@@ -1,6 +1,6 @@
 # Tailwind Config Essentials (content, safelist, theme, plugins)
 
-This is intentionally short. Verify specifics against the Tailwind version docs.
+This is intentionally short. Verify specifics against the Tailwind version in use.
 
 ## `content`
 

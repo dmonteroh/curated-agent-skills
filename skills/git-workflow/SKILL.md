@@ -6,7 +6,7 @@ category: workflow
 
 # git-workflow
 
-Use Git safely and fast in multi-contributor repos.
+Provides safe, fast Git workflows for multi-contributor repos.
 
 This skill is intentionally practical: it optimizes for **clean history**, **low-conflict collaboration**, and **recoverability** when something goes wrong.
 
@@ -42,7 +42,7 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 
 ## Do not use this skill when
 
-- You are not operating on a Git repository.
+- No Git repository is available.
 - The request is purely about product/code design (no Git workflow concerns).
 
 ## Safety defaults (non-negotiable)
@@ -50,7 +50,7 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - Prefer `git push --force-with-lease` over `--force`.
 - Before history surgery (rebase/reset): create a backup ref:
   - `git branch backup/<name>-$(date +%Y%m%d-%H%M%S)`
-- Never rewrite shared history unless you control the branch (or have explicit agreement).
+- Never rewrite shared history unless the branch is controlled or explicit agreement exists.
 
 ## Step-by-step workflow
 
@@ -77,8 +77,8 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 
 ## Decision points
 
-- **Rebase vs merge?** If clean linear history is required and you own the branch, rebase. Otherwise, merge.
-- **Force push allowed?** Only use `--force-with-lease` on branches you control.
+- **Rebase vs merge?** If clean linear history is required and the branch is locally owned, rebase. Otherwise, merge.
+- **Force push allowed?** Only use `--force-with-lease` on branches with explicit ownership.
 - **Conflicts too risky?** If conflicts touch high-risk files, stop and request guidance before continuing.
 
 ## Common pitfalls
@@ -129,7 +129,7 @@ Output:
 
 ## Output contract
 
-When you run this skill, report in this format:
+When this skill runs, report in this format:
 
 - **Repo state:** current branch, upstream, ahead/behind, dirty/clean.
 - **Chosen path:** which playbook and why.

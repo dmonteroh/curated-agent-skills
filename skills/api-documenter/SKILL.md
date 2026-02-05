@@ -46,8 +46,8 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 ## Workflow
 
 1. **Scope the documentation**
-   - Confirm target users, API boundaries, and success criteria.
-   - Output: a documentation plan with required sections.
+   - Identify target users, API boundaries, and success criteria.
+   - Output: a documentation plan with required sections and open questions.
 2. **Validate or author the spec**
    - If a spec exists, review for accuracy, examples, and auth coverage.
    - If no spec exists, draft a minimal spec aligned to the API surface.
@@ -62,7 +62,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
    - Output: code examples and integration steps.
 5. **Quality check and maintenance**
    - Verify consistency between spec and docs.
-   - Define a lightweight update cadence and ownership.
+   - Document update ownership and review triggers.
    - Output: QA checklist and maintenance notes.
 
 ## Decision points
@@ -70,6 +70,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - If documentation targets external users, include onboarding and auth setup guides.
 - If multiple APIs exist, add a navigation map and versioning policy.
 - If examples are missing, request or synthesize representative payloads and label them.
+- If auth requirements are unclear, request required scopes, token types, and headers.
 
 ## Common pitfalls
 
