@@ -1,9 +1,8 @@
 ---
 name: backend-architect
-description: Guides backend architecture for operable services and APIs, covering boundaries, contracts, reliability, integration patterns, and rollout safety. Use when designing or changing backend services/APIs and their operability plans.
+description: "Guides backend architecture for operable services and APIs, covering boundaries, contracts, reliability, integration patterns, and rollout safety. Use when designing or changing backend services/APIs and their operability plans."
 category: architecture
 ---
-
 # Backend Architect
 
 Provides backend architecture guidance focused on design quality and operability, not framework-specific implementation.
@@ -24,15 +23,6 @@ Do not use this skill when the user only needs implementation details without ar
 - You only need a local code fix with no architectural impact
 - You need deep physical database tuning or schema refactoring beyond service boundaries
 - You only need stack-specific implementation guidance
-
-## Trigger phrases
-
-Trigger phrases include:
-
-- “Design a new backend service for…"
-- “Define the API contract and versioning plan for…"
-- “How should these services integrate reliably?"
-- “Plan the rollout and observability for a backend change"
 
 ## Required inputs
 
@@ -93,9 +83,3 @@ Produce a report using this format:
 - Risks: top risks + mitigations
 - Verification plan: tests, observability checks, rollout gates
 - Open questions: missing inputs or assumptions to confirm
-
-## Trigger test
-
-Use this skill when a user asks:
-- “Design the backend service boundaries for our new order API.”
-- “Create an operability and rollout plan for a new event-driven integration.”

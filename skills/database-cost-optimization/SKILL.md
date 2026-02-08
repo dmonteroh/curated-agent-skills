@@ -1,9 +1,8 @@
 ---
 name: database-cost-optimization
-description: Reduce database infrastructure spend when costs need optimization by analyzing cost drivers, right-sizing compute/storage/replicas, and proposing verified rollback-ready changes without compromising reliability.
+description: "Reduce database infrastructure spend when costs need optimization by analyzing cost drivers, right-sizing compute/storage/replicas, and proposing verified rollback-ready changes without compromising reliability."
 category: database
 ---
-
 # database-cost-optimization
 
 Provides guidance to reduce database spend while protecting performance and reliability.
@@ -19,14 +18,6 @@ Provides guidance to reduce database spend while protecting performance and reli
 
 - The system is in active incident response.
 - No cost or utilization signals are available and none can be estimated.
-
-## Trigger phrases
-
-- "reduce database cost"
-- "rightsize the database"
-- "cut storage or backup spend"
-- "too many replicas"
-- "high database IO cost"
 
 ## Required inputs
 
@@ -70,10 +61,6 @@ If required inputs are missing, the skill requests them before proceeding.
 - Optimizing queries without verifying index/storage impact.
 
 ## Examples
-
-**Trigger test**
-- "We need to cut our Postgres costs by 20% without risking latency."
-- "Our database storage bill is exploding; help reduce it safely."
 
 **Example output (excerpt)**
 ```

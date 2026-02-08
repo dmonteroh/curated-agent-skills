@@ -2,9 +2,7 @@
 name: pdf-files
 description: "Work with PDFs safely and repeatably: extract text/tables, convert pages to images, inspect/fill forms, and produce verifiable outputs (markdown/json/images/filled pdf). Use when a task involves PDF documents."
 category: docs
-license: Proprietary. LICENSE.txt has complete terms
 ---
-
 # PDF Files
 
 Provides deterministic, verifiable workflows for extracting text or tables, converting pages to images, and filling PDF forms. Produces traceable artifacts and explicit verification notes.
@@ -21,14 +19,6 @@ Provides deterministic, verifiable workflows for extracting text or tables, conv
 - Inputs are not PDF files
 - Layout or typography editing is required (use a design tool instead)
 - A task only needs plain text already provided
-
-## Trigger phrases
-
-- "extract text from a PDF"
-- "convert PDF pages to images"
-- "find fillable form fields"
-- "fill out this PDF form"
-- "validate a filled PDF"
 
 ## Required inputs
 
@@ -146,11 +136,6 @@ Outputs:
 Verification:
 Notes:
 ```
-
-## Trigger test
-
-- "Extract text from this PDF and summarize the sections."
-- "Fill out this PDF form and verify the output."
 
 ## Resources
 

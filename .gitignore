@@ -21,3 +21,4 @@ logs/
 
 # Codex
 .codex/
+.devcontainer/

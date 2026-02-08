@@ -3,7 +3,6 @@ name: testing
 description: "Create unit tests, API contract tests, and automation strategies for existing codebases with clear decision points, pitfalls, and deterministic reporting via local scripts."
 category: workflow
 ---
-
 # Testing
 
 Provides a single testing skill that covers:
@@ -22,18 +21,6 @@ Provides a single testing skill that covers:
 
 - There is no code or behavior defined to test.
 - The only requirement is an informal discussion of testing theory.
-
-## Trigger phrases
-
-- "add tests for this change"
-- "write a testing plan"
-- "make our tests faster/flaky"
-- "mock the API so frontend can proceed"
-
-## Trigger test
-
-- "Add unit tests for the new validation function."
-- "Create a testing strategy for our checkout flow."
 
 ## Required inputs
 

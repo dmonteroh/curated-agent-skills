@@ -1,9 +1,8 @@
 ---
 name: auth-implementation-patterns
-description: Provides authentication and authorization implementation patterns (JWT, OAuth2/OIDC, sessions, RBAC) for designing, implementing, or reviewing secure access control in applications and APIs.
+description: "Provides authentication and authorization implementation patterns (JWT, OAuth2/OIDC, sessions, RBAC) for designing, implementing, or reviewing secure access control in applications and APIs."
 category: security
 ---
-
 # Authentication & Authorization Implementation Patterns
 
 Provides guidance to build secure, scalable authentication and authorization systems using industry-standard patterns and modern best practices.
@@ -15,7 +14,6 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Adding OAuth2/social login or SSO
 - Designing session management or RBAC
 - Debugging authentication or authorization issues
-- Trigger phrases: "JWT auth", "OAuth2/OIDC", "SSO login", "session auth", "RBAC/ABAC", "token lifecycle"
 
 ## Do not use this skill when
 
@@ -105,11 +103,6 @@ Example output summary:
 - Hardening checklist: no localStorage tokens, CSRF for cookie flows, rate limits.
 - Implementation plan: login, refresh, logout, middleware, automated tests.
 - Open questions: token storage constraints on mobile, audit log retention.
-
-## Trigger test
-
-- "Add OAuth2/OIDC login with PKCE for a new SPA and API."
-- "Evaluate whether session or JWT auth fits our B2B admin portal."
 
 ## Safety
 

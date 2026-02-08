@@ -1,9 +1,8 @@
 ---
 name: prompt-engineering
-description: Designs, tests, and ships production prompts using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts.
+description: "Designs, tests, and ships production prompts using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts."
 category: ai
 ---
-
 # prompt-engineering
 
 Provides one canonical skill that combines:
@@ -33,13 +32,6 @@ When creating or updating a prompt, this skill always includes the complete prom
 - Output format requirements (JSON, bullets, markdown, etc.).
 - Constraints (safety, scope, sources, style, length, tools).
 - Evaluation criteria and known failure modes (if available).
-
-## Trigger phrases
-
-- "Draft a system prompt for..."
-- "Create a prompt template that..."
-- "Improve this prompt / reduce hallucinations"
-- "Set up prompt evaluation / regression tests"
 
 ## Workflow (step-by-step)
 
@@ -167,11 +159,3 @@ Return a response with:
 ## References
 
 See `references/README.md` for the index and summaries.
-
-## Trigger test
-
-If a user says one of the following, this skill should activate:
-
-- "Standardize our system prompt template for support agents."
-- "We need a prompt evaluation plan and regression tests."
-- "Rewrite this prompt to reduce hallucinations and enforce JSON."

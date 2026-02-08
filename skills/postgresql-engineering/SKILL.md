@@ -3,7 +3,6 @@ name: postgresql-engineering
 description: "PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when targeting Postgres specifically."
 category: database
 ---
-
 # PostgreSQL Engineering
 
 Use this skill for Postgres-specific schema/data-layer decisions (not just SQL query authoring).
@@ -20,13 +19,6 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 - You are targeting a non-PostgreSQL database
 - You only need query authoring/tuning
 - You need DB-agnostic modeling guidance
-
-## Trigger phrases
-
-- "Design a Postgres schema for..."
-- "Pick the right Postgres data types/constraints"
-- "Plan a safe migration for Postgres"
-- "Index strategy for this Postgres table"
 
 ## Workflow (Deterministic)
 
@@ -103,11 +95,6 @@ Provide a report using this exact structure and ordering:
 4) Index plan (tied to access paths)
 5) Operational features (partitioning/RLS if applicable)
 6) Migration plan (rollout, rollback, verification)
-
-## Trigger test
-
-- "We need a Postgres schema for multi-tenant billing with RLS and a safe migration plan."
-- "Choose Postgres data types and indexes for this events table."
 
 ## References (Optional)
 

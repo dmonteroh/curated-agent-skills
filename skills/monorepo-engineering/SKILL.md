@@ -1,9 +1,8 @@
 ---
 name: monorepo-engineering
-description: Design and operate monorepos with clear boundaries, fast builds, and low-conflict collaboration. Covers workspace layout, dependency constraints, build caching, affected detection, versioning/publishing, and CI integration. Works standalone; choose tooling pragmatically (pnpm/yarn/npm, Nx/Turbo/Bazel).
+description: "Design and operate monorepos with clear boundaries, fast builds, and low-conflict collaboration. Covers workspace layout, dependency constraints, build caching, affected detection, versioning/publishing, and CI integration. Works standalone; choose tooling pragmatically (pnpm/yarn/npm, Nx/Turbo/Bazel)."
 category: architecture
 ---
-
 # monorepo-engineering
 
 Provides guidance to build monorepos that scale across teams without becoming a ball of mud.
@@ -19,14 +18,6 @@ Provides guidance to build monorepos that scale across teams without becoming a 
 
 - The repo is not a monorepo and there’s no plan to make it one.
 - You only need a single-package refactor unrelated to workspace tooling.
-
-## Trigger phrases
-
-- "monorepo layout"
-- "workspace boundaries"
-- "affected builds"
-- "cache builds" / "remote cache"
-- "Nx/Turbo/Bazel setup"
 
 ## Required inputs
 
@@ -111,11 +102,6 @@ Report in this format:
 - Summary: Keep pnpm workspaces, add Turbo for caching and affected pipelines.
 - Layout: `apps/` for deployables, `packages/` for shared libs, `tools/` for CI scripts.
 - Boundaries: enforce with lint rules and explicit dependency graph.
-
-## Trigger test
-
-If the user says: "We need affected builds and a clean monorepo layout," activate this skill.
-If the user says: "Our monorepo CI is slow and dependency boundaries are unclear," activate this skill.
 
 ## References (load as needed)
 

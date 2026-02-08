@@ -3,7 +3,6 @@ name: cloud-architect
 description: "Design cloud platform architecture (AWS/Azure/GCP): landing zones/accounts, networking, identity/IAM boundaries, service selection, reliability/DR, and multi-region strategy. Produces architecture diagrams + risk/rollback plans. Does not own CI/CD or deep FinOps tactics."
 category: devops
 ---
-
 # Cloud Architect
 
 Provides guidance for designing cloud platform architecture: boundaries, networks, identity, reliability, and service selection.
@@ -29,13 +28,6 @@ Provides guidance for designing cloud platform architecture: boundaries, network
 - Existing systems or migrations in scope
 - Availability and recovery objectives (SLOs, RPO/RTO targets)
 - Security requirements (data classification, identity model, audit needs)
-
-## Trigger phrases
-
-- "Design our cloud architecture"
-- "Create a landing zone and account layout"
-- "Choose AWS/Azure/GCP services for this system"
-- "Define RPO/RTO and DR strategy"
 
 ## Workflow (Deterministic)
 
@@ -103,11 +95,6 @@ Provides guidance for designing cloud platform architecture: boundaries, network
 - RPO/RTO and DR strategy: <targets and tier>
 - Implementation plan + verification gates: <phased plan>
 - Open questions: <unknowns>
-
-## Trigger test
-
-- "We need a landing zone and account structure for AWS."
-- "Pick Azure services and design the network for our app."
 
 ## Resources (Optional)
 

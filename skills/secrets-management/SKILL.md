@@ -3,18 +3,9 @@ name: secrets-management
 description: "Secure secrets handling for CI/CD and runtime: secret inventory, access boundaries, short-lived identity (OIDC/workload identity), rotation, auditing, and leak response. Works across Vault and cloud-native secret managers."
 category: security
 ---
-
 # Secrets Management
 
 Provides guidance to prevent secret leakage and make access auditable and maintainable.
-
-## Trigger phrases
-
-- "Rotate secrets" or "secret rotation plan"
-- "Move secrets out of env files" or "stop committing secrets"
-- "OIDC/workload identity for CI/CD"
-- "Vault vs cloud secret manager"
-- "Secret leak response"
 
 ## Use this skill when
 
@@ -113,11 +104,6 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 - Integration plan (CI/CD and/or runtime) with least-privilege boundaries
 - Rotation + incident response plan
 - Verification steps (how to prove masking, rotation, and access policies work)
-
-## Trigger test
-
-- "Create a secret rotation plan and leak response checklist"
-- "Should we use Vault or a cloud secret manager for CI/CD secrets?"
 
 ## Resources (Optional)
 

@@ -1,9 +1,8 @@
 ---
 name: cli-tools
-description: Build fast, user-friendly CLI tools with stable command surfaces, predictable output contracts (stdout vs stderr), and cross-platform behavior. Covers subcommands/flags, config precedence, interactive prompts, progress indicators, and shell completions. Use when designing or implementing CLI tools.
+description: "Build fast, user-friendly CLI tools with stable command surfaces, predictable output contracts (stdout vs stderr), and cross-platform behavior. Covers subcommands/flags, config precedence, interactive prompts, progress indicators, and shell completions. Use when designing or implementing CLI tools."
 category: workflow
 ---
-
 # CLI Tools Skill
 
 Provides guidance for designing and implementing command-line tools that are safe to script, pleasant for humans, and stable over time.
@@ -20,14 +19,6 @@ Provides guidance for designing and implementing command-line tools that are saf
 
 - The task is not a CLI/terminal tool
 - The task is designing a GUI/web UX
-
-## Trigger phrases
-
-- "design a CLI"
-- "add flags" / "subcommands"
-- "command line interface"
-- "add --help" / "--version"
-- "make this script a CLI tool"
 
 ## Required inputs
 
@@ -112,10 +103,6 @@ Notes:
 - Pitfalls avoided
 - Decision points applied
 ```
-
-## Trigger test
-
-- "Please add a --json flag to this CLI command."
 
 ## Resources (Optional)
 

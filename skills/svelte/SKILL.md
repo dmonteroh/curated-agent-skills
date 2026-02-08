@@ -3,7 +3,6 @@ name: svelte
 description: "Build Svelte 5 and SvelteKit apps fast: runes/reactivity, component patterns, SvelteKit routing/data flow, forms/actions, SSR boundaries, and production hygiene. Includes optional guidance for TanStack Query and common component libraries."
 category: frontend
 ---
-
 # Svelte
 
 Provides a canonical Svelte skill optimized for fast, correct Svelte 5/SvelteKit delivery.
@@ -96,11 +95,6 @@ Report in this format:
 - UI/accessibility:
 - Edge cases:
 - Verification:
-
-## Trigger test
-
-- “Our `+page.svelte` load is failing serialization; fix the data flow.”
-- “Convert this Svelte 4 component to Svelte 5 runes.”
 
 ## References (Optional)
 

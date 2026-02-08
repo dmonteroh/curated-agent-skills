@@ -5,7 +5,8 @@ from __future__ import annotations
 Repo-wide skill quality/performance audit.
 
 Checks (intentionally lightweight; no PyYAML dependency):
-- SKILL.md has YAML frontmatter with name + description
+- SKILL.md has YAML frontmatter with name + description + category
+- Frontmatter uses only supported top-level keys: name, description, category
 - Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
 - Entry point (SKILL.md) is <= 200 lines (performance guardrail)
 - Backticked local file references inside a skill resolve (for refs like `references/x.md`)
@@ -36,6 +37,7 @@ _TOKEN_ENCODER = None
 
 FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 KV_RE = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
+ALLOWED_FRONTMATTER_KEYS = {"name", "description", "category"}
 
 
 def _parse_frontmatter(text: str) -> dict[str, str]:
@@ -96,6 +98,16 @@ def _frontmatter_needs_quotes_for_colons(block: str) -> list[str]:
     return issues
 
 
+def _frontmatter_keys(block: str) -> set[str]:
+    keys: set[str] = set()
+    for line in block.splitlines():
+        mm = KV_RE.match(line)
+        if not mm:
+            continue
+        keys.add(mm.group(1))
+    return keys
+
+
 def _find_backtick_paths(text: str) -> set[str]:
     out: set[str] = set()
     for m in re.finditer(r"`([^`]+)`", text):
@@ -137,6 +149,14 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
         block = _frontmatter_block(text)
         if block:
             issues.extend(_frontmatter_needs_quotes_for_colons(block))
+            keys = _frontmatter_keys(block)
+            if keys != ALLOWED_FRONTMATTER_KEYS:
+                missing = sorted(ALLOWED_FRONTMATTER_KEYS - keys)
+                extra = sorted(keys - ALLOWED_FRONTMATTER_KEYS)
+                if missing:
+                    issues.append("missing_frontmatter_keys:" + ",".join(missing))
+                if extra:
+                    issues.append("unexpected_frontmatter_keys:" + ",".join(extra))
     if not name:
         issues.append("missing_name_in_frontmatter")
     if not desc:

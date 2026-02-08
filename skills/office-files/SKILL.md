@@ -3,7 +3,6 @@ name: office-files
 description: "Work with Microsoft Office OOXML files (.docx/.pptx/.xlsx): inspect structure, extract text/tables, produce diffs, and generate clean Markdown summaries. Tool-agnostic and safe-by-default (prefers read-only workflows). Use when a task involves Word, PowerPoint, or Excel files."
 category: docs
 ---
-
 # Office Files (DOCX / PPTX / XLSX)
 
 Provides workflows for inspecting, extracting, and diffing OOXML office files.
@@ -19,13 +18,6 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 - The file is not OOXML (e.g. `.doc`, `.xls`, `.ppt`)
 - The task requires high-fidelity editing with tracked changes or advanced formatting (request a template or use a dedicated doc workflow)
-
-## Trigger phrases
-
-- "extract text from a docx"
-- "summarize this powerpoint"
-- "diff these two excel files"
-- "inspect the structure of this office file"
 
 ## Required inputs
 
@@ -110,11 +102,6 @@ Report using this template:
 - Findings: key structure/content/diff highlights
 - Gaps/limits: missing visuals, unsupported elements, or uncertainties
 - Next steps: verification or follow-up requests
-
-## Trigger test
-
-- "Extract all tables from this `.xlsx` and summarize them."
-- "Inspect the structure of this `.docx` and list sections."
 
 ## Output Contract
 

@@ -1,9 +1,8 @@
 ---
 name: deps-audit
-description: Produces a local, best-effort dependency audit summary and remediation plan for repos with dependency manifests.
+description: "Produces a local, best-effort dependency audit summary and remediation plan for repos with dependency manifests."
 category: security
 ---
-
 # deps-audit
 
 Provides a fast, low-noise dependency audit that relies on locally available tooling and produces an actionable remediation plan.
@@ -19,13 +18,6 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 - No dependency manifests or lockfiles are available.
 - Only high-level strategy discussion is needed without producing an audit report.
 - The environment cannot write output files under the repo.
-
-## Trigger phrases
-
-- "audit dependencies"
-- "dependency vulnerability scan"
-- "license risk check"
-- "supply-chain audit"
 
 ## Required inputs
 
@@ -100,11 +92,6 @@ Report a concise summary with the following sections:
   - Confirm raw outputs exist under `docs/_docgen/deps-audit/raw/`.
 
 ## Examples
-
-Trigger test prompts:
-
-- "Run a dependency audit and summarize the top risks."
-- "Check this repo for vulnerable dependencies and license issues."
 
 Example output snippet:
 

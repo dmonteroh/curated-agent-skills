@@ -1,23 +1,8 @@
 ---
 name: terraform-engineer
-description: Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing.
+description: "Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing."
 category: devops
-triggers:
-  - Terraform
-  - infrastructure as code
-  - IaC
-  - terraform module
-  - terraform state
-  - AWS provider
-  - Azure provider
-  - GCP provider
-  - terraform plan
-  - terraform apply
-role: specialist
-scope: implementation
-output-format: code
 ---
-
 # Terraform Engineer
 
 Provides production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
@@ -35,19 +20,6 @@ Provides production-grade Terraform infrastructure code with modular design, sec
 - The task is not Terraform-based infrastructure as code
 - The request is purely high-level cloud architecture with no IaC changes
 - The repo uses a different IaC tool (e.g., Pulumi, CloudFormation) exclusively
-
-## Trigger phrases
-
-- "Terraform module" or "module interface"
-- "remote state" or "state locking"
-- "terraform plan" or "terraform apply"
-- "AWS provider" or "AzureRM provider"
-- "GCP provider" or "Google provider"
-
-## Trigger test
-
-- "Build a Terraform module for an S3 bucket with logging and tags."
-- "Refactor this Terraform root module to use remote state and workspaces."
 
 ## Required inputs
 

@@ -1,12 +1,8 @@
 ---
 name: mermaid-expert
-description: Create Mermaid diagrams for flowcharts, sequences, ERDs, and
-  architecture visuals with clear syntax, styling, and delivery guidance.
+description: "Create Mermaid diagrams for flowcharts, sequences, ERDs, and architecture visuals with clear syntax, styling, and delivery guidance."
 category: docs
-metadata:
-  model: haiku
 ---
-
 # Mermaid Expert
 
 ## Use this skill when
@@ -20,13 +16,6 @@ metadata:
 - The request is not about Mermaid diagrams or diagram structure.
 - A rendered image or non-Mermaid diagram tooling is required.
 - Live network rendering or external design assets are required.
-
-## Trigger phrases
-
-- "Create a Mermaid diagram"
-- "Mermaid flowchart/sequence/ER diagram"
-- "Visualize this process in Mermaid"
-- "Give me Mermaid code for this architecture"
 
 ## Required inputs
 
@@ -149,11 +138,6 @@ sequenceDiagram
   end
 ```
 - **Notes:** Include error paths; validate in your local Mermaid renderer.
-
-## Trigger test
-
-- "Draw a Mermaid flowchart for this deployment pipeline."
-- "Show the ERD in Mermaid for these tables."
 
 ## References
 

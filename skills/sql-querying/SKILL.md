@@ -1,9 +1,8 @@
 ---
 name: sql-querying
-description: Write correct, maintainable SQL queries (joins, CTEs, window functions) and reason about their results for OLTP or analytics tasks.
+description: "Write correct, maintainable SQL queries (joins, CTEs, window functions) and reason about their results for OLTP or analytics tasks."
 category: database
 ---
-
 # SQL Querying
 
 This skill is for writing and reasoning about SQL: correctness first, then performance, then readability.
@@ -27,13 +26,6 @@ This skill is for writing and reasoning about SQL: correctness first, then perfo
 - You need DB-wide performance diagnosis (index strategy, lock contention, pool sizing)
 - You need to design a schema/data model from scratch
 - You need ORM-specific or query-builder-only guidance
-
-## Trigger phrases
-
-- "Write a SQL query to ..."
-- "Why does this query return duplicates?"
-- "Convert this report logic into a CTE/window function"
-- "Explain what this SQL query returns"
 
 ## Workflow (Deterministic)
 
@@ -140,11 +132,6 @@ Performance notes: n/a
 Assumptions & questions:
 - Confirm whether cancelled or refunded orders should count.
 ````
-
-## Trigger test
-
-- "Write a SQL query that returns the top 3 products per category."
-- "Explain what rows this join produces and how to fix duplicates."
 
 ## References (Optional)
 

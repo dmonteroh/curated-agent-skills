@@ -1,9 +1,8 @@
 ---
 name: nodejs
-description: Use when building production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration.
+description: "Use when building production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration."
 category: language
 ---
-
 # Node.js Backend Patterns
 
 Provides guidance for building scalable, maintainable Node.js backend applications with modern frameworks, architectural patterns, and operational best practices.
@@ -21,13 +20,6 @@ Provides guidance for building scalable, maintainable Node.js backend applicatio
 - The request is unrelated to Node.js backend development
 - The task focuses on frontend-only code, mobile apps, or infrastructure provisioning
 - The user explicitly needs a non-Node.js runtime (Go, Python, Java, etc.)
-
-## Trigger phrases
-
-- “Node.js API”, “Express server”, “Fastify service”
-- “Add middleware”, “error handling”, “auth flow”
-- “Design REST endpoints”, “GraphQL backend”, “microservice”
-- “Database integration”, “queue workers”, “WebSocket server”
 
 ## Required inputs
 
@@ -93,11 +85,6 @@ Response includes these sections:
 - Risks & pitfalls
 - Verification
 - References (if used)
-
-## Trigger test
-
-- “Create a Fastify service with auth and health checks.”
-- “Plan middleware and error handling for a Node.js API.”
 
 ## References
 

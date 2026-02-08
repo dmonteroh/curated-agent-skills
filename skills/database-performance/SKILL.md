@@ -1,9 +1,8 @@
 ---
 name: database-performance
-description: Diagnose and fix database performance issues (slow queries, locks, pool saturation, caching, partitioning) using evidence from metrics and query plans.
+description: "Diagnose and fix database performance issues (slow queries, locks, pool saturation, caching, partitioning) using evidence from metrics and query plans."
 category: database
 ---
-
 # Database Performance
 
 ## Use this skill when
@@ -16,11 +15,6 @@ category: database
 
 - Choosing a database or designing a schema from scratch.
 - The bottleneck is clearly outside the database (app CPU, upstream APIs, network).
-
-## Trigger phrases
-
-- “Query is slow,” “database timeout,” “lock waits,” “deadlocks,” “too many connections.”
-- “High DB CPU/IO,” “slow pagination,” “N+1 queries,” “index missing.”
 
 ## Required inputs
 
@@ -68,11 +62,6 @@ category: database
 **Example 2: lock contention**
 - Input: “We see elevated lock waits after a bulk backfill.”
 - Output: batch update plan, reduced transaction scope, and rollback steps.
-
-## Trigger test
-
-- “Why are we seeing DB timeouts after the last deploy?”
-- “Can you help fix a slow JOIN query with high IO?”
 
 ## Output format
 

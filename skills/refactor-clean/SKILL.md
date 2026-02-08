@@ -1,9 +1,8 @@
 ---
 name: refactor-clean
-description: Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement.
+description: "Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement."
 category: workflow
 ---
-
 # Refactor Clean
 
 Provides a workflow to refactor code with small diffs, stable behavior, and fast feedback.
@@ -20,15 +19,6 @@ Provides a workflow to refactor code with small diffs, stable behavior, and fast
 - A small, targeted fix is all that is needed.
 - Refactoring is blocked by policy, deadlines, or change freeze.
 - The request is documentation-only or purely stylistic.
-
-## Trigger phrases
-
-- "refactor"
-- "clean up this code"
-- "reduce duplication"
-- "simplify this module"
-- "address code smells"
-- "technical debt"
 
 ## Required inputs
 
@@ -121,11 +111,6 @@ When this skill runs, report:
 - Changes or Plan:
 - Risks:
 - Verification:
-
-## Trigger test
-
-- "Can you refactor this module to reduce duplication without changing behavior?"
-- "Clean up the legacy service and keep tests passing."
 
 ## References
 

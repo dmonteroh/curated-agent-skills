@@ -1,9 +1,8 @@
 ---
 name: angular
-description: Guides Angular implementation and refactors using standalone APIs, signals, RxJS, routing, and testing. Focuses on clean component boundaries, predictable state flow, accessibility, and performance. Use when work is Angular-specific.
+description: "Guides Angular implementation and refactors using standalone APIs, signals, RxJS, routing, and testing. Focuses on clean component boundaries, predictable state flow, accessibility, and performance. Use when work is Angular-specific."
 category: frontend
 ---
-
 # Angular Skill
 
 Provides guidance for Angular web applications and component libraries.
@@ -90,10 +89,6 @@ Use this skill when Angular-specific architecture or implementation choices are 
 - `OnPush` with mutable data leading to stale UI
 
 ## Examples
-
-Trigger tests:
-- "Refactor this Angular page to use signals and OnPush."
-- "Add lazy-loaded routes with guards and tests for a new feature."
 
 Example input:
 - "We need a standalone Angular profile page with signals, routing, and tests."

@@ -1,9 +1,8 @@
 ---
 name: grafana-dashboards
-description: Provides guidance to create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces.
+description: "Provides guidance to create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces."
 category: observability
 ---
-
 # Grafana Dashboards
 
 Provides production-ready Grafana dashboards with consistent layout, safe queries, and operator-focused usability.
@@ -18,12 +17,6 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 
 - The request is for end-to-end observability architecture beyond dashboards
 - The task is unrelated to Grafana dashboards
-
-## Trigger phrases
-
-- "Create a Grafana dashboard for <service>"
-- "Standardize this Grafana dashboard layout"
-- "Provide Grafana panel JSON or templating"
 
 ## Required inputs
 
@@ -109,11 +102,6 @@ Return a report using this format and keep the section order:
 6. Drilldowns & Links: Loki logs filtered by `service` + `route`.
 7. JSON Snippets: `assets/dashboard-templates.json` skeleton + panel JSON blocks.
 8. Quality Gates: Pass; add recording rule for p99 latency if needed.
-
-## Trigger test
-
-- "Standardize our Grafana dashboard layout for the auth service."
-- "Provide panel JSON for an SLO overview dashboard in Grafana."
 
 ## References (Optional)
 

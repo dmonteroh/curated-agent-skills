@@ -1,9 +1,8 @@
 ---
 name: tracks-conductor-protocol
-description: Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD.
+description: "Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD."
 category: workflow
 ---
-
 # Tracks Conductor Protocol
 
 A single, unified work-management protocol for **intake -> planning -> execution** that fits **SDD** (spec-driven development) and **CDD** (context-driven development), and scales to larger teams.
@@ -23,15 +22,6 @@ This skill is intentionally optimized for speed:
 ## Do not use this skill when
 
 - The request is a single small code change with no need for tracking or planning artifacts.
-
-## Trigger phrases
-
-- "create a task brief"
-- "start a track" / "open a track"
-- "track this work"
-- "promote intake"
-- "set task status"
-- "validate the work index"
 
 ## Default repo layout (override via env vars)
 
@@ -184,11 +174,6 @@ When this skill runs, report using this format:
 - Validation: command + outcome (or `not run`)
 
 ## Examples
-
-Trigger test prompts:
-
-- "Create an intake draft for implementing rate limits and add it to the index."
-- "Promote this intake into a task and open a track for the billing overhaul."
 
 Sample interaction:
 

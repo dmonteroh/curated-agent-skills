@@ -3,7 +3,6 @@ name: nextjs
 description: "Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native."
 category: frontend
 ---
-
 # React + Next Frontend
 
 Provides guidance for Next.js projects (especially App Router) where Server Components, caching, and server/client boundaries matter.
@@ -16,7 +15,6 @@ Provides guidance for Next.js projects (especially App Router) where Server Comp
 - Implementing data fetching, caching, revalidation, and streaming/Suspense
 - Implementing form actions / server actions (where supported)
 - The task targets App Router usage (or mixed routing where App Router is in scope)
-- Trigger phrases: "App Router", "Server Components", "server actions", "route handlers", "layout/page", "loading.tsx", "use client"
 
 ## Do not use this skill when
 
@@ -84,11 +82,6 @@ Provides guidance for Next.js projects (especially App Router) where Server Comp
 - Data fetching + caching
 - Error/loading behavior
 - Verification
-
-## Trigger test
-
-- "Refactor this Next.js App Router page to fetch data on the server and add a loading state."
-- "Add a server action and a client form in my Next.js app."
 
 ## References (Optional)
 

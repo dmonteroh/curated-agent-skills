@@ -1,23 +1,13 @@
 ---
 name: tutorial-engineer
-description: Creates step-by-step technical tutorials and onboarding guides from
-  code or system requirements when teams need progressive, hands-on learning
-  paths for developers.
+description: "Creates step-by-step technical tutorials and onboarding guides from code or system requirements when teams need progressive, hands-on learning paths for developers."
 category: docs
 ---
-
 ## Use this skill when
 
 - A tutorial, onboarding guide, or workshop is needed
 - A progressive, hands-on walkthrough from code or requirements is required
 - Complex concepts must be translated into teachable steps
-
-**Trigger phrases**
-
-- "write a tutorial"
-- "create an onboarding guide"
-- "step-by-step walkthrough"
-- "teach me how to build"
 
 ## Do not use this skill when
 
@@ -85,11 +75,6 @@ See `references/README.md` for detailed pedagogy, formats, and writing guideline
 **Example output excerpt**
 
 "Step 2: Register the OAuth callback route. Update apps/web/src/auth.ts with the callback handler. Run `npm test auth` and confirm the test output includes `OAuth callback registered`."
-
-## Trigger Test
-
-- "Write a hands-on tutorial for setting up feature flags in our service."
-- "Create an onboarding guide that teaches new hires how to run the dev stack."
 
 ## Output Contract
 

@@ -3,7 +3,6 @@ name: deployment-engineer
 description: "Design and implement CI/CD and deployment automation: pipeline stages, quality gates, config validation, progressive delivery, rollback/runbooks, and GitOps patterns. Use for release workflows and deployment safety. Not for cloud platform architecture or deep IaC modules."
 category: devops
 ---
-
 # Deployment Engineer
 
 Provides guidance for shipping changes safely with pipelines, releases, progressive delivery, and operational guardrails.
@@ -22,14 +21,6 @@ Produces deployment workflow recommendations without requiring other skills.
 - Deep Terraform/OpenTofu module design, state strategy, provider internals
 - Deep FinOps cost optimization programs
 - You only need to select cloud resources/services without deployment workflow changes
-
-## Trigger phrases
-
-- "build a CI/CD pipeline"
-- "add canary or blue/green rollout"
-- "define rollout/rollback plan"
-- "add config validation gate"
-- "GitOps deployment workflow"
 
 ## Required inputs
 
@@ -76,11 +67,6 @@ Produces deployment workflow recommendations without requiring other skills.
 - Rollout: 10% canary for a defined window; rollback on 5xx > threshold
 - Config validation: schema + env diff checks in `validate-config`
 - Runbook: deploy, pause, rollback, and troubleshooting steps
-
-## Trigger test
-
-- "Create a release workflow with approvals and rollback triggers."
-- "Add a canary rollout with validation gates before production."
 
 ## Output format
 

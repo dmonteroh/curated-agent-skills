@@ -3,7 +3,6 @@ name: ui-design
 description: "One canonical, framework-agnostic UI/UX design skill: turn requirements into clear UI briefs, flows, component specs, and design-system rules; review UI code against local guidelines; prioritize accessibility, consistency, and developer-hand-off clarity. Not a Google Stitch skill."
 category: design
 ---
-
 # UI Design
 
 Provides UI design and review guidance that turns requirements into briefs, flows, component specs, and design-system rules. It is intentionally framework-agnostic and does not assume any implementation stack.
@@ -19,13 +18,6 @@ Provides UI design and review guidance that turns requirements into briefs, flow
 
 - The user explicitly wants UI code implementation only
 - The task is “Google Stitch” specific
-
-## Trigger phrases
-
-- “Create a UI brief” or “design spec for this feature”
-- “Define components and states”
-- “Review this UI for accessibility/consistency”
-- “Establish design system rules/tokens”
 
 ## Required inputs
 
@@ -101,11 +93,6 @@ Use this reporting format, in this order:
 - should-fix: `file:line` issue -> fix + verify step
 - nice-to-have: `file:line` issue -> fix + verify step
 ```
-
-## Trigger test (quick)
-
-- “Draft a UI brief and component spec for a data export flow.”
-- “Review this UI code for accessibility and consistency issues.”
 
 ## Resources (optional)
 

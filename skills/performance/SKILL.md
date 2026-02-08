@@ -1,9 +1,8 @@
 ---
 name: performance
-description: End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating.
+description: "End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating."
 category: observability
 ---
-
 # performance
 
 Provides a unified performance workflow that combines:
@@ -135,10 +134,6 @@ Decision:
 - If the script is unavailable or not permitted, follow the workflow phases manually and document equivalent outputs.
 
 ## Examples
-
-Trigger test prompts:
-- "Our checkout p95 jumped to 1.8s last release. Find the bottleneck."
-- "Set up a performance budget and guardrails for this API."
 
 Input/output example:
 

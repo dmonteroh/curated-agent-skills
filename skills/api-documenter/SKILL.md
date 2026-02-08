@@ -1,7 +1,6 @@
 ---
 name: api-documenter
-description: Create or improve API documentation (OpenAPI, AsyncAPI, GraphQL) when
-  developer-facing APIs need accurate docs, interactive references, and code examples.
+description: "Create or improve API documentation (OpenAPI, AsyncAPI, GraphQL) when developer-facing APIs need accurate docs, interactive references, and code examples."
 category: docs
 ---
 # API Documenter
@@ -20,13 +19,6 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - The task is only backend implementation with no documentation work
 - The request is only an informal note or meeting summary
 - There is no API surface or interface to document
-
-## Trigger phrases
-
-- "document this API"
-- "write OpenAPI" or "update the spec"
-- "build a developer portal" or "improve API docs"
-- "add SDK examples" or "add code snippets"
 
 ## Inputs to collect
 
@@ -98,11 +90,6 @@ Report results in this format and order (use "None" when not applicable):
 - Docs output: Wrote onboarding and endpoint pages with one example per endpoint.
 - Open questions: Confirm required scopes for refund endpoints.
 - Verification: Spec/doc consistency check not run (inputs missing).
-
-**Trigger test prompts**
-
-- "Create OpenAPI docs for these endpoints"
-- "Improve our developer portal onboarding for API keys"
 
 ## References
 

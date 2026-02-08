@@ -1,9 +1,8 @@
 ---
 name: ui-visual-validator
-description: Verifies UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs) to catch regressions, design-system drift, responsive breakage, and visual accessibility issues.
+description: "Verifies UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs) to catch regressions, design-system drift, responsive breakage, and visual accessibility issues."
 category: design
 ---
-
 # UI Visual Validator
 
 High-signal visual verification that is intentionally tool-agnostic and works from visual evidence.
@@ -14,14 +13,6 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 - Catching visual regressions before merge/release
 - Needing a deterministic checklist for responsive + state coverage
 - Running a visual accessibility pass (focus visibility, contrast concerns, readability)
-
-### Trigger phrases
-
-- "validate the UI visually"
-- "check for visual regressions"
-- "compare before/after screenshots"
-- "confirm responsive layouts" or "check breakpoints"
-- "verify focus/contrast visually"
 
 ## Do not use this skill when
 
@@ -81,11 +72,6 @@ Use this exact section order:
 10. **Retest Plan**: missing evidence + how to capture it
 
 ## Examples
-
-**Trigger test prompts**
-
-- "Please validate these before/after screenshots of the settings page for regressions."
-- "Can you check the responsive behavior and focus visibility for this modal?"
 
 **Output snippet**
 

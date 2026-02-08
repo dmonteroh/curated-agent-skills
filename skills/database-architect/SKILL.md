@@ -1,9 +1,8 @@
 ---
 name: database-architect
-description: "Design data layers and database architectures by selecting storage models, modeling schemas, and planning safe evolution with tradeoffs and migration/rollback plans. Use when making data-layer decisions or re-architecting storage." 
+description: "Design data layers and database architectures by selecting storage models, modeling schemas, and planning safe evolution with tradeoffs and migration/rollback plans. Use when making data-layer decisions or re-architecting storage."
 category: database
 ---
-
 # Database Architect
 
 Provides database architecture and modeling guidance (not query-by-query tuning).
@@ -16,14 +15,6 @@ Use this skill when durable data-layer decisions are needed, not short-term quer
 - Designing schemas, constraints, and indexes for real access patterns
 - Planning sharding/partitioning/replication and lifecycle policies
 - Re-architecting an existing data layer or planning a migration
-
-## Trigger phrases
-
-- "choose the right database"
-- "design the schema and indexes"
-- "plan a data migration"
-- "model entities and relationships"
-- "partitioning or sharding strategy"
 
 ## Do not use this skill when
 
@@ -108,11 +99,6 @@ Output (abridged):
 4) Schema + indexing plan: orders PK, order_items FK, index on order_date + customer_id.
 5) Migration + rollback plan: expand/contract steps, backfill, read switch, rollback path.
 6) Risks/open questions: inventory consistency SLA, retention archival storage.
-
-## Trigger test
-
-- "Help pick a database for a multi-tenant analytics app and design the schema."
-- "We need a safe plan to migrate from a single table to partitioned storage."
 
 ## References (Optional)
 

@@ -3,7 +3,6 @@ name: adr-madr-system
 description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index when documenting or superseding architectural decisions. Focuses on decision drivers, options, consequences, and supersedes semantics so accepted ADRs remain immutable."
 category: architecture
 ---
-
 # ADR MADR System
 
 Provides guidance to create high-quality ADRs (MADR style) as separate files and maintain a lightweight index for discoverability.
@@ -18,13 +17,6 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 ## Do not use this skill when
 
 - Capturing minor implementation notes, routine refactors, or small patches with no architectural impact.
-
-## Trigger phrases
-
-- "We need to decide between X and Y."
-- "Should we adopt <tech/vendor>?"
-- "We’re changing the architecture for <system>."
-- "Document the architecture decision for <topic>."
 
 ## Defaults (override if the repo already has conventions)
 
@@ -163,10 +155,6 @@ Script verification:
 - Forgetting to update the ADR index in the same change.
 
 ## Examples
-
-Trigger test prompts:
-- "We need to decide between Kafka and SQS for event delivery."
-- "Document the architecture decision for multi-tenant storage isolation."
 
 Example output (reporting format):
 - ADRs: docs/adr/ADR-0007-event-delivery.md

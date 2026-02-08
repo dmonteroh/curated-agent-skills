@@ -3,7 +3,6 @@ name: react
 description: "Build React frontends (SPA/library) with modern hooks, state management, accessibility, and performance. Framework-agnostic: not Next.js-specific and not React Native. Use when implementing React components, client-side routing, data fetching/state, and React testing."
 category: frontend
 ---
-
 # React
 
 Provides guidance for React web apps and component libraries that are not tied to a specific meta-framework.
@@ -20,13 +19,6 @@ Provides guidance for React web apps and component libraries that are not tied t
 
 - The project uses Next.js App Router or React Server Components
 - The project is React Native / Expo
-
-## Trigger phrases
-
-- "Build a React component" / "refactor React hooks"
-- "Add React state management" / "context vs Redux"
-- "Fix React performance" / "optimize rendering"
-- "Write React tests" / "RTL for components"
 
 ## Required inputs
 
@@ -72,11 +64,6 @@ Provides guidance for React web apps and component libraries that are not tied t
 - Implemented `UserCard` with props for `user`, `isLoading`, and `error`.
 - Added skeleton + error fallback UI and proper aria labels.
 - Tests added for loading and error rendering.
-
-## Trigger test
-
-- User prompt: "Refactor this React component to use hooks and add tests."
-- User prompt: "We need a shared React context for theme state."
 
 ## Output Contract (Always)
 

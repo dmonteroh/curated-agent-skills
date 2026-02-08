@@ -3,7 +3,6 @@ name: nestjs
 description: "Build and evolve NestJS backends with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Use when adding or refactoring NestJS endpoints/modules and needing deterministic steps, output contracts, and verification gates."
 category: language
 ---
-
 # NestJS Pro
 
 This skill is NestJS-specific. It does not assume a particular database, ORM, or hosting environment.
@@ -19,14 +18,6 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 
 - The service is not NestJS (use the stack-specific skill instead)
 - You only need generic architecture guidance without NestJS specifics
-
-## Trigger phrases
-
-- "Add a NestJS controller/service/module"
-- "Fix NestJS DI error" / "can't resolve dependencies"
-- "Add validation/serialization/pipes/guards/interceptors"
-- "Add Swagger/OpenAPI docs in NestJS"
-- "Write NestJS e2e tests"
 
 ## Required inputs
 
@@ -99,11 +90,6 @@ This skill is NestJS-specific. It does not assume a particular database, ORM, or
 - Pipeline: `AuthGuard` on controller, `ValidationPipe` global
 - Changes: list of files touched
 - Verification: `npm run test:e2e -- projects`, expected `201` and `400`
-
-## Trigger test
-
-- "Create a NestJS module for billing and wire DTO validation"
-- "NestJS dependency injection error: can't resolve LoggerService"
 
 ## Scripts
 

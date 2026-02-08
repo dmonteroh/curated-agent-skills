@@ -1,9 +1,8 @@
 ---
 name: golang
-description: Build and review production Go (1.21+) services/CLIs with idiomatic design, correctness, and safe concurrency/cancellation patterns.
+description: "Build and review production Go (1.21+) services/CLIs with idiomatic design, correctness, and safe concurrency/cancellation patterns."
 category: language
 ---
-
 # golang
 
 Provides guidance for writing simple, correct, production-ready Go. Defaults to the standard library and Go idioms.
@@ -20,12 +19,6 @@ This skill covers concurrency patterns (worker pools, pipelines, cancellation, g
 
 - The task is primarily another language/framework.
 - You only need a quick explanation of a small snippet without broader Go changes.
-
-## Trigger phrases
-
-- "Go service", "Go CLI", "Go module", "Go handler"
-- "goroutine leak", "channel deadlock", "errgroup"
-- "context cancellation", "graceful shutdown"
 
 ## Required inputs
 
@@ -93,10 +86,6 @@ Expected behavior:
 - Propose `errgroup.WithContext` plus `SetLimit(5)`.
 - Ensure each request uses the provided `context.Context`.
 - Report the concurrency limit and cancellation path.
-
-### Trigger test
-
-"We're seeing goroutine leaks in our Go worker pool; help fix it."
 
 ## Output contract
 

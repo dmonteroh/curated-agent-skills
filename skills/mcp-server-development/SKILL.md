@@ -3,7 +3,6 @@ name: mcp-server-development
 description: "Build high-quality MCP (Model Context Protocol) servers: workflow-first tool design, tight schemas, predictable outputs, safe error handling, and eval-driven iteration. Framework-agnostic (Node/TS or Python). No web fetching required."
 category: ai
 ---
-
 # MCP Server Development
 
 Provides guidance for designing and implementing MCP servers that agents can use reliably.
@@ -14,7 +13,6 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - Implementing an MCP server in Node/TypeScript or Python
 - Tightening schemas, output formats, errors, pagination, and safety hints
 - Adding deterministic evaluations and integration tests for tool usefulness
-- Trigger phrases: “design MCP server tools”, “MCP tool schema”, “MCP server errors”, “MCP evals”, “Model Context Protocol server”
 
 ## Do not use this skill when
 
@@ -100,11 +98,6 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - Tools: `search_issues`, `assign_issue`, `summarize_issue_updates`
 - `search_issues` schema includes `status` enum and `max_results` with cap.
 - Errors: `INVALID_STATUS` suggests valid values.
-
-## Trigger test
-
-- “Design MCP tools for an incident triage server.”
-- “Tighten MCP server schemas and add evals.”
 
 ## References (Optional)
 

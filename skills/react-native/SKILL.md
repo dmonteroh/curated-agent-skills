@@ -3,7 +3,6 @@ name: react-native
 description: "Build cross-platform mobile apps with React Native/Expo: navigation, platform handling (iOS/Android), performance (FlatList), storage, and native module integration. Not for React web or Next.js."
 category: frontend
 ---
-
 # React Native
 
 Provides guidance for React Native and Expo apps, covering navigation, platform handling, performance, storage, and native module integration.
@@ -22,13 +21,6 @@ Provides guidance for React Native and Expo apps, covering navigation, platform 
 - Handling platform-specific behavior (safe areas, keyboard, back button)
 - Optimizing list and rendering performance (FlatList/SectionList)
 - Managing mobile persistence (AsyncStorage/MMKV) and app lifecycle
-
-### Trigger phrases
-
-- "React Native" or "Expo" mobile app changes
-- "FlatList performance" or "scrolling lag" on mobile
-- "Safe area", "keyboard avoiding", or "Android back button"
-- "AsyncStorage", "MMKV", or "app state" persistence
 
 ## Do not use this skill when
 
@@ -61,11 +53,6 @@ Provides guidance for React Native and Expo apps, covering navigation, platform 
 ## Example prompt
 
 "Improve scrolling performance in our React Native FlatList screen and make sure it respects safe areas."
-
-## Trigger test
-
-- "We need to add Android back handling in our React Native screen."
-- "Optimize this Expo FlatList screen for smoother scrolling."
 
 ## Output Contract (Always)
 

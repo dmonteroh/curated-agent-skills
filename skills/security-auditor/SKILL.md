@@ -1,8 +1,6 @@
 ---
 name: security-auditor
-description: Provides a structured security audit workflow for DevSecOps,
-  application security, and compliance readiness, used for scoped assessments,
-  threat modeling, testing, and remediation planning.
+description: "Provides a structured security audit workflow for DevSecOps, application security, and compliance readiness, used for scoped assessments, threat modeling, testing, and remediation planning."
 category: security
 ---
 Provides a structured security audit workflow for scoped assessments, threat
@@ -21,14 +19,6 @@ security, and compliance readiness.
 - You lack authorization or scope approval for security testing
 - You need legal counsel or formal compliance certification
 - You only need a quick automated scan without manual review
-
-## Trigger phrases
-
-- "security audit" or "risk assessment"
-- "threat model" or "attack surface review"
-- "DevSecOps controls" or "CI/CD security"
-- "compliance readiness" or "security controls review"
-- "vulnerability mitigation plan" or "security findings report"
 
 ## Required inputs
 
@@ -112,8 +102,3 @@ See `references/README.md` for detailed capabilities, behavioral traits, and kno
 5. Remediation Plan: Address SA-01 short-term, SA-02 medium-term.
 6. Verification & Residual Risk: SA-01 pending validation; SA-02 not started.
 7. Open Questions: Confirm token TTL requirements.
-
-## Trigger test
-
-- "Can you produce a security audit report for our API platform?"
-- "We need a threat model and mitigation plan for our CI/CD pipeline."

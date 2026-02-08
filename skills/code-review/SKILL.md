@@ -1,9 +1,8 @@
 ---
 name: code-review
-description: Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report.
+description: "Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report."
 category: workflow
 ---
-
 # code-review
 
 Provides a canonical code review workflow designed for speed, depth, and low noise.
@@ -24,16 +23,6 @@ It replaces overlapping code-review skills by providing explicit review modes:
 
 - There are no code changes to review.
 - The request is to implement a feature (review can be a follow-up).
-
-## Trigger phrases
-
-- "Review this PR for correctness and security."
-- "Give a fast code review with findings and questions."
-
-## Trigger test
-
-- "Please review this diff for quality and performance issues."
-- "Audit these changes for security risks and test gaps."
 
 ## Required inputs
 

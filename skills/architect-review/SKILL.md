@@ -1,8 +1,6 @@
 ---
 name: architect-review
-description: Review system designs and major changes for architectural integrity,
-  scalability, and maintainability; use for architecture decisions, tradeoffs, and
-  risks across distributed systems and clean architecture patterns.
+description: "Review system designs and major changes for architectural integrity, scalability, and maintainability; use for architecture decisions, tradeoffs, and risks across distributed systems and clean architecture patterns."
 category: architecture
 ---
 # Architect Review
@@ -14,13 +12,6 @@ Provides architectural review guidance for system designs and major changes, foc
 - Evaluating scalability, resilience, or maintainability impacts
 - Assessing architecture compliance with standards and patterns
 - Providing architectural guidance for complex systems
-
-## Trigger phrases
-- "architectural review" or "architecture review"
-- "system design review" or "design review"
-- "microservices boundaries" or "bounded contexts"
-- "event-driven architecture" or "clean architecture"
-- "scalability risk" or "resilience tradeoffs"
 
 ## Do not use this skill when
 
@@ -92,10 +83,6 @@ See `references/README.md` for detailed reference guides and knowledge areas.
 - Recommendations with tradeoffs: introduce payment bounded context + event-driven order updates; use saga with compensations.
 - Validation plan: load-test event throughput; run migration rehearsal.
 - Decisions/ADRs and next steps: draft ADR for event schema and ownership.
-
-## Trigger test
-- "Can you do an architectural review of our new event-driven workflow?"
-- "Evaluate the scalability risks of this microservices proposal."
 
 ## Example Interactions
 - "Review this microservice design for proper bounded context boundaries"

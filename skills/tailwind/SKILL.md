@@ -3,7 +3,6 @@ name: tailwind
 description: "Build and maintain Tailwind CSS systems fast without framework lock-in: tokens (CSS variables), theme + dark mode, content globs/safelist, component variant patterns, accessibility/responsive conventions, and migration hygiene."
 category: frontend
 ---
-
 # Tailwind CSS
 
 This skill is Tailwind-specific and intentionally framework-agnostic (React/Svelte/Vue/Angular all work).
@@ -19,13 +18,6 @@ This skill is Tailwind-specific and intentionally framework-agnostic (React/Svel
 
 - The task is only selecting a frontend framework or component library
 - The task is only UI critique without Tailwind implementation scope
-
-## Trigger phrases
-
-- "Set up Tailwind tokens/theme"
-- "Tailwind config review (content/safelist/dark mode)"
-- "Standardize component variants in Tailwind"
-- "Migrate Tailwind safely"
 
 ## Inputs required
 
@@ -105,11 +97,6 @@ Report using this format:
   - Requirements: `rg` (ripgrep) installed locally.
   - Usage: run from the target repo root; review the printed heuristics.
   - Verification: confirm the reported config paths and heuristics match expectations.
-
-## Trigger test
-
-- "Can you review my Tailwind config and suggest fixes for missing styles in prod?"
-- "We need a Tailwind token system and consistent component variants."
 
 ## References (Optional)
 

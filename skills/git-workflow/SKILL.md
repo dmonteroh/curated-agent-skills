@@ -3,7 +3,6 @@ name: git-workflow
 description: "Master Git workflows for teams: clean PRs, rebasing/merging, conflict resolution, cherry-picks, safe force-push, bisect, worktrees, and recovery via reflog. Includes playbooks + safe scripts for diagnosing and fixing common Git problems."
 category: workflow
 ---
-
 # git-workflow
 
 Provides safe, fast Git workflows for multi-contributor repos.
@@ -30,15 +29,6 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - Recovering lost work (reflog, reset, restore).
 - Running archaeology (bisect) to find a regression.
 - Working on multiple branches in parallel (worktrees).
-
-## Trigger phrases
-
-- “clean up my commits”
-- “rebase onto main” / “my branch diverged”
-- “cherry-pick this fix” / “backport a commit”
-- “I lost commits” / “undo the last push”
-- “find the commit that broke it”
-- “use worktrees for parallel work”
 
 ## Do not use this skill when
 
@@ -137,11 +127,6 @@ When this skill runs, report in this format:
 - **Risk notes:** any history rewrites or force pushes.
 - **Verification:** final `git status -sb` + `git log --oneline -n 5`.
 - **Next steps:** push/PR guidance or follow-up questions.
-
-## Trigger test
-
-- “My branch diverged from main and I need a clean PR.”
-- “I need to backport this commit to the release branch.”
 
 ## Quickstart
 

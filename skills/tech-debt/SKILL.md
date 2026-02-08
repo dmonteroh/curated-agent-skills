@@ -1,9 +1,8 @@
 ---
 name: tech-debt
-description: Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading.
+description: "Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading."
 category: workflow
 ---
-
 # Tech Debt
 
 Provides a high-signal technical debt assessment and converts it into an actionable, staged remediation plan.
@@ -13,13 +12,6 @@ Provides a high-signal technical debt assessment and converts it into an actiona
 - Dev velocity is slowing, bug rate is increasing, or on-call is painful.
 - A debt audit and prioritized cleanup roadmap are required.
 - An execution plan is needed that can be staffed by a team.
-
-Trigger phrases:
-- “technical debt audit”
-- “cleanup roadmap”
-- “prioritize refactors”
-- “too many TODOs and flaky tests”
-- “we need a debt register”
 
 ## Do not use this skill when
 
@@ -163,9 +155,3 @@ Remediation Plan:
 
 Verification:
 - Tests, benchmarks, and monitoring checks tied to success metrics.
-
-## Trigger test
-
-Use this skill for prompts like:
-- “Create a technical debt register for this repo and prioritize it.”
-- “Audit tech debt and give me a phased cleanup plan.”

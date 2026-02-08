@@ -1,9 +1,8 @@
 ---
 name: changelog-automation
-description: Automate changelog and release note generation from commits or PR metadata using Keep a Changelog and semantic versioning. Use when designing release workflows or standardizing commit conventions.
+description: "Automate changelog and release note generation from commits or PR metadata using Keep a Changelog and semantic versioning. Use when designing release workflows or standardizing commit conventions."
 category: workflow
 ---
-
 # Changelog Automation
 
 Provides patterns and tools for automating changelog generation, release notes, and version management.
@@ -21,14 +20,6 @@ Provides patterns and tools for automating changelog generation, release notes, 
 - The project has no release process or versioning
 - You only need a one-time manual release note
 - Commit history is unavailable or unreliable
-
-## Trigger phrases
-
-- "generate a changelog"
-- "automate release notes"
-- "conventional commits"
-- "semantic release workflow"
-- "standardize commit messages"
 
 ## Required inputs
 
@@ -100,11 +91,6 @@ Provides patterns and tools for automating changelog generation, release notes, 
 - Commands: ...
 - Verification: ...
 - Risks/Follow-ups: ...
-
-## Trigger test
-
-- "Generate release notes from PR labels and keep a changelog."
-- "Add semantic-release to automate versioning and changelog updates."
 
 ## References
 

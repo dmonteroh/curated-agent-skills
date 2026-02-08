@@ -1,9 +1,8 @@
 ---
 name: dispatching-parallel-agents
-description: Split work across multiple agents in parallel when tasks are independent (no shared state, minimal file overlap). Provides a deterministic workflow to partition scope, write focused sub-agent prompts, and merge results safely.
+description: "Split work across multiple agents in parallel when tasks are independent (no shared state, minimal file overlap). Provides a deterministic workflow to partition scope, write focused sub-agent prompts, and merge results safely."
 category: ai
 ---
-
 # Dispatching Parallel Agents
 
 Parallel dispatch is only useful when tasks are truly independent. This skill provides a **subagent execution** pattern (implementer + reviewers) to finish each partition cleanly.
@@ -23,13 +22,6 @@ Do not use this skill when:
 - Problems are likely coupled (fixing one will change the others)
 - A single root-cause investigation is needed first (“unknown unknowns”)
 - Agents would contend on the same files, the same environment, or the same external resource
-
-## Trigger Phrases
-
-- “dispatch in parallel”
-- “split this into independent sub-tasks”
-- “parallelize the investigation”
-- “assign separate agents per module”
 
 ## Required Inputs
 
@@ -159,13 +151,6 @@ Integration Summary:
 - This skill is model-agnostic: it describes *how to split work*, not a specific vendor’s agent API.
 - If the environment has a specific “spawn sub-agent” mechanism, use it. The important part is the partitioning, constraints, and merge gate.
 - This skill is self-contained and does not rely on other skills.
-
-## Trigger Test
-
-Example prompts that should activate this skill:
-
-- “We have UI and API bugs in different modules — can you dispatch them in parallel?”
-- “Split this investigation across separate agents for auth and payments.”
 
 ## References (Optional)
 

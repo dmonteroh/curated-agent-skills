@@ -1,9 +1,8 @@
 ---
 name: migration-observability
-description: Make database migrations safe and observable. Define progress + safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic.
+description: "Make database migrations safe and observable. Define progress + safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic."
 category: observability
 ---
-
 # migration-observability
 
 Provides guidance for **running migrations safely** (not for authoring SQL/ORM migration steps). It focuses on:
@@ -21,14 +20,6 @@ Provides guidance for **running migrations safely** (not for authoring SQL/ORM m
 
 - The change is a tiny, low-risk schema tweak with trivial rollback.
 - Only authoring migration scripts (this skill is about operating them).
-
-## Trigger phrases
-
-- “migration runbook”
-- “backfill observability”
-- “go/no-go gates”
-- “cutover checklist”
-- “migration dashboards and alerts”
 
 ## Required inputs
 
@@ -97,10 +88,6 @@ This skill does not require a specific stack. Common setups:
 If none exist, remain “observable” by emitting structured logs + writing a runbook with manual checks and thresholds.
 
 ## Examples
-
-Trigger test prompts:
-- “Create a migration runbook with go/no-go gates for a customer backfill.”
-- “We need dashboards and alerts for a cutover migration.”
 
 Example input:
 - Migration type: backfill

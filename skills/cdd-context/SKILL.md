@@ -1,9 +1,8 @@
 ---
 name: cdd-context
-description: Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot.
+description: "Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot."
 category: ai
 ---
-
 # CDD Context
 
 Provides guidance for managing project context as first-class artifacts alongside code. This skill is standalone and does not depend on other skills.
@@ -142,12 +141,6 @@ When running this skill, report in the following format:
 - Files created/updated
 - Validation results (or note if not run)
 - Open questions
-
-## Trigger test
-
-The following prompts should activate this skill:
-- "Create docs/context with product, tech stack, and workflow context."
-- "Update the workflow context and refresh the context index."
 
 ## References
 

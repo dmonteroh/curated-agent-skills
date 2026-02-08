@@ -3,7 +3,6 @@ name: dotnet-core
 description: "Build and review modern .NET (ASP.NET Core / .NET 8+) backend services with DI, auth, data access, and production readiness. Use for implementing or auditing .NET server code and architecture choices."
 category: language
 ---
-
 # .NET Core
 
 Provides guidance for production-grade .NET services with modern patterns and clear verification.
@@ -20,19 +19,6 @@ Provides guidance for production-grade .NET services with modern patterns and cl
 
 - The work is in another language/runtime
 - The task only needs generic API design guidance without .NET-specific code changes
-
-## Trigger phrases
-
-- "ASP.NET Core" or ".NET 8 API"
-- "Minimal API" or "controller-based API"
-- "EF Core migration" or "DbContext"
-- "JWT auth" or "Identity in .NET"
-- "Dapper query" or "ADO.NET"
-
-## Trigger test
-
-- "Create a .NET 8 Minimal API with JWT auth and EF Core."
-- "Review this ASP.NET Core controller for validation and DI issues."
 
 ## Required inputs
 

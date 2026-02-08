@@ -1,7 +1,6 @@
 ---
 name: javascript
-description: Build and debug modern JavaScript (ES6+) with async patterns and
-  Node.js/browser compatibility when authoring, modernizing, or diagnosing JS.
+description: "Build and debug modern JavaScript (ES6+) with async patterns and Node.js/browser compatibility when authoring, modernizing, or diagnosing JS."
 category: language
 ---
 Provides guidance for modern JavaScript, async programming, and runtime compatibility.
@@ -12,12 +11,6 @@ Provides guidance for modern JavaScript, async programming, and runtime compatib
 - Debugging async behavior, event loops, or performance
 - Migrating legacy JS to modern ES standards
 - The user needs guidance on modules, promises, or async/await
-
-## Trigger phrases
-
-- "JavaScript async bug" or "promise rejection"
-- "modernize JS" or "ES6 migration"
-- "Node.js vs browser compatibility"
 
 ## Do not use this skill when
 
@@ -100,11 +93,6 @@ Responses must use this format for every run:
 
 Ensure guidance covers Node.js and browser environments when requested.
 Include JSDoc comments when adding or modifying functions.
-
-## Trigger test
-
-- "Please modernize this ES5 module to ES2020 with async/await."
-- "Why does my promise chain fire twice in Node.js?"
 
 ## References
 

@@ -1,9 +1,8 @@
 ---
 name: typescript
-description: Provides TypeScript architecture and typing guidance for strictness/tsconfig decisions, advanced type design, fixing type errors, type-checking performance, and boundary runtime validation; use when resolving TypeScript typing or configuration issues.
+description: "Provides TypeScript architecture and typing guidance for strictness/tsconfig decisions, advanced type design, fixing type errors, type-checking performance, and boundary runtime validation; use when resolving TypeScript typing or configuration issues."
 category: language
 ---
-
 # TypeScript Skill
 
 Provides a deterministic workflow for TypeScript architecture, day-to-day implementation, and advanced types.
@@ -19,13 +18,6 @@ Provides a deterministic workflow for TypeScript architecture, day-to-day implem
 
 - You only need JavaScript guidance
 - You need UI/UX design rather than type design
-
-## Trigger phrases
-
-- "TypeScript says type X is not assignable"
-- "How should we structure these generics/unions?"
-- "Should we turn on strict mode or `noUncheckedIndexedAccess`?"
-- "tsc is slow" or "VS Code TS server is laggy"
 
 ## Required inputs
 
@@ -78,11 +70,6 @@ Provide results in this format every time:
 3. Config/Migration: None.
 4. Verification: `tsc --noEmit` (no errors), unit test for invalid payload.
 5. Risks/Follow-ups: None.
-
-## Trigger test
-
-- "Should we enable `exactOptionalPropertyTypes` and how do we migrate?"
-- "I have a generic helper that breaks inference; can you fix it?"
 
 ## Scripts (Optional)
 

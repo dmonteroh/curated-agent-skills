@@ -1,9 +1,8 @@
 ---
 name: database-migration-orm
-description: Plan and execute ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows).
+description: "Plan and execute ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
 category: database
 ---
-
 # Database Migration (ORM)
 
 Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separate raw SQL migration process.
@@ -18,13 +17,6 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 
 - The project uses forward-only SQL migration files as the primary mechanism
 - The task is only query tuning or general performance analysis
-
-## Trigger phrases
-
-- "Prisma migrate" / "TypeORM migration" / "Sequelize migration"
-- "EF Core migration" / "ORM migration plan"
-- "Zero-downtime migration with ORM" / "expand/contract"
-- "Backfill data with ORM migration"
 
 ## Required inputs
 
@@ -97,11 +89,6 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 3. Artifacts & Execution Steps: add nullable column, deploy dual-write, backfill batches, enforce NOT NULL, drop old logic.
 4. Rollback Matrix: revert schema changes, pause backfill, restore old code paths.
 5. Verification & Monitoring: staging rehearsal, backfill progress metrics, post-cutover checks.
-
-## Trigger test
-
-- "TypeORM migration fails on large table, need zero-downtime backfill plan."
-- "Plan an EF Core migration with expand/contract and rollback steps."
 
 ## Resources (Optional)
 

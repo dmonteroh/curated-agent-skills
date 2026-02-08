@@ -1,27 +1,8 @@
 ---
 name: monitoring-expert
-description: Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack.
+description: "Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack."
 category: observability
-triggers:
-  - monitoring
-  - observability
-  - logging
-  - metrics
-  - tracing
-  - alerting
-  - Prometheus
-  - DataDog
-  - APM
-  - performance testing
-  - load testing
-  - profiling
-  - capacity planning
-  - bottleneck
-role: specialist
-scope: implementation
-output-format: markdown
 ---
-
 # Monitoring Expert
 
 Provides guidance for implementing monitoring, alerting, tracing, and performance testing systems.
@@ -171,9 +152,3 @@ When executing this skill, respond with the following sections:
 ## References
 
 See `references/README.md` for the index of detailed playbooks.
-
-## Trigger Test
-
-If the user asks:
-- “Design an observability stack for our microservice.”
-- “Set up logging, metrics, and tracing with alerting.”

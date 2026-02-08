@@ -1,9 +1,8 @@
 ---
 name: doc-generate
-description: Generate and maintain high-signal documentation from an existing codebase (API docs, architecture, runbooks, onboarding, reverse-specs). Use when a repo needs structured, maintainable docs grounded in code and configuration.
+description: "Generate and maintain high-signal documentation from an existing codebase (API docs, architecture, runbooks, onboarding, reverse-specs). Use when a repo needs structured, maintainable docs grounded in code and configuration."
 category: docs
 ---
-
 # doc-generate
 
 Provides a repeatable workflow to generate and maintain documentation that is grounded in code, configuration, and tests.
@@ -26,13 +25,6 @@ Core capabilities:
 
 - The request is only for a one-off explanation of a single snippet.
 - There is no code, spec, or source of truth to document.
-
-## Trigger phrases
-
-- "Generate docs from this repo"
-- "Create architecture or onboarding docs"
-- "Reverse-engineer a spec from the code"
-- "Set up a docs index and doc automation"
 
 ## Inputs required
 
@@ -187,8 +179,3 @@ Summary:
 - Scripts run (with outputs): docscan.sh (docs/_docgen/inventory.md).
 - Follow-up recommendations: Add runbook for incident response.
 ```
-
-## Trigger test
-
-- "Create a reverse-spec from this codebase."
-- "Set up a docs index and generate a docs/README.md entrypoint."

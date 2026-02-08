@@ -1,9 +1,8 @@
 ---
 name: database-migration-sql
-description: Plan and write forward-only SQL migration files with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server.
+description: "Plan and write forward-only SQL migration files with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server."
 category: database
 ---
-
 # database-migration-sql
 
 Provides guidance for planning and writing forward-only SQL migrations with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server.
@@ -18,14 +17,6 @@ Provides guidance for planning and writing forward-only SQL migrations with zero
 
 - The workflow is ORM-managed migrations rather than raw SQL files.
 - The task is primarily designing a new schema or data model.
-
-## Trigger phrases
-
-- "write a SQL migration"
-- "zero-downtime migration"
-- "expand/contract migration"
-- "backfill in batches"
-- "online index build"
 
 ## Required inputs
 
@@ -92,11 +83,6 @@ Return responses in this order, using the exact headings:
 5. **Validation Queries**
 6. **Rollback Plan**
 7. **Execution Checklist**
-
-## Trigger test
-
-- "Write a SQL migration to add a column with zero downtime and a backfill."
-- "Create forward-only Flyway SQL for an online index build."
 
 ## Resources
 

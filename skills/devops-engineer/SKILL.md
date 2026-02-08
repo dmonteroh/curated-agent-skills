@@ -1,9 +1,8 @@
 ---
 name: devops-engineer
-description: Operate and evolve runtime infrastructure for reliability, containerization, Kubernetes operations, platform engineering, and operational readiness. Use for runtime reliability, deployment execution, or incident response prep; not for CI/CD pipeline architecture or release automation design.
+description: "Operate and evolve runtime infrastructure for reliability, containerization, Kubernetes operations, platform engineering, and operational readiness. Use for runtime reliability, deployment execution, or incident response prep; not for CI/CD pipeline architecture or release automation design."
 category: devops
 ---
-
 # DevOps Engineer
 
 Provides operational guidance for runtime platforms and day-2 reliability.
@@ -21,14 +20,6 @@ Provides operational guidance for runtime platforms and day-2 reliability.
 
 - The task is primarily CI/CD pipeline architecture, build systems, or release automation design
 - The task is purely application feature work with no runtime/ops impact
-
-## Trigger phrases
-
-- "containerize", "Dockerfile", "image size"
-- "Kubernetes deployment", "ingress", "readiness probe"
-- "resource requests/limits", "OOM", "CPU throttling"
-- "runbook", "on-call", "incident response"
-- "platform engineering", "golden path"
 
 ## Required inputs
 
@@ -105,8 +96,3 @@ Report in this format:
 ## References
 
 - `references/README.md`
-
-## Trigger test
-
-- "Add resource limits and probes to our Kubernetes deployment."
-- "Create a runbook and rollback steps for the container runtime."

@@ -1,10 +1,8 @@
 ---
 name: frontend-design
-description: Implement distinctive, production-grade frontend UI code with high design quality. Use when asked to build or style components/pages/apps and deliver working UI code; avoid for design-only briefs without implementation.
+description: "Implement distinctive, production-grade frontend UI code with high design quality. Use when asked to build or style components/pages/apps and deliver working UI code; avoid for design-only briefs without implementation."
 category: design
-license: Complete terms in LICENSE.txt
 ---
-
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. It focuses on real working code with exceptional attention to aesthetic details and creative choices.
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
@@ -20,13 +18,6 @@ The user provides frontend requirements: a component, page, application, or inte
 - The task is design critique or high-level UI feedback without implementation
 - The request is purely backend, data, or infrastructure work
 - The user only wants a neutral or default UI with minimal styling
-
-## Trigger phrases
-
-- "Build a landing page" or "design a page" with code output
-- "Create a component" or "style this UI" with implementation required
-- "Make this frontend look premium/polished/distinct" with real HTML/CSS/JS
-- "Implement the UI" with a design brief, brand, or visual direction
 
 ## Inputs to confirm
 
@@ -130,8 +121,3 @@ Aims for extraordinary creative work by thinking outside the box and committing 
 - Implementation: React component + CSS module with layout grid.
 - Interactions: cards lift on hover, background shimmer loop.
 - Checks: contrast meets WCAG AA, motion reduced via prefers-reduced-motion.
-
-## Trigger test
-
-- "Implement a striking landing page hero in HTML/CSS with a retro-futuristic vibe."
-- "Create a styled pricing card component in React with a premium look."

@@ -1,9 +1,8 @@
 ---
 name: gdpr-data-handling
-description: Implement practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data.
+description: "Implement practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
 category: security
 ---
-
 # GDPR Data Handling
 
 Provides an implementation-focused guide for GDPR-compliant data processing, privacy controls, and operational workflows.
@@ -26,15 +25,6 @@ Focuses on engineering/operator execution and does not replace legal counsel. Pr
 - The task is unrelated to GDPR data handling
 - Legal interpretation or formal legal advice is required
 - A different domain or tool outside this scope is needed
-
-## Trigger phrases
-
-- "GDPR compliance" / "GDPR review" / "privacy by design"
-- "lawful basis" / "consent management" / "legitimate interest assessment"
-- "DSAR" / "data subject request" / "right to be forgotten"
-- "data retention" / "deletion policy" / "data minimization"
-- "processors" / "subprocessors" / "international transfers"
-- "personal data breach" / "breach notification"
 
 ## Inputs required
 
@@ -138,12 +128,6 @@ Use this structure in your final response:
 ## Gaps & Next Actions
 - ...
 ```
-
-## Trigger test
-
-Prompts that should activate this skill:
-- "Create a GDPR data inventory and retention plan for our EU users."
-- "We need DSAR workflows and lawful basis mapping for our customer data."
 
 ## References
 

@@ -3,7 +3,6 @@ name: cost-optimization
 description: "Cloud FinOps cost governance for reducing cloud spend while maintaining reliability. Use when teams need tagging/chargeback, budgets/anomaly detection, rightsizing, commitment strategy (RIs/Savings Plans/CUDs), or unit-cost analysis. Produces a prioritized savings plan with verification gates."
 category: devops
 ---
-
 # Cost Optimization (Cloud FinOps)
 
 Provides a deterministic workflow to reduce cloud spend safely while maintaining reliability and performance.
@@ -21,13 +20,6 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 - The request is for cloud architecture/platform selection or migrations
 - The request is for CI/CD or deployment mechanics
 - The request is for database-specific tuning and cost/performance tradeoffs
-
-## Trigger phrases
-
-- "cut cloud spend" or "reduce AWS/GCP/Azure costs"
-- "FinOps" or "cost governance"
-- "rightsizing" or "reserved instance" or "savings plan"
-- "unit cost" or "cost per request/tenant"
 
 ## Inputs to collect
 
@@ -94,11 +86,6 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 - Quick wins: shutdown non-prod nights/weekends, log retention to 14 days
 - Structural wins: autoscaling for batch workers, Savings Plan after 30 days stable usage
 - Verification: latency/error budgets, rollback plan for scaling changes
-
-## Trigger test
-
-- "Can you help us reduce cloud spend and set up FinOps guardrails?"
-- "We need a rightsizing and Savings Plan strategy with verification steps."
 
 ## Resources (Optional)
 

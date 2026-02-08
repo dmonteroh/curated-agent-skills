@@ -1,9 +1,8 @@
 ---
 name: code-explain
-description: Explain complex code clearly for humans and agents. Produce a structured walkthrough (high-level intent -> data/control flow -> key invariants -> edge cases) with optional Mermaid diagrams and actionable next steps. Use for onboarding, debugging understanding, and “how it works” docs.
+description: "Explain complex code clearly for humans and agents. Produce a structured walkthrough (high-level intent -> data/control flow -> key invariants -> edge cases) with optional Mermaid diagrams and actionable next steps. Use for onboarding, debugging understanding, and “how it works” docs."
 category: docs
 ---
-
 # code-explain
 
 Provides code explanations through clear narratives, diagrams, and step-by-step breakdowns.
@@ -18,13 +17,6 @@ This skill is intentionally different from `doc-generate`:
 - Creating onboarding walkthroughs or learning materials
 - Producing step-by-step breakdowns with diagrams
 - Teaching patterns or debugging reasoning
-
-### Trigger phrases
-
-- "Explain how this code works"
-- "Walk me through this module"
-- "Give me a high-level + detailed breakdown"
-- "Where would I change this safely?"
 
 ## Do not use this skill when
 
@@ -124,11 +116,6 @@ When useful, include a Mermaid diagram (sequence or flowchart).
   7) Suggested tests: ...
   8) Next steps: ...
 - Diagram: Omitted (linear flow)
-
-## Trigger test
-
-- "Can you walk me through `src/payments` and explain the data flow?"
-- "Explain the request lifecycle for this controller and where I can add hooks."
 
 ## Resources
 

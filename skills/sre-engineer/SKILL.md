@@ -3,7 +3,6 @@ name: sre-engineer
 description: "Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards)."
 category: observability
 ---
-
 # SRE Engineer
 
 This skill delivers *reliability management*: turning availability/latency goals into measurable SLIs/SLOs, actionable alerting, runbooks, and a sustainable improvement loop.
@@ -90,11 +89,6 @@ Provide a response with the following sections in order:
 8. **Open Questions / Assumptions**
 
 ## Examples
-
-**Trigger test**
-
-- "We need SLOs and an error budget policy for our payments API."
-- "Our on-call is overloaded; design alerting and automation to reduce toil."
 
 **Example output snippet**
 

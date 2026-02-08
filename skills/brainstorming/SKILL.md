@@ -3,7 +3,6 @@ name: brainstorming
 description: "Clarify ambiguous work through structured brainstorming: ask focused questions, propose 2-3 approaches with tradeoffs, and produce a concise design brief (goals, non-goals, constraints, risks, validation). Use when requirements are unclear or before large/irreversible changes."
 category: workflow
 ---
-
 # Brainstorming: Ideas → Design Brief
 
 ## Use this skill when
@@ -11,12 +10,6 @@ category: workflow
 - The user’s requirements are ambiguous, conflicting, or incomplete
 - The cost of “building the wrong thing” is high (irreversible changes, migrations, public APIs)
 - A fast, structured way to compare 2–3 approaches and pick one is needed
-
-**Trigger phrases**
-- "Not sure what the right approach is"
-- "We need to decide between a few options"
-- "Let's do a quick design/plan first"
-- "Requirements are still fuzzy"
 
 ## Do not use this skill when
 
@@ -123,11 +116,6 @@ Does not assume other skills exist; treats any integrations as optional.
 - Recommendation: checklist, aligns with user diversity.
 - Design brief: goals, non-goals, constraints, risks, verification.
 - Next step: "Want an execution plan next?"
-
-## Trigger test
-
-- "I'm not sure which architecture to choose—can you help me decide?"
-- "We need a short design brief before coding; requirements are still fuzzy."
 
 ## Output Contract (Always)
 

@@ -1,9 +1,8 @@
 ---
 name: chaos-engineer
-description: Design and run safe chaos experiments (failure injection + game days) to validate resilience and reduce blast radius. Produces hypotheses, steady-state signals, rollback gates, and experiment specs. Use when resilience is uncertain or before high-risk changes.
+description: "Design and run safe chaos experiments (failure injection + game days) to validate resilience and reduce blast radius. Produces hypotheses, steady-state signals, rollback gates, and experiment specs. Use when resilience is uncertain or before high-risk changes."
 category: observability
 ---
-
 # Chaos Engineer
 
 Provides controlled failure injection with explicit hypotheses, safety gates, and learnings turned into remediation work.
@@ -19,13 +18,6 @@ Provides controlled failure injection with explicit hypotheses, safety gates, an
 
 - Steady-state signals cannot be defined because observability is missing
 - The change is low-risk and easily reversible
-
-## Trigger phrases
-
-- "Design a chaos experiment" or "create a chaos test plan"
-- "Run a game day" or "plan a resilience drill"
-- "Inject failures" or "simulate outages"
-- "Validate resilience" or "test blast radius"
 
 ## Required inputs
 
@@ -93,10 +85,6 @@ Reporting format (use this in the final response):
 ```
 
 ## Examples
-
-**Trigger test prompts**
-- "Design a chaos experiment to test payment gateway timeouts in staging."
-- "Create a game day plan to simulate a dependency outage."
 
 **Example input**
 - Goal: Validate retry behavior when the payment gateway is unavailable.

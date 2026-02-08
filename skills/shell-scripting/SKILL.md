@@ -1,9 +1,8 @@
 ---
 name: shell-scripting
-description: Write safe, portable shell scripts (POSIX/Bash) for automation and CI. Use for scripting, tooling, and DevOps glue code.
+description: "Write safe, portable shell scripts (POSIX/Bash) for automation and CI. Use for scripting, tooling, and DevOps glue code."
 category: workflow
 ---
-
 # Shell Scripting
 
 Provides guidance for writing safe, portable shell scripts for automation, CI helpers, and command-line glue.
@@ -19,13 +18,6 @@ Provides guidance for writing safe, portable shell scripts for automation, CI he
 - The task requires another language runtime or SDK
 - Building interactive TUI apps or rich UIs
 - The job is primarily configuration (use native config instead)
-
-## Trigger phrases
-
-- "write a bash script"
-- "shell script for automation"
-- "portable /bin/sh script"
-- "CI helper script"
 
 ## Required inputs
 
@@ -98,11 +90,6 @@ Usage:
 Verification:
 - ...
 ````
-
-## Trigger test
-
-- "Create a bash script to rotate logs and keep the last 5 files."
-- "Need a portable /bin/sh script to normalize line endings."
 
 ## References (Optional)
 

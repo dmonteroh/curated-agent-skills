@@ -1,12 +1,8 @@
 ---
 name: google-stitch-ai
-description: Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens.
+description: "Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens."
 category: ai
-allowed-tools:
-  - "Read"
-  - "Write"
 ---
-
 # Google Stitch AI
 
 Provides two workflows for Stitch tasks:
@@ -117,11 +113,6 @@ Provides two workflows for Stitch tasks:
 - Ignoring accessibility contrast or text hierarchy
 
 ## Examples
-
-### Trigger test
-
-- "Generate a DESIGN.md for my Stitch project export."
-- "Polish this Stitch prompt for a mobile onboarding screen."
 
 ### Example input → output (prompt enhancement)
 

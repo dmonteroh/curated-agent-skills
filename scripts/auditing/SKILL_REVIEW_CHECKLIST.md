@@ -11,7 +11,7 @@ Use this checklist to keep skills consistent with AGENTS_prepend.md, the provide
 **When To Use**
 - Includes a clear “Use this skill when” section.
 - Includes a “Do not use this skill when” boundary.
-- Lists trigger phrases or explicit activation cues.
+- Includes activation cues in `scripts/auditing/trigger-cases/<skill>.md` (not in `SKILL.md`).
 
 **Instructions**
 - Step-by-step workflow with outputs for each step.
@@ -54,4 +54,4 @@ Use this checklist to keep skills consistent with AGENTS_prepend.md, the provide
 **Operational Quality**
 - Assume no prior context: include required inputs, constraints, and the expected output.
 - Prefer instructions over scripts unless automation is necessary.
-- Include a simple “trigger test” example: 1–2 user prompts that should activate the skill.
+- Keep trigger test prompts outside `SKILL.md`. Use `scripts/auditing/trigger-cases/<skill>.md` for positive/negative activation tests.

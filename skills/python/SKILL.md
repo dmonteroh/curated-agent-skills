@@ -1,9 +1,8 @@
 ---
 name: python
-description: Build modern Python 3.x services and libraries with async patterns, robust typing, and production-ready practices. Use for Python implementation, refactors, and tooling guidance when a Python runtime is required.
+description: "Build modern Python 3.x services and libraries with async patterns, robust typing, and production-ready practices. Use for Python implementation, refactors, and tooling guidance when a Python runtime is required."
 category: language
 ---
-
 # Python Implementation
 
 Provides guidance for modern Python development with a focus on correctness, performance, and maintainability.
@@ -71,11 +70,6 @@ Provides guidance for modern Python development with a focus on correctness, per
 **Example input**: "Convert this blocking HTTP loop to async." 
 
 **Expected output**: Use `httpx.AsyncClient` if approved, async entrypoint, and note any required event loop changes.
-
-## Trigger test
-
-- "Please refactor this Python service to add async handlers."
-- "Implement a Python CLI to parse logs and add tests."
 
 ## Output Contract (Always)
 
