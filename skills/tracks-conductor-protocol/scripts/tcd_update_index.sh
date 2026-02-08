@@ -34,16 +34,38 @@ start_end_replace() {
       while ((getline line < block) > 0) { newblock = newblock line "\n" }
       close(block)
     }
-    $0 == start { printing=1; printf "%s", newblock; next }
-    printing && $0 == end { printing=0; next }
-    !printing { print }
+    {
+      lines[NR] = $0
+      if ($0 == start && start_line == 0) { start_line = NR }
+      if ($0 == end) { end_line = NR }
+    }
+    END {
+      if (start_line == 0 || end_line == 0 || end_line < start_line) {
+        print "missing or invalid block boundaries: " start " / " end > "/dev/stderr"
+        exit 1
+      }
+
+      for (i = 1; i <= NR; i++) {
+        if (i == start_line) {
+          printf "%s", newblock
+          i = end_line
+          continue
+        }
+        print lines[i]
+      }
+    }
   ' "$file" >"${file}.tmp"
   mv "${file}.tmp" "$file"
 }
 
 extract_first_h1() {
-  # Prints the first H1 line without "# ".
-  awk 'NR==1{ sub(/^#[[:space:]]+/, "", $0); print; exit }' "$1"
+  # Prints the first H1 line without "# ", skipping optional frontmatter.
+  awk '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { in_fm=0; next }
+    in_fm { next }
+    /^#[[:space:]]+/ { sub(/^#[[:space:]]+/, "", $0); print; exit }
+  ' "$1"
 }
 
 extract_status() {
@@ -124,7 +146,7 @@ intake_block="$tmp.intake"
 } >"$intake_block"
 
 # Sort rows inside block (stable). Keep header/footer lines fixed.
-awk 'NR<=3{print; next} $0 ~ /^\\| TD-/{print}' "$intake_block" | sort -t '|' -k4,4 -k2,2 >"$tmp.intake.rows" 2>/dev/null || true
+awk 'NR>3 && $0 ~ /^\| TD-/{print}' "$intake_block" | sort -t '|' -k4,4 -k2,2 >"$tmp.intake.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$intake_block"
   cat "$tmp.intake.rows"
@@ -156,7 +178,7 @@ tasks_block="$tmp.tasks"
   echo "<!-- TCD:TASKS:END -->"
 } >"$tasks_block"
 
-awk 'NR<=3{print; next} $0 ~ /^\\| S[0-9][0-9]-T-/{print}' "$tasks_block" | sort -t '|' -k4,4 -k5,5 -k2,2 >"$tmp.tasks.rows" 2>/dev/null || true
+awk 'NR>3 && $0 ~ /^\| S[0-9][0-9]-T-/{print}' "$tasks_block" | sort -t '|' -k4,4 -k5,5 -k2,2 >"$tmp.tasks.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$tasks_block"
   cat "$tmp.tasks.rows"
@@ -192,7 +214,7 @@ registry_block="$tmp.tracks_registry"
   echo "<!-- TCD:TRACKS:END -->"
 } >"$tracks_block"
 
-awk 'NR<=3{print; next} $0 ~ /^\\| [^ ]/{print}' "$tracks_block" | grep -vF -- '---' | sort -t '|' -k2,2 >"$tmp.tracks.rows" 2>/dev/null || true
+awk 'NR>3 && $0 ~ /^\| [^ ]/{print}' "$tracks_block" | grep -vF -- '---' | sort -t '|' -k2,2 >"$tmp.tracks.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$tracks_block"
   cat "$tmp.tracks.rows"
@@ -205,8 +227,17 @@ if [ -f "$tracks_registry" ]; then
     echo "<!-- TCD:TRACK-REGISTRY:START -->"
     echo "| Track | Title | Status | Links |"
     echo "| --- | --- | --- | --- |"
-    awk 'NR>3 && $0 ~ /^\\| [^ ]/{print}' "$tmp.tracks.final" \
-      | sed -E 's/^\\| ([^|]+) \\| ([^|]+) \\| ([^|]+) \\| ([^|]+) \\| ([^|]+) \\|.*$/| \\1 | \\2 | | \\4 |/' \
+    awk 'NR>3 && $0 ~ /^\| [^ ]/{print}' "$tmp.tracks.final" \
+      | awk -F'|' '
+          {
+            track=$2; title=$3; status=$4; link=$6
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", track)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", title)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", link)
+            printf "| %s | %s | %s | %s |\n", track, title, status, link
+          }
+        ' \
       | sort -t '|' -k2,2
     echo "<!-- TCD:TRACK-REGISTRY:END -->"
   } >"$registry_block"
@@ -236,7 +267,7 @@ futures_block="$tmp.futures"
   echo "<!-- TCD:FUTURES:END -->"
 } >"$futures_block"
 
-awk 'NR<=3{print; next} $0 ~ /^\\| FUT-/{print}' "$futures_block" | sort -t '|' -k2,2 >"$tmp.futures.rows" 2>/dev/null || true
+awk 'NR>3 && $0 ~ /^\| FUT-/{print}' "$futures_block" | sort -t '|' -k2,2 >"$tmp.futures.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$futures_block"
   cat "$tmp.futures.rows"

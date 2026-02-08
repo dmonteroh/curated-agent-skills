@@ -49,14 +49,22 @@ require_frontmatter_field() {
   fi
   awk -v key="$field" '
     NR==1 && $0=="---" { in_fm=1; next }
-    in_fm && $0=="---" { exit 1 }
+    in_fm && $0=="---" { exit }
     in_fm {
       k=$0
       sub(/:.*/, "", k)
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
-      if (k==key) { exit 0 }
+      if (k==key) {
+        found=1
+        exit
+      }
     }
-    END { exit 1 }
+    END {
+      if (found) {
+        exit 0
+      }
+      exit 1
+    }
   ' "$file" || {
     echo "missing frontmatter field: $field ($file)" >&2
     return 1
