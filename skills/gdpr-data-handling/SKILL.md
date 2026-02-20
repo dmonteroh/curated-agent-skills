@@ -1,7 +1,8 @@
 ---
 name: gdpr-data-handling
 description: "Implement practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
-category: security
+metadata:
+  category: security
 ---
 # GDPR Data Handling
 

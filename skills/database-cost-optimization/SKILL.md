@@ -1,7 +1,8 @@
 ---
 name: database-cost-optimization
 description: "Reduce database infrastructure spend when costs need optimization by analyzing cost drivers, right-sizing compute/storage/replicas, and proposing verified rollback-ready changes without compromising reliability."
-category: database
+metadata:
+  category: database
 ---
 # database-cost-optimization
 

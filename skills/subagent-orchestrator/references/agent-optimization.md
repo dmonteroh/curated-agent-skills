@@ -1,6 +1,6 @@
 # Agent Optimization Workflow (Condensed)
 
-Use this when iterating on agent quality or coordinating multi-agent optimization.
+Use this when iterating on orchestration quality within this skill.
 
 ## Phase 1: Baseline
 
@@ -20,8 +20,8 @@ Use this when iterating on agent quality or coordinating multi-agent optimizatio
 - Compare before/after results.
 - Keep a rollback plan if quality regresses.
 
-## Multi-Agent Optimization
+## Parallel Optimization
 
-- Assign agents by domain (frontend, backend, data, infra).
-- Run in parallel only if file overlap is unlikely.
-- Merge via a single integration gate with verification.
+- Assign worker tasks by domain (frontend, backend, data, infra).
+- Run concurrent workers only when claim sets are disjoint.
+- Merge through a single integration gate with controller-owned verification.

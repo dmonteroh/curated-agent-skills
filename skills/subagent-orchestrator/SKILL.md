@@ -1,22 +1,28 @@
 ---
 name: subagent-orchestrator
-description: "Orchestrate single-task and multi-task subagent execution safely with mode selection, claim-set control, barriered verification, and deterministic integration."
-category: ai
+description: "Decide whether and how to split work across subagents, then orchestrate execution safely with mode selection, claim-set control, barriered verification, and deterministic integration."
+metadata:
+  category: ai
 ---
 
 # Subagent Orchestrator
+Provides an end-to-end orchestration workflow: partitioning, safe dispatch, barriered verification, and deterministic integration.
 
-Provides a controller-first orchestration protocol for one-task or multi-task worker subagents.
+## Use this skill when
 
-## Use This Skill When
+- Work has 2+ independent tasks that can be partitioned by subsystem/module.
+- Disjoint claims (paths/files) can be assigned per task before dispatch.
+- Controller-owned verification barriers are required between worker executions.
+- Deterministic merge/integration is required across multiple worker outputs.
+- Per-task and final quality gates can be defined up front.
 
-- A single scoped task should be delegated to a worker subagent.
-- Work can be partitioned into multiple task domains.
-- Strict scope control, verification, and integration discipline are required.
+## Do not use this skill when
 
-## Do Not Use This Skill When
-
+- The work is a single straightforward implementation task.
+- Root cause is unknown and requires one deep, shared investigation first.
+- Problems are coupled and likely to touch the same files.
 - Scope, claim set, or verification cannot be defined.
+- Only requirements clarification or option comparison is needed.
 - The runtime cannot spawn worker sessions.
 
 ## Required Inputs
@@ -36,16 +42,27 @@ Provides a controller-first orchestration protocol for one-task or multi-task wo
 5. Controller owns verification, integration, and final completion status.
 6. Completion requires passing project quality gates.
 
+## Activation Decision Gate
+
+Before orchestration, answer:
+
+1. Are there at least 2 independent domains?
+2. Can each domain have disjoint allowed paths + claim set?
+3. Are per-task verification commands and final integration checks defined?
+4. Does the runtime support the chosen execution mode?
+
+If any answer is "no", do not orchestrate yet.
+
 ## Execution Modes
 
 Select exactly one mode per pass:
 
-- `single-worker`: one task or unknown/shared root cause. Read `references/execution-single-worker.md`.
+- `single-worker`: one task, or root cause is still uncertain/shared. Read `references/execution-single-worker.md`.
 - `queued-serial`: multiple tasks, one worker session at a time. Read `references/execution-queued-serial.md`.
 - `true-parallel`: isolated concurrent sessions + disjoint claims + worktree plan. Read `references/execution-true-parallel.md`.
-- `prompt-parallel`: prepare multiple packets, execute sequentially. Read `references/execution-prompt-parallel.md`.
+- `prompt-parallel`: prepare all packets now, execute sequentially. Read `references/execution-prompt-parallel.md`.
 
-If uncertain, use `single-worker` or `queued-serial`.
+If uncertain, use `single-worker` or `queued-serial`. See `references/execution-modes.md` for a concise mode comparison.
 
 ## Runtime Adapter
 
@@ -55,6 +72,24 @@ Load only the runtime guide that matches the host:
 - Claude: `references/runtime-claude.md`
 
 ## Workflow (Deterministic)
+
+### 0) Partition
+
+Group work by domain, not by symptom.
+
+Examples:
+
+- "auth flow regressions" vs "UI rendering glitches" vs "DB migration failure"
+- "test file A failures" vs "test file B failures" (only if they're truly unrelated)
+
+For each candidate domain:
+
+- Define scope (files/modules), success criteria, and constraints.
+- Check for shared root causes or overlapping files — if found, collapse into a single domain.
+
+Decision point: if fewer than 2 independent domains can be defined, use `single-worker`.
+
+Output: partition plan listing domain → scope | success criteria | constraints.
 
 ### 1) Preflight
 
@@ -87,6 +122,8 @@ Output: approved task board with claim-set checks.
 ### 3) Prepare Packets
 
 - Use `references/packet-templates.md`.
+- For implementer packets use `implementer-prompt.md` as a copy-paste base.
+- For reviewer packets use `spec-reviewer-prompt.md` and `code-quality-reviewer-prompt.md`.
 - Include strict stop rules for ambiguity, scope expansion, and unrelated refactors.
 
 Output: one packet per task.
@@ -129,14 +166,18 @@ Output: maintenance summary.
 
 Always return:
 
+- Partition plan (domain → scope | success criteria | constraints).
 - Task board summary.
 - Per-task report: root cause, files changed, verification commands/results, risks.
 - Integration summary: conflicts and final verification.
 - dot-agent maintenance summary (when applicable).
 - Automation summary (only if user approved script creation).
 
+Use the canonical structure in `references/packet-templates.md` (`Final Report Template`) for consistent reporting.
+
 ## Common Failure Modes
 
+- Splitting coupled problems (fixing one invalidates the other's scope).
 - Overlapping claims across concurrent tasks.
 - Weak packets (missing evidence or acceptance criteria).
 - Verification attempted before session barrier.
@@ -145,6 +186,7 @@ Always return:
 ## References
 
 - `references/README.md`
+- `references/execution-modes.md`
 - `references/packet-templates.md`
 - `references/execution-single-worker.md`
 - `references/execution-queued-serial.md`
@@ -152,3 +194,7 @@ Always return:
 - `references/execution-prompt-parallel.md`
 - `references/runtime-codex.md`
 - `references/runtime-claude.md`
+- `references/agent-optimization.md`
+- `implementer-prompt.md`
+- `spec-reviewer-prompt.md`
+- `code-quality-reviewer-prompt.md`

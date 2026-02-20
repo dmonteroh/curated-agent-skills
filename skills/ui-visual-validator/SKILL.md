@@ -1,7 +1,8 @@
 ---
 name: ui-visual-validator
 description: "Verifies UI changes via rigorous, evidence-based visual validation (screenshots/video/URLs) to catch regressions, design-system drift, responsive breakage, and visual accessibility issues."
-category: design
+metadata:
+  category: design
 ---
 # UI Visual Validator
 

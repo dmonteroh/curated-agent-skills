@@ -1,7 +1,8 @@
 ---
 name: smart-conventional-commits
 description: "Create conventional commits from user intent and git diff context, including auto-staging, branch-aware type inference, and concise mandatory title/body generation. Use when users ask to commit changes or draft commit messages."
-category: git
+metadata:
+  category: git
 ---
 # smart-conventional-commits
 

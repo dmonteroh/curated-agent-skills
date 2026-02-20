@@ -2,6 +2,28 @@
 
 Use this reference when the host runtime is Codex CLI/Codex-compatible.
 
+## Model and Reasoning Policy
+
+- Default model: the runtime's current stable Codex model ID.
+- Default reasoning effort: `medium`.
+- Use `high` or `xhigh` only after explicit user input/approval for increased cost.
+
+Recommended commands:
+
+```sh
+# Default (required baseline)
+codex exec -m <codex_model_id> -c model_reasoning_effort="medium" -s workspace-write -C <task_workdir> "<packet>"
+
+# Low-cost pass (triage/simple checks)
+codex exec -m <codex_model_id> -c model_reasoning_effort="low" -s workspace-write -C <task_workdir> "<packet>"
+
+# High-depth pass (ONLY with explicit user input)
+codex exec -m <codex_model_id> -c model_reasoning_effort="high" -s workspace-write -C <task_workdir> "<packet>"
+
+# Extra-high pass (ONLY with explicit user input)
+codex exec -m <codex_model_id> -c model_reasoning_effort="xhigh" -s workspace-write -C <task_workdir> "<packet>"
+```
+
 ## Dispatch Pattern
 
 ```sh
@@ -52,3 +74,16 @@ Deliverable:
 - Prefer least privilege (`read-only` -> `workspace-write` -> `danger-full-access`).
 - Use per-task working directories (`-C <worktree>`) in true-parallel mode.
 - Avoid background side effects not captured in worker reports.
+
+## Permission-Error Recovery
+
+If worker runs fail with permission errors (for example `Permission denied` while listing/reading workspace files):
+
+1. Retry with explicit working root: include `-C <repo_root_or_worktree>`.
+2. If still blocked, use skip-permissions mode with explicit user approval:
+
+```sh
+codex exec --dangerously-bypass-approvals-and-sandbox -m <codex_model_id> -c model_reasoning_effort="medium" -C <task_workdir> "<packet>"
+```
+
+3. Record in the worker report that permissions were bypassed and why.

@@ -1,7 +1,8 @@
 ---
 name: tech-debt
 description: "Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Tech Debt
 

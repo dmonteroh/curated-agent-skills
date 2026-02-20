@@ -1,7 +1,8 @@
 ---
 name: changelog-automation
 description: "Automate changelog and release note generation from commits or PR metadata using Keep a Changelog and semantic versioning. Use when designing release workflows or standardizing commit conventions."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Changelog Automation
 

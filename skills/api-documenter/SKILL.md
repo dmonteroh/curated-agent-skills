@@ -1,7 +1,8 @@
 ---
 name: api-documenter
 description: "Create or improve API documentation (OpenAPI, AsyncAPI, GraphQL) when developer-facing APIs need accurate docs, interactive references, and code examples."
-category: docs
+metadata:
+  category: docs
 ---
 # API Documenter
 

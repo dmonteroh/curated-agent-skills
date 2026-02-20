@@ -1,7 +1,8 @@
 ---
 name: mermaid-expert
 description: "Create Mermaid diagrams for flowcharts, sequences, ERDs, and architecture visuals with clear syntax, styling, and delivery guidance."
-category: docs
+metadata:
+  category: docs
 ---
 # Mermaid Expert
 

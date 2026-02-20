@@ -1,7 +1,8 @@
 ---
 name: database-migration-sql
 description: "Plan and write forward-only SQL migration files with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server."
-category: database
+metadata:
+  category: database
 ---
 # database-migration-sql
 

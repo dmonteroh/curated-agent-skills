@@ -5,8 +5,8 @@ from __future__ import annotations
 Repo-wide skill quality/performance audit.
 
 Checks (intentionally lightweight; no PyYAML dependency):
-- SKILL.md has YAML frontmatter with name + description + category
-- Frontmatter uses only supported top-level keys: name, description, category
+- SKILL.md has YAML frontmatter with name + description + metadata.category
+- Frontmatter uses only supported top-level keys: name, description, metadata
 - Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
 - Entry point (SKILL.md) is <= 200 lines (performance guardrail)
 - Backticked local file references inside a skill resolve (for refs like `references/x.md`)
@@ -37,7 +37,9 @@ _TOKEN_ENCODER = None
 
 FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 KV_RE = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
-ALLOWED_FRONTMATTER_KEYS = {"name", "description", "category"}
+KV_WITH_INDENT_RE = re.compile(r"^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
+REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS = {"name", "description", "metadata"}
+ALLOWED_FRONTMATTER_KEYS = REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS
 
 
 def _parse_frontmatter(text: str) -> dict[str, str]:
@@ -45,21 +47,32 @@ def _parse_frontmatter(text: str) -> dict[str, str]:
     if not m:
         return {}
     fm: dict[str, str] = {}
-    current: str | None = None
+    current_scalar_key: str | None = None
+    current_map_key: str | None = None
     for line in m.group(1).splitlines():
-        if current and (line.startswith(" ") or line.startswith("\t")):
+        mm = KV_WITH_INDENT_RE.match(line)
+        if mm:
+            indent = len(mm.group(1))
+            key = mm.group(2)
+            val = mm.group(3).strip().strip("\"'")
+            if indent == 0:
+                fm[key] = val
+                current_map_key = key if not val else None
+                current_scalar_key = key if val else None
+                continue
+            if current_map_key and indent > 0:
+                nested = f"{current_map_key}.{key}"
+                fm[nested] = val
+                current_scalar_key = nested if val else None
+                continue
+        if current_scalar_key and (line.startswith(" ") or line.startswith("\t")):
             cont = line.strip()
             if cont:
-                fm[current] = (fm.get(current, "") + " " + cont).strip()
+                fm[current_scalar_key] = (fm.get(current_scalar_key, "") + " " + cont).strip()
             continue
-        mm = KV_RE.match(line)
-        if not mm:
-            current = None
-            continue
-        key = mm.group(1)
-        val = mm.group(2).strip().strip("\"'")
-        fm[key] = val
-        current = key
+        current_scalar_key = None
+        if line and not line.startswith((" ", "\t")):
+            current_map_key = None
     return fm
 
 
@@ -141,7 +154,7 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
     warnings: list[str] = []
     name = fm.get("name", "").strip()
     desc = fm.get("description", "").strip()
-    category = fm.get("category", "").strip()
+    category = fm.get("metadata.category", "").strip()
 
     if not fm:
         issues.append("missing_frontmatter")
@@ -150,19 +163,18 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
         if block:
             issues.extend(_frontmatter_needs_quotes_for_colons(block))
             keys = _frontmatter_keys(block)
-            if keys != ALLOWED_FRONTMATTER_KEYS:
-                missing = sorted(ALLOWED_FRONTMATTER_KEYS - keys)
-                extra = sorted(keys - ALLOWED_FRONTMATTER_KEYS)
-                if missing:
-                    issues.append("missing_frontmatter_keys:" + ",".join(missing))
-                if extra:
-                    issues.append("unexpected_frontmatter_keys:" + ",".join(extra))
+            missing_required = sorted(REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS - keys)
+            if missing_required:
+                issues.append("missing_frontmatter_keys:" + ",".join(missing_required))
+            extra = sorted(keys - ALLOWED_FRONTMATTER_KEYS)
+            if extra:
+                issues.append("unexpected_frontmatter_keys:" + ",".join(extra))
     if not name:
         issues.append("missing_name_in_frontmatter")
     if not desc:
         issues.append("missing_description_in_frontmatter")
     if not category:
-        issues.append("missing_category_in_frontmatter")
+        issues.append("missing_metadata_category_in_frontmatter")
 
     if len(lines) > 200:
         issues.append(f"entry_over_200_lines:{len(lines)}")

@@ -25,18 +25,19 @@ Rules:
 - Do not expand scope.
 - Do not refactor unrelated code.
 - Preserve existing APIs unless explicitly instructed.
+- Do not run verification commands; recommend controller-run verification only.
 
 Steps:
 1) Inspect current state (read the listed files).
 2) Implement the minimal change that satisfies the acceptance criteria.
 3) Update/add tests if appropriate.
-4) Run verification commands, or explain why you cannot.
+4) List recommended verification commands for the controller.
 
 Acceptance Criteria:
 - [ ] <criterion>
 - [ ] <criterion>
 
-Verification:
+Verification (controller-run):
 - Command(s):
   - <e.g., dotnet test>
   - <e.g., npm test>

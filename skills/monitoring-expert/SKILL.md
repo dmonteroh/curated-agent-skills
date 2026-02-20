@@ -1,7 +1,8 @@
 ---
 name: monitoring-expert
 description: "Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack."
-category: observability
+metadata:
+  category: observability
 ---
 # Monitoring Expert
 

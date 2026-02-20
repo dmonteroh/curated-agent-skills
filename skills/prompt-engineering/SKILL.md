@@ -1,7 +1,8 @@
 ---
 name: prompt-engineering
 description: "Designs, tests, and ships production prompts using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts."
-category: ai
+metadata:
+  category: ai
 ---
 # prompt-engineering
 

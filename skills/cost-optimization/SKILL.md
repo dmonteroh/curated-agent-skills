@@ -1,7 +1,8 @@
 ---
 name: cost-optimization
 description: "Cloud FinOps cost governance for reducing cloud spend while maintaining reliability. Use when teams need tagging/chargeback, budgets/anomaly detection, rightsizing, commitment strategy (RIs/Savings Plans/CUDs), or unit-cost analysis. Produces a prioritized savings plan with verification gates."
-category: devops
+metadata:
+  category: devops
 ---
 # Cost Optimization (Cloud FinOps)
 

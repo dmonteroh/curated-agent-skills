@@ -7,6 +7,7 @@ PDFTXT="$ROOT/scripts/auditing/resources/agent_skills_pdf.txt"
 TRIGGER_CASES_DIR="$ROOT/scripts/auditing/trigger-cases"
 LOGDIR="$ROOT/scripts/auditing/logs"
 BATCH_SIZE=10
+SUBAGENT_SANDBOX="${SUBAGENT_SANDBOX:-danger-full-access}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 VENV="$ROOT/.venv"
 SKILLS_FILE="$ROOT/scripts/auditing/skills_list.txt"
@@ -27,6 +28,8 @@ Usage: scripts/auditing/run_parallel_skill_reviews.sh [options]
 
 Options:
   --batch-size N        Number of concurrent skill reviews (default: 10)
+  --subagent-sandbox M  Sandbox passed to nested codex exec calls:
+                        workspace-write | danger-full-access (default: danger-full-access)
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
   --trigger-cases-dir PATH
@@ -46,6 +49,7 @@ Options:
 
 Environment:
   PYTHON_BIN            Python interpreter to use (default: python3)
+  SUBAGENT_SANDBOX      Nested codex exec sandbox override (same values as --subagent-sandbox)
 USAGE
 }
 
@@ -55,6 +59,10 @@ while (( "$#" )); do
   case "$1" in
     --batch-size)
       BATCH_SIZE="${2:-}"
+      shift 2
+      ;;
+    --subagent-sandbox)
+      SUBAGENT_SANDBOX="${2:-}"
       shift 2
       ;;
     --skill)
@@ -117,6 +125,14 @@ if ! [[ "$BATCH_SIZE" =~ ^[1-9][0-9]*$ ]]; then
   echo "error: --batch-size must be a positive integer (got '$BATCH_SIZE')" >&2
   exit 2
 fi
+
+case "$SUBAGENT_SANDBOX" in
+  workspace-write|danger-full-access) ;;
+  *)
+    echo "error: --subagent-sandbox must be one of: workspace-write, danger-full-access (got '$SUBAGENT_SANDBOX')" >&2
+    exit 2
+    ;;
+esac
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "error: $PYTHON_BIN not found" >&2
@@ -199,15 +215,21 @@ done
 
 run_skill() {
   local skill="$1"
-  local skill_dir="$ROOT/skills/$skill"
+  local skill_dir="skills/$skill"
   local log="$LOGDIR/${skill}.log"
+  local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
+  local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
+  local venv_python_rel=".venv/bin/python"
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill"
     return 0
   fi
 
-  codex exec --sandbox workspace-write "Task: Evaluate skills/${skill}/SKILL.md against scripts/auditing/SKILL_REVIEW_CHECKLIST.md and update it (and any files under skills/${skill}/ if needed) to fully comply. Apply changes directly.\nScope: Only touch files under ${skill_dir}. You may read ${CHECKLIST} and ${PDFTXT}. Do not edit files outside ${skill_dir}.\nRules:\n- Keep the skill independent; do not require other skills to be installed.\n- Do not add brainstorming-gate or multi-agent dependencies.\n- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).\n- Do not delete or prune reference files. Splitting oversized references is required; removal is not allowed.\n- Keep activation examples out of SKILL.md: do not add Trigger phrases or Trigger test sections to the skill file.\n- If anything is ambiguous, STOP and output QUESTIONS (do not guess).\n- Avoid time-sensitive facts or external network assumptions.\n- If splitting references, create references/README.md as an index.\n- Measure reference file size using tiktoken (cl100k_base). Use the existing venv: ${ROOT}/.venv/bin/python. If a single reference exceeds ~1200 tokens or is clearly multi-topic, split it and add/update references/README.md.\nOutput:\n- Files changed\n- Summary of edits\n- Verification run (if any)" >"$log" 2>&1 &
+  (
+    cd "$ROOT"
+    codex exec --sandbox "$SUBAGENT_SANDBOX" "Task: Evaluate ${skill_dir}/SKILL.md against ${checklist_rel} and update it (and any files under ${skill_dir}/ if needed) to fully comply. Apply changes directly.\nScope: Only touch files under ${skill_dir}. You may read ${checklist_rel} and ${pdf_rel}. Do not edit files outside ${skill_dir}.\nRules:\n- Keep the skill independent; do not require other skills to be installed.\n- Do not add brainstorming-gate or multi-agent dependencies.\n- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).\n- Do not delete or prune reference files. Splitting oversized references is required; removal is not allowed.\n- Keep activation examples out of SKILL.md: do not add Trigger phrases or Trigger test sections to the skill file.\n- If anything is ambiguous, STOP and output QUESTIONS (do not guess).\n- Avoid time-sensitive facts or external network assumptions.\n- If splitting references, create references/README.md as an index.\n- Measure reference file size using tiktoken (cl100k_base). Use the existing venv: ${venv_python_rel}. If a single reference exceeds ~1200 tokens or is clearly multi-topic, split it and add/update references/README.md.\nOutput:\n- Files changed\n- Summary of edits\n- Verification run (if any)"
+  ) >"$log" 2>&1 &
   echo "[queued] $skill -> $log"
 }
 
@@ -216,7 +238,10 @@ run_trigger_test() {
   local trigger_file="${TRIGGER_CASES_DIR}/${skill}.md"
   local log="$LOGDIR/${skill}.trigger-test.log"
   local skill_file="$ROOT/skills/$skill/SKILL.md"
+  local skill_file_rel="skills/$skill/SKILL.md"
+  local trigger_file_rel
   local skill_text trigger_text prompt
+  trigger_file_rel="${trigger_file#"$ROOT"/}"
 
   if (( DRY_RUN == 1 )); then
     if [[ -f "$trigger_file" ]]; then
@@ -244,12 +269,12 @@ run_trigger_test() {
 Task: Run activation tests for skill '${skill}' after its review update.
 Inputs are embedded below.
 
-Skill definition (source: ${skill_file}):
+Skill definition (source: ${skill_file_rel}):
 <skill_md>
 ${skill_text}
 </skill_md>
 
-Trigger cases (source: ${trigger_file}):
+Trigger cases (source: ${trigger_file_rel}):
 <trigger_cases_md>
 ${trigger_text}
 </trigger_cases_md>
@@ -269,8 +294,23 @@ Output:
 - Final status line
 EOF
 )"
-  codex exec --sandbox workspace-write "$prompt" >"$log" 2>&1 &
+  (
+    cd "$ROOT"
+    codex exec --sandbox "$SUBAGENT_SANDBOX" "$prompt"
+  ) >"$log" 2>&1 &
   echo "[queued] $skill trigger test -> $log"
+}
+
+trigger_test_status_from_log() {
+  local log="$1"
+  local status
+  status="$(grep -E '^TRIGGER_TEST_STATUS: (PASS|FAIL)$' "$log" | tail -n1 | awk -F': ' '{print $2}')"
+  if [[ "$status" == "PASS" || "$status" == "FAIL" ]]; then
+    printf '%s\n' "$status"
+    return 0
+  fi
+  printf 'UNKNOWN\n'
+  return 1
 }
 
 run_trigger_case_generation() {
@@ -470,10 +510,16 @@ reap_batch() {
   for i in "${!BATCH_PIDS[@]}"; do
     pid="${BATCH_PIDS[$i]}"
     skill="${BATCH_SKILLS[$i]}"
+    local review_log="$LOGDIR/${skill}.log"
     rc=0
     if wait "$pid"; then
-      echo "[ok] $skill"
-      REVIEW_OK_SKILLS+=("$skill")
+      if grep -Eq '^QUESTIONS$' "$review_log"; then
+        FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
+        echo "[failed] $skill (blocked: QUESTIONS)"
+      else
+        echo "[ok] $skill"
+        REVIEW_OK_SKILLS+=("$skill")
+      fi
     else
       rc=$?
       FAILED_SKILLS+=("$skill (exit $rc)")
@@ -485,7 +531,7 @@ reap_batch() {
 }
 
 count=0
-for skill in "${SKILLS[@]:-}"; do
+for skill in "${SKILLS[@]}"; do
   run_skill "$skill"
   if (( DRY_RUN == 0 )); then
     BATCH_PIDS+=("$!")
@@ -504,12 +550,12 @@ if (( DRY_RUN == 0 )) && (( ${#BATCH_PIDS[@]} > 0 )); then
 fi
 
 if (( RUN_TRIGGER_TESTS == 1 )); then
-  for skill in "${REVIEW_OK_SKILLS[@]:-}"; do
+  for skill in "${REVIEW_OK_SKILLS[@]}"; do
     sanitize_skill_activation_sections "$skill"
   done
 
   if (( AUTO_GENERATE_TRIGGER_CASES == 1 )); then
-    for skill in "${REVIEW_OK_SKILLS[@]:-}"; do
+    for skill in "${REVIEW_OK_SKILLS[@]}"; do
       run_trigger_case_generation "$skill"
     done
   fi
@@ -517,7 +563,7 @@ if (( RUN_TRIGGER_TESTS == 1 )); then
   BATCH_PIDS=()
   BATCH_SKILLS=()
   count=0
-  for skill in "${REVIEW_OK_SKILLS[@]:-}"; do
+  for skill in "${REVIEW_OK_SKILLS[@]}"; do
     run_trigger_test "$skill"
     if [[ -f "${TRIGGER_CASES_DIR}/${skill}.md" ]] && (( DRY_RUN == 0 )); then
       BATCH_PIDS+=("$!")
@@ -529,9 +575,10 @@ if (( RUN_TRIGGER_TESTS == 1 )); then
           skill_name="${BATCH_SKILLS[$i]}"
           if wait "$pid"; then
             log="$LOGDIR/${skill_name}.trigger-test.log"
-            if ! grep -Eq '^TRIGGER_TEST_STATUS: PASS$' "$log"; then
-              TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status not PASS)")
-              echo "[failed] $skill_name trigger test (status not PASS)"
+            status="$(trigger_test_status_from_log "$log")"
+            if [[ "$status" != "PASS" ]]; then
+              TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status $status)")
+              echo "[failed] $skill_name trigger test (status $status)"
             else
               echo "[ok] $skill_name trigger test"
             fi
@@ -553,9 +600,10 @@ if (( RUN_TRIGGER_TESTS == 1 )); then
       skill_name="${BATCH_SKILLS[$i]}"
       if wait "$pid"; then
         log="$LOGDIR/${skill_name}.trigger-test.log"
-        if ! grep -Eq '^TRIGGER_TEST_STATUS: PASS$' "$log"; then
-          TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status not PASS)")
-          echo "[failed] $skill_name trigger test (status not PASS)"
+        status="$(trigger_test_status_from_log "$log")"
+        if [[ "$status" != "PASS" ]]; then
+          TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status $status)")
+          echo "[failed] $skill_name trigger test (status $status)"
         else
           echo "[ok] $skill_name trigger test"
         fi

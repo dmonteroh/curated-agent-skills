@@ -1,7 +1,8 @@
 ---
 name: devops-engineer
 description: "Operate and evolve runtime infrastructure for reliability, containerization, Kubernetes operations, platform engineering, and operational readiness. Use for runtime reliability, deployment execution, or incident response prep; not for CI/CD pipeline architecture or release automation design."
-category: devops
+metadata:
+  category: devops
 ---
 # DevOps Engineer
 

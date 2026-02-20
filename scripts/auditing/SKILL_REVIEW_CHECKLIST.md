@@ -3,7 +3,7 @@
 Use this checklist to keep skills consistent with AGENTS_prepend.md, the provided PDF guidance, and common best practices.
 
 **Discovery**
-- YAML frontmatter includes `name`, `description`, and `category`.
+- YAML frontmatter includes `name`, `description`, and `metadata.category`.
 - `name` matches folder name and uses lowercase with hyphens.
 - `description` states what the skill does and when to use it, with key terms.
 - Token budget for `name` + `description` stays within soft/hard limits.

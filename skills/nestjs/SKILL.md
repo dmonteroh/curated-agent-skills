@@ -1,7 +1,8 @@
 ---
 name: nestjs
 description: "Build and evolve NestJS backends with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Use when adding or refactoring NestJS endpoints/modules and needing deterministic steps, output contracts, and verification gates."
-category: language
+metadata:
+  category: language
 ---
 # NestJS Pro
 

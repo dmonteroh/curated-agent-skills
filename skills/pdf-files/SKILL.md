@@ -1,7 +1,8 @@
 ---
 name: pdf-files
 description: "Work with PDFs safely and repeatably: extract text/tables, convert pages to images, inspect/fill forms, and produce verifiable outputs (markdown/json/images/filled pdf). Use when a task involves PDF documents."
-category: docs
+metadata:
+  category: docs
 ---
 # PDF Files
 

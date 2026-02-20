@@ -1,7 +1,8 @@
 ---
 name: python
 description: "Build modern Python 3.x services and libraries with async patterns, robust typing, and production-ready practices. Use for Python implementation, refactors, and tooling guidance when a Python runtime is required."
-category: language
+metadata:
+  category: language
 ---
 # Python Implementation
 

@@ -1,7 +1,8 @@
 ---
 name: code-review
 description: "Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report."
-category: workflow
+metadata:
+  category: workflow
 ---
 # code-review
 

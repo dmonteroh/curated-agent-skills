@@ -21,7 +21,6 @@ database-performance
 deployment-engineer
 deps-audit
 devops-engineer
-dispatching-parallel-agents
 doc-generate
 dotnet-core
 frontend-design
@@ -51,8 +50,10 @@ refactor-clean
 secrets-management
 security-auditor
 shell-scripting
+smart-conventional-commits
 sql-querying
 sre-engineer
+subagent-orchestrator
 svelte
 tailwind
 tech-debt

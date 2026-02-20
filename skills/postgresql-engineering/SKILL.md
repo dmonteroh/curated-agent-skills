@@ -1,7 +1,8 @@
 ---
 name: postgresql-engineering
 description: "PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when targeting Postgres specifically."
-category: database
+metadata:
+  category: database
 ---
 # PostgreSQL Engineering
 

@@ -1,7 +1,8 @@
 ---
 name: angular
 description: "Guides Angular implementation and refactors using standalone APIs, signals, RxJS, routing, and testing. Focuses on clean component boundaries, predictable state flow, accessibility, and performance. Use when work is Angular-specific."
-category: frontend
+metadata:
+  category: frontend
 ---
 # Angular Skill
 

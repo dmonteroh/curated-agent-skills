@@ -1,7 +1,8 @@
 ---
 name: nodejs
 description: "Use when building production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration."
-category: language
+metadata:
+  category: language
 ---
 # Node.js Backend Patterns
 

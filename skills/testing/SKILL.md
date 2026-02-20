@@ -1,7 +1,8 @@
 ---
 name: testing
 description: "Create unit tests, API contract tests, and automation strategies for existing codebases with clear decision points, pitfalls, and deterministic reporting via local scripts."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Testing
 

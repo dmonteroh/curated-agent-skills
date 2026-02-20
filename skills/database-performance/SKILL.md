@@ -1,7 +1,8 @@
 ---
 name: database-performance
 description: "Diagnose and fix database performance issues (slow queries, locks, pool saturation, caching, partitioning) using evidence from metrics and query plans."
-category: database
+metadata:
+  category: database
 ---
 # Database Performance
 

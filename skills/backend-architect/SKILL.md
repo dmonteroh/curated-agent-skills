@@ -1,7 +1,8 @@
 ---
 name: backend-architect
 description: "Guides backend architecture for operable services and APIs, covering boundaries, contracts, reliability, integration patterns, and rollout safety. Use when designing or changing backend services/APIs and their operability plans."
-category: architecture
+metadata:
+  category: architecture
 ---
 # Backend Architect
 

@@ -1,7 +1,8 @@
 ---
 name: javascript
 description: "Build and debug modern JavaScript (ES6+) with async patterns and Node.js/browser compatibility when authoring, modernizing, or diagnosing JS."
-category: language
+metadata:
+  category: language
 ---
 Provides guidance for modern JavaScript, async programming, and runtime compatibility.
 

@@ -1,7 +1,8 @@
 ---
 name: database-architect
 description: "Design data layers and database architectures by selecting storage models, modeling schemas, and planning safe evolution with tradeoffs and migration/rollback plans. Use when making data-layer decisions or re-architecting storage."
-category: database
+metadata:
+  category: database
 ---
 # Database Architect
 

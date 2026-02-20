@@ -1,7 +1,8 @@
 ---
 name: mcp-server-development
 description: "Build high-quality MCP (Model Context Protocol) servers: workflow-first tool design, tight schemas, predictable outputs, safe error handling, and eval-driven iteration. Framework-agnostic (Node/TS or Python). No web fetching required."
-category: ai
+metadata:
+  category: ai
 ---
 # MCP Server Development
 

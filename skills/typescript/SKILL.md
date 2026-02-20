@@ -1,7 +1,8 @@
 ---
 name: typescript
 description: "Provides TypeScript architecture and typing guidance for strictness/tsconfig decisions, advanced type design, fixing type errors, type-checking performance, and boundary runtime validation; use when resolving TypeScript typing or configuration issues."
-category: language
+metadata:
+  category: language
 ---
 # TypeScript Skill
 

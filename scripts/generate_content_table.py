@@ -31,30 +31,38 @@ def _parse_frontmatter(text: str) -> dict[str, str]:
         return {}
 
     fm: dict[str, str] = {}
-    current_key: str | None = None
+    current_scalar_key: str | None = None
+    current_map_key: str | None = None
     for i in range(1, len(lines)):
         line = lines[i]
         if line.strip() == "---":
             break
 
-        # YAML continuation lines (e.g. folded multiline description):
-        #   description: first line
-        #     second line
-        # We only need this for simple scalar values; keep it minimal.
-        if current_key is not None and (line.startswith(" ") or line.startswith("\t")):
+        m = re.match(r"^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)\s*$", line)
+        if m:
+            indent = len(m.group(1))
+            key = m.group(2).strip()
+            val = _strip_quotes(m.group(3))
+            if indent == 0:
+                fm[key] = val
+                current_map_key = key if not val else None
+                current_scalar_key = key if val else None
+                continue
+            if current_map_key and indent > 0:
+                nested = f"{current_map_key}.{key}"
+                fm[nested] = val
+                current_scalar_key = nested if val else None
+                continue
+
+        # YAML continuation lines (simple scalar values only).
+        if current_scalar_key is not None and (line.startswith(" ") or line.startswith("\t")):
             cont = line.strip()
             if cont:
-                fm[current_key] = (fm.get(current_key, "") + " " + cont).strip()
+                fm[current_scalar_key] = (fm.get(current_scalar_key, "") + " " + cont).strip()
             continue
-
-        m = re.match(r"^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)\s*$", line)
-        if not m:
-            current_key = None
-            continue
-        key = m.group(1).strip()
-        val = _strip_quotes(m.group(2))
-        fm[key] = val
-        current_key = key
+        current_scalar_key = None
+        if line and not line.startswith((" ", "\t")):
+            current_map_key = None
     return fm
 
 
@@ -85,7 +93,7 @@ def load_skills() -> list[tuple[str, str, str]]:
         fm = _parse_frontmatter(text)
         name = fm.get("name", entry.name).strip() or entry.name
         desc = _one_line(fm.get("description", "").strip())
-        category = _one_line(fm.get("category", "").strip())
+        category = _one_line(fm.get("metadata.category", "").strip())
         skills.append((name, desc, category))
 
     skills.sort(key=lambda x: x[0].lower())

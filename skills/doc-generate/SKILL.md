@@ -1,7 +1,8 @@
 ---
 name: doc-generate
 description: "Generate and maintain high-signal documentation from an existing codebase (API docs, architecture, runbooks, onboarding, reverse-specs). Use when a repo needs structured, maintainable docs grounded in code and configuration."
-category: docs
+metadata:
+  category: docs
 ---
 # doc-generate
 

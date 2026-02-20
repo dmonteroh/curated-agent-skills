@@ -1,7 +1,8 @@
 ---
 name: golang
 description: "Build and review production Go (1.21+) services/CLIs with idiomatic design, correctness, and safe concurrency/cancellation patterns."
-category: language
+metadata:
+  category: language
 ---
 # golang
 

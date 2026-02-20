@@ -1,7 +1,8 @@
 ---
 name: tracks-conductor-protocol
 description: "Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Tracks Conductor Protocol
 

@@ -1,7 +1,8 @@
 ---
 name: security-auditor
 description: "Provides a structured security audit workflow for DevSecOps, application security, and compliance readiness, used for scoped assessments, threat modeling, testing, and remediation planning."
-category: security
+metadata:
+  category: security
 ---
 Provides a structured security audit workflow for scoped assessments, threat
 modeling, testing, and remediation planning across DevSecOps, application

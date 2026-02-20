@@ -1,7 +1,8 @@
 ---
 name: architect-review
 description: "Review system designs and major changes for architectural integrity, scalability, and maintainability; use for architecture decisions, tradeoffs, and risks across distributed systems and clean architecture patterns."
-category: architecture
+metadata:
+  category: architecture
 ---
 # Architect Review
 Provides architectural review guidance for system designs and major changes, focusing on scalability, resilience, maintainability, and tradeoffs across distributed systems and clean architecture patterns.

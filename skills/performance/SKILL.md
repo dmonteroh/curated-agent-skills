@@ -1,7 +1,8 @@
 ---
 name: performance
 description: "End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating."
-category: observability
+metadata:
+  category: observability
 ---
 # performance
 

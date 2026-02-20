@@ -1,7 +1,8 @@
 ---
 name: shell-scripting
 description: "Write safe, portable shell scripts (POSIX/Bash) for automation and CI. Use for scripting, tooling, and DevOps glue code."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Shell Scripting
 

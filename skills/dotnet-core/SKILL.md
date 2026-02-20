@@ -1,7 +1,8 @@
 ---
 name: dotnet-core
 description: "Build and review modern .NET (ASP.NET Core / .NET 8+) backend services with DI, auth, data access, and production readiness. Use for implementing or auditing .NET server code and architecture choices."
-category: language
+metadata:
+  category: language
 ---
 # .NET Core
 

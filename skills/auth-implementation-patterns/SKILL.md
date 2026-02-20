@@ -1,7 +1,8 @@
 ---
 name: auth-implementation-patterns
 description: "Provides authentication and authorization implementation patterns (JWT, OAuth2/OIDC, sessions, RBAC) for designing, implementing, or reviewing secure access control in applications and APIs."
-category: security
+metadata:
+  category: security
 ---
 # Authentication & Authorization Implementation Patterns
 

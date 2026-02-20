@@ -1,7 +1,8 @@
 ---
 name: tailwind
 description: "Build and maintain Tailwind CSS systems fast without framework lock-in: tokens (CSS variables), theme + dark mode, content globs/safelist, component variant patterns, accessibility/responsive conventions, and migration hygiene."
-category: frontend
+metadata:
+  category: frontend
 ---
 # Tailwind CSS
 

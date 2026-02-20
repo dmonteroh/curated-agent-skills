@@ -1,7 +1,8 @@
 ---
 name: refactor-clean
 description: "Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement."
-category: workflow
+metadata:
+  category: workflow
 ---
 # Refactor Clean
 

@@ -1,7 +1,8 @@
 ---
 name: tutorial-engineer
 description: "Creates step-by-step technical tutorials and onboarding guides from code or system requirements when teams need progressive, hands-on learning paths for developers."
-category: docs
+metadata:
+  category: docs
 ---
 ## Use this skill when
 

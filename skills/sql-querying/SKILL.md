@@ -1,7 +1,8 @@
 ---
 name: sql-querying
 description: "Write correct, maintainable SQL queries (joins, CTEs, window functions) and reason about their results for OLTP or analytics tasks."
-category: database
+metadata:
+  category: database
 ---
 # SQL Querying
 

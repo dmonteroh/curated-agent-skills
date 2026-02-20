@@ -1,7 +1,8 @@
 ---
 name: cdd-context
 description: "Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot."
-category: ai
+metadata:
+  category: ai
 ---
 # CDD Context
 

@@ -1,7 +1,8 @@
 ---
 name: google-stitch-ai
 description: "Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens."
-category: ai
+metadata:
+  category: ai
 ---
 # Google Stitch AI
 

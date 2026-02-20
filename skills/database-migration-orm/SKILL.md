@@ -1,7 +1,8 @@
 ---
 name: database-migration-orm
 description: "Plan and execute ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
-category: database
+metadata:
+  category: database
 ---
 # Database Migration (ORM)
 

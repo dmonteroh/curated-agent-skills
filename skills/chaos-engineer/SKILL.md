@@ -1,7 +1,8 @@
 ---
 name: chaos-engineer
 description: "Design and run safe chaos experiments (failure injection + game days) to validate resilience and reduce blast radius. Produces hypotheses, steady-state signals, rollback gates, and experiment specs. Use when resilience is uncertain or before high-risk changes."
-category: observability
+metadata:
+  category: observability
 ---
 # Chaos Engineer
 

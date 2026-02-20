@@ -1,7 +1,8 @@
 ---
 name: nextjs
 description: "Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native."
-category: frontend
+metadata:
+  category: frontend
 ---
 # React + Next Frontend
 

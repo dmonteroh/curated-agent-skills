@@ -1,7 +1,8 @@
 ---
 name: deps-audit
 description: "Produces a local, best-effort dependency audit summary and remediation plan for repos with dependency manifests."
-category: security
+metadata:
+  category: security
 ---
 # deps-audit
 

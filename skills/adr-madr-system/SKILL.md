@@ -1,7 +1,8 @@
 ---
 name: adr-madr-system
 description: "Create, review, and maintain Architecture Decision Records (MADR) as individual files plus an ADR index when documenting or superseding architectural decisions. Focuses on decision drivers, options, consequences, and supersedes semantics so accepted ADRs remain immutable."
-category: architecture
+metadata:
+  category: architecture
 ---
 # ADR MADR System
 
