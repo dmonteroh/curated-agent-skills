@@ -40,7 +40,7 @@ Provides a workflow to refactor code with small diffs, stable behavior, and fast
    - Output: list of tests to run and any new tests added.
 
 3) Identify hotspots
-   - Run `skills/refactor-clean/scripts/scan_hotspots.sh` (from repo root) or use manual heuristics.
+   - Run the skill's `scripts/scan_hotspots.sh` (see Script section below) or use manual heuristics.
    - Output: 1–3 targets with a short risk/impact note each.
 
 4) Plan small slices
@@ -65,10 +65,10 @@ Provides a workflow to refactor code with small diffs, stable behavior, and fast
 - Skipping a plan for large or risky changes.
 - Letting refactors drift into new feature work.
 
-## Script: `skills/refactor-clean/scripts/scan_hotspots.sh`
+## Script: `scripts/scan_hotspots.sh`
 
 - Purpose: quick inventory of large files and TODO/FIXME density.
-- Usage: `HOTSPOT_LIMIT=20 sh skills/refactor-clean/scripts/scan_hotspots.sh`
+- Usage: run from the target repo root, invoking the script by its path inside this skill's folder: `HOTSPOT_LIMIT=20 sh <skill-folder>/scripts/scan_hotspots.sh`
 - Requirements: POSIX shell; uses `rg` if available, otherwise `find`, `wc`, `awk`, `sort`, `head`.
 - Verification: output should include "Largest Files" and "TODO / FIXME Counts" sections.
 

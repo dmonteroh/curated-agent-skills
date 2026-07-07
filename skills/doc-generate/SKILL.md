@@ -124,25 +124,24 @@ Decision points:
 
 ## Scripts
 
+Script paths below are relative to this skill's folder. Run each script from the target repo root, invoking it by its path inside the skill folder (for example `sh <skill-folder>/scripts/docscan.sh`); scripts write only into the target repo's docs/ tree.
+
 **`scripts/doc.sh` (wrapper)**
-- Usage: `./skills/doc-generate/scripts/doc.sh [scan|index|spec]`
+- Usage: `doc.sh [scan|index|spec]` — dispatches to the scripts below.
 - Requires: POSIX shell, standard core utilities.
 - Verification: command prints an "OK" line and writes expected files.
 
 **`scripts/docscan.sh`**
-- Usage: `./skills/doc-generate/scripts/docscan.sh`
 - Requires: POSIX shell, `find`, `wc`, `date`; optional `rg` for speed.
 - Output: docs/_docgen/inventory.md plus an "OK" line.
 - Verification: open the inventory file and confirm counts match repo signals.
 
 **`scripts/update_docs_index.sh`**
-- Usage: `./skills/doc-generate/scripts/update_docs_index.sh`
 - Requires: POSIX shell, `find`, `sort`, `awk`, `mktemp`.
 - Output: updates index block inside docs/README.md.
 - Verification: confirm the managed block lists all docs except `docs/_docgen/`.
 
 **`scripts/spec_mine.sh`**
-- Usage: `./skills/doc-generate/scripts/spec_mine.sh`
 - Requires: POSIX shell.
 - Output: docs/specs/reverse-spec.md (created only if missing).
 - Verification: confirm the reverse-spec template exists and is populated with placeholders.
