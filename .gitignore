@@ -22,3 +22,14 @@ logs/
 # Codex
 .codex/
 .devcontainer/
+
+# Claude
+.claude/
+
+# Temp
+tmp/
+temp/
+# Agent context (local, personal)
+.agent/
+CLAUDE.md
+AGENTS.md
