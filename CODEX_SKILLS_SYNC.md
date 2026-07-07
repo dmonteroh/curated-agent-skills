@@ -28,7 +28,7 @@ Runs interactively (prompts for install directory and which skills to install):
 Install the recommended OS-level bundle (workflow/protocol + indexing):
 
 ```sh
-./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,git-workflow,cdd-context,doc-generate,dispatching-parallel-agents,mermaid-expert,tracks-conductor-protocol,prompt-engineering"
+./scripts/codex_skills_sync.py --select "adr-madr-system,brainstorming,git-workflow,cdd-context,doc-generate,subagent-orchestrator,mermaid-expert,tracks-conductor-protocol,prompt-engineering"
 ```
 
 Install the recommended architecture bundle (system + backend + cloud; no DB-architect):
