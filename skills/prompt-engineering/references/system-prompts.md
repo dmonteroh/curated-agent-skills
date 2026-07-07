@@ -164,6 +164,8 @@ Soft constraints (SHOULD follow):
 - **Conflicting Instructions**: Contradictory guidelines confuse the model
 - **Over-Constraining**: Too many rules can make responses rigid
 - **Under-Specifying Format**: Missing output structure leads to inconsistency
+- **Over-Emphasis**: `CRITICAL`/`MUST`/`ALWAYS` on routine guidance causes overtriggering on current literal-following models — write plain imperatives and reserve emphasis for true invariants (see `frontier-model-prompting.md`)
+- **Volatile Interpolation**: timestamps, IDs, or per-request values inside the system prompt defeat prefix caching (see `prompt-caching-layout.md`)
 
 ## Testing System Prompts
 

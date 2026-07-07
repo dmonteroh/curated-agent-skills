@@ -17,3 +17,5 @@
 - Track tokens per request and per response.
 - Prefer short, high-signal examples.
 - Avoid large chains of tool calls unless required.
+- Lay repeated prompts out for prefix caching — stable content first, volatile content last; see `prompt-caching-layout.md`. For high-volume prompts this outweighs every phrase-trimming tactic above.
+- On reasoning models, tune the API effort/thinking setting before trimming prompt text — reasoning tokens usually dominate cost, and the setting controls them directly.

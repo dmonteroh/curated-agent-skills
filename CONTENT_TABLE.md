@@ -9,7 +9,7 @@ Total skills: 66
 | `cdd-context` | Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot. |
 | `google-stitch-ai` | Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens. |
 | `mcp-server-development` | Build high-quality MCP (Model Context Protocol) servers: workflow-first tool design, tight schemas, predictable outputs, safe error handling, and eval-driven iteration. Framework-agnostic (Node/TS or Python). No web fetching required. |
-| `prompt-engineering` | Designs, tests, and ships production prompts using prompt-as-code workflows, templates, evaluation guidance, and optional scripts/assets. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, or standardizing system prompts. |
+| `prompt-engineering` | Designs, tests, and ships production prompts using prompt-as-code workflows: model-generation-aware patterns (reasoning controls, structured outputs, cache-friendly layout), templates, and evaluation guidance. Returns a full copy/paste prompt block. Use when building AI features, improving agent performance, adapting prompts to a new model, or standardizing system prompts. |
 | `subagent-orchestrator` | Decide whether and how to split work across subagents, then orchestrate execution safely with mode selection, claim-set control, barriered verification, and deterministic integration. |
 
 ## Architecture

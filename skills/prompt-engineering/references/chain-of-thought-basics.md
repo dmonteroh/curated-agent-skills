@@ -4,6 +4,8 @@
 
 Chain-of-thought prompting elicits structured reasoning for multi-step tasks. Use it when correctness depends on intermediate steps, not for simple lookups.
 
+> **Reasoning models**: models with built-in extended/adaptive thinking (Claude 4.6+/5-era and comparable) reason before answering on their own — manual CoT cues like "think step by step" are redundant there and can reduce quality. Control reasoning depth via the API's thinking/effort settings instead, and reserve the patterns below for non-reasoning models or for cases where the visible response itself must contain auditable steps. See `frontier-model-prompting.md`.
+
 ## When to use
 
 - Multi-step math or logic problems.
