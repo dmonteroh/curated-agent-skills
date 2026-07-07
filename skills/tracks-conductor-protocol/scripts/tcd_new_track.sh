@@ -4,7 +4,7 @@ set -eu
 # Create a new track directory with spec/plan/context stubs and update registries.
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_new_track.sh "Billing overhaul"
+#   scripts/tcd_new_track.sh "Billing overhaul"
 #
 # Optional env vars:
 #   TCD_TRACK_SLUG=billing-overhaul

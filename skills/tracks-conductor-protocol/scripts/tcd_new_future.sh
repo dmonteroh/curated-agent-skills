@@ -4,7 +4,7 @@ set -eu
 # Create a new Future entry (file-per-entry) and update the work index.
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_new_future.sh "PII / Right to Erasure"
+#   scripts/tcd_new_future.sh "PII / Right to Erasure"
 #
 # Optional env vars:
 #   TCD_FUT_ID=FUT-001
@@ -36,7 +36,9 @@ next_id() {
     [ -f "$f" ] || continue
     n="$(basename "$f" | sed -n 's/^FUT-\([0-9][0-9][0-9]\).*/\1/p')"
     [ -n "$n" ] || continue
-    n10=$((10#$n))
+    # strip leading zeros safely (POSIX sh: no 10# base prefix in dash)
+    n10="$(printf "%s" "$n" | sed 's/^0*//')"
+    [ -n "$n10" ] || n10=0
     if [ "$n10" -gt "$max" ]; then max="$n10"; fi
   done
   printf "FUT-%03d" $((max + 1))
@@ -71,7 +73,7 @@ fi
   echo "- Tracks:"
   echo "  - docs/project/tracks/<slug>/"
   echo "- Tasks:"
-  echo "  - docs/project/tasks/S##-T-YYYYMMDD-...md"
+  echo "  - docs/project/tasks/SNN-T-YYYYMMDD-...md"
   echo "- ADRs (when triggered):"
   echo "  - docs/adr/ADR-XXXX-...md"
 } >"$file"

@@ -4,7 +4,7 @@ set -eu
 # Create a new intake draft (to-do) and update the work index.
 #
 # Usage:
-#   TCD_OWNER="@you" ./tracks-conductor-protocol/scripts/tcd_new_intake.sh "Short title"
+#   TCD_OWNER="@you" scripts/tcd_new_intake.sh "Short title"
 
 title="${1:-}"
 if [ -z "$title" ]; then
@@ -69,7 +69,7 @@ fi
   echo "- ADRs:"
   echo "  - ADR-XXXX: ..."
   echo "- Tasks:"
-  echo "  - S##-T-YYYYMMDD-...: ..."
+  echo "  - SNN-T-YYYYMMDD-...: ..."
   echo "- Futures:"
   echo "  - FUT-XXX: ..."
   echo
@@ -96,4 +96,3 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 "$script_dir/tcd_update_index.sh" >/dev/null
 
 echo "OK: created $file"
-

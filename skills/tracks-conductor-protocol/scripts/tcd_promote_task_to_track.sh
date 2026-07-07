@@ -4,7 +4,7 @@ set -eu
 # Link a task brief into a track plan (and optionally ensure track exists).
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_promote_task_to_track.sh path/to/S01-T-....md <track-slug> [phase]
+#   scripts/tcd_promote_task_to_track.sh path/to/SNN-T-....md <track-slug> [phase]
 #
 # Behavior:
 # - Adds/updates the "Track:" line in the task brief Dependencies section.
@@ -15,7 +15,7 @@ track_slug="${2:-}"
 phase="${3:-Phase 1}"
 
 if [ -z "$task_path" ] || [ -z "$track_slug" ] || [ ! -f "$task_path" ]; then
-  echo "usage: $0 path/to/S##-T-YYYYMMDD-*.md <track-slug> [phase]" >&2
+  echo "usage: $0 path/to/SNN-T-YYYYMMDD-*.md <track-slug> [phase]" >&2
   exit 2
 fi
 
@@ -37,7 +37,7 @@ task_rel="docs/project/tasks/$task_base"
 # Patch the task brief to reference the track in Dependencies (best-effort).
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
-awk -v track="docs/project/tracks/'"$track_slug"'/" '
+awk -v track="docs/project/tracks/$track_slug/" '
   BEGIN { in_deps=0; wrote=0 }
   $0 == "## Dependencies" { in_deps=1; print; next }
   in_deps && $0 ~ /^## / {
@@ -63,7 +63,7 @@ mv "$tmp" "$task_path"
 
 # Insert into track plan under the phase.
 tmp2="$(mktemp)"
-trap 'rm -f "$tmp2"' EXIT
+trap 'rm -f "$tmp" "$tmp2"' EXIT
 
 phase_header="### $phase"
 task_line="- [ ] Task: $task_rel"
@@ -121,4 +121,3 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 "$script_dir/tcd_update_index.sh" >/dev/null
 
 echo "OK: linked $task_base -> track $track_slug ($phase)"
-

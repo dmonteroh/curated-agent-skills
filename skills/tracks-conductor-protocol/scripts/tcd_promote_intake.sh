@@ -4,7 +4,7 @@ set -eu
 # Promote an intake draft (TD-YYYYMMDD-...) to a task brief.
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_promote_intake.sh docs/project/to-do/TD-20260130-something.md
+#   scripts/tcd_promote_intake.sh docs/project/to-do/TD-20260130-something.md
 #
 # Optional env vars:
 #   TCD_SEQ=S01
@@ -47,6 +47,13 @@ script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 
 TCD_INTAKE="$intake_id" TCD_SEQ="${TCD_SEQ:-}" TCD_TRACK="${TCD_TRACK:-}" \
   "$script_dir/tcd_new_task.sh" "$title" >/dev/null
+
+# Archive the now-promoted intake into archive/to-do/ BEFORE regenerating the
+# index: the task created above references it via `intake:` frontmatter, so the
+# sweep finds it, and moving it out of to-do/ first keeps it off the index's
+# open-intake list.
+"$script_dir/tcd_archive_promoted.sh" "$intake_path" \
+  || echo "warning: promoted but not archived ($intake_base); run: tcd.sh archive-promoted" >&2
 
 "$script_dir/tcd_update_index.sh" >/dev/null
 

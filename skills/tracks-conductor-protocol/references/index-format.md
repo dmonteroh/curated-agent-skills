@@ -34,8 +34,8 @@ Each table lives inside markers:
 
 - Scripts should only rewrite content between START/END markers.
 - Sort deterministically to reduce churn:
-  - Intake: by date then id
-  - Tasks: by sequence then id
+  - Intake: by id (TD ids embed the date, so this is chronological)
+  - Tasks: by numeric sequence, then alpha suffix (S2 < S10 < S10a < S100)
   - Tracks: by track slug
   - Futures: by id
 - The index is a *view*; sources of truth remain the individual files (`to-do/`, `tasks/`, `tracks/`, `futures/`).

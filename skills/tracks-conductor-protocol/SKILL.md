@@ -27,7 +27,8 @@ This skill is intentionally optimized for speed:
 ## Default repo layout (override via env vars)
 
 - Intake drafts: docs/project/to-do/ (TD-YYYYMMDD-*.md)
-- Task briefs: docs/project/tasks/ (S##-T-YYYYMMDD-*.md)
+- Archived intakes: docs/project/archive/to-do/ (promoted TDs move here)
+- Task briefs: docs/project/tasks/ (SNN-T-YYYYMMDD-*.md; NN grows unpadded past 99, e.g. S100)
 - Task status: task frontmatter (`status:`) in each task brief (mirrored into `work_index.md`)
 - Tracks registry: docs/project/tracks.md
 - Tracks: docs/project/tracks/<track-slug>/{spec.md,plan.md,context.md}
@@ -36,7 +37,7 @@ This skill is intentionally optimized for speed:
 
 Environment overrides:
 - `TCD_PROJECT_DIR`, `TCD_TODO_DIR`, `TCD_TASKS_DIR`, `TCD_TRACKS_DIR`, `TCD_FUTURES_DIR`
-- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`
+- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`, `TCD_ARCHIVE_TODO_DIR`, `TCD_ORDER_FILE`, `TCD_NEW_ADR`
 
 ## Core principles
 See `references/README.md` for core principles, traceability rules, and escalation guidance.
@@ -83,7 +84,8 @@ When accepted, promote the TD to an executable task brief:
 scripts/tcd.sh promote-intake path/to/TD-YYYYMMDD-*.md
 ```
 
-- Output: new task brief + updated index tables.
+- Output: new task brief + updated index tables; the intake is stamped `Accepted (promoted to <task-ids> on <date>)` and moved to the archive directory.
+- `scripts/tcd.sh archive-promoted` sweeps any remaining promoted intakes into the archive (idempotent).
 - If scripts are unavailable, create the task file from `references/templates.md` and update the tasks table in `work_index.md`.
 
 Decision point:
@@ -136,7 +138,8 @@ scripts/tcd.sh validate
 To validate:
 - required directories exist
 - index blocks exist and cover all artifacts
-- required sections exist in intake/tasks/tracks
+- required sections exist in intake/tasks/tracks and task statuses are canonical
+- `order.csv` (optional dispatch-order file, `TCD_ORDER_FILE`) parses and references existing tasks
 
 ## Common mistakes to avoid
 

@@ -4,11 +4,11 @@ set -eu
 # Validate required sections for protocol artifacts (intake/task/track/future).
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_validate_file.sh <kind> path/to/file
+#   scripts/tcd_validate_file.sh <kind> path/to/file
 #
 # Kinds:
 #   intake  - TD-YYYYMMDD-*.md
-#   task    - S##-T-YYYYMMDD-*.md
+#   task    - SNN-T-YYYYMMDD-*.md
 #   track-spec, track-plan, track-context
 #   future  - FUT-XXX-*.md
 
@@ -71,6 +71,29 @@ require_frontmatter_field() {
   }
 }
 
+# Task statuses are a closed enum (see tracks-conductor-protocol
+# references/status-model.md); ad-hoc values silently break dispatch tooling.
+require_canonical_task_status() {
+  value="$(awk '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { exit }
+    in_fm && $0 ~ /^status:/ {
+      v=$0
+      sub(/^status:[[:space:]]*/, "", v)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+      print v
+      exit
+    }
+  ' "$file")"
+  case "$value" in
+    Draft|Approved|In\ Progress|Review|Blocked|Done|Partially\ Done|split-required|superseded-by-children) ;;
+    *)
+      echo "non-canonical task status: '$value' ($file)" >&2
+      return 1
+      ;;
+  esac
+}
+
 case "$kind" in
   intake)
     require_heading "## Status"
@@ -84,6 +107,7 @@ case "$kind" in
     ;;
   task)
     require_frontmatter_field "status"
+    require_canonical_task_status
     require_heading "## Intent"
     require_heading "## Scope"
     require_heading "## Dependencies"

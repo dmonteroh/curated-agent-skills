@@ -4,8 +4,8 @@ set -eu
 # Create a new task brief and (optionally) link it to an intake draft and/or track.
 #
 # Usage:
-#   TCD_SEQ=S01 ./tracks-conductor-protocol/scripts/tcd_new_task.sh "Implement X"
-#   TCD_SEQ=S02 TCD_TRACK="billing-redesign" TCD_INTAKE="TD-20260130-something" ./.../tcd_new_task.sh "Implement X"
+#   TCD_SEQ=S01 scripts/tcd_new_task.sh "Implement X"
+#   TCD_SEQ=S100 TCD_TRACK="billing-redesign" TCD_INTAKE="TD-20260130-something" ./.../tcd_new_task.sh "Implement X"
 
 title="${1:-}"
 if [ -z "$title" ]; then
@@ -32,16 +32,22 @@ slugify() {
 }
 
 if [ -z "$seq" ]; then
-  # Best-effort: pick next S## based on existing filenames.
+  # Best-effort: pick next S<number> based on existing filenames.
   max=0
-  for f in "$tasks_dir"/S[0-9][0-9]-T-*.md; do
+  for f in "$tasks_dir"/S*-T-*.md; do
     [ -f "$f" ] || continue
-    s="$(basename "$f" | sed -n 's/^S\([0-9][0-9]\)-T-.*/\1/p')"
+    s="$(basename "$f" | sed -n 's/^S\([0-9][0-9]*\)-T-.*/\1/p')"
     [ -n "$s" ] || continue
-    n=$((10#$s))
+    n="$(printf "%s" "$s" | sed 's/^0*//')"
+    [ -n "$n" ] || n=0
     if [ "$n" -gt "$max" ]; then max="$n"; fi
   done
-  seq=$(printf "S%02d" $((max + 1)))
+  next_n=$((max + 1))
+  if [ "$next_n" -lt 100 ]; then
+    seq=$(printf "S%02d" "$next_n")
+  else
+    seq=$(printf "S%d" "$next_n")
+  fi
 fi
 
 slug="$(slugify "$title")"

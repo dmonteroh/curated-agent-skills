@@ -4,7 +4,7 @@ set -eu
 # Set task status in task frontmatter and update the Work Index.
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_set_task_status.sh S01-T-20260130-foo "In Progress"
+#   scripts/tcd_set_task_status.sh SNN-T-20260130-foo "In Progress"
 
 task_id="${1:-}"
 new_status="${2:-}"
@@ -14,10 +14,12 @@ if [ -z "$task_id" ] || [ -z "$new_status" ]; then
   exit 2
 fi
 
+# Canonical enum plus the two terminal umbrella-parent statuses
+# (split parents are never dispatched; they are archived once their children exist).
 case "$new_status" in
-  Draft|Approved|In\ Progress|Review|Blocked|Done|Partially\ Done) ;;
+  Draft|Approved|In\ Progress|Review|Blocked|Done|Partially\ Done|split-required|superseded-by-children) ;;
   *)
-    echo "invalid status: $new_status (allowed: Draft, Approved, In Progress, Review, Blocked, Done, Partially Done)" >&2
+    echo "invalid status: $new_status (allowed: Draft, Approved, In Progress, Review, Blocked, Done, Partially Done, split-required, superseded-by-children)" >&2
     exit 2
     ;;
 esac

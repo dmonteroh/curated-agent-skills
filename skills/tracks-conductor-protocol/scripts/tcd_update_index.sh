@@ -106,6 +106,7 @@ extract_frontmatter_field() {
 }
 
 tmp="$(mktemp)"
+tab="$(printf '\t')"
 cleanup() { rm -f "$tmp" "$tmp".*; }
 trap cleanup EXIT
 
@@ -146,7 +147,8 @@ intake_block="$tmp.intake"
 } >"$intake_block"
 
 # Sort rows inside block (stable). Keep header/footer lines fixed.
-awk 'NR>3 && $0 ~ /^\| TD-/{print}' "$intake_block" | sort -t '|' -k4,4 -k2,2 >"$tmp.intake.rows" 2>/dev/null || true
+# Sort by ID (field 2): TD ids embed the date, so this is chronological.
+awk 'NR>3 && $0 ~ /^\| TD-/{print}' "$intake_block" | sort -t '|' -k2,2 >"$tmp.intake.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$intake_block"
   cat "$tmp.intake.rows"
@@ -162,12 +164,14 @@ tasks_block="$tmp.tasks"
   echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
 
   if [ -d "$tasks_dir" ]; then
-    for f in "$tasks_dir"/S[0-9][0-9]-T-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-*.md; do
+    for f in "$tasks_dir"/S*-T-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-*.md; do
       [ -f "$f" ] || continue
       base="$(basename "$f")"
       id="${base%.md}"
-      seq="$(printf "%s" "$base" | sed -n 's/^\(S[0-9][0-9]\)-T-.*/\1/p')"
-      date="$(printf "%s" "$base" | sed -n 's/^S[0-9][0-9]-T-\([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\).*/\1/p')"
+      seq="$(printf "%s" "$base" | sed -n 's/^\(S[0-9][0-9]*[A-Za-z]*\)-T-.*/\1/p')"
+      date="$(printf "%s" "$base" | sed -n 's/^S[0-9][0-9]*[A-Za-z]*-T-\([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\).*/\1/p')"
+      [ -n "$seq" ] || continue
+      [ -n "$date" ] || continue
       title="$(extract_first_h1 "$f")"
       rel="./tasks/$base"
       status="$(task_status_for "$f")"
@@ -178,7 +182,22 @@ tasks_block="$tmp.tasks"
   echo "<!-- TCD:TASKS:END -->"
 } >"$tasks_block"
 
-awk 'NR>3 && $0 ~ /^\| S[0-9][0-9]-T-/{print}' "$tasks_block" | sort -t '|' -k4,4 -k5,5 -k2,2 >"$tmp.tasks.rows" 2>/dev/null || true
+awk '
+  NR>3 && $0 ~ /^\| S[0-9][0-9]*[A-Za-z]*-T-/ {
+    n=$0
+    gsub(/^[^|]*\|[^|]*\|[^|]*\|[^|]*\|/, "", n)
+    sub(/\|.*/, "", n)
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", n)
+    sub(/^S/, "", n)
+    if (n ~ /^[0-9]+[A-Za-z]*$/) {
+      # Extract numeric part for primary sort, alpha suffix for secondary
+      num = n; sub(/[A-Za-z]+$/, "", num)
+      suf = n; sub(/^[0-9]+/, "", suf)
+      if (suf == "") suf = " "
+      printf("%010d\t%s\t%s\n", num+0, suf, $0)
+    }
+  }
+' "$tasks_block" | sort -t "$tab" -k1,1n -k2,2 | cut -f3- >"$tmp.tasks.rows" 2>/dev/null || true
 {
   sed -n '1,3p' "$tasks_block"
   cat "$tmp.tasks.rows"

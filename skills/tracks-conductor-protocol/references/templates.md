@@ -43,7 +43,7 @@ Out of scope:
 - ADRs:
   - ADR-XXXX: ...
 - Tasks:
-  - S##-T-YYYYMMDD-...: ...
+  - SNN-T-YYYYMMDD-...: ...
 - Futures:
   - FUT-XXX: ...
 
@@ -65,17 +65,17 @@ Out of scope:
 
 ## Task Brief (SDD)
 
-Filename: `S##-T-YYYYMMDD-<short-slug>.md`
+Filename: `SNN-T-YYYYMMDD-<short-slug>.md`
 
 ```markdown
 ---
-id: S##-T-YYYYMMDD-<short-slug>
+id: SNN-T-YYYYMMDD-<short-slug>
 status: Draft
 track: <optional>
 intake: TD-YYYYMMDD-<short-slug>
 ---
 
-# S## - <Title>
+# SNN - <Title>
 
 ## Intent
 
@@ -97,7 +97,7 @@ Out of scope:
 - Futures:
   - FUT-XXX: ...
 - Other tasks:
-  - S##-T-YYYYMMDD-...: ...
+  - SNN-T-YYYYMMDD-...: ...
 
 ## Acceptance Criteria
 

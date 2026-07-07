@@ -1,19 +1,41 @@
 #!/usr/bin/env sh
 set -eu
 
-# Promote a Future entry into an ADR using adr-madr-system (if available).
+# Promote a Future entry into an ADR using the adr-madr-system scripts.
 #
 # Usage:
-#   ./tracks-conductor-protocol/scripts/tcd_promote_future_to_adr.sh path/to/FUT-XXX-....md
+#   scripts/tcd_promote_future_to_adr.sh path/to/FUT-XXX-....md
 #
 # Behavior:
 # - Marks the Future as Triggered (best-effort).
 # - Creates a new ADR titled "Address <FUT-XXX>: <topic>".
 # - Adds links in the ADR back to the Future path.
+#
+# Env overrides:
+#   TCD_NEW_ADR=path/to/new_adr.sh (explicit location of the ADR scaffold script)
 
 future_path="${1:-}"
 if [ -z "$future_path" ] || [ ! -f "$future_path" ]; then
   echo "usage: $0 path/to/FUT-XXX-*.md" >&2
+  exit 2
+fi
+
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+# Locate new_adr.sh: env override, vendored next to these scripts, sibling
+# skill install, or skill folder copied into the target repo root (cwd).
+new_adr=""
+for candidate in \
+  "${TCD_NEW_ADR:-}" \
+  "$script_dir/adr-madr/new_adr.sh" \
+  "$script_dir/../../adr-madr-system/scripts/new_adr.sh" \
+  "adr-madr-system/scripts/new_adr.sh"; do
+  [ -n "$candidate" ] || continue
+  if [ -x "$candidate" ]; then new_adr="$candidate"; break; fi
+done
+
+if [ -z "$new_adr" ]; then
+  echo "adr-madr-system new_adr.sh not found; set TCD_NEW_ADR=path/to/new_adr.sh" >&2
   exit 2
 fi
 
@@ -40,17 +62,11 @@ awk '
 ' "$future_path" >"$tmp" || true
 if [ -s "$tmp" ]; then mv "$tmp" "$future_path"; fi
 
-# Find adr-madr-system scripts relative to repo root.
-if [ ! -x "adr-madr-system/scripts/new_adr.sh" ]; then
-  echo "adr-madr-system not found or not executable: adr-madr-system/scripts/new_adr.sh" >&2
-  exit 2
-fi
-
 adr_title="Address $future_id: $topic"
 
 # Create ADR.
 ADR_DECIDERS="${ADR_DECIDERS:-}" \
-  ./adr-madr-system/scripts/new_adr.sh "$adr_title" >/dev/null
+  "$new_adr" "$adr_title" >/dev/null
 
 # Best-effort: append link to the future into the newest ADR created (highest number).
 adr_dir="${ADR_DIR:-docs/adr}"
@@ -59,7 +75,6 @@ if [ -n "$newest" ]; then
   printf '\n- Futures:\n  - docs/project/futures/%s\n' "$future_base" >>"$newest"
 fi
 
-script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 "$script_dir/tcd_update_index.sh" >/dev/null
 
-echo "OK: promoted $future_id -> ADR (created via adr-madr-system)"
+echo "OK: promoted $future_id -> ADR (created via adr-madr-system scripts)"

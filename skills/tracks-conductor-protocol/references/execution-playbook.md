@@ -53,6 +53,13 @@ If you cannot run verification in the current environment, say so explicitly and
   - If new work is discovered, create a new intake or task.
 - If the change introduces/depends on an architectural decision, create/update an ADR via `adr-madr-system`.
 
+## Ordered dispatch (optional)
+
+For queue-driven execution (e.g. autonomous runners), an optional `docs/project/order.csv` (override: `TCD_ORDER_FILE`) defines dispatch order:
+
+- Columns: `order,task_id,enabled` plus optional per-task budget columns (`timeout_secs`, `no_progress_secs`, `hard_ceiling_secs`); a header row is recognized by name, otherwise v1 positional columns apply.
+- `tcd.sh validate` checks the file when present: unique order values and task ids, integer budgets > 0, and every enabled task id resolving to a file in `tasks/`.
+
 ## Commit hygiene (suggested)
 
 - Small commits aligned to acceptance criteria or plan phases.
