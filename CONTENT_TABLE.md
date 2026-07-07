@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 66
+Total skills: 67
 
 ## Ai
 
@@ -102,6 +102,12 @@ Total skills: 66
 | `monitoring-expert` | Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack. |
 | `performance` | End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating. |
 | `sre-engineer` | Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards). |
+
+## Research
+
+| Skill | Summary |
+| --- | --- |
+| `ux-interview` | Runs a structured UX user interview to capture current tasks, workflows, pain points, positives, and desired improvements. Use when the user asks to be interviewed about how they use a product, system, or process. |
 
 ## Security
 
