@@ -43,6 +43,8 @@ Example:
 ## Update rules
 
 - Add a row for every new ADR.
+- The Tags column is hand-maintained: `scripts/update_index.sh` rebuilds every other cell from the ADR files but carries existing Tags over by ADR id.
+- ADR headers may sit below an optional YAML frontmatter block; scripts tolerate this.
 - When an ADR is superseded:
   - Create a new ADR with a `Supersedes` section.
   - Update the index row(s):

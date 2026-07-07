@@ -4,7 +4,7 @@ set -eu
 # Create a new ADR file (MADR) and update the index managed block.
 #
 # Usage:
-#   ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/new_adr.sh "Use PostgreSQL for primary DB"
+#   ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md sh <skill-folder>/scripts/new_adr.sh "Use PostgreSQL for primary DB"
 #
 # Optional env vars:
 #   ADR_DECIDERS="@alice @bob"
@@ -32,10 +32,11 @@ next_num() {
   max=0
   for f in "$adr_dir"/ADR-[0-9][0-9][0-9][0-9]-*.md "$adr_dir"/ADR-[0-9][0-9][0-9][0-9].md; do
     [ -f "$f" ] || continue
-    n="$(printf "%s" "$f" | sed -n 's/.*ADR-\\([0-9][0-9][0-9][0-9]\\).*/\\1/p' | head -n1)"
+    n="$(printf "%s" "$f" | sed -n 's/.*ADR-\([0-9][0-9][0-9][0-9]\).*/\1/p' | head -n1)"
     [ -n "$n" ] || continue
-    # strip leading zeros safely
-    n10=$((10#$n))
+    # strip leading zeros safely (POSIX sh: no 10# base prefix in dash)
+    n10="$(printf "%s" "$n" | sed 's/^0*//')"
+    [ -n "$n10" ] || n10=0
     if [ "$n10" -gt "$max" ]; then max="$n10"; fi
   done
   printf "%04d" $((max + 1))

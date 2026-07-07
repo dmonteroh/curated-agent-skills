@@ -4,7 +4,7 @@ set -eu
 # Validate all ADR files in a repo and ensure the ADR index has a managed block.
 #
 # Usage:
-#   ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/validate_repo.sh
+#   ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md sh <skill-folder>/scripts/validate_repo.sh
 
 adr_dir="${ADR_DIR:-docs/adr}"
 index_file="${ADR_INDEX:-$adr_dir/README.md}"
@@ -44,7 +44,14 @@ fi
 missing=0
 for f in "$adr_dir"/ADR-[0-9][0-9][0-9][0-9]-*.md "$adr_dir"/ADR-[0-9][0-9][0-9][0-9].md; do
   [ -f "$f" ] || continue
-  id="$(awk 'NR==1{print; exit}' "$f" | sed -n 's/^# \(ADR-[0-9][0-9][0-9][0-9]\):.*/\1/p')"
+  # Tolerate an optional YAML frontmatter block above the "# ADR-XXXX:" header.
+  id="$(awk '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { in_fm=0; next }
+    in_fm { next }
+    /^# ADR-[0-9][0-9][0-9][0-9]:/ { print; exit }
+    /^#[[:space:]]/ { exit }
+  ' "$f" | sed -n 's/^# \(ADR-[0-9][0-9][0-9][0-9]\):.*/\1/p')"
   if [ -z "$id" ]; then
     echo "bad ADR header (missing ID): $f" >&2
     missing=1

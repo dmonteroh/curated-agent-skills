@@ -22,11 +22,25 @@ end_marker="<!-- ADR-INDEX:END -->"
 
 tmp_rows="$(mktemp)"
 tmp_out="$(mktemp)"
+tmp_tags="$(mktemp)"
 
 cleanup() {
-  rm -f "$tmp_rows" "$tmp_out"
+  rm -f "$tmp_rows" "${tmp_rows}.sorted" "$tmp_out" "$tmp_tags"
 }
 trap cleanup EXIT
+
+# Preserve hand-maintained Tags cells from the existing index (keyed by ADR id),
+# so a rebuild does not wipe them.
+if [ -f "$index_file" ]; then
+  awk -F'|' '
+    /^\| ADR-[0-9][0-9][0-9][0-9] \|/ {
+      id=$2; tags=$(NF-1)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", id)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", tags)
+      if (tags != "") print id "\t" tags
+    }
+  ' "$index_file" >"$tmp_tags"
+fi
 
 extract_field() {
   # $1 = file, $2 = heading (e.g. '## Status')
@@ -78,8 +92,15 @@ extract_supersedes() {
 for f in "$adr_dir"/ADR-[0-9][0-9][0-9][0-9]-*.md "$adr_dir"/ADR-[0-9][0-9][0-9][0-9].md; do
   [ -f "$f" ] || continue
 
-  # Expect a first-line header like: "# ADR-0001: Title"
-  header="$(awk 'NR==1{print; exit}' "$f")"
+  # Expect a header like "# ADR-0001: Title" — usually line 1, but tolerate an
+  # optional YAML frontmatter block above it (e.g. ADR-0017).
+  header="$(awk '
+    NR==1 && $0=="---" { in_fm=1; next }
+    in_fm && $0=="---" { in_fm=0; next }
+    in_fm { next }
+    /^# ADR-[0-9][0-9][0-9][0-9]:/ { print; exit }
+    /^#[[:space:]]/ { exit }
+  ' "$f")"
   id="$(printf "%s" "$header" | sed -n 's/^# \(ADR-[0-9][0-9][0-9][0-9]\):.*/\1/p')"
   title="$(printf "%s" "$header" | sed -n 's/^# ADR-[0-9][0-9][0-9][0-9]:[[:space:]]*//p')"
 
@@ -94,10 +115,10 @@ for f in "$adr_dir"/ADR-[0-9][0-9][0-9][0-9]-*.md "$adr_dir"/ADR-[0-9][0-9][0-9]
   supersedes="$(extract_supersedes "$f")"
 
   rel="./$(basename "$f")"
+  tags="$(awk -F'\t' -v id="$id" '$1==id{print $2; exit}' "$tmp_tags")"
 
-  # Keep the column set stable; tags are optional and can be added later.
-  printf '| %s | %s | %s | %s | %s | %s | %s | |\n' \
-    "$id" "$title" "${status:-}" "${date:-}" "${deciders:-}" "$rel" "${supersedes:-}" >>"$tmp_rows"
+  printf '| %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+    "$id" "$title" "${status:-}" "${date:-}" "${deciders:-}" "$rel" "${supersedes:-}" "${tags:-}" >>"$tmp_rows"
 done
 
 # Sort by ADR number to keep stable ordering.

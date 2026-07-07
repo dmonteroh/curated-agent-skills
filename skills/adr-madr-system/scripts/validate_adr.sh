@@ -13,31 +13,35 @@ if command -v rg >/dev/null 2>&1; then
   have_rg=1
 fi
 
+# $1 = display name, $2 = anchored ERE matching the accepted heading variants.
+# Anchored so e.g. "## Decision Drivers" cannot satisfy the "## Decision" requirement.
 require_heading() {
-  heading="$1"
+  name="$1"
+  pattern="$2"
   if [ "$have_rg" -eq 1 ]; then
-    rg -n --fixed-strings "$heading" "$file" >/dev/null 2>&1 || {
-      echo "missing required section: $heading" >&2
+    rg -q "$pattern" "$file" 2>/dev/null || {
+      echo "missing required section: $name" >&2
       return 1
     }
   else
-    grep -nF "$heading" "$file" >/dev/null 2>&1 || {
-      echo "missing required section: $heading" >&2
+    grep -Eq "$pattern" "$file" 2>/dev/null || {
+      echo "missing required section: $name" >&2
       return 1
     }
   fi
 }
 
-require_heading "## Status"
-require_heading "## Date"
-require_heading "## Deciders"
-require_heading "## Context"
-require_heading "## Decision"
-require_heading "## Rationale"
-require_heading "## Consequences"
+# Alternatives cover the MADR-canonical spellings alongside this skill's template.
+require_heading "## Status" '^## Status[[:space:]]*$'
+require_heading "## Date" '^## Date[[:space:]]*$'
+require_heading "## Deciders" '^## Deciders[[:space:]]*$'
+require_heading "## Context" '^## Context( and Problem Statement)?[[:space:]]*$'
+require_heading "## Decision" '^## Decision( Outcome)?[[:space:]]*$'
+require_heading "## Rationale" '^(###? Rationale|## Decision Outcome)[[:space:]]*$'
+require_heading "## Consequences" '^###? (Positive |Negative )?Consequences( Summary| and Mitigations)?[[:space:]]*$'
 
 # Strongly recommended for quality; treat as required for this skill's standard template.
-require_heading "## Decision Drivers"
-require_heading "## Considered Options"
+require_heading "## Decision Drivers" '^## Decision Drivers[[:space:]]*$'
+require_heading "## Considered Options" '^## Considered Options[[:space:]]*$'
 
 echo "OK: $file"

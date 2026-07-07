@@ -129,19 +129,19 @@ When the ADR is accepted, update the relevant spec/track/task artifact to link t
 ## Optional scripts
 
 - `scripts/new_adr.sh` scaffolds a new MADR file and updates the ADR index block.
-- `scripts/update_index.sh` rebuilds the ADR index block deterministically from ADR files.
-- `scripts/validate_adr.sh` validates that a single MADR file contains required sections.
+- `scripts/update_index.sh` rebuilds the ADR index block deterministically from ADR files, preserving hand-maintained Tags cells.
+- `scripts/validate_adr.sh` validates that a single MADR file contains required sections (accepts MADR-canonical heading variants).
 - `scripts/validate_repo.sh` validates all ADRs in a repo and checks index coverage.
 
 Script requirements:
 - POSIX shell, `awk`, `sed`, `grep` (or `rg`), `date`, and standard coreutils.
 - No network access required.
 
-Script usage:
-- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/new_adr.sh "Use PostgreSQL"`
-- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/update_index.sh`
-- `./adr-madr-system/scripts/validate_adr.sh docs/adr/ADR-0001-sample.md`
-- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md ./adr-madr-system/scripts/validate_repo.sh`
+Script usage (run from the target repo root):
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md sh <skill-folder>/scripts/new_adr.sh "Use PostgreSQL"`
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md sh <skill-folder>/scripts/update_index.sh`
+- `sh <skill-folder>/scripts/validate_adr.sh docs/adr/ADR-0001-sample.md`
+- `ADR_DIR=docs/adr ADR_INDEX=docs/adr/README.md sh <skill-folder>/scripts/validate_repo.sh`
 
 Script verification:
 - Ensure the command exits with status 0 before claiming success.
