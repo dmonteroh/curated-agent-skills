@@ -1,6 +1,6 @@
 # Skill Review Checklist
 
-Use this checklist to keep skills consistent with AGENTS_prepend.md, the provided PDF guidance, and common best practices.
+Use this checklist to keep skills consistent with the provided PDF guidance and common best practices.
 
 **Discovery**
 - YAML frontmatter includes `name`, `description`, and `metadata.category`.
