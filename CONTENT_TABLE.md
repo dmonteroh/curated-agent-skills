@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 67
+Total skills: 68
 
 ## Ai
 
@@ -78,7 +78,8 @@ Total skills: 67
 
 | Skill | Summary |
 | --- | --- |
-| `smart-conventional-commits` | Create conventional commits from user intent and git diff context, including auto-staging, branch-aware type inference, and concise mandatory title/body generation. Use when users ask to commit changes or draft commit messages. |
+| `pr-description` | Generate a paste-ready pull request description from task briefs and the branch diff against a base branch. Produces three required sections — What & Why, How, Manual Verification Playbook — with change-type-aware playbook recipes. Use when a pull request body needs to be drafted or refreshed. |
+| `smart-conventional-commits` | Create high-quality conventional commits from working-tree changes and user intent: inspect-first safe staging, repo-convention detection from git history, branch-aware type and scope inference, and strict title/body formatting. Use when users ask to commit changes or draft commit messages. |
 
 ## Language
 
@@ -129,7 +130,7 @@ Total skills: 67
 | `code-review` | Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report. |
 | `git-workflow` | Master Git workflows for teams: clean PRs, rebasing/merging, conflict resolution, cherry-picks, safe force-push, bisect, worktrees, and recovery via reflog. Includes playbooks + safe scripts for diagnosing and fixing common Git problems. |
 | `refactor-clean` | Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement. |
-| `shell-scripting` | Write safe, portable shell scripts (POSIX/Bash) for automation and CI. Use for scripting, tooling, and DevOps glue code. |
+| `shell-scripting` | Write safe, portable shell scripts (POSIX sh or Bash) for automation, CI helpers, and command-line glue: shell selection, strict-mode setup with known caveats, quoting and cleanup patterns, and shellcheck-based verification. Use for scripting, tooling, and DevOps glue code. |
 | `tech-debt` | Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading. |
 | `testing` | Create unit tests, API contract tests, and automation strategies for existing codebases with clear decision points, pitfalls, and deterministic reporting via local scripts. |
 | `tracks-conductor-protocol` | Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD. |

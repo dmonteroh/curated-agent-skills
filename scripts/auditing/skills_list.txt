@@ -42,6 +42,7 @@ office-files
 pdf-files
 performance
 postgresql-engineering
+pr-description
 prompt-engineering
 python
 react
