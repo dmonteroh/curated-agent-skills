@@ -6,7 +6,7 @@ Script: `scripts/codex_skills_sync.py`
 
 ## What It Does
 
-- Copies selected skill folders from `skills/` (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills`). You can use `--dest` to have them installed in a specific folder
+- Copies selected skill folders from `skills/` (those containing `SKILL.md`) into a destination directory (default: `~/.codex/skills` for Codex). For Claude, use `--dest "~/.claude/skills"` as the default user-level path.
 - Lets you select skills by name, index, or range.
 - Safe-by-default:
   - does not overwrite existing installed skills unless you pass `--force`
@@ -121,6 +121,12 @@ Install into a user‑level folder (home‑level):
 
 ```sh
 ./scripts/codex_skills_sync.py --dest "~/.codex/skills" --select "react,typescript"
+```
+
+Install into Claude's default user-level folder:
+
+```sh
+./scripts/codex_skills_sync.py --dest "~/.claude/skills" --select "react,typescript"
 ```
 
 Overwrite existing installed skills:
