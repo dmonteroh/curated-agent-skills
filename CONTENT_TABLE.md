@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 68
+Total skills: 69
 
 ## Ai
 
@@ -129,6 +129,7 @@ Total skills: 68
 | `cli-tools` | Build fast, user-friendly CLI tools with stable command surfaces, predictable output contracts (stdout vs stderr), and cross-platform behavior. Covers subcommands/flags, config precedence, interactive prompts, progress indicators, and shell completions. Use when designing or implementing CLI tools. |
 | `code-review` | Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report. |
 | `git-workflow` | Master Git workflows for teams: clean PRs, rebasing/merging, conflict resolution, cherry-picks, safe force-push, bisect, worktrees, and recovery via reflog. Includes playbooks + safe scripts for diagnosing and fixing common Git problems. |
+| `jira-issue-management` | Create, read, transition, and link Jira issues (Epics, Tasks, Bugs) through an Atlassian MCP server, driven by a project-local Jira map file that caches cloud ID, status and transition IDs, account IDs, standing Epics, and conventions. Use when work involves creating or updating Jira tickets, turning a plan into Epics and Tasks, or bootstrapping the project's Jira map. |
 | `refactor-clean` | Provides an incremental, test-first refactoring workflow for reducing complexity or duplication while keeping behavior stable, best used during technical-debt cleanup or design improvement. |
 | `shell-scripting` | Write safe, portable shell scripts (POSIX sh or Bash) for automation, CI helpers, and command-line glue: shell selection, strict-mode setup with known caveats, quoting and cleanup patterns, and shellcheck-based verification. Use for scripting, tooling, and DevOps glue code. |
 | `tech-debt` | Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading. |
