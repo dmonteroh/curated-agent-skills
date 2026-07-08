@@ -1,5 +1,7 @@
 # Chain-of-Thought Advanced Patterns
 
+> Applies to non-reasoning/classic models, or when the visible response must contain auditable steps. On reasoning models these patterns duplicate the model's built-in thinking and usually reduce quality — configure reasoning depth via the API instead (see `frontier-model-prompting.md`).
+
 ## Least-to-most prompting
 
 Break the problem into subproblems, solve in sequence, then synthesize.

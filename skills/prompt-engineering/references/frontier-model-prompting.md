@@ -27,7 +27,14 @@ Consequences of literalism:
 Reasoning models think before answering in a dedicated thinking phase controlled by API parameters, not by prompt text.
 
 - **Skip manual chain-of-thought cues.** "Think step by step", forced numbered-reasoning sections, and tree-of-thought scaffolding are redundant on reasoning models and can reduce quality by constraining the model's own (better) reasoning process.
-- **Control depth with the API knob, not prose.** On Claude 4.6+ / 5-family: adaptive thinking (`thinking: {"type": "adaptive"}`) plus `output_config.effort` (`low`/`medium`/`high`/`xhigh`/`max`); fixed thinking budgets (`budget_tokens`) are removed on Opus 4.7+ / Sonnet 5. Other providers expose equivalent reasoning-effort settings. If reasoning is too shallow, raise effort before adding "think carefully" prose; if too slow or verbose, lower effort before adding "be brief" prose.
+- **Control depth with the API knob, not prose.** If reasoning is too shallow, raise the setting before adding "think carefully" prose; if too slow or verbose, lower it before adding "be brief" prose. The knob is provider-specific (names as of mid-2026):
+
+  | Provider | Reasoning control |
+  | --- | --- |
+  | Anthropic (Claude 4.6+ / 5) | `thinking: {"type": "adaptive"}` + `output_config.effort` (`low`…`max`); fixed `budget_tokens` removed on Opus 4.7+ / Sonnet 5 |
+  | OpenAI (o-series / GPT-5 era, incl. Codex) | `reasoning` effort setting (minimal…high); separate verbosity control for output length |
+  | Google (Gemini 2.5+) | thinking budget / dynamic thinking config |
+
 - **Keep CoT scaffolding when it still earns its place**: non-reasoning or small models, or when the visible response itself must contain auditable intermediate steps (compliance, education, grading). See `chain-of-thought-basics.md`.
 - **Sampling parameters may not exist.** `temperature`/`top_p`/`top_k` are rejected on the newest Claude models. For output variety, prompt for it explicitly — e.g. have the model propose 3–4 distinct directions and pick one — rather than relying on sampling randomness.
 
@@ -39,6 +46,7 @@ Reasoning models think before answering in a dedicated thinking phase controlled
 
 ## Agentic and tool-use prompting
 
+- **Put invariants in the operator layer.** Anthropic calls it the `system` prompt; OpenAI-style APIs call it the `developer` message. Same hierarchy either way — system/developer > user > tool output. Rules that must survive the whole conversation belong there, not in a user turn.
 - **Tool descriptions are prompts.** Prescriptive trigger conditions ("Call this when the user asks about current prices or recent events") measurably raise correct tool use over descriptions that only state what the tool does. Current models are conservative about reaching for tools, subagents, and memory — say *when* each capability applies, in the tool's own description and in the system prompt.
 - **Full task spec up front.** One well-specified opening turn (task, intent, constraints, what "done" looks like) outperforms drip-feeding requirements across turns on both quality and token efficiency.
 - **Calibrate autonomy explicitly.** "For minor choices (naming, defaults, equivalent approaches), pick a reasonable option and note it rather than asking. For scope changes or destructive actions, ask first." Uncalibrated frontier models either ask too often or overreach.

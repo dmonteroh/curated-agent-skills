@@ -20,6 +20,12 @@ repeat:
 until target metrics are met
 ```
 
+## Grading methods
+
+- **Structured outputs**: grade mechanically — schema validation, exact match, or unit-test-style assertions. Never eyeball what a validator can check.
+- **Free-form outputs**: score against a short written rubric (3–5 criteria). At volume, use an LLM judge given that rubric — but spot-check its verdicts against human grades before trusting it, and re-check when the judge model changes.
+- **Hold-out set**: keep a small set of cases that never steers edits; run it before shipping. Passing only the visible test set is how prompts overfit.
+
 ## Failure analysis checklist
 
 - Which inputs fail most often?

@@ -7,7 +7,7 @@ set -eu
 #   scaffold  - create a prompt file under prompts/ (safe-by-default)
 #   lint      - lightweight prompt lint (checks for basic structure)
 #   assets    - list bundled assets/references
-#   optimize  - run optimize-prompt.py (best-effort; requires python deps)
+#   optimize  - run optimize-prompt.py (stdlib-only; demo flow by default)
 #
 # Intended usage: run inside a real project repo OR inside this skill folder.
 #
@@ -51,20 +51,23 @@ scaffold() {
 
 <what is this prompt for?>
 
+## Target model(s)
+
+<model + generation; reasoning/effort setting if applicable>
+
 ## Prompt (copy/paste)
 
 \`\`\`
-<SYSTEM>
-You are ...
+You are <role>.
 
-<TASK>
-...
+## Task
+<what the model must do>
 
-<CONSTRAINTS>
-- ...
+## Constraints
+- <rule>
 
-<OUTPUT FORMAT>
-...
+## Output format
+<omit if enforced by a schema / structured outputs>
 \`\`\`
 
 ## Evaluation
@@ -94,6 +97,13 @@ lint() {
   # Require at least one fenced code block.
   grep -qE '^[`]{3}' "$file" || { echo "missing fenced code block for prompt text" >&2; missing=1; }
 
+  # Non-fatal: emphasis inflation (MUST/NEVER/CRITICAL/ALWAYS on routine guidance
+  # overtriggers on current literal-following models; reserve for true invariants).
+  emphasis_count="$(grep -oE '\b(CRITICAL|MUST|NEVER|ALWAYS)\b' "$file" | wc -l | tr -d ' ')"
+  if [ "$emphasis_count" -gt 3 ]; then
+    echo "warning: $emphasis_count uses of CRITICAL/MUST/NEVER/ALWAYS — reserve emphasis for true invariants" >&2
+  fi
+
   if [ "$missing" -ne 0 ]; then
     echo "FAILED: lint issues in $file" >&2
     exit 1
@@ -122,7 +132,7 @@ optimize() {
     echo "python3 not found; cannot run optimize-prompt.py" >&2
     exit 2
   fi
-  echo "Running optimizer (may require additional deps like numpy)..."
+  echo "Running optimizer (stdlib-only demo; wire a real LLM client for actual use)..."
   python3 "$skill_root/scripts/optimize-prompt.py" "$@"
 }
 

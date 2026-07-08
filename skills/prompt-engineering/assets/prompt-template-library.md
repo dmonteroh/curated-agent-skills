@@ -1,5 +1,7 @@
 # Prompt Template Library
 
+Model-neutral baseline templates — fill in the `{variables}`. Two calibration notes for current models: (1) where the platform enforces structured outputs or strict tool schemas, move the JSON skeletons and format sections into the schema and keep the prompt about the task; (2) the trailing completion cues ("Sentiment:", "Answer:") help classic and small models and are harmless elsewhere. See `../references/frontier-model-prompting.md`.
+
 ## Classification Templates
 
 ### Sentiment Analysis

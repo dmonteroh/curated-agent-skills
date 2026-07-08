@@ -1,5 +1,7 @@
 # Chain-of-Thought Templates
 
+> Applies to non-reasoning/classic models, or when the visible response must contain auditable steps (see the banner in `chain-of-thought-basics.md`).
+
 ## Math template
 
 ```

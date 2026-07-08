@@ -1,9 +1,8 @@
 # Prompt Engineering References Index
 
-- `references/frontier-model-prompting.md`: Prompting current-generation reasoning models (literal instruction-following, reasoning via configuration, structured outputs, agentic prompting, migrating prompts between model generations). Read this first when targeting a frontier model.
+- `references/frontier-model-prompting.md`: Prompting current-generation reasoning models (literal instruction-following, reasoning via configuration with per-provider controls, structured outputs, agentic prompting, migrating prompts between model generations). Read this first when targeting a frontier model.
 - `references/prompt-caching-layout.md`: Cache-friendly prompt layout — stability ordering, silent invalidators, verification.
-
-- `references/system-prompts.md`: System prompt structures, role patterns, and testing considerations.
+- `references/system-prompts.md`: System prompt structure, section syntax, untrusted-content boundaries, constraint tiers, and testing.
 
 - `references/chain-of-thought-basics.md`: When to use chain-of-thought and core patterns (classic / non-reasoning models).
 - `references/chain-of-thought-advanced.md`: Decomposition, verification, and adaptive depth patterns.
@@ -11,10 +10,10 @@
 
 - `references/few-shot-selection.md`: Example selection strategies and decision points.
 - `references/few-shot-construction.md`: Formatting and example construction best practices.
-- `references/few-shot-context.md`: Token budgeting and truncation guidance.
+- `references/few-shot-context.md`: Example budget priorities, truncation, and caching trade-offs.
 
-- `references/prompt-optimization-workflow.md`: Baseline setup and iterative refinement loop.
-- `references/prompt-optimization-experiments.md`: A/B testing and metrics guidance.
+- `references/prompt-optimization-workflow.md`: Baseline setup, grading methods (mechanical, rubric, LLM judge), and the iterative refinement loop.
+- `references/prompt-optimization-experiments.md`: A/B testing, metrics, nondeterminism handling, and experiment axes beyond prompt text.
 - `references/prompt-optimization-efficiency.md`: Token, latency, and cost reduction tactics.
 
 - `references/prompt-templates-architecture.md`: Template building blocks and modular composition.

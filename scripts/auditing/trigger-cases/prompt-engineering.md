@@ -16,6 +16,9 @@
 - prompt: "Design a prompt template library with regression tests for our extraction pipeline."
   expect_activate: yes
 
+- prompt: "Write a system prompt for our GPT-based support bot that must return strict JSON and never leak internal data."
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The user only wants an ad-hoc explanation of prompting concepts. No planning, just implementation."
   expect_activate: no
