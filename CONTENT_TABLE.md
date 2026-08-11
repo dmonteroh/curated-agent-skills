@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 69
+Total skills: 55
 
 ## Ai
 
@@ -31,7 +31,6 @@ Total skills: 69
 | `database-migration-sql` | Plan and write forward-only SQL migration files with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server. |
 | `database-performance` | Diagnose and fix database performance issues (slow queries, locks, pool saturation, caching, partitioning) using evidence from metrics and query plans. |
 | `postgresql-engineering` | PostgreSQL-specific schema and data-layer engineering: DDL, data types, constraints, indexing, JSONB, partitioning, RLS, and safe schema evolution. Use when targeting Postgres specifically. |
-| `sql-querying` | Write correct, maintainable SQL queries (joins, CTEs, window functions) and reason about their results for OLTP or analytics tasks. |
 
 ## Design
 
@@ -63,35 +62,12 @@ Total skills: 69
 | `pdf-files` | Work with PDFs safely and repeatably: extract text/tables, convert pages to images, inspect/fill forms, and produce verifiable outputs (markdown/json/images/filled pdf). Use when a task involves PDF documents. |
 | `tutorial-engineer` | Creates step-by-step technical tutorials and onboarding guides from code or system requirements when teams need progressive, hands-on learning paths for developers. |
 
-## Frontend
-
-| Skill | Summary |
-| --- | --- |
-| `angular` | Guides Angular implementation and refactors using standalone APIs, signals, RxJS, routing, and testing. Focuses on clean component boundaries, predictable state flow, accessibility, and performance. Use when work is Angular-specific. |
-| `nextjs` | Build React + Next.js (App Router) frontends: server/client boundaries, data fetching and caching, routing, forms/actions, accessibility, and performance. Not for generic React SPA or React Native. |
-| `react` | Build React frontends (SPA/library) with modern hooks, state management, accessibility, and performance. Framework-agnostic: not Next.js-specific and not React Native. Use when implementing React components, client-side routing, data fetching/state, and React testing. |
-| `react-native` | Build cross-platform mobile apps with React Native/Expo: navigation, platform handling (iOS/Android), performance (FlatList), storage, and native module integration. Not for React web or Next.js. |
-| `svelte` | Build Svelte 5 and SvelteKit apps fast: runes/reactivity, component patterns, SvelteKit routing/data flow, forms/actions, SSR boundaries, and production hygiene. Includes optional guidance for TanStack Query and common component libraries. |
-| `tailwind` | Build and maintain Tailwind CSS systems fast without framework lock-in: tokens (CSS variables), theme + dark mode, content globs/safelist, component variant patterns, accessibility/responsive conventions, and migration hygiene. |
-
 ## Git
 
 | Skill | Summary |
 | --- | --- |
 | `pr-description` | Generate a paste-ready pull request description from task briefs and the branch diff against a base branch. Produces three required sections — What & Why, How, Manual Verification Playbook — with change-type-aware playbook recipes. Use when a pull request body needs to be drafted or refreshed. |
 | `smart-conventional-commits` | Create high-quality conventional commits from working-tree changes and user intent: inspect-first safe staging, repo-convention detection from git history, branch-aware type and scope inference, and strict title/body formatting. Use when users ask to commit changes or draft commit messages. |
-
-## Language
-
-| Skill | Summary |
-| --- | --- |
-| `dotnet-core` | Build and review modern .NET (ASP.NET Core / .NET 8+) backend services with DI, auth, data access, and production readiness. Use for implementing or auditing .NET server code and architecture choices. |
-| `golang` | Build and review production Go (1.21+) services/CLIs with idiomatic design, correctness, and safe concurrency/cancellation patterns. |
-| `javascript` | Build and debug modern JavaScript (ES6+) with async patterns and Node.js/browser compatibility when authoring, modernizing, or diagnosing JS. |
-| `nestjs` | Build and evolve NestJS backends with correct DI/module boundaries, request lifecycle hygiene (pipes/guards/interceptors/filters), validation + serialization, OpenAPI, and testing. Use when adding or refactoring NestJS endpoints/modules and needing deterministic steps, output contracts, and verification gates. |
-| `nodejs` | Use when building production-ready Node.js backend services with Express or Fastify, covering API design, middleware, authentication, error handling, and database integration. |
-| `python` | Build modern Python 3.x services and libraries with async patterns, robust typing, and production-ready practices. Use for Python implementation, refactors, and tooling guidance when a Python runtime is required. |
-| `typescript` | Provides TypeScript architecture and typing guidance for strictness/tsconfig decisions, advanced type design, fixing type errors, type-checking performance, and boundary runtime validation; use when resolving TypeScript typing or configuration issues. |
 
 ## Observability
 
