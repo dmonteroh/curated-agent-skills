@@ -92,7 +92,7 @@ Useful options:
 - **Trigger cases**: Keeps activation test prompts out of `SKILL.md`, in `trigger-cases/`, for predictable and repeatable activation behavior.
 - **Structured workflow**: Step outputs + decision points prevent ambiguous execution. Structure beyond the frontmatter contract and the use/do-not-use boundary is earned by the skill's job, not imposed by a template.
 - **Reference decomposition**: Long or multi-topic references are split and indexed to keep SKILL.md concise and navigable.
-- **Subtraction**: Reviews must prune. Removing text is a first-class outcome; whole sections, reference files, and whole skills are proposed for the operator rather than removed.
+- **Subtraction**: Reviews must prune. Removing text is a first-class outcome, bounded by the closed five-item list in `SKILL_REVIEW_CHECKLIST.md` §4; whole sections, reference files, and whole skills are proposed for the operator rather than removed.
 
 ### Reference indexing threshold
 

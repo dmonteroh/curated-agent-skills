@@ -8,11 +8,11 @@ Named so a review can point at one rather than argue taste. Source pattern: `mat
 
 | Failure mode | What it looks like | What to do |
 | --- | --- | --- |
-| **No-op** | A sentence that constrains nothing. `## Workflow (best performance, best results)`. "Follow best practices throughout." | Delete. |
+| **No-op** | A sentence that constrains nothing. `## Workflow (best performance, best results)`. "Follow best practices throughout." | Outside `SKILL_REVIEW_CHECKLIST.md` §4's closed five (not a heading restatement, description restatement, duplicate, heading qualifier, or report-only step): propose with evidence, never execute unilaterally. |
 | **Duplication** | The same rule stated in two sections, often 10 lines apart, in slightly different words. | Keep the statement in its owning section; delete the other, or replace it with a pointer. |
 | **Sediment** | Text that exists because a template demanded a slot: a heading restated as its first sentence, the frontmatter description repeated as line 1, a final step reading "assemble the report per the output contract". | Delete. |
 | **Sprawl** | The skill has grown to cover adjacent topics it was never scoped for. | Propose the section for removal; name what it would belong to instead. |
-| **Premature completion** | A step declares success without a check that could have failed. | Replace with a falsifiable check, or delete the claim. |
+| **Premature completion** | A step declares success without a check that could have failed. | Outside §4's closed five: propose a falsifiable check or the claim's removal, with evidence — never execute unilaterally. |
 
 **The no-op test**, applied sentence by sentence: if this sentence were deleted, what would an agent do differently? No answer means no sentence.
 

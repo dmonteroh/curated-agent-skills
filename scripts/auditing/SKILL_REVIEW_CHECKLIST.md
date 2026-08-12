@@ -17,7 +17,7 @@ Depth and worked examples live in `references/authoring-guidance.md`. Calls alre
 
 - Frontmatter carries `name`, `description`, and `metadata.category`, and no other top-level key.
 - `name` equals the folder name, lowercase with hyphens.
-- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget — soft limit 110 tokens, hard limit 120 tokens. These are a derived default from `resources/agent_skills_pdf.txt` (a single third-party source), not measured data.
+- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget — soft limit 110 tokens, hard limit 120 tokens, measured over `name` and `description` combined, not `description` alone. These are a derived default from `resources/agent_skills_pdf.txt` (a single third-party source), not measured data.
 - Any frontmatter value containing `: ` (colon followed by a space) must be quoted, `description` included — unquoted, it fails the audit (`description_requires_quotes_for_colons`, `frontmatter_unquoted_colon:<key>`).
 - Activation cues live in `scripts/auditing/trigger-cases/<skill>.md`, never in `SKILL.md`.
 
@@ -98,7 +98,7 @@ When a section from a known family is present, use its canonical heading: `Workf
 
 ## Verdicts
 
-This checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule.
+This checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
 
 Exactly one status line ends a review:
 
