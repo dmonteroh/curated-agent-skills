@@ -55,4 +55,3 @@ The heading and cue lints below are warnings, not issues: 41 of 55 skills carry 
 Content kept only until a run shows it is not needed. Recorded so it is not defended out of habit.
 
 - Feeding `resources/agent_skills_pdf.txt` to every reviewer. The checklist now states everything the reviewers need and outranks it. Drop it if one full pass shows no reviewer drew on it.
-- The auto-generated trigger-case fallback prompts in `run_parallel_skill_reviews.sh`. Generic filler when a skill has no usable bullets; a review pass may show hand-written cases are always required.
