@@ -1,0 +1,10 @@
+Files changed: skills/example-skill/SKILL.md
+
+Summary of edits: consolidated two overlapping caution notes into one (-6 lines, +2 lines).
+
+REMOVAL PROPOSALS: 1. skills/example-skill/references/appendix.md - restates the frontmatter description with no unique guidance; evidence: identical bullet list. Would lose nothing.
+
+DIFFERENTIATION: WEAK - unclear whether the consolidated note still covers the multi-provider case a frontier model would handle unprompted.
+
+QUESTIONS
+Does the multi-provider case in appendix.md need to survive the consolidation, or was it already redundant with the inline caution?

@@ -42,6 +42,18 @@ class InfraFailurePrecheckTests(unittest.TestCase):
         result = _classify_fixture("infra-negative-backticked-error.txt")
         self.assertEqual(result.outcome, Outcome.CHANGED)
 
+    def test_positional_guard_recovers_status_line_after_banner(self):
+        result = _classify_fixture("infra-guard-recovers-status-line.txt")
+        self.assertEqual(result.outcome, Outcome.CHANGED)
+        self.assertEqual(result.differentiation, "STRONG")
+        self.assertIsNone(result.removal_proposals)
+
+    def test_positional_guard_recovers_questions_after_banner(self):
+        result = _classify_fixture("infra-guard-recovers-questions.txt")
+        self.assertEqual(result.outcome, Outcome.QUESTIONS)
+        self.assertIsNone(result.differentiation)
+        self.assertIsNone(result.removal_proposals)
+
 
 class QuestionsDetectionTests(unittest.TestCase):
     def test_bare_questions_line(self):
@@ -144,6 +156,13 @@ class QuestionsOptionalBlocksTests(unittest.TestCase):
                 self.assertEqual(result.outcome, Outcome.QUESTIONS)
                 self.assertIsNone(result.removal_proposals)
                 self.assertIsNone(result.differentiation)
+
+    def test_questions_outcome_returns_present_differentiation_and_removal_blocks(self):
+        result = _classify_fixture("questions-with-differentiation-and-removal.txt")
+        self.assertEqual(result.outcome, Outcome.QUESTIONS)
+        self.assertEqual(result.differentiation, "WEAK")
+        self.assertIsNotNone(result.removal_proposals)
+        self.assertIn("appendix.md", result.removal_proposals)
 
 
 if __name__ == "__main__":
