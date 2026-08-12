@@ -218,19 +218,116 @@ run_skill() {
   local skill_dir="skills/$skill"
   local log="$LOGDIR/${skill}.log"
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
+  local guidance_rel="scripts/auditing/references/authoring-guidance.md"
+  local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
+  local prompt
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill"
     return 0
   fi
 
+  # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
+  # mis-parses an apostrophe inside a heredoc nested in command substitution.
+  IFS= read -r -d '' prompt <<EOF || true
+Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. Apply changes directly.
+
+Read first, in this order:
+- ${checklist_rel} - the binding bar. It outranks every other input, including the vendored resource below.
+- ${open_items_rel} - calls already settled. Arguing against one of these is wrong, not thorough.
+- ${guidance_rel} - depth behind the bar. Read the section you need when a judgment call is not obvious.
+- ${skill_dir}/SKILL.md and everything else under ${skill_dir}/.
+- ${pdf_rel} - background only, optional.
+
+Scope: only files under ${skill_dir}. Do not edit anything outside it.
+
+This review may subtract. Removing text is a first-class outcome, not a failure to add value.
+- Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
+- Propose, never execute: removing a whole ## section, a file under references/ or scripts/, or the skill itself. Give the evidence and what would be lost. The operator rules on it.
+- A review that deletes forty lines and adds none is successful. So is one that changes nothing.
+
+Differentiation - report it, never act on it:
+- Judge whether this skill changes what a frontier model would do unprompted. It earns its cost only with an opinionated house convention, a non-obvious process with real decision points, embedded tooling that makes behavior deterministic, or a correction for something models reliably get wrong.
+- Report STRONG or WEAK with one line of evidence. A WEAK verdict is a flag for the operator. Do not delete or rewrite the skill because of it.
+
+Rules:
+- Keep the skill independent: it must never require another skill to be installed, and never check for one.
+- Do not add brainstorming-gate or multi-agent dependencies.
+- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).
+- Keep activation cues and trigger tests out of SKILL.md.
+- Avoid time-sensitive facts and external network assumptions.
+- Structure follows the skill's job. Mandatory: the frontmatter contract, "Use this skill when", "Do not use this skill when". Every other section is earned - do not add one because other skills have it.
+- Voice: third person for the frontmatter description and the opening framing; imperative for procedure steps. No personas.
+- Write script paths skill-relative (scripts/x.sh), never repo-root style (skills/${skill}/scripts/x.sh), which does not resolve once the skill is installed.
+- If splitting references, add references/README.md as an index. Split when a reader does not need the material in line, not because a token count was crossed.
+- Measure reference file size with tiktoken (cl100k_base) using ${venv_python_rel}.
+- If anything is ambiguous, STOP and output QUESTIONS on a line of its own. Do not guess.
+
+Output, in this order:
+- Files changed (or "none")
+- Summary of edits, separating what was removed from what was added, with line counts
+- REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
+- DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
+- Verification run (if any)
+- Exactly one final status line, either:
+REVIEW_STATUS: NO-CHANGE
+or
+REVIEW_STATUS: CHANGED
+EOF
+
   (
     cd "$ROOT"
-    codex exec --sandbox "$SUBAGENT_SANDBOX" "Task: Evaluate ${skill_dir}/SKILL.md against ${checklist_rel} and update it (and any files under ${skill_dir}/ if needed) to fully comply. Apply changes directly.\nScope: Only touch files under ${skill_dir}. You may read ${checklist_rel} and ${pdf_rel}. Do not edit files outside ${skill_dir}.\nRules:\n- Keep the skill independent; do not require other skills to be installed.\n- Do not add brainstorming-gate or multi-agent dependencies.\n- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).\n- Do not delete or prune reference files. Splitting oversized references is required; removal is not allowed.\n- Keep activation examples out of SKILL.md: do not add Trigger phrases or Trigger test sections to the skill file.\n- If anything is ambiguous, STOP and output QUESTIONS (do not guess).\n- Avoid time-sensitive facts or external network assumptions.\n- If splitting references, create references/README.md as an index.\n- Measure reference file size using tiktoken (cl100k_base). Use the existing venv: ${venv_python_rel}. If a single reference exceeds ~1200 tokens or is clearly multi-topic, split it and add/update references/README.md.\nOutput:\n- Files changed\n- Summary of edits\n- Verification run (if any)"
+    codex exec --sandbox "$SUBAGENT_SANDBOX" "$prompt"
   ) >"$log" 2>&1 &
   echo "[queued] $skill -> $log"
+}
+
+review_status_from_log() {
+  local log="$1"
+  local verdict
+  verdict="$(grep -E '^REVIEW_STATUS: (NO-CHANGE|CHANGED)$' "$log" | tail -n1 | awk -F': ' '{print $2}')" || true
+  if [[ "$verdict" == "NO-CHANGE" || "$verdict" == "CHANGED" ]]; then
+    printf '%s\n' "$verdict"
+    return 0
+  fi
+  printf 'UNKNOWN\n'
+  return 0
+}
+
+differentiation_from_log() {
+  local log="$1"
+  local verdict
+  verdict="$(grep -Eo '^DIFFERENTIATION: (STRONG|WEAK)' "$log" | tail -n1 | awk '{print $2}')" || true
+  if [[ "$verdict" == "STRONG" || "$verdict" == "WEAK" ]]; then
+    printf '%s\n' "$verdict"
+    return 0
+  fi
+  printf 'UNKNOWN\n'
+  return 0
+}
+
+# Exit 0 when the log carries removal proposals the operator must rule on.
+has_removal_proposals() {
+  local log="$1"
+  awk '
+    /^REMOVAL PROPOSALS:/ {
+      collecting = 1
+      rest = $0
+      sub(/^REMOVAL PROPOSALS:[ \t]*/, "", rest)
+      if (rest != "") buf = buf " " rest
+      next
+    }
+    collecting && /^(DIFFERENTIATION:|REVIEW_STATUS:|QUESTIONS|Verification run)/ { collecting = 0; next }
+    collecting { buf = buf " " $0 }
+    END {
+      gsub(/[ \t.\-]+/, " ", buf)
+      gsub(/^ +| +$/, "", buf)
+      if (buf == "" || tolower(buf) == "none") exit 1
+      exit 0
+    }
+  ' "$log"
 }
 
 run_trigger_test() {
@@ -504,6 +601,10 @@ declare -a TRIGGER_TEST_FAILED_SKILLS=()
 declare -a TRIGGER_TEST_SKIPPED_SKILLS=()
 declare -a TRIGGER_CASE_GEN_FAILED_SKILLS=()
 declare -a SANITIZE_FAILED_SKILLS=()
+declare -a REVIEW_NO_CHANGE_SKILLS=()
+declare -a DIFFERENTIATION_WEAK_SKILLS=()
+declare -a DIFFERENTIATION_UNKNOWN_SKILLS=()
+declare -a REMOVAL_PROPOSAL_SKILLS=()
 
 reap_batch() {
   local i pid rc skill
@@ -511,13 +612,27 @@ reap_batch() {
     pid="${BATCH_PIDS[$i]}"
     skill="${BATCH_SKILLS[$i]}"
     local review_log="$LOGDIR/${skill}.log"
+    local review_status differentiation
     rc=0
     if wait "$pid"; then
       if grep -Eq '^QUESTIONS$' "$review_log"; then
         FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
         echo "[failed] $skill (blocked: QUESTIONS)"
       else
-        echo "[ok] $skill"
+        review_status="$(review_status_from_log "$review_log")"
+        differentiation="$(differentiation_from_log "$review_log")"
+        if [[ "$review_status" == "NO-CHANGE" ]]; then
+          REVIEW_NO_CHANGE_SKILLS+=("$skill")
+        fi
+        case "$differentiation" in
+          WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+          STRONG) ;;
+          *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+        esac
+        if has_removal_proposals "$review_log"; then
+          REMOVAL_PROPOSAL_SKILLS+=("$skill")
+        fi
+        echo "[ok] $skill (status $review_status, differentiation $differentiation)"
         REVIEW_OK_SKILLS+=("$skill")
       fi
     else
@@ -626,6 +741,36 @@ if (( AUDIT_AFTER == 1 )); then
 fi
 
 echo "Completed ${#SKILLS[@]} skills. Logs in $LOGDIR"
+
+# Reported, never failing: these need an operator ruling, not a fix by the runner.
+print_operator_decisions() {
+  local any=0
+  echo
+  echo "=== Operator decisions required ==="
+  if (( ${#DIFFERENTIATION_WEAK_SKILLS[@]} > 0 )); then
+    any=1
+    echo "Differentiation flagged WEAK (evidence in each log; nothing was removed):"
+    printf '  - %s\n' "${DIFFERENTIATION_WEAK_SKILLS[@]}"
+  fi
+  if (( ${#REMOVAL_PROPOSAL_SKILLS[@]} > 0 )); then
+    any=1
+    echo "Removal proposals awaiting a ruling (see REMOVAL PROPOSALS in each log):"
+    printf '  - %s\n' "${REMOVAL_PROPOSAL_SKILLS[@]}"
+  fi
+  if (( ${#DIFFERENTIATION_UNKNOWN_SKILLS[@]} > 0 )); then
+    any=1
+    echo "No differentiation verdict reported (reviewer did not follow the output contract):"
+    printf '  - %s\n' "${DIFFERENTIATION_UNKNOWN_SKILLS[@]}"
+  fi
+  if (( any == 0 )); then
+    echo "None."
+  fi
+  if (( ${#REVIEW_NO_CHANGE_SKILLS[@]} > 0 )); then
+    echo "Already at the bar, unchanged: ${#REVIEW_NO_CHANGE_SKILLS[@]}"
+  fi
+}
+print_operator_decisions
+
 if (( ${#FAILED_SKILLS[@]} > 0 )); then
   echo "Failed skills:"
   printf '  - %s\n' "${FAILED_SKILLS[@]}"

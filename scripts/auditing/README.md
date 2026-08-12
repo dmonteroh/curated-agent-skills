@@ -49,7 +49,7 @@ Useful options:
 ./scripts/auditing/run_parallel_skill_reviews.sh --batch-size 4
 
 # Target a subset
-./scripts/auditing/run_parallel_skill_reviews.sh --skill python --skill testing
+./scripts/auditing/run_parallel_skill_reviews.sh --skill testing --skill deps-audit
 
 # Run repo audit after subagent updates
 ./scripts/auditing/run_parallel_skill_reviews.sh --audit-after
@@ -67,12 +67,19 @@ Useful options:
 ## What Each File Does
 
 - `SKILL_REVIEW_CHECKLIST.md`
-  - The canonical quality gate for skill content.
-  - Enforces tool-style language, trigger phrases/tests, structured instructions, outputs, and reference decomposition.
+  - The binding quality bar for skill content; always loaded by reviewers, and it outranks the resources below.
+  - Covers the frontmatter contract, the use/do-not-use boundary, differentiation, mandatory subtraction, earned structure, voice, executable instructions, references, budgets, and independence.
+
+- `references/authoring-guidance.md`
+  - Depth behind the bar, read on demand: the pruning taxonomy, a worked differentiation contrast, over-constraint, leading words, teach-by-contrast, behavioral gates, and the patterns this library rejects on purpose.
+
+- `OPEN_ITEMS.md`
+  - Settled calls a reviewer must not re-open, the parity register for deliberately duplicated blocks, deferred lints, and trial-gated removal candidates.
 
 - `run_parallel_skill_reviews.sh`
   - Spawns parallel subagent reviews (10 per batch by default).
-  - Applies changes directly under each skill folder.
+  - Applies changes directly under each skill folder, subtraction included.
+  - Collects per-skill `REVIEW_STATUS`, `DIFFERENTIATION`, and `REMOVAL PROPOSALS` into an operator-decisions summary.
   - Spawns a second trigger-test subagent phase after successful review updates.
   - Supports targeting specific skills and dry-run planning.
   - Reports per-skill success/failure with log paths.
@@ -93,10 +100,11 @@ Useful options:
 
 ### Checklist rules
 
-- **Tool-style language**: Skills are a knowledge/method layer, not an agent persona.
+- **Tool-style language**: Skills are a knowledge/method layer, not an agent persona. Since 2026-08-11 the framing stays third person while procedure steps may use the imperative.
 - **Trigger cases + trigger tests**: Ensures activation behavior is predictable and repeatable without adding test prompts to SKILL.md.
-- **Structured workflow**: Step outputs + decision points prevent ambiguous execution.
+- **Structured workflow**: Step outputs + decision points prevent ambiguous execution. Structure beyond the frontmatter contract and the use/do-not-use boundary is earned by the skill's job, not imposed by a template.
 - **Reference decomposition**: Long or multi-topic references are split and indexed to keep SKILL.md concise and navigable.
+- **Subtraction**: Reviews must prune. Removing text is a first-class outcome; whole sections, reference files, and whole skills are proposed for the operator rather than removed.
 
 ### Reference indexing threshold
 

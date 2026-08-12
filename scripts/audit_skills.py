@@ -4,15 +4,29 @@ from __future__ import annotations
 """
 Repo-wide skill quality/performance audit.
 
-Checks (intentionally lightweight; no PyYAML dependency):
+Checks (intentionally lightweight; no PyYAML dependency).
+
+Issues (fail the run):
 - SKILL.md has YAML frontmatter with name + description + metadata.category
 - Frontmatter uses only supported top-level keys: name, description, metadata
 - Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
-- Entry point (SKILL.md) is <= 200 lines (performance guardrail)
 - Backticked local file references inside a skill resolve (for refs like `references/x.md`)
+- Repo-root-style skill paths (`skills/<name>/...`) anywhere in the file, fenced code
+  included. They do not resolve once the skill is installed to ~/.codex/skills/<name>/.
 - No network assumptions in SKILL.md (skills should be usable offline)
 - Frontmatter name matches folder name (avoid agent confusion)
 - Name + description token budget (frontmatter) stays within bounds
+
+Warnings (reported, do not fail):
+- Entry point (SKILL.md) over 200 lines. Length follows the job; see
+  scripts/auditing/SKILL_REVIEW_CHECKLIST.md section 10.
+- A section heading immediately restated by its own first sentence (sediment).
+- Non-canonical spelling of a known heading family (lint, not a judgment call).
+- Activation cues or trigger phrases inside SKILL.md; they belong in
+  scripts/auditing/trigger-cases/<skill>.md.
+
+Heading families here and section 5 of the checklist are a parity pair; see
+scripts/auditing/OPEN_ITEMS.md.
 """
 
 import argparse
@@ -40,6 +54,100 @@ KV_RE = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
 KV_WITH_INDENT_RE = re.compile(r"^(\s*)([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)$")
 REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS = {"name", "description", "metadata"}
 ALLOWED_FRONTMATTER_KEYS = REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS
+
+# Parity pair with section 5 of scripts/auditing/SKILL_REVIEW_CHECKLIST.md.
+CANONICAL_HEADINGS = {
+    "workflow": "Workflow",
+    "output contract": "Output contract",
+    "required inputs": "Required inputs",
+    "common pitfalls": "Common pitfalls",
+    "decision points": "Decision points",
+    "constraints": "Constraints",
+    "examples": "Examples",
+    "references": "References",
+    "resources": "Resources",
+    "scripts": "Scripts",
+}
+# Word-order and plural variants only. Synonyms (Instructions vs Workflow) are a
+# reviewer's call, not a lint.
+HEADING_ALIASES = {
+    "common pitfalls to avoid": "common pitfalls",
+    "inputs required": "required inputs",
+    "example": "examples",
+    "reference": "references",
+    "resource": "resources",
+    "script": "scripts",
+}
+HEADING_STOPWORDS = {"the", "a", "an", "of", "to", "for", "and"}
+
+H2_RE = re.compile(r"^## +(.*)$")
+TRAILING_PAREN_RE = re.compile(r"\([^)]*\)$")
+REPO_ROOT_SKILL_PATH_RE = re.compile(r"(?:\./)?skills/[a-z0-9][a-z0-9-]*/[\w./-]+")
+ACTIVATION_CUE_MARKER_RE = re.compile(r"^[#*\- ]*(activation cue|trigger phrase|trigger test)", re.I)
+
+
+def _heading_findings(lines: list[str]) -> tuple[list[str], list[str]]:
+    """Split by how they get resolved.
+
+    variants:   case, plural, word order — mechanical, one right answer.
+    qualifiers: a known family carrying a parenthetical. Whether it scopes the
+                section or is vacuous is the reviewer's call, so it is reported
+                separately rather than auto-corrected.
+    """
+    variants: list[str] = []
+    qualifiers: list[str] = []
+    for line in lines:
+        m = H2_RE.match(line)
+        if not m:
+            continue
+        raw = m.group(1).strip()
+        stripped = TRAILING_PAREN_RE.sub("", raw).strip()
+        key = HEADING_ALIASES.get(stripped.lower(), stripped.lower())
+        canonical = CANONICAL_HEADINGS.get(key)
+        if not canonical:
+            continue
+        if stripped != canonical:
+            variants.append(f"{stripped}->{canonical}")
+        if stripped != raw:
+            qualifiers.append(raw)
+    return variants, qualifiers
+
+
+def _activation_cues(lines: list[str]) -> list[str]:
+    """Activation cues belong in scripts/auditing/trigger-cases/<skill>.md."""
+    return [line.strip() for line in lines if ACTIVATION_CUE_MARKER_RE.match(line.strip())]
+
+
+def _headings_restated(lines: list[str]) -> list[str]:
+    """Headings whose own first sentence repeats them — template sediment."""
+    out: list[str] = []
+    for idx, line in enumerate(lines):
+        m = H2_RE.match(line)
+        if not m:
+            continue
+        heading = m.group(1).strip()
+        base = TRAILING_PAREN_RE.sub("", heading).strip().lower()
+        words = [w for w in re.findall(r"[a-z]+", base) if w not in HEADING_STOPWORDS]
+        if len(words) < 2:
+            continue
+        nxt = _first_prose_line(lines, idx + 1)
+        if nxt is None:
+            continue
+        following = re.findall(r"[a-z]+", nxt.lower())[:14]
+        if all(w in following for w in words):
+            out.append(heading)
+    return out
+
+
+def _first_prose_line(lines: list[str], start: int) -> str | None:
+    for line in lines[start:]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith(("#", "|", "```", ">")):
+            return None
+        return stripped
+    return None
 
 
 def _parse_frontmatter(text: str) -> dict[str, str]:
@@ -176,11 +284,32 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
     if not category:
         issues.append("missing_metadata_category_in_frontmatter")
 
+    # Length follows the job; see SKILL_REVIEW_CHECKLIST.md section 10.
     if len(lines) > 200:
-        issues.append(f"entry_over_200_lines:{len(lines)}")
+        warnings.append(f"entry_over_200_lines:{len(lines)}")
 
     if name and name != dirpath.name:
         issues.append(f"name_folder_mismatch:{name}!={dirpath.name}")
+
+    # Repo-root paths break once the skill is installed to ~/.codex/skills/<name>/.
+    # Scanned over the whole file, fenced code included.
+    repo_root_paths = sorted(set(REPO_ROOT_SKILL_PATH_RE.findall(text)))
+    if repo_root_paths:
+        issues.append("repo_root_skill_path:" + ",".join(repo_root_paths))
+
+    variants, qualifiers = _heading_findings(lines)
+    if variants:
+        warnings.append("heading_variant:" + ",".join(variants))
+    if qualifiers:
+        warnings.append("heading_qualifier:" + ",".join(qualifiers))
+
+    restated = _headings_restated(lines)
+    if restated:
+        warnings.append("heading_restated:" + ",".join(restated))
+
+    cues = _activation_cues(lines)
+    if cues:
+        warnings.append(f"activation_cues_in_skill_md:{len(cues)}")
 
     missing = []
     for rel in sorted(_find_backtick_paths(text)):
