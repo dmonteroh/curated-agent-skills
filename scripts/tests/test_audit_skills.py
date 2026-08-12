@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -253,12 +255,40 @@ class UnreadableSkillFileTest(unittest.TestCase):
             self.assertEqual(issues, ["unreadable_skill_file:SKILL.md:UnicodeDecodeError"])
             self.assertEqual(warnings, [])
 
-    def test_broken_symlink_skill_md_skipped_upstream_of_scan(self):
+    def test_broken_symlink_skill_md_reported_not_raised(self):
         with tempfile.TemporaryDirectory() as tmp:
             dirpath = Path(tmp) / "sample"
             dirpath.mkdir()
             (dirpath / "SKILL.md").symlink_to(dirpath / "missing-target.md")
-            self.assertFalse((dirpath / "SKILL.md").is_file())
+            issues, warnings = audit.scan_skill(dirpath, token_checks=False)
+            self.assertEqual(issues, ["unreadable_skill_file:SKILL.md:FileNotFoundError"])
+            self.assertEqual(warnings, [])
+
+
+class MainSkipsBrokenSymlinkSkillMdTest(unittest.TestCase):
+    def test_broken_symlink_skill_md_excluded_from_main_without_raising(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_skill(
+                root,
+                "good-skill",
+                MINIMAL_FRONTMATTER.format(name="good-skill") + "## Workflow\nDo it.\n",
+            )
+            bad_dir = root / "bad-skill"
+            bad_dir.mkdir()
+            (bad_dir / "SKILL.md").symlink_to(bad_dir / "missing-target.md")
+
+            original_skills_root = audit.SKILLS_ROOT
+            audit.SKILLS_ROOT = root
+            try:
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    exit_code = audit.main(["--no-token-checks"])
+            finally:
+                audit.SKILLS_ROOT = original_skills_root
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("skills: 1", out.getvalue())
 
 
 class GoldenSnapshotTest(unittest.TestCase):
