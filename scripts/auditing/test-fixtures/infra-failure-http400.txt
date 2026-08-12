@@ -1,0 +1,62 @@
+OpenAI Codex v0.46.0 (research preview)
+--------
+workdir: /Users/daniel.montero/repo/curated-agent-skills
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: high
+reasoning summaries: auto
+session id: 019feff6-c2db-7971-b4bf-e135358d880f
+--------
+user
+Task: Review skills/backend-architect/SKILL.md against the binding quality bar and bring it to that bar. Apply changes directly.
+
+Read first, in this order:
+- scripts/auditing/SKILL_REVIEW_CHECKLIST.md - the binding bar. It outranks every other input, including the vendored resource below.
+- scripts/auditing/OPEN_ITEMS.md - calls already settled. Arguing against one of these is wrong, not thorough.
+- scripts/auditing/references/authoring-guidance.md - depth behind the bar. Read the section you need when a judgment call is not obvious.
+- skills/backend-architect/SKILL.md and everything else under skills/backend-architect/.
+- scripts/auditing/resources/agent_skills_pdf.txt - background only, optional.
+
+Scope: only files under skills/backend-architect. Do not edit anything outside it.
+
+This review may subtract. Removing text is a first-class outcome, not a failure to add value.
+- Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
+- Propose, never execute: removing a whole ## section, a file under references/ or scripts/, or the skill itself. Give the evidence and what would be lost. The operator rules on it.
+- A review that deletes forty lines and adds none is successful. So is one that changes nothing.
+
+Differentiation - report it, never act on it:
+- Judge whether this skill changes what a frontier model would do unprompted. It earns its cost only with an opinionated house convention, a non-obvious process with real decision points, embedded tooling that makes behavior deterministic, or a correction for something models reliably get wrong.
+- Report STRONG or WEAK with one line of evidence. A WEAK verdict is a flag for the operator. Do not delete or rewrite the skill because of it.
+
+Rules:
+- Keep the skill independent: it must never require another skill to be installed, and never check for one.
+- Do not add brainstorming-gate or multi-agent dependencies.
+- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).
+- Keep activation cues and trigger tests out of SKILL.md.
+- Avoid time-sensitive facts and external network assumptions.
+- Structure follows the skill's job. Mandatory: the frontmatter contract, "Use this skill when", "Do not use this skill when". Every other section is earned - do not add one because other skills have it.
+- Voice: third person for the frontmatter description and the opening framing; imperative for procedure steps. No personas.
+- Write script paths skill-relative (scripts/x.sh), never repo-root style (skills/backend-architect/scripts/x.sh), which does not resolve once the skill is installed.
+- If splitting references, add references/README.md as an index. Split when a reader does not need the material in line, not because a token count was crossed.
+- Measure reference file size with tiktoken (cl100k_base) using .venv/bin/python.
+- If anything is ambiguous, STOP and output QUESTIONS on a line of its own. Do not guess.
+
+Output, in this order:
+- Files changed (or "none")
+- Summary of edits, separating what was removed from what was added, with line counts
+- REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
+- DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
+- Verification run (if any)
+- Exactly one final status line, either:
+REVIEW_STATUS: NO-CHANGE
+or
+REVIEW_STATUS: CHANGED
+
+stream error: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}; retrying 1/5 in 180ms…
+stream error: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}; retrying 2/5 in 428ms…
+stream error: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}; retrying 3/5 in 824ms…
+stream error: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}; retrying 4/5 in 1.47s…
+stream error: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}; retrying 5/5 in 3.241s…
+ERROR: unexpected status 400 Bad Request: {"detail":"The 'gpt-5.5' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again."}

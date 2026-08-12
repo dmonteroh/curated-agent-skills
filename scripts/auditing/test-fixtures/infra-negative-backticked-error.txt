@@ -1,0 +1,11 @@
+Files changed: skills/error-handling/SKILL.md
+
+Summary of edits: clarified the retry guidance section (+3 lines).
+
+The client should surface a readable message instead of leaking `ERROR: unexpected status` text to end users.
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: STRONG - corrects a common mistake of leaking raw transport errors to end users.
+
+REVIEW_STATUS: CHANGED

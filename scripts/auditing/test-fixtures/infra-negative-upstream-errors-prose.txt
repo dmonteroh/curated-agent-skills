@@ -1,0 +1,13 @@
+Files changed: skills/api-design/SKILL.md
+
+Summary of edits: added an anti-pattern list item (+1 line).
+
+Anti-patterns:
+- Throwing raw upstream errors with no guidance.
+- Wrapping endpoints without a workflow goal.
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: WEAK - restates general API hygiene already covered elsewhere.
+
+REVIEW_STATUS: NO-CHANGE

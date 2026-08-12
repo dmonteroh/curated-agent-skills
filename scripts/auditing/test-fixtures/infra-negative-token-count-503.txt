@@ -1,0 +1,13 @@
+Files changed: none
+
+Summary of edits: audited reference file sizes with tiktoken; no edits needed.
+
+  1539  skills/subagent-orchestrator/SKILL.md
+  503  skills/subagent-orchestrator/references/execution-modes.md
+  297  skills/subagent-orchestrator/references/execution-single-worker.md
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: WEAK - no new convention found beyond the existing reference split.
+
+REVIEW_STATUS: NO-CHANGE
