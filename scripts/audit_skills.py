@@ -252,13 +252,19 @@ def _find_backtick_paths(text: str) -> set[str]:
 def _skill_texts(dirpath: Path) -> tuple[list[tuple[str, str]], list[str]]:
     """(skill-relative POSIX path, text) for SKILL.md, then references/*.md, then resources/*.md.
 
-    One level deep (checklist section 9): `glob`, not `rglob`. A `references/`/`resources/`
-    file that cannot be read (broken symlink, non-UTF-8 content) is reported in the second
-    return value as `<rel_file>:<ExceptionType>` instead of raising, so one bad file does not
-    stop the scan of the rest of the skill or the rest of the library.
+    One level deep (checklist section 9): `glob`, not `rglob`. Any of these files that cannot
+    be read (broken symlink, non-UTF-8 content) is reported in the second return value as
+    `<rel_file>:<ExceptionType>` instead of raising, so one bad file never crashes the library
+    scan. An unreadable `references/`/`resources/` file leaves the rest of the skill's checks
+    intact; an unreadable `SKILL.md` leaves no text for the caller to check at all, so it is
+    still reported here but the caller treats it as the skill's only finding.
     """
-    pairs = [("SKILL.md", (dirpath / "SKILL.md").read_text(encoding="utf-8"))]
+    pairs: list[tuple[str, str]] = []
     unreadable: list[str] = []
+    try:
+        pairs.append(("SKILL.md", (dirpath / "SKILL.md").read_text(encoding="utf-8")))
+    except (OSError, UnicodeDecodeError) as exc:
+        unreadable.append(f"SKILL.md:{type(exc).__name__}")
     for sub in ("references", "resources"):
         subdir = dirpath / sub
         if not subdir.is_dir():
@@ -307,6 +313,8 @@ def _token_count(text: str) -> int:
 
 def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
     skill_texts, unreadable_texts = _skill_texts(dirpath)
+    if not skill_texts or skill_texts[0][0] != "SKILL.md":
+        return ["unreadable_skill_file:" + ",".join(sorted(unreadable_texts))], []
     text = skill_texts[0][1]
     lines = text.splitlines()
     fm = _parse_frontmatter(text)

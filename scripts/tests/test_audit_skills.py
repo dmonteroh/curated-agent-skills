@@ -241,6 +241,25 @@ class UnreadableSkillFileTest(unittest.TestCase):
             self.assertTrue(any(i.startswith("repo_root_skill_path:") for i in issues))
             self.assertTrue(any(i.startswith("unreadable_skill_file:") for i in issues))
 
+    def test_non_utf8_skill_md_reported_not_raised(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+            )
+            (dirpath / "SKILL.md").write_bytes(b"\xff\xfe\x00\x01bad")
+            issues, warnings = audit.scan_skill(dirpath, token_checks=False)
+            self.assertEqual(issues, ["unreadable_skill_file:SKILL.md:UnicodeDecodeError"])
+            self.assertEqual(warnings, [])
+
+    def test_broken_symlink_skill_md_skipped_upstream_of_scan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = Path(tmp) / "sample"
+            dirpath.mkdir()
+            (dirpath / "SKILL.md").symlink_to(dirpath / "missing-target.md")
+            self.assertFalse((dirpath / "SKILL.md").is_file())
+
 
 class GoldenSnapshotTest(unittest.TestCase):
     def test_ac7_scan_skill_matches_recorded_snapshot_for_all_skills(self):
