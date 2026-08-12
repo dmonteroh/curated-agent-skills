@@ -43,7 +43,7 @@ Delete without asking:
 - a vacuous heading qualifier — `(Deterministic)`, `(Always)`, `(best results)`;
 - a workflow step whose only output is "report per the output contract".
 
-Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, or the skill itself. A proposal carries the evidence and what would be lost; the operator rules on it.
+Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 
 **Adding is not the goal.** A review that removes forty lines and adds none is a successful review. So is one that changes nothing.
 
@@ -101,4 +101,4 @@ Exactly one status line ends a review:
 - `REVIEW_STATUS: CHANGED` — edits applied.
 - `QUESTIONS` — blocked on ambiguity. Do not guess.
 
-Alongside it, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none.
+Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.

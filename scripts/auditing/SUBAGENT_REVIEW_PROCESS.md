@@ -72,8 +72,7 @@ This document describes the repeatable workflow for running **parallelized subag
 Reviews may subtract. This reverses the previous rule, which forbade removal outright and made growth the only sanctioned outcome.
 
 - **Delete autonomously**: sentences restating their own heading, restatements of the frontmatter description, duplicate statements of a rule already made in the same file, vacuous heading qualifiers, and steps whose only output is "report per the output contract".
-- **Propose, never execute**: removing a whole `##` section, a file under `references/` or `scripts/`, or the skill itself. Proposals carry evidence and what would be lost.
-- **The operator rules on every proposal.** No review removes a skill.
+- Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 
 Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and the dispatch prompt in `run_parallel_skill_reviews.sh` — see the parity register in `OPEN_ITEMS.md`.
 
@@ -84,7 +83,7 @@ A review is acceptable when all seven hold. Gate 1 can only be satisfied by a su
 1. **Pruning pass ran.** The log names every sentence, step, and qualifier deleted, or states that the pass found nothing to cut. Silence is a failure.
 2. **Differentiation reported.** One `DIFFERENTIATION: STRONG|WEAK` line with evidence. Never acted on.
 3. **Boundary intact.** Frontmatter contract complete; both `Use this skill when` and `Do not use this skill when` present.
-4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`.
+4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`. A skill whose in-`SKILL.md` cues were surfaced as a removal proposal and written into `trigger-cases/<skill>.md` does not fail this gate.
 5. **Steps are executable.** Every step yields an artifact, a decision, or a command run — not an instruction to report. Decision points are explicit.
 6. **Budgets held.** Frontmatter and `SKILL.md` token limits respected; `references/` one level deep with an index at two or more files.
 7. **Nothing settled was re-opened.** No change argues against a call recorded in `OPEN_ITEMS.md`.
@@ -96,6 +95,8 @@ Every log ends with exactly one status line:
 - `REVIEW_STATUS: NO-CHANGE` — the skill already meets the bar. A successful outcome, not a reason to find something to add.
 - `REVIEW_STATUS: CHANGED` — edits applied, subtraction included.
 - `QUESTIONS` — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
+
+Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.
 
 The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling.
 

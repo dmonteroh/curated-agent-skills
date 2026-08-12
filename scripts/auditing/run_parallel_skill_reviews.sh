@@ -201,9 +201,9 @@ Read first, in this order:
 
 Scope: only files under ${skill_dir}. Do not edit anything outside it.
 
-This review may subtract. Removing text is a first-class outcome, not a failure to add value.
+Every review runs a pruning pass and reports its result, including "nothing to cut". Removing text is a first-class outcome, not a failure to add value.
 - Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
-- Propose, never execute: removing a whole ## section, a file under references/ or scripts/, or the skill itself. Give the evidence and what would be lost. The operator rules on it.
+- Propose, never execute: removing a whole section, a file under references/ or scripts/, the skill itself, or activation cues found in SKILL.md. Give the evidence and what would be lost; the operator rules on it. For activation cues, write the cue content directly into trigger-cases/<skill>.md - the one scoped exception to dispatch scope - and file a removal proposal for the SKILL.md-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 - A review that deletes forty lines and adds none is successful. So is one that changes nothing.
 
 Differentiation - report it, never act on it:
@@ -229,10 +229,7 @@ Output, in this order:
 - REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
 - DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
 - Verification run (if any)
-- Exactly one final status line, either:
-REVIEW_STATUS: NO-CHANGE
-or
-REVIEW_STATUS: CHANGED
+- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither.
 EOF
 
   (
