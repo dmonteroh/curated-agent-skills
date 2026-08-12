@@ -17,6 +17,8 @@ Issues (fail the run):
 - No network assumptions in SKILL.md (skills should be usable offline)
 - Frontmatter name matches folder name (avoid agent confusion)
 - Name + description token budget (frontmatter) stays within bounds
+- A references/*.md or resources/*.md file that cannot be read (broken symlink,
+  non-UTF-8 content) is reported rather than aborting the scan
 
 Warnings (reported, do not fail):
 - Entry point (SKILL.md) over 200 lines. Length follows the job; see
@@ -247,19 +249,27 @@ def _find_backtick_paths(text: str) -> set[str]:
     return out
 
 
-def _skill_texts(dirpath: Path) -> list[tuple[str, str]]:
+def _skill_texts(dirpath: Path) -> tuple[list[tuple[str, str]], list[str]]:
     """(skill-relative POSIX path, text) for SKILL.md, then references/*.md, then resources/*.md.
 
-    One level deep (checklist section 9): `glob`, not `rglob`.
+    One level deep (checklist section 9): `glob`, not `rglob`. A `references/`/`resources/`
+    file that cannot be read (broken symlink, non-UTF-8 content) is reported in the second
+    return value as `<rel_file>:<ExceptionType>` instead of raising, so one bad file does not
+    stop the scan of the rest of the skill or the rest of the library.
     """
     pairs = [("SKILL.md", (dirpath / "SKILL.md").read_text(encoding="utf-8"))]
+    unreadable: list[str] = []
     for sub in ("references", "resources"):
         subdir = dirpath / sub
         if not subdir.is_dir():
             continue
         for f in sorted(subdir.glob("*.md")):
-            pairs.append((f.relative_to(dirpath).as_posix(), f.read_text(encoding="utf-8")))
-    return pairs
+            rel = f.relative_to(dirpath).as_posix()
+            try:
+                pairs.append((rel, f.read_text(encoding="utf-8")))
+            except (OSError, UnicodeDecodeError) as exc:
+                unreadable.append(f"{rel}:{type(exc).__name__}")
+    return pairs, unreadable
 
 
 def _repo_root_skill_paths(skill_texts: list[tuple[str, str]]) -> list[str]:
@@ -296,13 +306,15 @@ def _token_count(text: str) -> int:
 
 
 def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
-    skill_texts = _skill_texts(dirpath)
+    skill_texts, unreadable_texts = _skill_texts(dirpath)
     text = skill_texts[0][1]
     lines = text.splitlines()
     fm = _parse_frontmatter(text)
 
     issues: list[str] = []
     warnings: list[str] = []
+    if unreadable_texts:
+        issues.append("unreadable_skill_file:" + ",".join(sorted(unreadable_texts)))
     name = fm.get("name", "").strip()
     desc = fm.get("description", "").strip()
     category = fm.get("metadata.category", "").strip()

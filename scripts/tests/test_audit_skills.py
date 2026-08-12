@@ -106,7 +106,8 @@ class SkillTextsAttributionTest(unittest.TestCase):
                 references={"b.md": "Nothing here.\n", "a.md": "Nothing here.\n"},
                 resources={"z.md": "Nothing here.\n"},
             )
-            pairs = audit._skill_texts(dirpath)
+            pairs, unreadable = audit._skill_texts(dirpath)
+            self.assertEqual(unreadable, [])
             self.assertEqual(
                 [rel for rel, _ in pairs],
                 ["SKILL.md", "references/a.md", "references/b.md", "resources/z.md"],
@@ -195,11 +196,74 @@ class SkillInternalPrefixFilterTest(unittest.TestCase):
             self.assertEqual(match, "missing_local_refs:SKILL.md:docs/adr/README.md")
 
 
+class UnreadableSkillFileTest(unittest.TestCase):
+    def test_broken_symlink_reported_not_raised(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={"a.md": "Nothing here.\n"},
+            )
+            (dirpath / "references" / "broken.md").symlink_to(
+                dirpath / "references" / "missing-target.md"
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("unreadable_skill_file:"))
+            self.assertEqual(match, "unreadable_skill_file:references/broken.md:FileNotFoundError")
+
+    def test_non_utf8_file_reported_not_raised(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={"a.md": "Nothing here.\n"},
+            )
+            (dirpath / "references" / "binary.md").write_bytes(b"\xff\xfe\x00\x01bad")
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("unreadable_skill_file:"))
+            self.assertEqual(match, "unreadable_skill_file:references/binary.md:UnicodeDecodeError")
+
+    def test_unreadable_file_does_not_abort_other_checks_on_same_skill(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample")
+                + "## Workflow\n`skills/sample/scripts/z.sh`\n",
+            )
+            (dirpath / "references").mkdir()
+            (dirpath / "references" / "broken.md").symlink_to(
+                dirpath / "references" / "missing-target.md"
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            self.assertTrue(any(i.startswith("repo_root_skill_path:") for i in issues))
+            self.assertTrue(any(i.startswith("unreadable_skill_file:") for i in issues))
+
+
 class GoldenSnapshotTest(unittest.TestCase):
     def test_ac7_scan_skill_matches_recorded_snapshot_for_all_skills(self):
         snapshot = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
         actual = generate_snapshot.build_snapshot()
-        self.assertEqual(actual, snapshot)
+
+        expected_names = [s["name"] for s in snapshot]
+        actual_names = [s["name"] for s in actual]
+        if actual_names != expected_names:
+            added = sorted(set(actual_names) - set(expected_names))
+            removed = sorted(set(expected_names) - set(actual_names))
+            self.fail(
+                "skill roster changed vs. snapshot: "
+                f"added={added} removed={removed} "
+                f"expected_count={len(expected_names)} actual_count={len(actual_names)}"
+            )
+
+        expected_by_name = {s["name"]: s for s in snapshot}
+        actual_by_name = {s["name"]: s for s in actual}
+        for name, expected in expected_by_name.items():
+            with self.subTest(skill=name):
+                self.maxDiff = None
+                self.assertEqual(actual_by_name[name], expected, msg=f"skill={name}")
 
 
 if __name__ == "__main__":
