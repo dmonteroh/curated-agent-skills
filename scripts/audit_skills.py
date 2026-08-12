@@ -10,9 +10,10 @@ Issues (fail the run):
 - SKILL.md has YAML frontmatter with name + description + metadata.category
 - Frontmatter uses only supported top-level keys: name, description, metadata
 - Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
-- Backticked local file references inside a skill resolve (for refs like `references/x.md`)
-- Repo-root-style skill paths (`skills/<name>/...`) anywhere in the file, fenced code
-  included. They do not resolve once the skill is installed to ~/.codex/skills/<name>/.
+- Backticked local file references inside a skill resolve (for refs like `references/x.md`),
+  scanned over SKILL.md plus its references/*.md and resources/*.md, one level deep
+- Repo-root-style skill paths (`skills/<name>/...`), scanned over the same files, fenced
+  code included. They do not resolve once the skill is installed to ~/.codex/skills/<name>/.
 - No network assumptions in SKILL.md (skills should be usable offline)
 - Frontmatter name matches folder name (avoid agent confusion)
 - Name + description token budget (frontmatter) stays within bounds
@@ -82,8 +83,11 @@ HEADING_STOPWORDS = {"the", "a", "an", "of", "to", "for", "and"}
 
 H2_RE = re.compile(r"^## +(.*)$")
 TRAILING_PAREN_RE = re.compile(r"\([^)]*\)$")
-REPO_ROOT_SKILL_PATH_RE = re.compile(r"(?:\./)?skills/[a-z0-9][a-z0-9-]*/[\w./-]+")
+REPO_ROOT_SKILL_PATH_RE = re.compile(
+    r"(?<![\w./~-])(?:\.{1,2}/)?skills/[A-Za-z0-9][A-Za-z0-9_-]*/[\w./-]*?\.(?:md|sh|py|txt|cjs|ts|js)"
+)
 ACTIVATION_CUE_MARKER_RE = re.compile(r"^[#*\- ]*(activation cue|trigger phrase|trigger test)", re.I)
+SKILL_INTERNAL_REF_PREFIXES = ("references/", "resources/", "scripts/", "assets/", "templates/")
 
 
 def _heading_findings(lines: list[str]) -> tuple[list[str], list[str]]:
@@ -243,6 +247,45 @@ def _find_backtick_paths(text: str) -> set[str]:
     return out
 
 
+def _skill_texts(dirpath: Path) -> list[tuple[str, str]]:
+    """(skill-relative POSIX path, text) for SKILL.md, then references/*.md, then resources/*.md.
+
+    One level deep (checklist section 9): `glob`, not `rglob`.
+    """
+    pairs = [("SKILL.md", (dirpath / "SKILL.md").read_text(encoding="utf-8"))]
+    for sub in ("references", "resources"):
+        subdir = dirpath / sub
+        if not subdir.is_dir():
+            continue
+        for f in sorted(subdir.glob("*.md")):
+            pairs.append((f.relative_to(dirpath).as_posix(), f.read_text(encoding="utf-8")))
+    return pairs
+
+
+def _repo_root_skill_paths(skill_texts: list[tuple[str, str]]) -> list[str]:
+    found: set[str] = set()
+    for rel_file, text in skill_texts:
+        for m in REPO_ROOT_SKILL_PATH_RE.finditer(text):
+            found.add(f"{rel_file}:{m.group(0)}")
+    return sorted(found)
+
+
+def _missing_local_refs(dirpath: Path, skill_texts: list[tuple[str, str]]) -> list[str]:
+    missing: set[str] = set()
+    for rel_file, text in skill_texts:
+        for ref in _find_backtick_paths(text):
+            if rel_file != "SKILL.md" and not ref.startswith(SKILL_INTERNAL_REF_PREFIXES):
+                continue
+            p = (dirpath / ref).resolve()
+            try:
+                p.relative_to(dirpath.resolve())
+            except Exception:
+                continue
+            if not p.exists():
+                missing.add(f"{rel_file}:{ref}")
+    return sorted(missing)
+
+
 def _token_count(text: str) -> int:
     global _TOKEN_ENCODER
     if _TOKEN_ENCODER is None:
@@ -253,8 +296,8 @@ def _token_count(text: str) -> int:
 
 
 def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
-    skill_file = dirpath / "SKILL.md"
-    text = skill_file.read_text(encoding="utf-8")
+    skill_texts = _skill_texts(dirpath)
+    text = skill_texts[0][1]
     lines = text.splitlines()
     fm = _parse_frontmatter(text)
 
@@ -292,8 +335,8 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
         issues.append(f"name_folder_mismatch:{name}!={dirpath.name}")
 
     # Repo-root paths break once the skill is installed to ~/.codex/skills/<name>/.
-    # Scanned over the whole file, fenced code included.
-    repo_root_paths = sorted(set(REPO_ROOT_SKILL_PATH_RE.findall(text)))
+    # Scanned over SKILL.md plus references/resources, fenced code included.
+    repo_root_paths = _repo_root_skill_paths(skill_texts)
     if repo_root_paths:
         issues.append("repo_root_skill_path:" + ",".join(repo_root_paths))
 
@@ -311,16 +354,7 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
     if cues:
         warnings.append(f"activation_cues_in_skill_md:{len(cues)}")
 
-    missing = []
-    for rel in sorted(_find_backtick_paths(text)):
-        p = (dirpath / rel).resolve()
-        try:
-            p.relative_to(dirpath.resolve())
-        except Exception:
-            # Ignore paths that escape the skill dir.
-            continue
-        if not p.exists():
-            missing.append(rel)
+    missing = _missing_local_refs(dirpath, skill_texts)
     if missing:
         issues.append("missing_local_refs:" + ",".join(missing))
 

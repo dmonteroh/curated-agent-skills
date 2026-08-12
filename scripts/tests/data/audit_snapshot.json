@@ -1,0 +1,397 @@
+[
+  {
+    "issues": [],
+    "name": "adr-madr-system",
+    "warnings": [
+      "heading_qualifier:Output contract (always report)",
+      "heading_restated:Quality gates"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "api-documenter",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "architect-review",
+    "warnings": [
+      "heading_variant:Example->Examples"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "auth-implementation-patterns",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "backend-architect",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
+      "heading_qualifier:Output Contract (Always)",
+      "heading_restated:Use this skill when,Do not use this skill when"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "brainstorming",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Output Contract (Always),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "cdd-context",
+    "warnings": [
+      "heading_variant:Inputs required->Required inputs",
+      "heading_qualifier:Workflow (single canonical process),Scripts (optional automation)",
+      "activation_cues_in_skill_md:1"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "changelog-automation",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "chaos-engineer",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "cli-tools",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "cloud-architect",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "code-explain",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "code-review",
+    "warnings": [
+      "heading_qualifier:Workflow (best performance, best results)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "cost-optimization",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "database-architect",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract,Example->Examples",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)",
+      "heading_restated:Use this skill when"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "database-cost-optimization",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "database-migration-orm",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "database-migration-sql",
+    "warnings": [
+      "heading_qualifier:Workflow (step-by-step)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "database-performance",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (step-by-step)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "deployment-engineer",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (Deterministic),Output contract (Always),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "deps-audit",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "devops-engineer",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "doc-generate",
+    "warnings": [
+      "heading_variant:Inputs required->Required inputs",
+      "heading_qualifier:Workflow (best results, best speed)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "frontend-design",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (Deterministic),Output contract (Always)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "gdpr-data-handling",
+    "warnings": [
+      "heading_variant:Inputs required->Required inputs,Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (fast, high-signal)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "git-workflow",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "google-stitch-ai",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Resources (Optional)",
+      "activation_cues_in_skill_md:1"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "grafana-dashboards",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls,Example->Examples",
+      "heading_qualifier:Workflow (Deterministic),Example (Input \u2192 Output),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "jira-issue-management",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "mcp-server-development",
+    "warnings": [
+      "heading_variant:Inputs required->Required inputs,Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "mermaid-expert",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls,Example->Examples"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "migration-observability",
+    "warnings": [
+      "heading_qualifier:Workflow (step-by-step with outputs),Output contract (reporting format)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "monitoring-expert",
+    "warnings": [
+      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract",
+      "activation_cues_in_skill_md:1"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "monorepo-engineering",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (fast, deterministic),Output contract (report format),References (load as needed)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "office-files",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "pdf-files",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "performance",
+    "warnings": [
+      "heading_qualifier:Workflow (orchestration),Output contract (reporting format)",
+      "activation_cues_in_skill_md:1"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "postgresql-engineering",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "pr-description",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "prompt-engineering",
+    "warnings": [
+      "heading_qualifier:Workflow (step-by-step)"
+    ]
+  },
+  {
+    "issues": [
+      "repo_root_skill_path:references/analysis-and-hotspots.md:skills/refactor-clean/scripts/scan_hotspots.sh"
+    ],
+    "name": "refactor-clean",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "secrets-management",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "security-auditor",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "shell-scripting",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "smart-conventional-commits",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "sre-engineer",
+    "warnings": [
+      "heading_variant:Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)",
+      "activation_cues_in_skill_md:1"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "subagent-orchestrator",
+    "warnings": [
+      "heading_variant:Required Inputs->Required inputs,Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "tech-debt",
+    "warnings": [
+      "heading_variant:Example->Examples"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "terraform-engineer",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "testing",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Output contract (always report)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "tracks-conductor-protocol",
+    "warnings": [
+      "heading_qualifier:Workflow (unified)",
+      "heading_restated:Core principles"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "tutorial-engineer",
+    "warnings": [
+      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "ui-design",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls",
+      "heading_qualifier:Workflow (deterministic),Output contract (always),Resources (optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "ui-visual-validator",
+    "warnings": [
+      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "ux-interview",
+    "warnings": [
+      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
+    ]
+  }
+]

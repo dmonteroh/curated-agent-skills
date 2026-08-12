@@ -1,0 +1,206 @@
+from __future__ import annotations
+
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+TESTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+sys.path.insert(0, str(TESTS_DIR))
+
+import audit_skills as audit  # noqa: E402
+import generate_snapshot  # noqa: E402
+
+MINIMAL_FRONTMATTER = (
+    "---\n"
+    "name: {name}\n"
+    "description: test skill\n"
+    "metadata:\n"
+    "  category: testing\n"
+    "---\n\n"
+)
+
+SNAPSHOT_PATH = TESTS_DIR / "data" / "audit_snapshot.json"
+
+
+def _write_skill(
+    root: Path,
+    name: str,
+    skill_md: str,
+    references: dict[str, str] | None = None,
+    resources: dict[str, str] | None = None,
+) -> Path:
+    dirpath = root / name
+    dirpath.mkdir(parents=True)
+    (dirpath / "SKILL.md").write_text(skill_md, encoding="utf-8")
+    for sub, files in (("references", references or {}), ("resources", resources or {})):
+        if not files:
+            continue
+        subdir = dirpath / sub
+        subdir.mkdir()
+        for fname, content in files.items():
+            (subdir / fname).write_text(content, encoding="utf-8")
+    return dirpath
+
+
+class RepoRootSkillPathRegexTest(unittest.TestCase):
+    def test_ac1_live_false_negative_closed(self):
+        dirpath = REPO_ROOT / "skills" / "refactor-clean"
+        issues, _ = audit.scan_skill(dirpath, token_checks=False)
+        matches = [i for i in issues if i.startswith("repo_root_skill_path:")]
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(
+            matches[0],
+            "repo_root_skill_path:references/analysis-and-hotspots.md:"
+            "skills/refactor-clean/scripts/scan_hotspots.sh",
+        )
+
+    def test_ac2_documented_install_paths_not_reported(self):
+        install_paths = [
+            "~/.codex/skills/testing/SKILL.md",
+            "~/.claude/skills/testing/SKILL.md",
+            ".codex/skills/testing/SKILL.md",
+            ".claude/skills/testing/SKILL.md",
+        ]
+        for path in install_paths:
+            with self.subTest(path=path):
+                self.assertEqual(list(audit.REPO_ROOT_SKILL_PATH_RE.finditer(path)), [])
+
+    def test_ac3_uppercase_folder_reported(self):
+        got = [m.group(0) for m in audit.REPO_ROOT_SKILL_PATH_RE.finditer("skills/Testing/SKILL.md")]
+        self.assertEqual(got, ["skills/Testing/SKILL.md"])
+
+    def test_ac3_underscore_folder_reported(self):
+        got = [m.group(0) for m in audit.REPO_ROOT_SKILL_PATH_RE.finditer("skills/my_skill/scripts/x.sh")]
+        self.assertEqual(got, ["skills/my_skill/scripts/x.sh"])
+
+    def test_ac3_parent_relative_prefix_preserved(self):
+        got = [
+            m.group(0)
+            for m in audit.REPO_ROOT_SKILL_PATH_RE.finditer("../skills/refactor-clean/scripts/x.sh")
+        ]
+        self.assertEqual(got, ["../skills/refactor-clean/scripts/x.sh"])
+
+    def test_ac3_trailing_sentence_period_excluded(self):
+        got = [
+            m.group(0)
+            for m in audit.REPO_ROOT_SKILL_PATH_RE.finditer("See skills/refactor-clean/scripts/x.sh.")
+        ]
+        self.assertEqual(got, ["skills/refactor-clean/scripts/x.sh"])
+
+    def test_ac3_prose_not_reported(self):
+        got = list(audit.REPO_ROOT_SKILL_PATH_RE.finditer("Agent skills/tools/registry are evolving"))
+        self.assertEqual(got, [])
+
+
+class SkillTextsAttributionTest(unittest.TestCase):
+    def test_ac4_reads_skill_md_then_sorted_references_then_resources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={"b.md": "Nothing here.\n", "a.md": "Nothing here.\n"},
+                resources={"z.md": "Nothing here.\n"},
+            )
+            pairs = audit._skill_texts(dirpath)
+            self.assertEqual(
+                [rel for rel, _ in pairs],
+                ["SKILL.md", "references/a.md", "references/b.md", "resources/z.md"],
+            )
+
+    def test_ac4_repo_root_finding_names_source_file_sorted_comma_joined(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample")
+                + "## Workflow\n`skills/sample/scripts/z.sh`\n",
+                references={"a.md": "`skills/sample/scripts/a.sh`\n"},
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("repo_root_skill_path:"))
+            self.assertEqual(
+                match,
+                "repo_root_skill_path:"
+                "SKILL.md:skills/sample/scripts/z.sh,"
+                "references/a.md:skills/sample/scripts/a.sh",
+            )
+
+    def test_ac4_missing_local_refs_names_source_file_sorted_comma_joined(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample")
+                + "## Workflow\nSee `references/missing.md`.\n",
+                references={"a.md": "See `references/also-missing.md`.\n"},
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("missing_local_refs:"))
+            self.assertEqual(
+                match,
+                "missing_local_refs:"
+                "SKILL.md:references/missing.md,"
+                "references/a.md:references/also-missing.md",
+            )
+
+
+class SkillInternalPrefixFilterTest(unittest.TestCase):
+    def test_ac5_project_layout_paths_in_references_not_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={
+                    "a.md": (
+                        "See `docs/adr/README.md`, `conductor/product.md`, "
+                        "and `tracks/x/spec.md`.\n"
+                    )
+                },
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            self.assertFalse(any(i.startswith("missing_local_refs:") for i in issues))
+
+    def test_ac5_skill_internal_prefix_still_checked_in_references(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={"a.md": "See `references/missing.md` and `scripts/missing.sh`.\n"},
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("missing_local_refs:"))
+            self.assertEqual(
+                match,
+                "missing_local_refs:"
+                "references/a.md:references/missing.md,"
+                "references/a.md:scripts/missing.sh",
+            )
+
+    def test_ac5_skill_md_missing_local_refs_behavior_unfiltered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nSee `docs/adr/README.md`.\n",
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            match = next(i for i in issues if i.startswith("missing_local_refs:"))
+            self.assertEqual(match, "missing_local_refs:SKILL.md:docs/adr/README.md")
+
+
+class GoldenSnapshotTest(unittest.TestCase):
+    def test_ac7_scan_skill_matches_recorded_snapshot_for_all_skills(self):
+        snapshot = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+        actual = generate_snapshot.build_snapshot()
+        self.assertEqual(actual, snapshot)
+
+
+if __name__ == "__main__":
+    unittest.main()
