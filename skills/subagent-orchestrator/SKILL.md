@@ -121,10 +121,10 @@ Output: approved task board with claim-set checks.
 
 ### 3) Prepare Packets
 
-- Use `references/packet-templates.md`.
-- For implementer packets use `implementer-prompt.md` as a copy-paste base.
-- For reviewer packets use `spec-reviewer-prompt.md` and `code-quality-reviewer-prompt.md`.
+- Use `references/packet-templates.md` for the worker, reviewer, and final-report shapes.
+- A packet is complete when it carries all of: a one-sentence outcome, read-first paths, an allowed/forbidden claim set, inputs and evidence, acceptance criteria, the controller-run verification commands, and the deliverable shape. A packet missing any of these is a weak packet — fix it before dispatch.
 - Include strict stop rules for ambiguity, scope expansion, and unrelated refactors.
+- Richer role-prompt libraries exist outside this skill; https://github.com/dmonteroh/ai-workflows maintains a catalog of role templates. Treat it as a source to adapt from, not a dependency: this skill stays self-contained.
 
 Output: one packet per task.
 
@@ -195,6 +195,3 @@ Use the canonical structure in `references/packet-templates.md` (`Final Report T
 - `references/runtime-codex.md`
 - `references/runtime-claude.md`
 - `references/agent-optimization.md`
-- `implementer-prompt.md`
-- `spec-reviewer-prompt.md`
-- `code-quality-reviewer-prompt.md`

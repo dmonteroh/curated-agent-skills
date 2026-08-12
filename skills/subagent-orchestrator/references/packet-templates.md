@@ -64,6 +64,8 @@ Deliverable:
 
 ## Reviewer Packet Template (Read-Only)
 
+The two review types are independent axes and are not merged: code that is well built can implement the wrong thing (passes code-quality, fails spec-compliance), and code that meets the spec can be badly built. Run spec-compliance first; run code-quality after it passes, or when quality review is requested regardless.
+
 ```text
 Review type: <spec-compliance | code-quality>
 
@@ -74,15 +76,29 @@ Inputs:
 - Requirements/spec:
 - Files changed:
 - Diff summary (optional):
+- Optional: diff range <base sha>..<head sha>
 
 Rules:
 - Read-only. Do not modify files.
+- Do not trust the implementer's report. Verify by reading the code and diffs.
 - Cite file paths/lines for findings.
 - State verification gaps explicitly.
 
+Checks (code-quality):
+- Correctness: edge cases, error handling, concurrency, idempotency.
+- Maintainability: naming, structure, duplication, complexity.
+- Safety: secrets and logging, unsafe defaults, dangerous operations.
+- Tests: present, and actually validating behavior rather than restating it.
+- Verification gap: were the right commands run, by anyone?
+
+Checks (spec-compliance):
+- Missing requirements, with file references.
+- Extra or unrequested scope, with file references.
+- Ambiguities in the spec, raised as questions for the controller.
+
 Deliverable:
 - Verdict: pass | fail | needs-info
-- Findings by severity
+- Findings ordered by severity: Critical | Important | Minor
 - Concrete fixes (file paths)
 - Verification gaps (commands to run)
 ```
