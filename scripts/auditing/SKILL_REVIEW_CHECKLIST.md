@@ -17,7 +17,8 @@ Depth and worked examples live in `references/authoring-guidance.md`. Calls alre
 
 - Frontmatter carries `name`, `description`, and `metadata.category`, and no other top-level key.
 - `name` equals the folder name, lowercase with hyphens.
-- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget.
+- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget — soft limit 110 tokens, hard limit 120 tokens. These are a derived default from `resources/agent_skills_pdf.txt` (a single third-party source), not measured data.
+- Any frontmatter value containing `: ` (colon followed by a space) must be quoted, `description` included — unquoted, it fails the audit (`description_requires_quotes_for_colons`, `frontmatter_unquoted_colon:<key>`).
 - Activation cues live in `scripts/auditing/trigger-cases/<skill>.md`, never in `SKILL.md`.
 
 ## 2. Boundary — mandatory
@@ -35,13 +36,15 @@ Report `DIFFERENTIATION: STRONG` or `DIFFERENTIATION: WEAK` with one line of evi
 
 Every review runs a pruning pass and reports its result, including "nothing to cut".
 
-Delete without asking:
+Delete without asking — this list is closed, the complete enumeration of what a reviewer deletes on its own:
 
 - a sentence that restates its own heading;
 - a restatement of the frontmatter description;
 - a second statement of a rule already stated elsewhere in the same file (One Rule, One Home);
 - a vacuous heading qualifier — `(Deterministic)`, `(Always)`, `(best results)`;
 - a workflow step whose only output is "report per the output contract".
+
+Anything outside these five is proposed, never executed.
 
 Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 
@@ -51,7 +54,7 @@ Propose, never execute: removing a whole section, a file under `references/` or 
 
 Beyond §1 and §2, shape follows the job. A skill with one procedure gets one procedure; a skill guarding six failure modes gets a section per failure mode. Never add a section because other skills have one.
 
-When a section from a known family is present, use its canonical heading: `Workflow`, `Output contract`, `Required inputs`, `Common pitfalls`, `Decision points`, `Constraints`, `Examples`, `References`, `Scripts`. Wording variants are lint, not voice.
+When a section from a known family is present, use its canonical heading: `Workflow`, `Output contract`, `Required inputs`, `Common pitfalls`, `Decision points`, `Constraints`, `Examples`, `References`, `Resources`, `Scripts`. Wording variants are lint, not voice.
 
 ## 6. Voice
 
@@ -84,7 +87,7 @@ When a section from a known family is present, use its canonical heading: `Workf
 
 ## 10. Size
 
-- `SKILL.md` stays under ~5000 tokens; warning at 4500.
+- `SKILL.md` stays under a hard limit of 5001 tokens; warning (soft limit) at 4500. Same provenance as §1's frontmatter budget: a derived default from `resources/agent_skills_pdf.txt`, not measured data.
 - Length beyond 200 lines is a warning, not a defect. The job sets the length.
 
 ## 11. Independence — mandatory
@@ -94,6 +97,8 @@ When a section from a known family is present, use its canonical heading: `Workf
 - Patterns this library rejects on purpose — routers, cross-skill `/name` invocation, shared setup skills, hard dependencies, plugin-only distribution — and the reasoning: `references/authoring-guidance.md`.
 
 ## Verdicts
+
+This checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule.
 
 Exactly one status line ends a review:
 

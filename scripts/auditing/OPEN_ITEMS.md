@@ -12,7 +12,8 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | --- | --- |
 | 2026-08-11 | **Structure is bounded, not fixed.** Mandatory: the frontmatter contract and both boundary sections. Every other section is earned by the skill's job. The old mandatory skeleton is withdrawn. |
 | 2026-08-11 | **Voice is split.** Imperative for procedure steps; third person for the frontmatter `description` and the opening framing. Personas remain banned. |
-| 2026-08-11 | **Removal authority is split.** A reviewer deletes intra-file no-ops, heading restatements, and duplicates on its own. Whole sections, files under `references/` or `scripts/`, and whole skills are proposed with evidence and never executed. The operator has the last call on every removal. |
+| 2026-08-11 | **Removal authority is split.** A reviewer deletes on its own only the five items closed by `SKILL_REVIEW_CHECKLIST.md` §4 — glossed here as intra-file no-ops, heading restatements, and duplicates, granting nothing beyond that closed set. Whole sections, files under `references/` or `scripts/`, and whole skills are proposed with evidence and never executed. The operator has the last call on every removal. |
+| 2026-08-12 | **Checklist-vs-settled-call conflicts are reported, not adjudicated.** The checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) — `SKILL_REVIEW_CHECKLIST.md:3`. Settled calls recorded in this file are not "other guidance": they are recorded operator decisions on judgment the checklist leaves open, and line 9 above still governs disagreement with them. Where the checklist's current text and a settled call genuinely contradict, that is a defect in the bar: the reviewer applies neither, reports the conflict naming both `file:line` anchors, and the operator rules. |
 | 2026-08-11 | **Differentiation is a flag.** `DIFFERENTIATION: WEAK` is reported with evidence and acted on by nobody but the operator. It is not a removal trigger. |
 | 2026-08-11 | **Repair versus re-author is the reviewer's call**, per skill, within the removal authority above. |
 | 2026-08-11 | **The bar is three files**: `SKILL_REVIEW_CHECKLIST.md` (binding, always loaded), `references/authoring-guidance.md` (depth, read on demand), this file (memory). |
@@ -33,7 +34,8 @@ Blocks that exist in more than one file on purpose. Edit every member in the sam
 | Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · the dispatch prompt's Output block · the `grep -E` patterns in `run_parallel_skill_reviews.sh` |
 | Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` |
 | Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §1, §9, §10 · the check names emitted by `scripts/audit_skills.py` |
-| Skill lifecycle steps | `SKILL_REVIEW_CHECKLIST.md` §1 · `.agent/docs/repo-map.md` "Workflow: add a skill" (local, gitignored) |
+
+**Dropped 2026-08-12: `Skill lifecycle steps`** (`SKILL_REVIEW_CHECKLIST.md` §1 · `.agent/docs/repo-map.md` "Workflow: add a skill"). The member is gitignored, the family name did not match its members, and reviewers are prohibited from editing it — no reviewer or checker could ever verify this row. `.agent/docs/repo-map.md` now carries a one-line pointer back to the checklist instead.
 
 ## Open — awaiting the operator
 
