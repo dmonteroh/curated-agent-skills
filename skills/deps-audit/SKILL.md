@@ -84,8 +84,8 @@ Report a concise summary with the following sections:
 `scripts/deps.sh` provides `scan` and `report` commands.
 
 - Usage:
-  - `./skills/deps-audit/scripts/deps.sh scan`
-  - `./skills/deps-audit/scripts/deps.sh report`
+  - `scripts/deps.sh scan`
+  - `scripts/deps.sh report`
   - Optional: set `DEPS_REPO_ROOT=/path/to/repo` to target another repo.
 - Required tools (best-effort only): `npm`, `pnpm`, `yarn`, `pip-audit`, `govulncheck`, `cargo-audit`.
 - Verification:

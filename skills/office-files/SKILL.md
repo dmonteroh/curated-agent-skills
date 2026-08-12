@@ -41,23 +41,23 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 All scripts are stdlib-only and work without external Python deps.
 Required: Python 3 with access to the local filesystem.
-Run from the repo root with `skills/office-files/scripts/...`, or from the skill folder with `scripts/...`.
+Run from the skill folder; paths below are relative to it.
 
 - Inspect package structure:
   ```bash
-  python3 skills/office-files/scripts/office_inspect.py path/to/file.docx
+  python3 scripts/office_inspect.py path/to/file.docx
   ```
 - Extract to Markdown:
   ```bash
-  python3 skills/office-files/scripts/office_extract.py path/to/file.pptx --format md > out.md
+  python3 scripts/office_extract.py path/to/file.pptx --format md > out.md
   ```
 - Extract to JSON (for downstream tooling):
   ```bash
-  python3 skills/office-files/scripts/office_extract.py path/to/file.xlsx --format json > out.json
+  python3 scripts/office_extract.py path/to/file.xlsx --format json > out.json
   ```
 - Diff two office files (text diff):
   ```bash
-  python3 skills/office-files/scripts/office_diff.py old.docx new.docx
+  python3 scripts/office_diff.py old.docx new.docx
   ```
 
 Verification: if you generate a modified file or derived artifact, open it in Office or LibreOffice to confirm the content matches expectations.

@@ -150,15 +150,15 @@ Example output (unit mode):
 ## Quick start (in a real repo)
 
 ```sh
-./skills/testing/scripts/test.sh plan
-./skills/testing/scripts/test.sh report
+sh scripts/test.sh plan
+sh scripts/test.sh report
 ```
 
-Outputs a deterministic report under `docs/_docgen/testing/`.
+Run from the skill folder. Set `TEST_ROOT=/path/to/repo` to target a repository elsewhere; it defaults to the current directory. Outputs a deterministic report under `docs/_docgen/testing/`.
 
 Script usage and verification:
-- `./skills/testing/scripts/test.sh plan` writes `docs/_docgen/testing/PLAN.md`.
-- `./skills/testing/scripts/test.sh report` writes `docs/_docgen/testing/REPORT.md`.
+- `scripts/test.sh plan` writes `docs/_docgen/testing/PLAN.md`.
+- `scripts/test.sh report` writes `docs/_docgen/testing/REPORT.md`.
 - Verify by opening the generated file; the script does not run tests.
 - Optional: install `rg` for faster file counting (fallback uses `find`).
 
