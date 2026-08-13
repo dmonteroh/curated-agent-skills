@@ -1,0 +1,10 @@
+Files changed: skills/example-skill/SKILL.md
+
+Summary of edits: removed a workflow step whose only output was the output contract restated (-3 lines).
+
+    REMOVAL PROPOSALS:
+    1. skills/example-skill/references/old-table.md - duplicate of the inline table added this pass. Would lose nothing.
+
+DIFFERENTIATION: STRONG - the inline table is a deterministic lookup the model would not otherwise author.
+
+REVIEW_STATUS: CHANGED

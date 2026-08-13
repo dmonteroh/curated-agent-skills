@@ -4,23 +4,18 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHECKLIST="$ROOT/scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
 PDFTXT="$ROOT/scripts/auditing/resources/agent_skills_pdf.txt"
-TRIGGER_CASES_DIR="$ROOT/scripts/auditing/trigger-cases"
 LOGDIR="$ROOT/scripts/auditing/logs"
 BATCH_SIZE=10
 SUBAGENT_SANDBOX="${SUBAGENT_SANDBOX:-danger-full-access}"
+REVIEW_MODEL="${REVIEW_MODEL:-}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 VENV="$ROOT/.venv"
 SKILLS_FILE="$ROOT/scripts/auditing/skills_list.txt"
 DRY_RUN=0
 NO_INSTALL=0
-AUDIT_AFTER=0
-RUN_TRIGGER_TESTS=1
-FAIL_ON_MISSING_TRIGGER_CASES=1
-AUTO_GENERATE_TRIGGER_CASES=1
 declare -a REQUESTED_SKILLS=()
 
 mkdir -p "$LOGDIR"
-mkdir -p "$TRIGGER_CASES_DIR"
 
 usage() {
   cat <<USAGE
@@ -30,26 +25,20 @@ Options:
   --batch-size N        Number of concurrent skill reviews (default: 10)
   --subagent-sandbox M  Sandbox passed to nested codex exec calls:
                         workspace-write | danger-full-access (default: danger-full-access)
+  --model NAME          Model passed to nested codex exec calls (default:
+                        unset, client default from ~/.codex/config.toml)
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
-  --trigger-cases-dir PATH
-                        Directory containing per-skill trigger files (<skill>.md)
   --list-skills         Print discovered skills and exit
   --dry-run             Show planned work without invoking codex
   --no-install          Skip installing audit dependencies
-  --audit-after         Run scripts/audit_skills.py after all subagent runs
-  --no-trigger-tests    Skip trigger test subagent phase
-  --no-generate-trigger-cases
-                        Do not auto-create missing trigger-cases files
-  --fail-on-missing-trigger-cases
-                        Fail run if a skill has no trigger-cases file
-  --allow-missing-trigger-cases
-                        Allow missing trigger-cases files without failing
   -h, --help            Show this help
 
 Environment:
   PYTHON_BIN            Python interpreter to use (default: python3)
   SUBAGENT_SANDBOX      Nested codex exec sandbox override (same values as --subagent-sandbox)
+  REVIEW_MODEL          Model override (same values as --model; default: unset,
+                        client default from ~/.codex/config.toml)
 USAGE
 }
 
@@ -65,16 +54,16 @@ while (( "$#" )); do
       SUBAGENT_SANDBOX="${2:-}"
       shift 2
       ;;
+    --model)
+      REVIEW_MODEL="${2:-}"
+      shift 2
+      ;;
     --skill)
       REQUESTED_SKILLS+=("${2:-}")
       shift 2
       ;;
     --skills-file)
       SKILLS_FILE_OVERRIDE="${2:-}"
-      shift 2
-      ;;
-    --trigger-cases-dir)
-      TRIGGER_CASES_DIR="${2:-}"
       shift 2
       ;;
     --list-skills)
@@ -87,26 +76,6 @@ while (( "$#" )); do
       ;;
     --no-install)
       NO_INSTALL=1
-      shift
-      ;;
-    --audit-after)
-      AUDIT_AFTER=1
-      shift
-      ;;
-    --no-trigger-tests)
-      RUN_TRIGGER_TESTS=0
-      shift
-      ;;
-    --no-generate-trigger-cases)
-      AUTO_GENERATE_TRIGGER_CASES=0
-      shift
-      ;;
-    --fail-on-missing-trigger-cases)
-      FAIL_ON_MISSING_TRIGGER_CASES=1
-      shift
-      ;;
-    --allow-missing-trigger-cases)
-      FAIL_ON_MISSING_TRIGGER_CASES=0
       shift
       ;;
     -h|--help)
@@ -147,12 +116,13 @@ if (( NO_INSTALL == 0 )); then
   "$VENV/bin/python" -m pip install -r "$ROOT/scripts/requirements-audit.txt" >/dev/null
 fi
 
-mkdir -p "$TRIGGER_CASES_DIR"
-
 if (( DRY_RUN == 0 )) && ! command -v codex >/dev/null 2>&1; then
   echo "error: codex command not found in PATH" >&2
   exit 1
 fi
+
+echo "codex client: $(codex --version 2>/dev/null || echo unknown)"
+echo "model requested: ${REVIEW_MODEL:-client default (~/.codex/config.toml)}"
 
 "$VENV/bin/python" - <<PY >"$SKILLS_FILE"
 from pathlib import Path
@@ -217,17 +187,27 @@ run_skill() {
   local skill="$1"
   local skill_dir="skills/$skill"
   local log="$LOGDIR/${skill}.log"
+  local last_msg="$LOGDIR/${skill}.last-message.txt"
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
   local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
   local prompt
+  local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg")
+  if [[ -n "$REVIEW_MODEL" ]]; then
+    codex_args+=(--model "$REVIEW_MODEL")
+  fi
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill"
+    printf '[dry-run] codex'
+    printf ' %q' "${codex_args[@]}"
+    printf ' <dispatch-prompt>\n'
     return 0
   fi
+
+  rm -f "$last_msg"
 
   # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
   # mis-parses an apostrophe inside a heredoc nested in command substitution.
@@ -243,9 +223,9 @@ Read first, in this order:
 
 Scope: only files under ${skill_dir}. Do not edit anything outside it.
 
-This review may subtract. Removing text is a first-class outcome, not a failure to add value.
+Every review runs a pruning pass and reports its result, including "nothing to cut". Removing text is a first-class outcome, not a failure to add value.
 - Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
-- Propose, never execute: removing a whole ## section, a file under references/ or scripts/, or the skill itself. Give the evidence and what would be lost. The operator rules on it.
+- Propose, never execute: removing a whole section, a file under references/ or scripts/, the skill itself, or activation cues found in SKILL.md. Give the evidence and what would be lost; the operator rules on it. For activation cues, write the cue content directly into trigger-cases/<skill>.md - the one scoped exception to dispatch scope - and file a removal proposal for the SKILL.md-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 - A review that deletes forty lines and adds none is successful. So is one that changes nothing.
 
 Differentiation - report it, never act on it:
@@ -271,325 +251,47 @@ Output, in this order:
 - REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
 - DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
 - Verification run (if any)
-- Exactly one final status line, either:
-REVIEW_STATUS: NO-CHANGE
-or
-REVIEW_STATUS: CHANGED
+- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither.
 EOF
 
   (
     cd "$ROOT"
-    codex exec --sandbox "$SUBAGENT_SANDBOX" "$prompt"
+    codex "${codex_args[@]}" "$prompt"
   ) >"$log" 2>&1 &
   echo "[queued] $skill -> $log"
 }
 
-review_status_from_log() {
-  local log="$1"
-  local verdict
-  verdict="$(grep -E '^REVIEW_STATUS: (NO-CHANGE|CHANGED)$' "$log" | tail -n1 | awk -F': ' '{print $2}')" || true
-  if [[ "$verdict" == "NO-CHANGE" || "$verdict" == "CHANGED" ]]; then
-    printf '%s\n' "$verdict"
-    return 0
-  fi
-  printf 'UNKNOWN\n'
-  return 0
-}
-
-differentiation_from_log() {
-  local log="$1"
-  local verdict
-  verdict="$(grep -Eo '^DIFFERENTIATION: (STRONG|WEAK)' "$log" | tail -n1 | awk '{print $2}')" || true
-  if [[ "$verdict" == "STRONG" || "$verdict" == "WEAK" ]]; then
-    printf '%s\n' "$verdict"
-    return 0
-  fi
-  printf 'UNKNOWN\n'
-  return 0
-}
-
-# Exit 0 when the log carries removal proposals the operator must rule on.
-has_removal_proposals() {
-  local log="$1"
-  awk '
-    /^REMOVAL PROPOSALS:/ {
-      collecting = 1
-      rest = $0
-      sub(/^REMOVAL PROPOSALS:[ \t]*/, "", rest)
-      if (rest != "") buf = buf " " rest
-      next
-    }
-    collecting && /^(DIFFERENTIATION:|REVIEW_STATUS:|QUESTIONS|Verification run)/ { collecting = 0; next }
-    collecting { buf = buf " " $0 }
-    END {
-      gsub(/[ \t.\-]+/, " ", buf)
-      gsub(/^ +| +$/, "", buf)
-      if (buf == "" || tolower(buf) == "none") exit 1
-      exit 0
-    }
-  ' "$log"
-}
-
-run_trigger_test() {
-  local skill="$1"
-  local trigger_file="${TRIGGER_CASES_DIR}/${skill}.md"
-  local log="$LOGDIR/${skill}.trigger-test.log"
-  local skill_file="$ROOT/skills/$skill/SKILL.md"
-  local skill_file_rel="skills/$skill/SKILL.md"
-  local trigger_file_rel
-  local skill_text trigger_text prompt
-  trigger_file_rel="${trigger_file#"$ROOT"/}"
-
-  if (( DRY_RUN == 1 )); then
-    if [[ -f "$trigger_file" ]]; then
-      echo "[dry-run] would trigger-test: $skill using $trigger_file"
-    else
-      echo "[dry-run] would trigger-test: $skill (after trigger-cases generation)"
-    fi
-    return 0
-  fi
-
-  if [[ ! -f "$trigger_file" ]]; then
-    if (( FAIL_ON_MISSING_TRIGGER_CASES == 1 )); then
-      echo "[failed] $skill trigger test: missing $trigger_file"
-      TRIGGER_TEST_FAILED_SKILLS+=("$skill (missing trigger cases)")
-    else
-      echo "[skipped] $skill trigger test: missing $trigger_file"
-      TRIGGER_TEST_SKIPPED_SKILLS+=("$skill")
-    fi
-    return 0
-  fi
-
-  skill_text="$(cat "$skill_file")"
-  trigger_text="$(cat "$trigger_file")"
-  prompt="$(cat <<EOF
-Task: Run activation tests for skill '${skill}' after its review update.
-Inputs are embedded below.
-
-Skill definition (source: ${skill_file_rel}):
-<skill_md>
-${skill_text}
-</skill_md>
-
-Trigger cases (source: ${trigger_file_rel}):
-<trigger_cases_md>
-${trigger_text}
-</trigger_cases_md>
-
-Instructions:
-- Parse trigger cases from <trigger_cases_md>. Each case contains a prompt and expected activation (yes/no).
-- For each case, decide if the skill should activate and whether that matches expectation.
-- Provide a short rationale per case.
-- Provide one concise sample opening response for each case.
-- At the end, output exactly one status line:
-TRIGGER_TEST_STATUS: PASS
-or
-TRIGGER_TEST_STATUS: FAIL
-- Mark FAIL if any case mismatches expected activation or if inputs are ambiguous.
-Output:
-- Case-by-case results
-- Final status line
-EOF
-)"
-  (
-    cd "$ROOT"
-    codex exec --sandbox "$SUBAGENT_SANDBOX" "$prompt"
-  ) >"$log" 2>&1 &
-  echo "[queued] $skill trigger test -> $log"
-}
-
-trigger_test_status_from_log() {
-  local log="$1"
-  local status
-  status="$(grep -E '^TRIGGER_TEST_STATUS: (PASS|FAIL)$' "$log" | tail -n1 | awk -F': ' '{print $2}')"
-  if [[ "$status" == "PASS" || "$status" == "FAIL" ]]; then
-    printf '%s\n' "$status"
-    return 0
-  fi
-  printf 'UNKNOWN\n'
-  return 1
-}
-
-run_trigger_case_generation() {
-  local skill="$1"
-  local trigger_file="${TRIGGER_CASES_DIR}/${skill}.md"
-  local log="$LOGDIR/${skill}.trigger-cases.log"
-  local skill_file="$ROOT/skills/$skill/SKILL.md"
-  local rc=0
-
-  if [[ -f "$trigger_file" ]]; then
-    return 0
-  fi
-
-  if (( DRY_RUN == 1 )); then
-    echo "[dry-run] would generate trigger-cases: $skill -> $trigger_file"
-    return 0
-  fi
-
-  "$VENV/bin/python" - "$skill" "$skill_file" "$trigger_file" >"$log" 2>&1 <<'PY' || rc=$?
-from __future__ import annotations
-import re
+# Classification bridge: writes KEY=VALUE lines to out_file, always returns 0.
+classify_review() {
+  local msg_file="$1" out_file="$2"
+  : >"$out_file"
+  "$VENV/bin/python" - "$ROOT/scripts/auditing" "$msg_file" >"$out_file" 2>/dev/null <<'PY' || true
 import sys
 from pathlib import Path
-
-skill = sys.argv[1]
-skill_file = Path(sys.argv[2])
-out_file = Path(sys.argv[3])
-text = skill_file.read_text(encoding="utf-8")
-lines = text.splitlines()
-
-def section_bullets(title: str) -> list[str]:
-    bullets: list[str] = []
-    heading = f"## {title}".strip().lower()
-    in_sec = False
-    for line in lines:
-        s = line.strip()
-        if s.lower().startswith("## "):
-            in_sec = (s.lower() == heading)
-            continue
-        if not in_sec:
-            continue
-        if s.startswith("- "):
-            bullets.append(s[2:].strip())
-    return bullets
-
-def to_prompt(s: str, positive: bool) -> str:
-    s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s).strip().rstrip(".")
-    if not s:
-        return "I need help deciding an approach for an ambiguous task." if positive else "Implement this exact task now with no upfront planning."
-    if positive:
-        return f"I need help with this: {s}. Can you guide me?"
-    return f"Please do this exactly now: {s}. No planning, just implementation."
-
-positive = section_bullets("Use this skill when")
-negative = section_bullets("Do not use this skill when")
-
-pos_prompts = [to_prompt(p, True) for p in positive[:2]]
-while len(pos_prompts) < 2:
-    pos_prompts.append("Requirements are unclear and we need help comparing options before implementation.")
-
-neg_prompts = [to_prompt(n, False) for n in negative[:1]]
-if not neg_prompts:
-    neg_prompts = ["Implement this exact feature now; requirements are final and no design/exploration is needed."]
-
-content = [
-    f"# Trigger Cases: {skill}",
-    "",
-    "## Positive (should activate)",
-]
-for p in pos_prompts:
-    content.append(f'- prompt: "{p.replace(chr(34), chr(39))}"')
-    content.append("  expect_activate: yes")
-    content.append("")
-content.append("## Negative (should not activate)")
-for p in neg_prompts:
-    content.append(f'- prompt: "{p.replace(chr(34), chr(39))}"')
-    content.append("  expect_activate: no")
-
-out_file.parent.mkdir(parents=True, exist_ok=True)
-out_file.write_text("\n".join(content).rstrip() + "\n", encoding="utf-8")
-print(f"created: {out_file}")
-print(f"positive_cases: {len(pos_prompts)}")
-print(f"negative_cases: {len(neg_prompts)}")
+sys.path.insert(0, sys.argv[1])
+import review_log
+result = review_log.classify(Path(sys.argv[2]).read_text(encoding="utf-8", errors="replace"))
+print("OUTCOME=%s" % result.outcome.value)
+print("DIFFERENTIATION=%s" % result.differentiation)
+print("REMOVAL_PROPOSALS=%s" % ("1" if result.removal_proposals else "0"))
 PY
-  if (( rc != 0 )) || [[ ! -f "$trigger_file" ]]; then
-    TRIGGER_CASE_GEN_FAILED_SKILLS+=("$skill (generation failed)")
-    echo "[failed] $skill trigger-cases generation"
-    return 1
-  fi
-  echo "[ok] $skill trigger-cases generation"
   return 0
 }
 
-sanitize_skill_activation_sections() {
-  local skill="$1"
-  local skill_file="$ROOT/skills/$skill/SKILL.md"
-  local log="$LOGDIR/${skill}.sanitize.log"
-  local rc=0
+infra_reason_from_log() {
+  local log="$1" line=""
+  line="$(grep -E '^(ERROR:|stream error:)' "$log" | tail -n1)" || true
+  printf '%s\n' "$line"
+  return 0
+}
 
-  if (( DRY_RUN == 1 )); then
-    echo "[dry-run] would sanitize activation sections in $skill_file"
-    return 0
-  fi
-
-  "$VENV/bin/python" - "$skill_file" >"$log" 2>&1 <<'PY' || rc=$?
-from __future__ import annotations
-import re
-import sys
-from pathlib import Path
-
-skill_file = Path(sys.argv[1])
-lines = skill_file.read_text(encoding="utf-8").splitlines()
-out: list[str] = []
-i = 0
-changed = False
-
-while i < len(lines):
-    line = lines[i]
-    stripped = line.strip()
-
-    # Remove heading sections like:
-    # ## Trigger test
-    # ### Trigger phrases
-    if re.match(r"^#{1,6}\s+Trigger (phrases|tests?|test prompts?)\b", stripped, re.IGNORECASE):
-        changed = True
-        i += 1
-        while i < len(lines) and not re.match(r"^#{1,6}\s+", lines[i].strip()):
-            i += 1
-        continue
-
-    # Remove bold marker blocks like:
-    # **Trigger phrases**
-    # **Trigger test prompts**
-    if re.match(r"^\*\*Trigger (phrases|tests?|test prompts?)\*\*\s*$", stripped, re.IGNORECASE):
-        changed = True
-        i += 1
-        while i < len(lines):
-            s = lines[i].strip()
-            if re.match(r"^#{1,6}\s+", s):
-                break
-            if s == "" or s.startswith("- "):
-                i += 1
-                continue
-            break
-        continue
-
-    # Remove inline label blocks like:
-    # Trigger tests:
-    # Trigger test prompts:
-    # - Trigger phrases: "..."
-    if re.match(r"^(?:-\s*)?Trigger (phrases|tests?|test prompts?)\s*:\s*(.*)$", stripped, re.IGNORECASE):
-        changed = True
-        # If cue text is on the same line, removing this single line is enough.
-        # If it's a label-only line, also remove the following list block.
-        label_only = re.match(r"^(?:-\s*)?Trigger (phrases|tests?|test prompts?)\s*:\s*$", stripped, re.IGNORECASE) is not None
-        i += 1
-        if label_only:
-            while i < len(lines):
-                s = lines[i].strip()
-                if re.match(r"^#{1,6}\s+", s):
-                    break
-                if s == "" or s.startswith("- "):
-                    i += 1
-                    continue
-                break
-        continue
-
-    out.append(line)
-    i += 1
-
-text = "\n".join(out).rstrip() + "\n"
-if changed:
-    text = re.sub(r"\n{3,}", "\n\n", text)
-skill_file.write_text(text, encoding="utf-8")
-print(f"changed: {changed}")
-PY
-  if (( rc != 0 )); then
-    echo "[failed] $skill sanitize"
-    SANITIZE_FAILED_SKILLS+=("$skill (sanitize failed)")
-    return 1
-  fi
-  echo "[ok] $skill sanitize"
+# Run-level provenance: captured once, from the first reaped skill's log.
+capture_provenance() {
+  local log="$1"
+  if [[ -n "$CODEX_CLIENT_BANNER" ]]; then return 0; fi
+  if [[ ! -f "$log" ]]; then return 0; fi
+  CODEX_CLIENT_BANNER="$(head -n1 "$log")" || true
+  CODEX_MODEL_BANNER="$(grep -m1 -E '^model: ' "$log" | cut -d' ' -f2-)" || true
   return 0
 }
 
@@ -597,14 +299,14 @@ declare -a BATCH_PIDS=()
 declare -a BATCH_SKILLS=()
 declare -a FAILED_SKILLS=()
 declare -a REVIEW_OK_SKILLS=()
-declare -a TRIGGER_TEST_FAILED_SKILLS=()
-declare -a TRIGGER_TEST_SKIPPED_SKILLS=()
-declare -a TRIGGER_CASE_GEN_FAILED_SKILLS=()
-declare -a SANITIZE_FAILED_SKILLS=()
 declare -a REVIEW_NO_CHANGE_SKILLS=()
 declare -a DIFFERENTIATION_WEAK_SKILLS=()
 declare -a DIFFERENTIATION_UNKNOWN_SKILLS=()
 declare -a REMOVAL_PROPOSAL_SKILLS=()
+declare -a MALFORMED_SKILLS=()
+declare -a INFRA_FAILURE_SKILLS=()
+CODEX_CLIENT_BANNER=""
+CODEX_MODEL_BANNER=""
 
 reap_batch() {
   local i pid rc skill
@@ -612,33 +314,64 @@ reap_batch() {
     pid="${BATCH_PIDS[$i]}"
     skill="${BATCH_SKILLS[$i]}"
     local review_log="$LOGDIR/${skill}.log"
-    local review_status differentiation
+    local last_msg="$LOGDIR/${skill}.last-message.txt"
+    local verdict_file="$LOGDIR/${skill}.verdict"
+    local outcome differentiation removal_proposals reason key value
     rc=0
     if wait "$pid"; then
-      if grep -Eq '^QUESTIONS$' "$review_log"; then
-        FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
-        echo "[failed] $skill (blocked: QUESTIONS)"
-      else
-        review_status="$(review_status_from_log "$review_log")"
-        differentiation="$(differentiation_from_log "$review_log")"
-        if [[ "$review_status" == "NO-CHANGE" ]]; then
-          REVIEW_NO_CHANGE_SKILLS+=("$skill")
-        fi
-        case "$differentiation" in
-          WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
-          STRONG) ;;
-          *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
-        esac
-        if has_removal_proposals "$review_log"; then
-          REMOVAL_PROPOSAL_SKILLS+=("$skill")
-        fi
-        echo "[ok] $skill (status $review_status, differentiation $differentiation)"
-        REVIEW_OK_SKILLS+=("$skill")
+      capture_provenance "$review_log"
+      if [[ ! -s "$last_msg" ]]; then
+        MALFORMED_SKILLS+=("$skill")
+        echo "[malformed] $skill (empty last-message file)"
+        continue
       fi
+      classify_review "$last_msg" "$verdict_file"
+      outcome="UNKNOWN"
+      differentiation="UNKNOWN"
+      removal_proposals="0"
+      while IFS='=' read -r key value; do
+        case "$key" in
+          OUTCOME) outcome="$value" ;;
+          DIFFERENTIATION) differentiation="$value" ;;
+          REMOVAL_PROPOSALS) removal_proposals="$value" ;;
+        esac
+      done <"$verdict_file"
+      case "$outcome" in
+        NO-CHANGE|CHANGED)
+          REVIEW_OK_SKILLS+=("$skill")
+          if [[ "$outcome" == "NO-CHANGE" ]]; then
+            REVIEW_NO_CHANGE_SKILLS+=("$skill")
+          fi
+          case "$differentiation" in
+            WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+            STRONG) ;;
+            *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+          esac
+          if [[ "$removal_proposals" == "1" ]]; then
+            REMOVAL_PROPOSAL_SKILLS+=("$skill")
+          fi
+          echo "[ok] $skill (status $outcome, differentiation $differentiation)"
+          ;;
+        QUESTIONS)
+          FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
+          echo "[failed] $skill (blocked: QUESTIONS)"
+          ;;
+        INFRA-FAILURE)
+          reason="$(infra_reason_from_log "$review_log")" || true
+          INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
+          echo "[infra-failure] $skill (exit 0: classifier-reported)"
+          ;;
+        *)
+          MALFORMED_SKILLS+=("$skill")
+          echo "[malformed] $skill"
+          ;;
+      esac
     else
       rc=$?
-      FAILED_SKILLS+=("$skill (exit $rc)")
-      echo "[failed] $skill (exit $rc)"
+      capture_provenance "$review_log"
+      reason="$(infra_reason_from_log "$review_log")" || true
+      INFRA_FAILURE_SKILLS+=("$skill (exit $rc: ${reason:-no error line found})")
+      echo "[infra-failure] $skill (exit $rc)"
     fi
   done
   BATCH_PIDS=()
@@ -664,83 +397,33 @@ if (( DRY_RUN == 0 )) && (( ${#BATCH_PIDS[@]} > 0 )); then
   reap_batch
 fi
 
-if (( RUN_TRIGGER_TESTS == 1 )); then
-  for skill in "${REVIEW_OK_SKILLS[@]}"; do
-    sanitize_skill_activation_sections "$skill"
-  done
-
-  if (( AUTO_GENERATE_TRIGGER_CASES == 1 )); then
-    for skill in "${REVIEW_OK_SKILLS[@]}"; do
-      run_trigger_case_generation "$skill"
-    done
-  fi
-
-  BATCH_PIDS=()
-  BATCH_SKILLS=()
-  count=0
-  for skill in "${REVIEW_OK_SKILLS[@]}"; do
-    run_trigger_test "$skill"
-    if [[ -f "${TRIGGER_CASES_DIR}/${skill}.md" ]] && (( DRY_RUN == 0 )); then
-      BATCH_PIDS+=("$!")
-      BATCH_SKILLS+=("$skill")
-      count=$((count+1))
-      if (( count % BATCH_SIZE == 0 )); then
-        for i in "${!BATCH_PIDS[@]}"; do
-          pid="${BATCH_PIDS[$i]}"
-          skill_name="${BATCH_SKILLS[$i]}"
-          if wait "$pid"; then
-            log="$LOGDIR/${skill_name}.trigger-test.log"
-            status="$(trigger_test_status_from_log "$log")"
-            if [[ "$status" != "PASS" ]]; then
-              TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status $status)")
-              echo "[failed] $skill_name trigger test (status $status)"
-            else
-              echo "[ok] $skill_name trigger test"
-            fi
-          else
-            rc=$?
-            TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (exit $rc)")
-            echo "[failed] $skill_name trigger test (exit $rc)"
-          fi
-        done
-        BATCH_PIDS=()
-        BATCH_SKILLS=()
-      fi
-    fi
-  done
-
-  if (( DRY_RUN == 0 )) && (( ${#BATCH_PIDS[@]} > 0 )); then
-    for i in "${!BATCH_PIDS[@]}"; do
-      pid="${BATCH_PIDS[$i]}"
-      skill_name="${BATCH_SKILLS[$i]}"
-      if wait "$pid"; then
-        log="$LOGDIR/${skill_name}.trigger-test.log"
-        status="$(trigger_test_status_from_log "$log")"
-        if [[ "$status" != "PASS" ]]; then
-          TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (status $status)")
-          echo "[failed] $skill_name trigger test (status $status)"
-        else
-          echo "[ok] $skill_name trigger test"
-        fi
-      else
-        rc=$?
-        TRIGGER_TEST_FAILED_SKILLS+=("$skill_name (exit $rc)")
-        echo "[failed] $skill_name trigger test (exit $rc)"
-      fi
-    done
-  fi
-fi
-
 if (( DRY_RUN == 1 )); then
   echo "Dry run complete. Planned ${#SKILLS[@]} skills with batch size ${BATCH_SIZE}."
   exit 0
 fi
 
-if (( AUDIT_AFTER == 1 )); then
-  "$VENV/bin/python" "$ROOT/scripts/audit_skills.py"
-fi
+audit_rc=0
+"$VENV/bin/python" "$ROOT/scripts/audit_skills.py" || audit_rc=$?
 
 echo "Completed ${#SKILLS[@]} skills. Logs in $LOGDIR"
+echo "codex client (observed): ${CODEX_CLIENT_BANNER:-unknown}"
+echo "model (observed): ${CODEX_MODEL_BANNER:-unknown}"
+
+echo
+echo "=== Review results ==="
+echo "Real verdicts (NO-CHANGE/CHANGED): ${#REVIEW_OK_SKILLS[@]}"
+if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
+  echo "MALFORMED:"
+  printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
+else
+  echo "MALFORMED: none"
+fi
+if (( ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
+  echo "INFRA-FAILURE:"
+  printf '  - %s\n' "${INFRA_FAILURE_SKILLS[@]}"
+else
+  echo "INFRA-FAILURE: none"
+fi
 
 # Reported, never failing: these need an operator ruling, not a fix by the runner.
 print_operator_decisions() {
@@ -762,6 +445,11 @@ print_operator_decisions() {
     echo "No differentiation verdict reported (reviewer did not follow the output contract):"
     printf '  - %s\n' "${DIFFERENTIATION_UNKNOWN_SKILLS[@]}"
   fi
+  if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
+    any=1
+    echo "MALFORMED (last-message file empty or contract violation; see log for detail):"
+    printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
+  fi
   if (( any == 0 )); then
     echo "None."
   fi
@@ -774,27 +462,12 @@ print_operator_decisions
 if (( ${#FAILED_SKILLS[@]} > 0 )); then
   echo "Failed skills:"
   printf '  - %s\n' "${FAILED_SKILLS[@]}"
+fi
+
+if (( ${#FAILED_SKILLS[@]} > 0 || ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
   exit 1
 fi
 
-if (( RUN_TRIGGER_TESTS == 1 )); then
-  if (( ${#SANITIZE_FAILED_SKILLS[@]} > 0 )); then
-    echo "Sanitization failures:"
-    printf '  - %s\n' "${SANITIZE_FAILED_SKILLS[@]}"
-    exit 1
-  fi
-  if (( ${#TRIGGER_TEST_SKIPPED_SKILLS[@]} > 0 )); then
-    echo "Trigger tests skipped (missing trigger-cases file):"
-    printf '  - %s\n' "${TRIGGER_TEST_SKIPPED_SKILLS[@]}"
-  fi
-  if (( ${#TRIGGER_CASE_GEN_FAILED_SKILLS[@]} > 0 )); then
-    echo "Trigger-cases generation failures:"
-    printf '  - %s\n' "${TRIGGER_CASE_GEN_FAILED_SKILLS[@]}"
-    exit 1
-  fi
-  if (( ${#TRIGGER_TEST_FAILED_SKILLS[@]} > 0 )); then
-    echo "Trigger test failures:"
-    printf '  - %s\n' "${TRIGGER_TEST_FAILED_SKILLS[@]}"
-    exit 1
-  fi
+if (( audit_rc != 0 )); then
+  exit "$audit_rc"
 fi

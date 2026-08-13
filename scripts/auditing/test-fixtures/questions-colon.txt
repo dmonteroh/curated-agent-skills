@@ -1,0 +1,5 @@
+The skill claims a dependency on another skill being installed, which conflicts with the independence rule, and I cannot tell which side is correct.
+
+QUESTIONS:
+
+1. Should the cross-skill dependency be removed, or is the rule itself the exception here?

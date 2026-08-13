@@ -1,0 +1,13 @@
+Files changed: skills/upstream-retry-policy/SKILL.md
+
+Summary of edits: added a troubleshooting section that quotes the literal transport error operators may see from a saturated provider, to help them recognize infra failures versus genuine review findings (+9 lines).
+
+The section reproduces the exact banner text emitted by the CLI when a provider returns a 5xx, as verbatim evidence for the new guidance:
+
+ERROR: unexpected status 503 Service Unavailable: {"detail":"upstream saturated, please retry"}
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: STRONG - the skill documents a project-specific failure signature no generic error-handling advice would reproduce verbatim.
+
+REVIEW_STATUS: CHANGED

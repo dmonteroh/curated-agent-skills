@@ -1,0 +1,7 @@
+Files changed: skills/example-skill/SKILL.md
+
+Summary of edits: trimmed a redundant sentence (-1 line).
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: STRONG - evidence: an opinionated house convention with real decision points.

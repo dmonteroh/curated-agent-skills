@@ -25,12 +25,9 @@ This document describes the repeatable workflow for running **parallelized subag
    - reads the target `<skill>/SKILL.md`
    - applies changes under that skill directory only, subtraction included
    - writes results to `scripts/auditing/logs/<skill>.log`, ending in one status line
-4. Trigger-case generator step (auto, when missing):
-   - runner creates `scripts/auditing/trigger-cases/<skill>.md`
+4. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
 5. Controller (you or main agent):
    - checks success/failure summary from the runner
-   - runs trigger-test subagents against `scripts/auditing/trigger-cases/<skill>.md`
-   - optionally runs `scripts/audit_skills.py` for post-run verification
 
 ## Runner Commands
 
@@ -42,15 +39,6 @@ This document describes the repeatable workflow for running **parallelized subag
 
 # Custom concurrency
 ./scripts/auditing/run_parallel_skill_reviews.sh --batch-size 4
-
-# Validate after changes
-./scripts/auditing/run_parallel_skill_reviews.sh --audit-after
-
-# Enforce trigger-cases presence for every selected skill
-./scripts/auditing/run_parallel_skill_reviews.sh --fail-on-missing-trigger-cases
-
-# Allow missing trigger-cases (not recommended)
-./scripts/auditing/run_parallel_skill_reviews.sh --allow-missing-trigger-cases
 ```
 
 ## Review Process
@@ -60,8 +48,7 @@ This document describes the repeatable workflow for running **parallelized subag
    - checklist compliance
    - clarity + concision
 2. Review logs in `scripts/auditing/logs/` for any QUESTIONS or failures.
-3. Review trigger-test logs in `scripts/auditing/logs/<skill>.trigger-test.log`.
-4. Run:
+3. Run:
 
 ```bash
 .venv/bin/python scripts/audit_skills.py
@@ -72,8 +59,7 @@ This document describes the repeatable workflow for running **parallelized subag
 Reviews may subtract. This reverses the previous rule, which forbade removal outright and made growth the only sanctioned outcome.
 
 - **Delete autonomously**: sentences restating their own heading, restatements of the frontmatter description, duplicate statements of a rule already made in the same file, vacuous heading qualifiers, and steps whose only output is "report per the output contract".
-- **Propose, never execute**: removing a whole `##` section, a file under `references/` or `scripts/`, or the skill itself. Proposals carry evidence and what would be lost.
-- **The operator rules on every proposal.** No review removes a skill.
+- Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 
 Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and the dispatch prompt in `run_parallel_skill_reviews.sh` — see the parity register in `OPEN_ITEMS.md`.
 
@@ -81,10 +67,10 @@ Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and the dispatch prompt in `ru
 
 A review is acceptable when all seven hold. Gate 1 can only be satisfied by a subtraction or by an explicit finding that there was nothing to cut — an addition-only review fails it.
 
-1. **Pruning pass ran.** The log names every sentence, step, and qualifier deleted, or states that the pass found nothing to cut. Silence is a failure.
+1. **Pruning pass ran.** The log names every sentence, step, and qualifier deleted from the closed five-item list in `SKILL_REVIEW_CHECKLIST.md` §4, or states that the pass found nothing to cut. This gate is a reporting requirement over that closed set, not an independent grant to delete beyond it. Silence is a failure.
 2. **Differentiation reported.** One `DIFFERENTIATION: STRONG|WEAK` line with evidence. Never acted on.
 3. **Boundary intact.** Frontmatter contract complete; both `Use this skill when` and `Do not use this skill when` present.
-4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`.
+4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`. A skill whose in-`SKILL.md` cues were surfaced as a removal proposal and written into `trigger-cases/<skill>.md` does not fail this gate.
 5. **Steps are executable.** Every step yields an artifact, a decision, or a command run — not an instruction to report. Decision points are explicit.
 6. **Budgets held.** Frontmatter and `SKILL.md` token limits respected; `references/` one level deep with an index at two or more files.
 7. **Nothing settled was re-opened.** No change argues against a call recorded in `OPEN_ITEMS.md`.
@@ -97,6 +83,8 @@ Every log ends with exactly one status line:
 - `REVIEW_STATUS: CHANGED` — edits applied, subtraction included.
 - `QUESTIONS` — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
 
+Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.
+
 The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling.
 
 ## Notes
@@ -104,4 +92,3 @@ The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROP
 - For large or complex skills, route reference material into `references/` and add a short index — when a reader does not need it in line, not because a token count was crossed.
 - Keep subagent scopes **tight** to avoid accidental cross-file changes.
 - Keep activation test prompts in `scripts/auditing/trigger-cases/`, not in `SKILL.md`.
-- Missing trigger-cases are auto-generated by default.

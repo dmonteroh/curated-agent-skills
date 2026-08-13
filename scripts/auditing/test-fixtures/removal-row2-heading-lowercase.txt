@@ -1,0 +1,10 @@
+Files changed: none
+
+Summary of edits: no changes made.
+
+## Removal proposals
+1. skills/example-skill/references/notes.md - restates the checklist verbatim; evidence: byte-identical to SKILL_REVIEW_CHECKLIST.md section 2. Would lose nothing.
+
+DIFFERENTIATION: WEAK - no house convention beyond restating defaults.
+
+REVIEW_STATUS: NO-CHANGE
