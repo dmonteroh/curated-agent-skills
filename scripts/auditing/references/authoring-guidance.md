@@ -8,7 +8,7 @@ Named so a review can point at one rather than argue taste. Source pattern: `mat
 
 | Failure mode | What it looks like | What to do |
 | --- | --- | --- |
-| **No-op** | A sentence that constrains nothing. `## Workflow (best performance, best results)`. "Follow best practices throughout." | Outside `SKILL_REVIEW_CHECKLIST.md` §4's closed five (not a heading restatement, description restatement, duplicate, heading qualifier, or report-only step): propose with evidence, never execute unilaterally. |
+| **No-op** | A sentence that constrains nothing. `## Workflow (best performance, best results)`. "Follow best practices throughout." | A no-op that is itself one of `SKILL_REVIEW_CHECKLIST.md` §4's closed five — the heading-qualifier example above is closed-five item #4 — delete autonomously. A no-op outside the closed five (the "Follow best practices" example above): propose with evidence, never execute unilaterally. |
 | **Duplication** | The same rule stated in two sections, often 10 lines apart, in slightly different words. | Keep the statement in its owning section; delete the other — closed-five item #3, One Rule One Home. Replacing it with a pointer is outside §4's closed five: propose with evidence, never execute unilaterally. |
 | **Sediment** | Text that exists because a template demanded a slot: a heading restated as its first sentence, the frontmatter description repeated as line 1, a final step reading "assemble the report per the output contract". | Delete. |
 | **Sprawl** | The skill has grown to cover adjacent topics it was never scoped for. | Propose the section for removal; name what it would belong to instead. |
