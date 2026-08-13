@@ -7,6 +7,7 @@ PDFTXT="$ROOT/scripts/auditing/resources/agent_skills_pdf.txt"
 LOGDIR="$ROOT/scripts/auditing/logs"
 BATCH_SIZE=10
 SUBAGENT_SANDBOX="${SUBAGENT_SANDBOX:-danger-full-access}"
+REVIEW_MODEL="${REVIEW_MODEL:-}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 VENV="$ROOT/.venv"
 SKILLS_FILE="$ROOT/scripts/auditing/skills_list.txt"
@@ -24,6 +25,8 @@ Options:
   --batch-size N        Number of concurrent skill reviews (default: 10)
   --subagent-sandbox M  Sandbox passed to nested codex exec calls:
                         workspace-write | danger-full-access (default: danger-full-access)
+  --model NAME          Model passed to nested codex exec calls (default:
+                        unset, client default from ~/.codex/config.toml)
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
   --list-skills         Print discovered skills and exit
@@ -34,6 +37,8 @@ Options:
 Environment:
   PYTHON_BIN            Python interpreter to use (default: python3)
   SUBAGENT_SANDBOX      Nested codex exec sandbox override (same values as --subagent-sandbox)
+  REVIEW_MODEL          Model override (same values as --model; default: unset,
+                        client default from ~/.codex/config.toml)
 USAGE
 }
 
@@ -47,6 +52,10 @@ while (( "$#" )); do
       ;;
     --subagent-sandbox)
       SUBAGENT_SANDBOX="${2:-}"
+      shift 2
+      ;;
+    --model)
+      REVIEW_MODEL="${2:-}"
       shift 2
       ;;
     --skill)
@@ -112,6 +121,9 @@ if (( DRY_RUN == 0 )) && ! command -v codex >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "codex client: $(codex --version 2>/dev/null || echo unknown)"
+echo "model requested: ${REVIEW_MODEL:-client default (~/.codex/config.toml)}"
+
 "$VENV/bin/python" - <<PY >"$SKILLS_FILE"
 from pathlib import Path
 root = Path("${ROOT}") / "skills"
@@ -175,17 +187,27 @@ run_skill() {
   local skill="$1"
   local skill_dir="skills/$skill"
   local log="$LOGDIR/${skill}.log"
+  local last_msg="$LOGDIR/${skill}.last-message.txt"
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
   local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
   local prompt
+  local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg")
+  if [[ -n "$REVIEW_MODEL" ]]; then
+    codex_args+=(--model "$REVIEW_MODEL")
+  fi
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill"
+    printf '[dry-run] codex'
+    printf ' %q' "${codex_args[@]}"
+    printf ' <dispatch-prompt>\n'
     return 0
   fi
+
+  rm -f "$last_msg"
 
   # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
   # mis-parses an apostrophe inside a heredoc nested in command substitution.
@@ -234,55 +256,43 @@ EOF
 
   (
     cd "$ROOT"
-    codex exec --sandbox "$SUBAGENT_SANDBOX" "$prompt"
+    codex "${codex_args[@]}" "$prompt"
   ) >"$log" 2>&1 &
   echo "[queued] $skill -> $log"
 }
 
-review_status_from_log() {
-  local log="$1"
-  local verdict
-  verdict="$(grep -E '^REVIEW_STATUS: (NO-CHANGE|CHANGED)$' "$log" | tail -n1 | awk -F': ' '{print $2}')" || true
-  if [[ "$verdict" == "NO-CHANGE" || "$verdict" == "CHANGED" ]]; then
-    printf '%s\n' "$verdict"
-    return 0
-  fi
-  printf 'UNKNOWN\n'
+# Classification bridge: writes KEY=VALUE lines to out_file, always returns 0.
+classify_review() {
+  local msg_file="$1" out_file="$2"
+  : >"$out_file"
+  "$VENV/bin/python" - "$ROOT/scripts/auditing" "$msg_file" >"$out_file" 2>/dev/null <<'PY' || true
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import review_log
+result = review_log.classify(Path(sys.argv[2]).read_text(encoding="utf-8", errors="replace"))
+print("OUTCOME=%s" % result.outcome.value)
+print("DIFFERENTIATION=%s" % result.differentiation)
+print("REMOVAL_PROPOSALS=%s" % ("1" if result.removal_proposals else "0"))
+PY
   return 0
 }
 
-differentiation_from_log() {
-  local log="$1"
-  local verdict
-  verdict="$(grep -Eo '^DIFFERENTIATION: (STRONG|WEAK)' "$log" | tail -n1 | awk '{print $2}')" || true
-  if [[ "$verdict" == "STRONG" || "$verdict" == "WEAK" ]]; then
-    printf '%s\n' "$verdict"
-    return 0
-  fi
-  printf 'UNKNOWN\n'
+infra_reason_from_log() {
+  local log="$1" line=""
+  line="$(grep -E '^(ERROR:|stream error:)' "$log" | tail -n1)" || true
+  printf '%s\n' "$line"
   return 0
 }
 
-# Exit 0 when the log carries removal proposals the operator must rule on.
-has_removal_proposals() {
+# Run-level provenance: captured once, from the first reaped skill's log.
+capture_provenance() {
   local log="$1"
-  awk '
-    /^REMOVAL PROPOSALS:/ {
-      collecting = 1
-      rest = $0
-      sub(/^REMOVAL PROPOSALS:[ \t]*/, "", rest)
-      if (rest != "") buf = buf " " rest
-      next
-    }
-    collecting && /^(DIFFERENTIATION:|REVIEW_STATUS:|QUESTIONS|Verification run)/ { collecting = 0; next }
-    collecting { buf = buf " " $0 }
-    END {
-      gsub(/[ \t.\-]+/, " ", buf)
-      gsub(/^ +| +$/, "", buf)
-      if (buf == "" || tolower(buf) == "none") exit 1
-      exit 0
-    }
-  ' "$log"
+  if [[ -n "$CODEX_CLIENT_BANNER" ]]; then return 0; fi
+  if [[ ! -f "$log" ]]; then return 0; fi
+  CODEX_CLIENT_BANNER="$(head -n1 "$log")" || true
+  CODEX_MODEL_BANNER="$(grep -m1 -E '^model: ' "$log" | cut -d' ' -f2-)" || true
+  return 0
 }
 
 declare -a BATCH_PIDS=()
@@ -293,6 +303,10 @@ declare -a REVIEW_NO_CHANGE_SKILLS=()
 declare -a DIFFERENTIATION_WEAK_SKILLS=()
 declare -a DIFFERENTIATION_UNKNOWN_SKILLS=()
 declare -a REMOVAL_PROPOSAL_SKILLS=()
+declare -a MALFORMED_SKILLS=()
+declare -a INFRA_FAILURE_SKILLS=()
+CODEX_CLIENT_BANNER=""
+CODEX_MODEL_BANNER=""
 
 reap_batch() {
   local i pid rc skill
@@ -300,33 +314,64 @@ reap_batch() {
     pid="${BATCH_PIDS[$i]}"
     skill="${BATCH_SKILLS[$i]}"
     local review_log="$LOGDIR/${skill}.log"
-    local review_status differentiation
+    local last_msg="$LOGDIR/${skill}.last-message.txt"
+    local verdict_file="$LOGDIR/${skill}.verdict"
+    local outcome differentiation removal_proposals reason key value
     rc=0
     if wait "$pid"; then
-      if grep -Eq '^QUESTIONS$' "$review_log"; then
-        FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
-        echo "[failed] $skill (blocked: QUESTIONS)"
-      else
-        review_status="$(review_status_from_log "$review_log")"
-        differentiation="$(differentiation_from_log "$review_log")"
-        if [[ "$review_status" == "NO-CHANGE" ]]; then
-          REVIEW_NO_CHANGE_SKILLS+=("$skill")
-        fi
-        case "$differentiation" in
-          WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
-          STRONG) ;;
-          *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
-        esac
-        if has_removal_proposals "$review_log"; then
-          REMOVAL_PROPOSAL_SKILLS+=("$skill")
-        fi
-        echo "[ok] $skill (status $review_status, differentiation $differentiation)"
-        REVIEW_OK_SKILLS+=("$skill")
+      capture_provenance "$review_log"
+      if [[ ! -s "$last_msg" ]]; then
+        MALFORMED_SKILLS+=("$skill")
+        echo "[malformed] $skill (empty last-message file)"
+        continue
       fi
+      classify_review "$last_msg" "$verdict_file"
+      outcome="UNKNOWN"
+      differentiation="UNKNOWN"
+      removal_proposals="0"
+      while IFS='=' read -r key value; do
+        case "$key" in
+          OUTCOME) outcome="$value" ;;
+          DIFFERENTIATION) differentiation="$value" ;;
+          REMOVAL_PROPOSALS) removal_proposals="$value" ;;
+        esac
+      done <"$verdict_file"
+      case "$outcome" in
+        NO-CHANGE|CHANGED)
+          REVIEW_OK_SKILLS+=("$skill")
+          if [[ "$outcome" == "NO-CHANGE" ]]; then
+            REVIEW_NO_CHANGE_SKILLS+=("$skill")
+          fi
+          case "$differentiation" in
+            WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+            STRONG) ;;
+            *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+          esac
+          if [[ "$removal_proposals" == "1" ]]; then
+            REMOVAL_PROPOSAL_SKILLS+=("$skill")
+          fi
+          echo "[ok] $skill (status $outcome, differentiation $differentiation)"
+          ;;
+        QUESTIONS)
+          FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
+          echo "[failed] $skill (blocked: QUESTIONS)"
+          ;;
+        INFRA-FAILURE)
+          reason="$(infra_reason_from_log "$review_log")" || true
+          INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
+          echo "[infra-failure] $skill (exit 0: classifier-reported)"
+          ;;
+        *)
+          MALFORMED_SKILLS+=("$skill")
+          echo "[malformed] $skill"
+          ;;
+      esac
     else
       rc=$?
-      FAILED_SKILLS+=("$skill (exit $rc)")
-      echo "[failed] $skill (exit $rc)"
+      capture_provenance "$review_log"
+      reason="$(infra_reason_from_log "$review_log")" || true
+      INFRA_FAILURE_SKILLS+=("$skill (exit $rc: ${reason:-no error line found})")
+      echo "[infra-failure] $skill (exit $rc)"
     fi
   done
   BATCH_PIDS=()
@@ -361,6 +406,24 @@ audit_rc=0
 "$VENV/bin/python" "$ROOT/scripts/audit_skills.py" || audit_rc=$?
 
 echo "Completed ${#SKILLS[@]} skills. Logs in $LOGDIR"
+echo "codex client (observed): ${CODEX_CLIENT_BANNER:-unknown}"
+echo "model (observed): ${CODEX_MODEL_BANNER:-unknown}"
+
+echo
+echo "=== Review results ==="
+echo "Real verdicts (NO-CHANGE/CHANGED): ${#REVIEW_OK_SKILLS[@]}"
+if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
+  echo "MALFORMED:"
+  printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
+else
+  echo "MALFORMED: none"
+fi
+if (( ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
+  echo "INFRA-FAILURE:"
+  printf '  - %s\n' "${INFRA_FAILURE_SKILLS[@]}"
+else
+  echo "INFRA-FAILURE: none"
+fi
 
 # Reported, never failing: these need an operator ruling, not a fix by the runner.
 print_operator_decisions() {
@@ -382,6 +445,11 @@ print_operator_decisions() {
     echo "No differentiation verdict reported (reviewer did not follow the output contract):"
     printf '  - %s\n' "${DIFFERENTIATION_UNKNOWN_SKILLS[@]}"
   fi
+  if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
+    any=1
+    echo "MALFORMED (last-message file empty or contract violation; see log for detail):"
+    printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
+  fi
   if (( any == 0 )); then
     echo "None."
   fi
@@ -394,6 +462,9 @@ print_operator_decisions
 if (( ${#FAILED_SKILLS[@]} > 0 )); then
   echo "Failed skills:"
   printf '  - %s\n' "${FAILED_SKILLS[@]}"
+fi
+
+if (( ${#FAILED_SKILLS[@]} > 0 || ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
   exit 1
 fi
 
