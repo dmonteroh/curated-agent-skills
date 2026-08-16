@@ -25,14 +25,12 @@ REVIEW_VENDOR="codex"
 RESOLVED_MODEL=""
 MODEL_SOURCE=""
 # Reviewer arms (dual mode, the default): one read-only dispatch per
-# declared arm, each a different LLM (task-dual-model-review.md,
-# "Cross-vendor invariant"). Add a third arm by adding one entry here plus
-# one case arm in each of build_reviewer_argv and client_for_arm below; no
-# loop anywhere in this file needs to change.
+# declared arm, each a different LLM. Add a third arm by adding one entry
+# here plus one case arm in each of build_reviewer_argv and client_for_arm
+# below; no loop anywhere in this file needs to change.
 declare -a REVIEWER_ARMS=(codex claude)
-# Synthesis is a single fixed call site, not a declared/iterated arm: D7
-# (task-model-routing.md) assigns it vendor claude permanently, and it is
-# the run's only writer (task-dual-model-synthesis-contract.md AC5).
+# Synthesis is a single fixed call site, not a declared/iterated arm: its
+# vendor is permanently claude, and it is the run's only writer.
 SYNTHESIS_VENDOR="claude"
 
 mkdir -p "$LOGDIR"
@@ -138,10 +136,10 @@ print_model_policy() {
 }
 
 # Dual-mode dispatch helpers. Model ids and aliases stay inside
-# resolve_model (task-model-routing.md); everything below refers to a tier
-# and to an arm (which is also the vendor name, by design - AC3). Adding a
-# third arm is one entry in REVIEWER_ARMS above plus one case arm in each of
-# build_reviewer_argv and client_for_arm; no loop in this file changes.
+# resolve_model; everything below refers to a tier and to an arm (which is
+# also the vendor name, by design). Adding a third arm is one entry in
+# REVIEWER_ARMS above plus one case arm in each of build_reviewer_argv and
+# client_for_arm; no loop in this file changes.
 
 arm_log_path() {
   printf '%s\n' "$LOGDIR/$1.$2.log"
@@ -174,24 +172,21 @@ declare -a REVIEWER_ARGV=()
 REVIEWER_MODEL=""
 REVIEWER_STDIN=0
 
-# tier terra for every arm (task-model-routing.md D3). Every arm is
-# read-only (AC2; decided-design "Write authority" - only the synthesis
-# call writes). The codex arm reuses RESOLVED_MODEL, already computed from
-# policy or REVIEW_MODEL below, so REVIEW_MODEL's precedence (D5) carries
-# through unchanged; positional prompt, matching the landed single-reviewer
-# shape (C2), but with the sandbox pinned to read-only rather than
-# $SUBAGENT_SANDBOX - that knob is single-mode's write-capable dispatch
-# only, and reusing it here would leave the model free to edit skill files
-# from a reviewer arm, verified live 2026-08-16. The claude arm always
-# resolves fresh from policy (REVIEW_MODEL stays codex-scoped); its
-# prompt goes on stdin, never as a positional argument, since
+# Every arm runs at tier terra and is read-only; only the synthesis call
+# writes. The codex arm reuses RESOLVED_MODEL, already computed from policy
+# or REVIEW_MODEL below, with a positional prompt, but with the sandbox
+# pinned to read-only rather than $SUBAGENT_SANDBOX: that knob is
+# single-mode's write-capable dispatch only, and reusing it here would
+# leave the model free to edit skill files from a reviewer arm. The claude
+# arm always resolves fresh from policy (REVIEW_MODEL stays codex-scoped);
+# its prompt goes on stdin, never as a positional argument, since
 # --allowedTools/--disallowedTools are variadic and would silently swallow
 # a positional prompt that follows them. --permission-mode dontAsk is
 # required, not cosmetic: the shared reviewer prompt says "Apply changes
 # directly", the client attempts the (denied) Edit tool, and without
 # dontAsk that denial blocks waiting for an interactive response that
-# never arrives in --print mode - reproduced live 2026-08-16, hangs past
-# any reasonable timeout with zero output on both streams.
+# never arrives in --print mode, hanging past any reasonable timeout with
+# zero output on both streams.
 build_reviewer_argv() {
   local arm="$1" last_msg="$2"
   REVIEWER_ARGV=()
@@ -216,7 +211,7 @@ build_reviewer_argv() {
 }
 
 # tier terra, vendor $SYNTHESIS_VENDOR: the run's only writer, given every
-# arm's review in full (task-dual-model-synthesis-contract.md AC5).
+# arm's review in full.
 declare -a SYNTHESIS_ARGV=()
 SYNTHESIS_MODEL=""
 
@@ -276,7 +271,7 @@ provenance_model() {
 }
 
 # Shared with the single-model dispatch below: one reviewer prompt, never a
-# second variant (task-dispatch-prompt-contract.md, B1).
+# second variant.
 REVIEWER_PROMPT=""
 
 render_reviewer_prompt() {
@@ -335,8 +330,8 @@ EOF
   return 0
 }
 
-# Renders scripts/auditing/synthesis-prompt.md (DM2's asset, read from disk
-# and interpolated - never inlined, paraphrased, or converted to a heredoc)
+# Renders scripts/auditing/synthesis-prompt.md (read from disk and
+# interpolated - never inlined, paraphrased, or converted to a heredoc)
 # with its named placeholders: SKILL_DIRECTORY, SKILL_NAME, CHECKLIST_PATH,
 # OPEN_ITEMS_PATH, REVIEW_ARTIFACTS. Reviews are supplied in full and
 # unmodified, in the order REVIEWER_ARMS declares them, referred to only by
@@ -639,7 +634,7 @@ CODEX_MODEL_BANNER=""
 
 # Reported, never failing: these need an operator ruling, not a fix by the
 # runner. Shared by single mode and dual mode: both populate the same tally
-# arrays above, dual mode only ever from the synthesis artifact (AC8).
+# arrays above, dual mode only ever from the synthesis artifact.
 print_operator_decisions() {
   local any=0
   echo
@@ -745,7 +740,7 @@ reap_batch() {
 # Dual dispatch: one reviewer per declared arm, launched in the loop over
 # REVIEWER_ARMS below - the file's only reviewer-dispatch statement in dual
 # mode. codex keeps its positional-prompt shape; claude takes the prompt on
-# stdin (Constraints, "claude arms take their prompt on stdin").
+# stdin instead.
 declare -a DUAL_ARM_PIDS=()
 declare -a DUAL_ARM_ARMS=()
 declare -a DUAL_ARM_SKILLS=()
@@ -798,10 +793,10 @@ run_skill_dual() {
   DUAL_BATCH_SKILLS+=("$skill")
 }
 
-# Per-skill arm-failure record for the phase-one/phase-two gate (AC7). A
-# skill name is arbitrary text (commonly hyphenated), not a legal bash
-# identifier fragment, so this is a linear scan over parallel arrays rather
-# than a dynamically named variable - the same reason capture_call_provenance
+# Per-skill arm-failure record for the phase-one/phase-two gate. A skill
+# name is arbitrary text (commonly hyphenated), not a legal bash identifier
+# fragment, so this is a linear scan over parallel arrays rather than a
+# dynamically named variable - the same reason capture_call_provenance
 # above uses one.
 declare -a ARM_FAILED_SKILLS=()
 declare -a ARM_FAILED_REASONS=()
@@ -824,7 +819,7 @@ record_arm_failure() {
   ARM_FAILED_REASONS+=("$reason")
 }
 
-# Two-phase reap (AC7): phase one classifies every arm's final message for
+# Two-phase reap: phase one classifies every arm's final message for
 # infra/empty detection only, never for a verdict; a skill with a failed arm
 # never reaches phase two, so a synthesis over a subset of the arms never
 # happens.
@@ -895,7 +890,7 @@ dispatch_phase_two() {
 }
 
 # Reaps synthesis calls and sources the skill's verdict from the synthesis
-# artifact only (AC8) - no reviewer artifact is classified for a verdict or
+# artifact only - no reviewer artifact is classified for a verdict or
 # counted in these tallies.
 reap_phase_two() {
   local i pid skill rc log last_msg outcome differentiation removal_proposals reason key value verdict_file
