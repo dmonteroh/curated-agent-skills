@@ -307,7 +307,7 @@ select_challenge_line() {
 # second variant. mode is "single" or "dual"; it selects the authority
 # clause interpolated into the Task line and the first Rules bullet - the
 # only two places single and dual mode's renderings differ, besides the
-# read-proof line number (AC3).
+# read-proof line number.
 REVIEWER_PROMPT=""
 
 render_reviewer_prompt() {
