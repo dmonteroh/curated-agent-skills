@@ -205,7 +205,7 @@ build_reviewer_argv() {
       ;;
     claude)
       REVIEWER_MODEL="$(resolve_model terra claude)" || return 1
-      REVIEWER_ARGV=(--print --model "$REVIEWER_MODEL" --permission-mode dontAsk --allowedTools "Read,Glob,Grep" --disallowedTools "Edit,Write,NotebookEdit,Bash")
+      REVIEWER_ARGV=(--print --model "$REVIEWER_MODEL" --permission-mode dontAsk --allowedTools "Read,Glob,Grep,Bash($ROOT/scripts/auditing/review-result.sh:*)" --disallowedTools "Edit,Write,NotebookEdit")
       REVIEWER_STDIN=1
       ;;
     *)
@@ -223,7 +223,7 @@ SYNTHESIS_MODEL=""
 
 build_synthesis_argv() {
   SYNTHESIS_MODEL="$(resolve_model terra "$SYNTHESIS_VENDOR")" || return 1
-  SYNTHESIS_ARGV=(--print --model "$SYNTHESIS_MODEL" --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write")
+  SYNTHESIS_ARGV=(--print --model "$SYNTHESIS_MODEL" --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write,Bash($ROOT/scripts/auditing/review-result.sh:*)")
   return 0
 }
 
@@ -325,6 +325,7 @@ render_reviewer_prompt() {
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
   local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local venv_python_rel=".venv/bin/python"
+  local result_tool_path="$ROOT/scripts/auditing/review-result.sh"
   local authority_task authority_rule
   case "$mode" in
     single)
@@ -371,6 +372,7 @@ render_reviewer_prompt() {
   asset="${asset//AUTHORITY_TASK/$authority_task}"
   asset="${asset//AUTHORITY_RULE/$authority_rule}"
   asset="${asset//CHALLENGE_LINE/$challenge_k}"
+  asset="${asset//RESULT_TOOL_PATH/$result_tool_path}"
   REVIEWER_PROMPT="$asset"
   return 0
 }
@@ -388,6 +390,7 @@ render_synthesis_prompt() {
   local skill_dir="skills/$1"
   local checklist_path="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local open_items_path="scripts/auditing/OPEN_ITEMS.md"
+  local result_tool_path="$ROOT/scripts/auditing/review-result.sh"
   local asset arm n msg artifacts last_msg
 
   IFS= read -r -d '' asset <"$ROOT/scripts/auditing/synthesis-prompt.md" || true
@@ -409,6 +412,7 @@ ${msg}
   asset="${asset//CHECKLIST_PATH/$checklist_path}"
   asset="${asset//OPEN_ITEMS_PATH/$open_items_path}"
   asset="${asset//REVIEW_ARTIFACTS/$artifacts}"
+  asset="${asset//RESULT_TOOL_PATH/$result_tool_path}"
   SYNTHESIS_PROMPT="$asset"
   return 0
 }
@@ -592,6 +596,7 @@ run_skill() {
   local skill="$1"
   local log="$LOGDIR/${skill}.log"
   local last_msg="$LOGDIR/${skill}.last-message.txt"
+  local verdict_file="$LOGDIR/${skill}.verdict"
   local prompt
   local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg" --model "$RESOLVED_MODEL")
 
@@ -603,14 +608,14 @@ run_skill() {
     return 0
   fi
 
-  rm -f "$last_msg"
+  rm -f "$last_msg" "$verdict_file"
 
   render_reviewer_prompt "$skill" single
   prompt="$REVIEWER_PROMPT"
 
   (
     cd "$ROOT"
-    codex "${codex_args[@]}" "$prompt"
+    REVIEW_RESULT_FILE="$verdict_file" codex "${codex_args[@]}" "$prompt"
   ) >"$log" 2>&1 &
   echo "[queued] $skill -> $log"
 }
@@ -697,20 +702,25 @@ print_operator_decisions() {
   fi
 }
 
-# Verifies a call's READ_PROOF line against the challenge captured before
-# dispatch for the skill. Returns 0 (match), 1 (absent), or 2 (mismatch);
-# never touches the failure-tracking arrays itself - callers decide what a
-# non-zero return means for their mode.
+# Verifies a call's READ_PROOF= key, sourced from its verdict file, against
+# the challenge captured before dispatch for the skill. Returns 0 (match),
+# 1 (absent - no verdict file, or one with no READ_PROOF key), or 2
+# (mismatch); never touches the failure-tracking arrays itself - callers
+# decide what a non-zero return means for their mode.
 verify_read_proof() {
-  local artifact="$1" expected_file="$2"
-  local line value expected
-  line="$(grep -m1 -E '^[[:space:]]*READ_PROOF:' "$artifact")" || true
-  if [[ -z "$line" ]]; then
+  local verdict_file="$1" expected_file="$2"
+  local key line value="" expected found=0
+  if [[ -f "$verdict_file" ]]; then
+    while IFS='=' read -r key line; do
+      if [[ "$key" == "READ_PROOF" ]]; then
+        value="$line"
+        found=1
+      fi
+    done <"$verdict_file"
+  fi
+  if [[ "$found" -eq 0 ]]; then
     return 1
   fi
-  value="${line#*READ_PROOF:}"
-  value="${value#"${value%%[![:space:]]*}"}"
-  value="${value%"${value##*[![:space:]]}"}"
   if [[ "$value" == \`*\` && "${#value}" -ge 2 ]]; then
     value="${value:1:$((${#value} - 2))}"
     value="${value#"${value%%[![:space:]]*}"}"
@@ -748,7 +758,9 @@ reap_batch() {
         echo "[malformed] $skill (empty last-message file)"
         continue
       fi
-      classify_review "$last_msg" "$verdict_file"
+      if [[ ! -s "$verdict_file" ]]; then
+        classify_review "$last_msg" "$verdict_file"
+      fi
       outcome="UNKNOWN"
       differentiation="UNKNOWN"
       removal_proposals="0"
@@ -766,7 +778,7 @@ reap_batch() {
         continue
       fi
       proof_rc=0
-      verify_read_proof "$last_msg" "$readproof_file" || proof_rc=$?
+      verify_read_proof "$verdict_file" "$readproof_file" || proof_rc=$?
       if (( proof_rc == 1 )); then
         FAILED_SKILLS+=("$skill (read-proof absent)")
         echo "[failed] $skill (read-proof absent)"
@@ -824,7 +836,7 @@ declare -a DUAL_BATCH_SKILLS=()
 
 run_skill_dual() {
   local skill="$1"
-  local arm client log last_msg prompt
+  local arm client log last_msg prompt verdict_file
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill (arms: ${REVIEWER_ARMS[*]})"
@@ -853,13 +865,14 @@ run_skill_dual() {
   for arm in "${REVIEWER_ARMS[@]}"; do
     log="$(arm_log_path "$skill" "$arm")" || true
     last_msg="$(arm_last_message_path "$skill" "$arm")" || true
-    rm -f "$log" "$last_msg"
+    verdict_file="$LOGDIR/${skill}.${arm}.verdict"
+    rm -f "$log" "$last_msg" "$verdict_file"
     build_reviewer_argv "$arm" "$last_msg" || return 1
     client="$(client_for_arm "$arm")" || return 1
     if (( REVIEWER_STDIN == 1 )); then
-      ( cd "$ROOT"; printf '%s' "$prompt" | "$client" "${REVIEWER_ARGV[@]}" ) >"$last_msg" 2>"$log" &
+      ( cd "$ROOT"; printf '%s' "$prompt" | REVIEW_RESULT_FILE="$verdict_file" "$client" "${REVIEWER_ARGV[@]}" ) >"$last_msg" 2>"$log" &
     else
-      ( cd "$ROOT"; "$client" "${REVIEWER_ARGV[@]}" "$prompt" ) >"$log" 2>&1 &
+      ( cd "$ROOT"; REVIEW_RESULT_FILE="$verdict_file" "$client" "${REVIEWER_ARGV[@]}" "$prompt" ) >"$log" 2>&1 &
     fi
     DUAL_ARM_PIDS+=("$!")
     DUAL_ARM_ARMS+=("$arm")
@@ -916,7 +929,9 @@ reap_phase_one() {
         continue
       fi
       verdict_file="$LOGDIR/${skill}.${arm}.verdict"
-      classify_review "$last_msg" "$verdict_file"
+      if [[ ! -s "$verdict_file" ]]; then
+        classify_review "$last_msg" "$verdict_file"
+      fi
       outcome="UNKNOWN"
       while IFS='=' read -r key value; do
         case "$key" in
@@ -929,7 +944,7 @@ reap_phase_one() {
       else
         readproof_file="$LOGDIR/${skill}.readproof"
         proof_rc=0
-        verify_read_proof "$last_msg" "$readproof_file" || proof_rc=$?
+        verify_read_proof "$verdict_file" "$readproof_file" || proof_rc=$?
         if (( proof_rc == 1 )); then
           record_arm_failure "$skill" "arm $arm: read-proof absent"
           echo "[arm-failed] $skill/$arm (read-proof absent)"
@@ -956,7 +971,7 @@ declare -a SYNTH_PIDS=()
 declare -a SYNTH_SKILLS=()
 
 dispatch_phase_two() {
-  local skill reason log last_msg
+  local skill reason log last_msg verdict_file
   for skill in "${DUAL_BATCH_SKILLS[@]}"; do
     if reason="$(arm_failure_reason "$skill")"; then
       FAILED_SKILLS+=("$skill (blocked: $reason)")
@@ -965,10 +980,11 @@ dispatch_phase_two() {
     fi
     log="$(synthesis_log_path "$skill")" || true
     last_msg="$(synthesis_last_message_path "$skill")" || true
-    rm -f "$log" "$last_msg"
+    verdict_file="$LOGDIR/${skill}.synthesis.verdict"
+    rm -f "$log" "$last_msg" "$verdict_file"
     build_synthesis_argv || return 1
     render_synthesis_prompt "$skill" || return 1
-    ( cd "$ROOT"; printf '%s' "$SYNTHESIS_PROMPT" | "$SYNTHESIS_VENDOR" "${SYNTHESIS_ARGV[@]}" ) >"$last_msg" 2>"$log" &
+    ( cd "$ROOT"; printf '%s' "$SYNTHESIS_PROMPT" | REVIEW_RESULT_FILE="$verdict_file" "$SYNTHESIS_VENDOR" "${SYNTHESIS_ARGV[@]}" ) >"$last_msg" 2>"$log" &
     SYNTH_PIDS+=("$!")
     SYNTH_SKILLS+=("$skill")
     echo "[queued] $skill/synthesis -> $log"
@@ -995,7 +1011,9 @@ reap_phase_two() {
         echo "[malformed] $skill (synthesis: empty final message; artifact $last_msg)"
         continue
       fi
-      classify_review "$last_msg" "$verdict_file"
+      if [[ ! -s "$verdict_file" ]]; then
+        classify_review "$last_msg" "$verdict_file"
+      fi
       outcome="UNKNOWN"
       differentiation="UNKNOWN"
       removal_proposals="0"

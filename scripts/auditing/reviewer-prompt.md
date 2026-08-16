@@ -35,11 +35,16 @@ AUTHORITY_RULE
 
 <!-- parity:verdict-enum:start -->
 Output, in this order:
-- READ_PROOF: <line CHALLENGE_LINE of SKILL_DIRECTORY/SKILL.md, reproduced verbatim on this same line>
 - Files changed (or "none")
 - Summary of edits, separating what was removed from what was added, with line counts
 - REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
 - DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
 - Verification run (if any)
-- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither DIFFERENTIATION nor REMOVAL PROPOSALS. READ_PROOF is required on every verdict, QUESTIONS included, and must be this artifact's first output line.
+- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither DIFFERENTIATION nor REMOVAL PROPOSALS.
+
+Record this review's result by running, exactly once, when the review is finished:
+- For REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED: RESULT_TOOL_PATH --status <no-change|changed> --read-proof "<line CHALLENGE_LINE of SKILL_DIRECTORY/SKILL.md, reproduced verbatim on this same line>" --differentiation <strong|weak> --removals "<none, or a short summary that removal proposals exist>"
+- For QUESTIONS: RESULT_TOOL_PATH --status questions --read-proof "<line CHALLENGE_LINE of SKILL_DIRECTORY/SKILL.md, reproduced verbatim on this same line>"
+
+Running that command is what files the review result. A status written in prose above is commentary for the reader and is filed nowhere, so a review that only writes prose leaves no result on record.
 <!-- parity:verdict-enum:end -->

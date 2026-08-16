@@ -122,21 +122,21 @@ A review is acceptable when all seven hold. Gate 1 can only be satisfied by a su
 
 ## Verdicts
 
-Every log ends with exactly one status line:
+A verdict is recorded by executing `scripts/auditing/review-result.sh` with `--status` set to the outcome, once, when the review (or the synthesis pass) is finished. That execution is what files the result and writes the call's verdict file; the matching prose status line below is commentary for the reader, not the record — a call that only writes prose leaves no result on record and the runner falls back to classifying that prose, landing safety for that path only.
 
-- `REVIEW_STATUS: NO-CHANGE` — the skill already meets the bar. A successful outcome, not a reason to find something to add.
-- `REVIEW_STATUS: CHANGED` — edits applied, subtraction included.
-- `QUESTIONS` — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
+- `--status no-change` (stated in prose as `REVIEW_STATUS: NO-CHANGE`) — the skill already meets the bar. A successful outcome, not a reason to find something to add.
+- `--status changed` (stated in prose as `REVIEW_STATUS: CHANGED`) — edits applied, subtraction included.
+- `--status questions` (stated in prose as `QUESTIONS`) — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
 
-Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither `DIFFERENTIATION` nor `REMOVAL PROPOSALS`.
+Alongside `--status no-change` or `--status changed`, the call always carries `--differentiation` and `--removals`, matching the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4 stated in prose, written as `none`/no removals when there are none. `--status questions` forbids both flags; `QUESTIONS` ends the review immediately and its prose carries neither `DIFFERENTIATION` nor `REMOVAL PROPOSALS`.
 
-Every artifact, on every verdict including `QUESTIONS`, opens with a `READ_PROOF:` line — the reviewer's first output item, ahead of `DIFFERENTIATION`, `REMOVAL PROPOSALS`, and `REVIEW_STATUS` alike. The runner selects one challenge line per skill from `SKILL.md` before dispatching any arm, writes it to `$LOGDIR/<skill>.readproof`, and requires the reviewer to reproduce that line verbatim on the `READ_PROOF:` line, proving the file was actually read rather than assumed. An arm whose final message has no `READ_PROOF:` line, or whose value does not match, is recorded as a failed arm (`read-proof absent` / `read-proof mismatch`) and blocks the skill before synthesis, regardless of what its `REVIEW_STATUS` or `QUESTIONS` verdict says.
+`READ_PROOF` travels as `review-result.sh`'s `--read-proof` argument, not as a prose line. The runner selects one challenge line per skill from `SKILL.md` before dispatching any arm, writes it to `$LOGDIR/<skill>.readproof`, and requires each reviewer arm's call to carry that line verbatim as the `--read-proof` value, proving the file was actually read rather than assumed. An arm whose verdict file carries no `READ_PROOF` key, or whose value does not match, is recorded as a failed arm (`read-proof absent` / `read-proof mismatch`) and blocks the skill before synthesis, regardless of what outcome its verdict file or prose says. The synthesis call passes no `--read-proof`; it reads reviewer artifacts, not `SKILL.md`.
 
 The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling.
 
-In a multi-arm run, the synthesis call is the sole source of the skill's verdict; each reviewer arm's own status line is part of its artifact and is read as input, not tallied or averaged into the run's verdict.
+In a multi-arm run, the synthesis call's execution of `review-result.sh` is the sole source of the skill's verdict; each reviewer arm's own tool call and status line are part of its artifact and are read as input, not tallied or averaged into the run's verdict.
 
-A verdict is classified from a call's final-message artifact, and an artifact that quotes another agent's `REVIEW_STATUS` line as a line of its own is classified as that quoted verdict rather than its own — so where a verdict is disputed, check it against the artifact path the runner prints on the per-skill result line.
+A verdict is read from a call's verdict file when the file is non-empty. Only when it is absent or empty does the runner fall back to classifying the call's final-message artifact, and on that fallback path an artifact that quotes another agent's `REVIEW_STATUS` line as a line of its own is classified as that quoted verdict rather than its own — so where a verdict is disputed, check it against the verdict file path the runner prints on the per-skill result line.
 
 ## Notes
 
