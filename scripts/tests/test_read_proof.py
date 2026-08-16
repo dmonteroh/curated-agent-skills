@@ -35,6 +35,14 @@ build_message() {
       printf 'DIFFERENTIATION: STRONG one line of evidence\\n'
       printf 'REVIEW_STATUS: NO-CHANGE\\n'
       ;;
+    backtick_interior_whitespace)
+      printf 'READ_PROOF: `   %s`\\n' "$expected"
+      printf 'Files changed: none\\n'
+      printf 'Summary: no changes (0 removed, 0 added)\\n'
+      printf 'REMOVAL PROPOSALS: none\\n'
+      printf 'DIFFERENTIATION: STRONG one line of evidence\\n'
+      printf 'REVIEW_STATUS: NO-CHANGE\\n'
+      ;;
     absent)
       printf 'Files changed: none\\n'
       printf 'Summary: no changes (0 removed, 0 added)\\n'
@@ -149,6 +157,13 @@ class ReadProofArmOutcomeTests(unittest.TestCase):
         self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/claude (read-proof absent)", proc.stdout)
         self.assertNotIn(f"[arm-ok] {FIXTURE_SKILL}/codex", proc.stdout)
         self.assertNotIn(f"[arm-ok] {FIXTURE_SKILL}/claude", proc.stdout)
+
+    def test_backtick_wrapped_value_with_interior_whitespace_is_arm_ok(self):
+        proc = _run_dual("backtick_interior_whitespace")
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/codex", proc.stdout)
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/claude", proc.stdout)
+        self.assertNotIn("read-proof absent", proc.stdout)
+        self.assertNotIn("read-proof mismatch", proc.stdout)
 
     def test_a_skill_with_a_failed_arm_never_reaches_synthesis(self):
         proc = _run_dual("absent")
