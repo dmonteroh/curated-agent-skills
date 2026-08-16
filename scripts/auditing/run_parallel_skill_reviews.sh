@@ -792,6 +792,12 @@ reap_batch() {
           REMOVAL_PROPOSALS) removal_proposals="$value" ;;
         esac
       done <"$verdict_file"
+      if [[ "$outcome" == "INFRA-FAILURE" ]]; then
+        reason="$(infra_reason_from_log "$review_log")" || true
+        INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
+        echo "[infra-failure] $skill (exit 0: classifier-reported)"
+        continue
+      fi
       proof_rc=0
       verify_read_proof "$last_msg" "$readproof_file" || proof_rc=$?
       if (( proof_rc == 1 )); then
@@ -822,11 +828,6 @@ reap_batch() {
         QUESTIONS)
           FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
           echo "[failed] $skill (blocked: QUESTIONS)"
-          ;;
-        INFRA-FAILURE)
-          reason="$(infra_reason_from_log "$review_log")" || true
-          INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
-          echo "[infra-failure] $skill (exit 0: classifier-reported)"
           ;;
         *)
           MALFORMED_SKILLS+=("$skill")
