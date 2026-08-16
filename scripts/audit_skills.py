@@ -10,12 +10,15 @@ Issues (fail the run):
 - SKILL.md has YAML frontmatter with name + description + metadata.category
 - Frontmatter uses only supported top-level keys: name, description, metadata
 - Frontmatter values that include `: ` are quoted (Codex skill loader is strict YAML)
-- Backticked local file references inside a skill resolve (for refs like `references/x.md`)
-- Repo-root-style skill paths (`skills/<name>/...`) anywhere in the file, fenced code
-  included. They do not resolve once the skill is installed to ~/.codex/skills/<name>/.
+- Backticked local file references inside a skill resolve (for refs like `references/x.md`),
+  scanned over SKILL.md plus its references/*.md and resources/*.md, one level deep
+- Repo-root-style skill paths (`skills/<name>/...`), scanned over the same files, fenced
+  code included. They do not resolve once the skill is installed to ~/.codex/skills/<name>/.
 - No network assumptions in SKILL.md (skills should be usable offline)
 - Frontmatter name matches folder name (avoid agent confusion)
 - Name + description token budget (frontmatter) stays within bounds
+- A SKILL.md, references/*.md, or resources/*.md file that cannot be read
+  (non-UTF-8 content) is reported rather than aborting the scan
 
 Warnings (reported, do not fail):
 - Entry point (SKILL.md) over 200 lines. Length follows the job; see
@@ -68,8 +71,9 @@ CANONICAL_HEADINGS = {
     "resources": "Resources",
     "scripts": "Scripts",
 }
-# Word-order and plural variants only. Synonyms (Instructions vs Workflow) are a
-# reviewer's call, not a lint.
+# Plural, word-order, and redundant-trailing-qualifier variants (e.g. "common
+# pitfalls to avoid" -> "common pitfalls"). Synonyms (Instructions vs Workflow)
+# are a reviewer's call, not a lint.
 HEADING_ALIASES = {
     "common pitfalls to avoid": "common pitfalls",
     "inputs required": "required inputs",
@@ -81,9 +85,52 @@ HEADING_ALIASES = {
 HEADING_STOPWORDS = {"the", "a", "an", "of", "to", "for", "and"}
 
 H2_RE = re.compile(r"^## +(.*)$")
+H23_RE = re.compile(r"^#{2,3} +(.*)$")
 TRAILING_PAREN_RE = re.compile(r"\([^)]*\)$")
-REPO_ROOT_SKILL_PATH_RE = re.compile(r"(?:\./)?skills/[a-z0-9][a-z0-9-]*/[\w./-]+")
+REPO_ROOT_SKILL_PATH_RE = re.compile(
+    r"(?<![\w./~-])(?:\.{1,2}/)?skills/[A-Za-z0-9][A-Za-z0-9_-]*/[\w./-]*?\.(?:md|sh|py|txt|cjs|ts|js)"
+)
 ACTIVATION_CUE_MARKER_RE = re.compile(r"^[#*\- ]*(activation cue|trigger phrase|trigger test)", re.I)
+SKILL_INTERNAL_REF_PREFIXES = ("references/", "resources/", "scripts/", "assets/", "templates/")
+
+CODE_SPAN_RE = re.compile(r"`[^`]*`")
+MD_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+URL_RE = re.compile(r"https?://\S+|www\.\S+")
+BARE_PATH_RE = re.compile(r"(?<![\w])[\w.~-]*/[\w./~-]+")
+FILENAME_RE = re.compile(r"(?<![\w])[\w-]+\.[A-Za-z][\w]{0,4}(?![\w])")
+
+
+def clean(heading: str) -> str:
+    return TRAILING_PAREN_RE.sub("", heading).strip()
+
+
+def _strip_ref_noise(s: str) -> str:
+    """Removes backtick spans, markdown links (keeping link text), URLs, bare
+    a/b paths, and filename tokens so a heading/prose pair does not match
+    only because both sides mention the same reference.
+    """
+    s = CODE_SPAN_RE.sub(" ", s)
+    s = MD_LINK_RE.sub(r"\1", s)
+    s = URL_RE.sub(" ", s)
+    s = BARE_PATH_RE.sub(" ", s)
+    s = FILENAME_RE.sub(" ", s)
+    return s
+
+
+def _prose_lines(lines: list[str]) -> list[str]:
+    """Fence-stripped, index-aligned view of `lines`: fence delimiters are kept
+    verbatim (so `_first_prose_line` still stops at them), everything else
+    inside a fence becomes an empty string.
+    """
+    out: list[str] = []
+    in_fence = False
+    for line in lines:
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            out.append(line)
+            continue
+        out.append("" if in_fence else line)
+    return out
 
 
 def _heading_findings(lines: list[str]) -> tuple[list[str], list[str]]:
@@ -101,7 +148,7 @@ def _heading_findings(lines: list[str]) -> tuple[list[str], list[str]]:
         if not m:
             continue
         raw = m.group(1).strip()
-        stripped = TRAILING_PAREN_RE.sub("", raw).strip()
+        stripped = clean(raw)
         key = HEADING_ALIASES.get(stripped.lower(), stripped.lower())
         canonical = CANONICAL_HEADINGS.get(key)
         if not canonical:
@@ -122,18 +169,18 @@ def _headings_restated(lines: list[str]) -> list[str]:
     """Headings whose own first sentence repeats them — template sediment."""
     out: list[str] = []
     for idx, line in enumerate(lines):
-        m = H2_RE.match(line)
+        m = H23_RE.match(line)
         if not m:
             continue
         heading = m.group(1).strip()
-        base = TRAILING_PAREN_RE.sub("", heading).strip().lower()
+        base = clean(_strip_ref_noise(heading)).lower()
         words = [w for w in re.findall(r"[a-z]+", base) if w not in HEADING_STOPWORDS]
         if len(words) < 2:
             continue
         nxt = _first_prose_line(lines, idx + 1)
         if nxt is None:
             continue
-        following = re.findall(r"[a-z]+", nxt.lower())[:14]
+        following = re.findall(r"[a-z]+", _strip_ref_noise(nxt).lower())[:14]
         if all(w in following for w in words):
             out.append(heading)
     return out
@@ -243,6 +290,59 @@ def _find_backtick_paths(text: str) -> set[str]:
     return out
 
 
+def _skill_texts(dirpath: Path) -> tuple[list[tuple[str, str]], list[str]]:
+    """(skill-relative POSIX path, text) for SKILL.md, then references/*.md, then resources/*.md.
+
+    One level deep (checklist section 9): `glob`, not `rglob`. Any of these files that cannot
+    be read (broken symlink, non-UTF-8 content) is reported in the second return value as
+    `<rel_file>:<ExceptionType>` instead of raising, so one bad file never crashes the library
+    scan. An unreadable `references/`/`resources/` file leaves the rest of the skill's checks
+    intact; an unreadable `SKILL.md` leaves no text for the caller to check at all, so it is
+    still reported here but the caller treats it as the skill's only finding.
+    """
+    pairs: list[tuple[str, str]] = []
+    unreadable: list[str] = []
+    try:
+        pairs.append(("SKILL.md", (dirpath / "SKILL.md").read_text(encoding="utf-8")))
+    except (OSError, UnicodeDecodeError) as exc:
+        unreadable.append(f"SKILL.md:{type(exc).__name__}")
+    for sub in ("references", "resources"):
+        subdir = dirpath / sub
+        if not subdir.is_dir():
+            continue
+        for f in sorted(subdir.glob("*.md")):
+            rel = f.relative_to(dirpath).as_posix()
+            try:
+                pairs.append((rel, f.read_text(encoding="utf-8")))
+            except (OSError, UnicodeDecodeError) as exc:
+                unreadable.append(f"{rel}:{type(exc).__name__}")
+    return pairs, unreadable
+
+
+def _repo_root_skill_paths(skill_texts: list[tuple[str, str]]) -> list[str]:
+    found: set[str] = set()
+    for rel_file, text in skill_texts:
+        for m in REPO_ROOT_SKILL_PATH_RE.finditer(text):
+            found.add(f"{rel_file}:{m.group(0)}")
+    return sorted(found)
+
+
+def _missing_local_refs(dirpath: Path, skill_texts: list[tuple[str, str]]) -> list[str]:
+    missing: set[str] = set()
+    for rel_file, text in skill_texts:
+        for ref in _find_backtick_paths(text):
+            if rel_file != "SKILL.md" and not ref.startswith(SKILL_INTERNAL_REF_PREFIXES):
+                continue
+            p = (dirpath / ref).resolve()
+            try:
+                p.relative_to(dirpath.resolve())
+            except Exception:
+                continue
+            if not p.exists():
+                missing.add(f"{rel_file}:{ref}")
+    return sorted(missing)
+
+
 def _token_count(text: str) -> int:
     global _TOKEN_ENCODER
     if _TOKEN_ENCODER is None:
@@ -252,96 +352,168 @@ def _token_count(text: str) -> int:
     return len(_TOKEN_ENCODER.encode(text))
 
 
-def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
-    skill_file = dirpath / "SKILL.md"
-    text = skill_file.read_text(encoding="utf-8")
-    lines = text.splitlines()
-    fm = _parse_frontmatter(text)
+class SkillDoc:
+    """One skill's derived views, built once per skill and shared by every check."""
 
-    issues: list[str] = []
-    warnings: list[str] = []
-    name = fm.get("name", "").strip()
-    desc = fm.get("description", "").strip()
-    category = fm.get("metadata.category", "").strip()
+    def __init__(self, dirpath: Path, *, token_checks: bool) -> None:
+        self.dirpath = dirpath
+        self.token_checks = token_checks
+        self.texts, self.unreadable_texts = _skill_texts(dirpath)
+        self.entry_missing = not self.texts or self.texts[0][0] != "SKILL.md"
+        if self.entry_missing:
+            return
+        self.text = self.texts[0][1]
+        self.lines = self.text.splitlines()
+        self.prose_lines = _prose_lines(self.lines)
+        self.fm = _parse_frontmatter(self.text)
+        self.block = _frontmatter_block(self.text)
 
-    if not fm:
-        issues.append("missing_frontmatter")
-    else:
-        block = _frontmatter_block(text)
-        if block:
-            issues.extend(_frontmatter_needs_quotes_for_colons(block))
-            keys = _frontmatter_keys(block)
-            missing_required = sorted(REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS - keys)
-            if missing_required:
-                issues.append("missing_frontmatter_keys:" + ",".join(missing_required))
-            extra = sorted(keys - ALLOWED_FRONTMATTER_KEYS)
-            if extra:
-                issues.append("unexpected_frontmatter_keys:" + ",".join(extra))
-    if not name:
-        issues.append("missing_name_in_frontmatter")
-    if not desc:
-        issues.append("missing_description_in_frontmatter")
-    if not category:
-        issues.append("missing_metadata_category_in_frontmatter")
 
+def _check_frontmatter(doc: SkillDoc) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    if not doc.fm:
+        out.append(("issue", "missing_frontmatter"))
+        return out
+    if not doc.block:
+        return out
+    for code in _frontmatter_needs_quotes_for_colons(doc.block):
+        out.append(("issue", code))
+    keys = _frontmatter_keys(doc.block)
+    missing_required = sorted(REQUIRED_TOP_LEVEL_FRONTMATTER_KEYS - keys)
+    if missing_required:
+        out.append(("issue", "missing_frontmatter_keys:" + ",".join(missing_required)))
+    extra = sorted(keys - ALLOWED_FRONTMATTER_KEYS)
+    if extra:
+        out.append(("issue", "unexpected_frontmatter_keys:" + ",".join(extra)))
+    return out
+
+
+def _check_required_fields(doc: SkillDoc) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    if not doc.fm.get("name", "").strip():
+        out.append(("issue", "missing_name_in_frontmatter"))
+    if not doc.fm.get("description", "").strip():
+        out.append(("issue", "missing_description_in_frontmatter"))
+    if not doc.fm.get("metadata.category", "").strip():
+        out.append(("issue", "missing_metadata_category_in_frontmatter"))
+    return out
+
+
+def _check_entry_length(doc: SkillDoc) -> list[tuple[str, str]]:
     # Length follows the job; see SKILL_REVIEW_CHECKLIST.md section 10.
-    if len(lines) > 200:
-        warnings.append(f"entry_over_200_lines:{len(lines)}")
+    if len(doc.lines) > 200:
+        return [("warning", f"entry_over_200_lines:{len(doc.lines)}")]
+    return []
 
-    if name and name != dirpath.name:
-        issues.append(f"name_folder_mismatch:{name}!={dirpath.name}")
 
-    # Repo-root paths break once the skill is installed to ~/.codex/skills/<name>/.
-    # Scanned over the whole file, fenced code included.
-    repo_root_paths = sorted(set(REPO_ROOT_SKILL_PATH_RE.findall(text)))
+def _check_name_folder_match(doc: SkillDoc) -> list[tuple[str, str]]:
+    name = doc.fm.get("name", "").strip()
+    if name and name != doc.dirpath.name:
+        return [("issue", f"name_folder_mismatch:{name}!={doc.dirpath.name}")]
+    return []
+
+
+def _check_repo_root_paths(doc: SkillDoc) -> list[tuple[str, str]]:
+    """Repo-root paths break once installed to ~/.codex/skills/<name>/; scans
+    SKILL.md plus references/resources, fenced code included, deliberately.
+    """
+    repo_root_paths = _repo_root_skill_paths(doc.texts)
     if repo_root_paths:
-        issues.append("repo_root_skill_path:" + ",".join(repo_root_paths))
+        return [("issue", "repo_root_skill_path:" + ",".join(repo_root_paths))]
+    return []
 
-    variants, qualifiers = _heading_findings(lines)
+
+def _check_heading_families(doc: SkillDoc) -> list[tuple[str, str]]:
+    """Uses the fence-stripped view: heading-lookalikes inside code fences must not match."""
+    out: list[tuple[str, str]] = []
+    variants, qualifiers = _heading_findings(doc.prose_lines)
     if variants:
-        warnings.append("heading_variant:" + ",".join(variants))
+        out.append(("warning", "heading_variant:" + ",".join(variants)))
     if qualifiers:
-        warnings.append("heading_qualifier:" + ",".join(qualifiers))
+        out.append(("warning", "heading_qualifier:" + ",".join(qualifiers)))
+    return out
 
-    restated = _headings_restated(lines)
+
+def _check_headings_restated(doc: SkillDoc) -> list[tuple[str, str]]:
+    restated = _headings_restated(doc.prose_lines)
     if restated:
-        warnings.append("heading_restated:" + ",".join(restated))
+        return [("warning", "heading_restated:" + ",".join(restated))]
+    return []
 
-    cues = _activation_cues(lines)
+
+def _check_activation_cues(doc: SkillDoc) -> list[tuple[str, str]]:
+    cues = _activation_cues(doc.prose_lines)
     if cues:
-        warnings.append(f"activation_cues_in_skill_md:{len(cues)}")
+        return [("warning", f"activation_cues_in_skill_md:{len(cues)}")]
+    return []
 
-    missing = []
-    for rel in sorted(_find_backtick_paths(text)):
-        p = (dirpath / rel).resolve()
-        try:
-            p.relative_to(dirpath.resolve())
-        except Exception:
-            # Ignore paths that escape the skill dir.
-            continue
-        if not p.exists():
-            missing.append(rel)
+
+def _check_missing_local_refs(doc: SkillDoc) -> list[tuple[str, str]]:
+    missing = _missing_local_refs(doc.dirpath, doc.texts)
     if missing:
-        issues.append("missing_local_refs:" + ",".join(missing))
+        return [("issue", "missing_local_refs:" + ",".join(missing))]
+    return []
 
-    if re.search(r"\bWebFetch\b|https?://raw\.githubusercontent\.com", text, re.I):
-        issues.append("network_assumption")
 
-    if token_checks and (name or desc):
-        token_count = _token_count(f"{name} {desc}".strip())
-        if token_count > TOKEN_HARD_LIMIT:
-            issues.append(f"frontmatter_tokens_over_hard_limit:{token_count}")
-        elif token_count > TOKEN_SOFT_LIMIT:
-            warnings.append(f"frontmatter_tokens_over_soft_limit:{token_count}")
+def _check_network_assumption(doc: SkillDoc) -> list[tuple[str, str]]:
+    if re.search(r"\bWebFetch\b|https?://raw\.githubusercontent\.com", doc.text, re.I):
+        return [("issue", "network_assumption")]
+    return []
 
-    if token_checks:
-        skill_tokens = _token_count(text)
-        if skill_tokens > SKILL_MD_HARD_TOKEN_LIMIT:
-            issues.append(f"skill_md_tokens_over_hard_limit:{skill_tokens}")
-        elif skill_tokens > SKILL_MD_SOFT_TOKEN_LIMIT:
-            warnings.append(f"skill_md_tokens_over_soft_limit:{skill_tokens}")
 
-    return issues, warnings
+def _check_frontmatter_tokens(doc: SkillDoc) -> list[tuple[str, str]]:
+    name = doc.fm.get("name", "").strip()
+    desc = doc.fm.get("description", "").strip()
+    if not (doc.token_checks and (name or desc)):
+        return []
+    token_count = _token_count(f"{name} {desc}".strip())
+    if token_count > TOKEN_HARD_LIMIT:
+        return [("issue", f"frontmatter_tokens_over_hard_limit:{token_count}")]
+    if token_count > TOKEN_SOFT_LIMIT:
+        return [("warning", f"frontmatter_tokens_over_soft_limit:{token_count}")]
+    return []
+
+
+def _check_skill_md_tokens(doc: SkillDoc) -> list[tuple[str, str]]:
+    if not doc.token_checks:
+        return []
+    skill_tokens = _token_count(doc.text)
+    if skill_tokens > SKILL_MD_HARD_TOKEN_LIMIT:
+        return [("issue", f"skill_md_tokens_over_hard_limit:{skill_tokens}")]
+    if skill_tokens > SKILL_MD_SOFT_TOKEN_LIMIT:
+        return [("warning", f"skill_md_tokens_over_soft_limit:{skill_tokens}")]
+    return []
+
+
+# Order reproduces scan_skill's original emission order for both the issues
+# and warnings lists; reordering this tuple is the only thing that changes it.
+CHECKS: tuple[Callable[[SkillDoc], list[tuple[str, str]]], ...] = (
+    _check_frontmatter,
+    _check_required_fields,
+    _check_entry_length,
+    _check_name_folder_match,
+    _check_repo_root_paths,
+    _check_heading_families,
+    _check_headings_restated,
+    _check_activation_cues,
+    _check_missing_local_refs,
+    _check_network_assumption,
+    _check_frontmatter_tokens,
+    _check_skill_md_tokens,
+)
+
+
+def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
+    doc = SkillDoc(dirpath, token_checks=token_checks)
+    if doc.entry_missing:
+        return [f"unreadable_skill_file:{','.join(sorted(doc.unreadable_texts))}"], []
+    results: dict[str, list[str]] = {"issue": [], "warning": []}
+    if doc.unreadable_texts:
+        results["issue"].append(f"unreadable_skill_file:{','.join(sorted(doc.unreadable_texts))}")
+    for check in CHECKS:
+        for severity, message in check(doc):
+            results[severity].append(message)
+    return results["issue"], results["warning"]
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
