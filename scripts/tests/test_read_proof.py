@@ -11,6 +11,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUNNER = REPO_ROOT / "scripts" / "auditing" / "run_parallel_skill_reviews.sh"
 LOGDIR = REPO_ROOT / "scripts" / "auditing" / "logs"
+SKILLS_LIST = REPO_ROOT / "scripts" / "auditing" / "skills_list.txt"
 
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "auditing"))
 from review_log import classify  # noqa: E402
@@ -160,6 +161,8 @@ BACKTICK_LINE = "`scripts/auditing/references/authoring-guidance.md`"
 
 class BacktickWrappedChallengeLineTests(unittest.TestCase):
     def setUp(self):
+        skills_list_snapshot = SKILLS_LIST.read_bytes()
+        self.addCleanup(SKILLS_LIST.write_bytes, skills_list_snapshot)
         self.tmpdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmpdir.cleanup)
         fixture_dir = Path(self.tmpdir.name) / "skill"
