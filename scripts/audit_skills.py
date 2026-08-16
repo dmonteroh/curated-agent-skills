@@ -18,7 +18,7 @@ Issues (fail the run):
 - Frontmatter name matches folder name (avoid agent confusion)
 - Name + description token budget (frontmatter) stays within bounds
 - A SKILL.md, references/*.md, or resources/*.md file that cannot be read
-  (broken symlink, non-UTF-8 content) is reported rather than aborting the scan
+  (non-UTF-8 content) is reported rather than aborting the scan
 
 Warnings (reported, do not fail):
 - Entry point (SKILL.md) over 200 lines. Length follows the job; see
