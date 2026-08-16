@@ -1,0 +1,9 @@
+Synthesis for skills/subagent-orchestrator: applying one grounded cut and reporting differentiation.
+
+Review 1 flags skills/subagent-orchestrator/references/runtime-claude.md line 59, "Do not run verification commands; recommend them only," as a second statement of the rule already made in skills/subagent-orchestrator/implementer-prompt.md, citing scripts/auditing/SKILL_REVIEW_CHECKLIST.md section 4. Review 2 grounds the same finding independently, citing the identical section. Both copies sit inside the union, and a third copy at skills/subagent-orchestrator/references/execution-single-worker.md line 21 states a different rule - controller-run verification commands as a step output, not the "do not run them" instruction - and does not group with these two, so it stands untouched.
+
+Files changed: skills/subagent-orchestrator/references/runtime-claude.md - removed the duplicate "do not run verification commands" line (-1 line).
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: STRONG - the controller-owned verification barrier is an opinionated convention a frontier model would not produce unprompted.
