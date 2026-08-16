@@ -32,4 +32,13 @@ fi
 
 "$VENV/bin/python" -m pip install -r "$ROOT/scripts/requirements-audit.txt" >/dev/null
 
-"$VENV/bin/python" "$ROOT/scripts/audit_skills.py" "$@"
+audit_rc=0
+"$VENV/bin/python" "$ROOT/scripts/audit_skills.py" "$@" || audit_rc=$?
+
+echo "--- parity ---"
+parity_rc=0
+"$VENV/bin/python" "$ROOT/scripts/check_parity.py" || parity_rc=$?
+if (( parity_rc == 0 )); then echo "parity: ok"; else echo "parity: FAIL" >&2; fi
+
+if (( audit_rc != 0 )); then exit "$audit_rc"; fi
+exit "$parity_rc"

@@ -54,7 +54,9 @@ Propose, never execute: removing a whole section, a file under `references/` or 
 
 Beyond §1 and §2, shape follows the job. A skill with one procedure gets one procedure; a skill guarding six failure modes gets a section per failure mode. Never add a section because other skills have one.
 
+<!-- parity:canonical-headings:start -->
 When a section from a known family is present, use its canonical heading: `Workflow`, `Output contract`, `Required inputs`, `Common pitfalls`, `Decision points`, `Constraints`, `Examples`, `References`, `Resources`, `Scripts`. Wording variants are lint, not voice.
+<!-- parity:canonical-headings:end -->
 
 ## 6. Voice
 
@@ -95,6 +97,36 @@ When a section from a known family is present, use its canonical heading: `Workf
 - A skill never requires another skill to be installed and never checks for one. Cross-skill sequencing belongs in the consuming project's `AGENTS.md`.
 - A skill may mention partitioning or parallel work only where it stays self-contained.
 - Patterns this library rejects on purpose — routers, cross-skill `/name` invocation, shared setup skills, hard dependencies, plugin-only distribution — and the reasoning: `references/authoring-guidance.md`.
+
+## 12. Mechanical check index
+
+Every check name `scripts/audit_skills.py` can emit, and the section above that states the rule it enforces. A citation, never a second statement of the rule (One Rule, One Home).
+
+<!-- parity:check-names:start -->
+| Check name | Section | Citation |
+| --- | --- | --- |
+| `missing_frontmatter` | §1 | "Frontmatter carries `name`, `description`, and `metadata.category`" |
+| `missing_frontmatter_keys` | §1 | "Frontmatter carries `name`, `description`, and `metadata.category`, and no other top-level key" |
+| `unexpected_frontmatter_keys` | §1 | "and no other top-level key" |
+| `missing_name_in_frontmatter` | §1 | "Frontmatter carries `name`…" |
+| `missing_description_in_frontmatter` | §1 | "Frontmatter carries…`description`…" |
+| `missing_metadata_category_in_frontmatter` | §1 | "Frontmatter carries…`metadata.category`" |
+| `description_requires_quotes_for_colons` | §1 | "Any frontmatter value containing `: ` … must be quoted, `description` included" |
+| `frontmatter_unquoted_colon` | §1 | "Any frontmatter value containing `: ` … must be quoted" |
+| `name_folder_mismatch` | §1 | "`name` equals the folder name" |
+| `frontmatter_tokens_over_soft_limit` | §1 | "soft limit 110 tokens" |
+| `frontmatter_tokens_over_hard_limit` | §1 | "hard limit 120 tokens" |
+| `activation_cues_in_skill_md` | §1 | "Activation cues live in `scripts/auditing/trigger-cases/<skill>.md`, never in `SKILL.md`" |
+| `heading_restated` | §4 | "a sentence that restates its own heading" |
+| `heading_qualifier` | §4 | "a vacuous heading qualifier" |
+| `heading_variant` | §5 | "use its canonical heading … wording variants are lint" |
+| `missing_local_refs` | §9 | "References are local to the skill and one level deep" |
+| `repo_root_skill_path` | §9 | "Script paths are written skill-relative … never repo-root style" |
+| `network_assumption` | §9 | "No network assumptions" |
+| `entry_over_200_lines` | §10 | "Length beyond 200 lines is a warning, not a defect" |
+| `skill_md_tokens_over_soft_limit` | §10 | "warning (soft limit) at 4500" |
+| `skill_md_tokens_over_hard_limit` | §10 | "hard limit of 5001 tokens" |
+<!-- parity:check-names:end -->
 
 ## Verdicts
 
