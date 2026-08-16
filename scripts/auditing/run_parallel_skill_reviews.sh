@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CHECKLIST="$ROOT/scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
-PDFTXT="$ROOT/scripts/auditing/resources/agent_skills_pdf.txt"
 LOGDIR="$ROOT/scripts/auditing/logs"
 BATCH_SIZE=10
 SUBAGENT_SANDBOX="${SUBAGENT_SANDBOX:-danger-full-access}"
@@ -317,7 +316,6 @@ render_reviewer_prompt() {
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
   local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
-  local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
   local authority_task authority_rule
   case "$mode" in
@@ -350,11 +348,10 @@ render_reviewer_prompt() {
 Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. ${authority_task}
 
 Read first, in this order:
-- ${checklist_rel} - the binding bar. It outranks every other input, including the vendored resource below.
+- ${checklist_rel} - the binding bar. It outranks every other input.
 - ${open_items_rel} - calls already settled. Arguing against one of these is wrong, not thorough.
 - ${guidance_rel} - depth behind the bar. Read the section you need when a judgment call is not obvious.
 - ${skill_dir}/SKILL.md and everything else under ${skill_dir}/.
-- ${pdf_rel} - background only, optional.
 
 Scope: only files under ${skill_dir}. Do not edit anything outside it.
 
