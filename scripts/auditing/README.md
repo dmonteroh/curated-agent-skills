@@ -91,6 +91,10 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
   - Reports per-skill success/failure with log paths.
   - Measures reference size via `tiktoken` to decide when to split/index references.
 
+- `reviewer-prompt.md`
+  - Read at each reviewer arm's dispatch: the discovery contract, mandatory subtraction, differentiation, rules, and the Output verdict block.
+  - Placeholders (`SKILL_DIRECTORY`, `CHECKLIST_PATH`, `GUIDANCE_PATH`, `OPEN_ITEMS_PATH`, `VENV_PYTHON_PATH`, `AUTHORITY_TASK`, `AUTHORITY_RULE`, `CHALLENGE_LINE`) are interpolated by the runner before dispatch.
+
 - `synthesis-prompt.md`
   - Read at the synthesis call: the tie-break chain that resolves disagreement between reviewer arms, the vendor-agnostic framing block, and the sole per-skill write authority in a multi-arm run.
   - Placeholders (`SKILL_DIRECTORY`, `SKILL_NAME`, `CHECKLIST_PATH`, `OPEN_ITEMS_PATH`, `REVIEW_ARTIFACTS`) are interpolated by the runner before dispatch.
