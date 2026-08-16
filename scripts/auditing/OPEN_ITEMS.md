@@ -39,7 +39,7 @@ Blocks that exist in more than one file on purpose. Edit every member in the sam
 
 | Family | Members |
 | --- | --- |
-| Removal authority | `SKILL_REVIEW_CHECKLIST.md` §4 · `SUBAGENT_REVIEW_PROCESS.md` "Removal authority" · `scripts/auditing/reviewer-prompt.md` |
+| Removal authority | `SKILL_REVIEW_CHECKLIST.md` §4 · `SUBAGENT_REVIEW_PROCESS.md` "Removal authority" · `scripts/auditing/reviewer-prompt.md` · the declared anchor table in `scripts/check_parity.py` — machine-checked by `scripts/check_parity.py` |
 | Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · `scripts/auditing/reviewer-prompt.md` "Output" block · `scripts/auditing/review_log.py` · `synthesis-prompt.md` "Output" |
 | Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` — machine-checked by `scripts/check_parity.py` |
 | Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §12 table · the check names emitted by `scripts/audit_skills.py` (`list_check_names()`) — machine-checked by `scripts/check_parity.py` |

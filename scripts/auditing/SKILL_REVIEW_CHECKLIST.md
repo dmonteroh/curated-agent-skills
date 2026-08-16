@@ -36,6 +36,7 @@ Report `DIFFERENTIATION: STRONG` or `DIFFERENTIATION: WEAK` with one line of evi
 
 Every review runs a pruning pass and reports its result, including "nothing to cut".
 
+<!-- parity:removal-authority:start -->
 Delete without asking — this list is closed, the complete enumeration of what a reviewer deletes on its own:
 
 - a sentence that restates its own heading;
@@ -47,6 +48,7 @@ Delete without asking — this list is closed, the complete enumeration of what 
 Anything outside these five is proposed, never executed.
 
 Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
+<!-- parity:removal-authority:end -->
 
 **Adding is not the goal.** A review that removes forty lines and adds none is a successful review. So is one that changes nothing.
 
