@@ -15,15 +15,25 @@ DRY_RUN=0
 NO_INSTALL=0
 declare -a REQUESTED_SKILLS=()
 PRINT_POLICY=0
-# Review dispatch (the pipeline's one model-consuming site). Tier terra: it
-# judges SKILL.md against the binding bar, edits files under skills/<name>/,
-# and emits a verdict plus removal proposals. Vendor codex: it is the only
-# dispatch arm that exists; the claude arm is a separate deliverable, out
-# of this file's scope.
+SINGLE_MODEL="${SINGLE_MODEL:-0}"
+# Single-model review dispatch (--single-model / SINGLE_MODEL=1 only). Tier
+# terra: it judges SKILL.md against the binding bar, edits files under
+# skills/<name>/, and emits a verdict plus removal proposals. Vendor codex:
+# the one reviewer this path dispatches.
 REVIEW_TIER="terra"
 REVIEW_VENDOR="codex"
 RESOLVED_MODEL=""
 MODEL_SOURCE=""
+# Reviewer arms (dual mode, the default): one read-only dispatch per
+# declared arm, each a different LLM (task-dual-model-review.md,
+# "Cross-vendor invariant"). Add a third arm by adding one entry here plus
+# one case arm in each of build_reviewer_argv and client_for_arm below; no
+# loop anywhere in this file needs to change.
+declare -a REVIEWER_ARMS=(codex claude)
+# Synthesis is a single fixed call site, not a declared/iterated arm: D7
+# (task-model-routing.md) assigns it vendor claude permanently, and it is
+# the run's only writer (task-dual-model-synthesis-contract.md AC5).
+SYNTHESIS_VENDOR="claude"
 
 mkdir -p "$LOGDIR"
 
@@ -31,16 +41,27 @@ usage() {
   cat <<USAGE
 Usage: scripts/auditing/run_parallel_skill_reviews.sh [options]
 
+Default: dual mode. Per skill, dispatch one read-only reviewer per declared
+arm (REVIEWER_ARMS, currently codex and claude), then one synthesis call
+over every arm's review, and report the synthesis outcome as the skill's
+verdict: N+1 calls per skill.
+
 Options:
-  --batch-size N        Number of concurrent skill reviews (default: 10)
+  --batch-size N        Number of concurrent skills reviewed at once (default:
+                        10); a batch of B skills runs up to B times the arm
+                        count concurrent reviewer processes, then up to B
+                        synthesis processes
   --subagent-sandbox M  Sandbox passed to nested codex exec calls:
                         workspace-write | danger-full-access (default: danger-full-access)
-  --model NAME          Model passed to nested codex exec calls (default:
-                        resolved from the tier policy; see --print-model-policy)
+  --model NAME          Model passed to nested codex exec calls in single-model
+                        mode (default: resolved from the tier policy; see
+                        --print-model-policy)
+  --single-model        Opt out of the dual default: dispatch one codex
+                        reviewer per skill, as before dual mode existed
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
   --list-skills         Print discovered skills and exit
-  --dry-run             Show planned work without invoking codex
+  --dry-run             Show planned work without invoking codex or claude
   --no-install          Skip installing audit dependencies
   --print-model-policy  Print the tier -> model resolution table and exit
   -h, --help            Show this help
@@ -48,8 +69,10 @@ Options:
 Environment:
   PYTHON_BIN            Python interpreter to use (default: python3)
   SUBAGENT_SANDBOX      Nested codex exec sandbox override (same values as --subagent-sandbox)
-  REVIEW_MODEL          Model override (same values as --model; default: unset,
-                        the tier policy resolves the id)
+  REVIEW_MODEL          Single-model mode's codex override (same values as
+                        --model; default: unset, the tier policy resolves the
+                        id); dual mode's claude arms always resolve from policy
+  SINGLE_MODEL          Same as --single-model when set to 1
 USAGE
 }
 
@@ -103,9 +126,250 @@ print_model_policy() {
   for tier in sol opus; do
     printf 'tier=%s vendor=any resolved=<forbidden> provenance=%s\n' "$tier" "$(resolve_provenance "$tier" any)"
   done
-  value="$(resolve_model "$REVIEW_TIER" "$REVIEW_VENDOR")" || return 1
-  printf 'site=run_skill-review tier=%s vendor=%s resolved=%s source=policy\n' "$REVIEW_TIER" "$REVIEW_VENDOR" "$value"
-  printf '%s\n' 'model-policy: call-site count 1'
+  local arm
+  for arm in "${REVIEWER_ARMS[@]}"; do
+    value="$(resolve_model terra "$arm")" || return 1
+    printf 'site=reviewer-arm-%s tier=terra vendor=%s resolved=%s source=policy\n' "$arm" "$arm" "$value"
+  done
+  value="$(resolve_model terra "$SYNTHESIS_VENDOR")" || return 1
+  printf 'site=synthesis tier=terra vendor=%s resolved=%s source=policy\n' "$SYNTHESIS_VENDOR" "$value"
+  printf 'model-policy: call-site count %s\n' "$(( ${#REVIEWER_ARMS[@]} + 1 ))"
+  return 0
+}
+
+# Dual-mode dispatch helpers. Model ids and aliases stay inside
+# resolve_model (task-model-routing.md); everything below refers to a tier
+# and to an arm (which is also the vendor name, by design - AC3). Adding a
+# third arm is one entry in REVIEWER_ARMS above plus one case arm in each of
+# build_reviewer_argv and client_for_arm; no loop in this file changes.
+
+arm_log_path() {
+  printf '%s\n' "$LOGDIR/$1.$2.log"
+}
+
+arm_last_message_path() {
+  printf '%s\n' "$LOGDIR/$1.$2.last-message.txt"
+}
+
+synthesis_log_path() {
+  printf '%s\n' "$LOGDIR/$1.synthesis.log"
+}
+
+synthesis_last_message_path() {
+  printf '%s\n' "$LOGDIR/$1.synthesis.last-message.txt"
+}
+
+client_for_arm() {
+  case "$1" in
+    codex)  printf '%s\n' 'codex' ;;
+    claude) printf '%s\n' 'claude' ;;
+    *)
+      echo "error: no client mapped for reviewer arm '$1'" >&2
+      return 1
+      ;;
+  esac
+}
+
+declare -a REVIEWER_ARGV=()
+REVIEWER_MODEL=""
+REVIEWER_STDIN=0
+
+# tier terra for every arm (task-model-routing.md D3). Every arm is
+# read-only (AC2; decided-design "Write authority" - only the synthesis
+# call writes). The codex arm reuses RESOLVED_MODEL, already computed from
+# policy or REVIEW_MODEL below, so REVIEW_MODEL's precedence (D5) carries
+# through unchanged; positional prompt, matching the landed single-reviewer
+# shape (C2), but with the sandbox pinned to read-only rather than
+# $SUBAGENT_SANDBOX - that knob is single-mode's write-capable dispatch
+# only, and reusing it here would leave the model free to edit skill files
+# from a reviewer arm, verified live 2026-08-16. The claude arm always
+# resolves fresh from policy (REVIEW_MODEL stays codex-scoped); its
+# prompt goes on stdin, never as a positional argument, since
+# --allowedTools/--disallowedTools are variadic and would silently swallow
+# a positional prompt that follows them. --permission-mode dontAsk is
+# required, not cosmetic: the shared reviewer prompt says "Apply changes
+# directly", the client attempts the (denied) Edit tool, and without
+# dontAsk that denial blocks waiting for an interactive response that
+# never arrives in --print mode - reproduced live 2026-08-16, hangs past
+# any reasonable timeout with zero output on both streams.
+build_reviewer_argv() {
+  local arm="$1" last_msg="$2"
+  REVIEWER_ARGV=()
+  REVIEWER_MODEL=""
+  REVIEWER_STDIN=0
+  case "$arm" in
+    codex)
+      REVIEWER_MODEL="$RESOLVED_MODEL"
+      REVIEWER_ARGV=(exec --sandbox read-only --output-last-message "$last_msg" --model "$REVIEWER_MODEL")
+      ;;
+    claude)
+      REVIEWER_MODEL="$(resolve_model terra claude)" || return 1
+      REVIEWER_ARGV=(--print --model "$REVIEWER_MODEL" --permission-mode dontAsk --allowedTools "Read,Glob,Grep" --disallowedTools "Edit,Write,NotebookEdit,Bash")
+      REVIEWER_STDIN=1
+      ;;
+    *)
+      echo "error: no argv builder for reviewer arm '$arm'" >&2
+      return 1
+      ;;
+  esac
+  return 0
+}
+
+# tier terra, vendor $SYNTHESIS_VENDOR: the run's only writer, given every
+# arm's review in full (task-dual-model-synthesis-contract.md AC5).
+declare -a SYNTHESIS_ARGV=()
+SYNTHESIS_MODEL=""
+
+build_synthesis_argv() {
+  SYNTHESIS_MODEL="$(resolve_model terra "$SYNTHESIS_VENDOR")" || return 1
+  SYNTHESIS_ARGV=(--print --model "$SYNTHESIS_MODEL" --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write")
+  return 0
+}
+
+# Run-level provenance, generalized across N+1 call sites: captured once per
+# label (a reviewer arm name, or "synthesis"), from the first reaped call's
+# log, mirroring the single-mode capture_provenance below. Bash 3.2 has no
+# associative arrays; a label is arbitrary text (an arm name may contain a
+# hyphen, which is not a legal part of a bash identifier), so lookup is a
+# linear scan over parallel arrays rather than a dynamically named variable.
+declare -a PROV_LABELS=()
+declare -a PROV_CLIENTS=()
+declare -a PROV_MODELS=()
+
+capture_call_provenance() {
+  local label="$1" log="$2" i banner model
+  for i in "${!PROV_LABELS[@]}"; do
+    if [[ "${PROV_LABELS[$i]}" == "$label" ]]; then return 0; fi
+  done
+  if [[ ! -f "$log" ]]; then return 0; fi
+  banner="$(head -n1 "$log")" || true
+  model="$(grep -m1 -E '^model: ' "$log" | cut -d' ' -f2-)" || true
+  if [[ -z "$banner" && -z "$model" ]]; then return 0; fi
+  PROV_LABELS+=("$label")
+  PROV_CLIENTS+=("$banner")
+  PROV_MODELS+=("$model")
+  return 0
+}
+
+provenance_client() {
+  local label="$1" i
+  for i in "${!PROV_LABELS[@]}"; do
+    if [[ "${PROV_LABELS[$i]}" == "$label" ]]; then
+      printf '%s\n' "${PROV_CLIENTS[$i]}"
+      return 0
+    fi
+  done
+  printf '%s\n' unknown
+  return 0
+}
+
+provenance_model() {
+  local label="$1" i
+  for i in "${!PROV_LABELS[@]}"; do
+    if [[ "${PROV_LABELS[$i]}" == "$label" ]]; then
+      printf '%s\n' "${PROV_MODELS[$i]}"
+      return 0
+    fi
+  done
+  printf '%s\n' unknown
+  return 0
+}
+
+# Shared with the single-model dispatch below: one reviewer prompt, never a
+# second variant (task-dispatch-prompt-contract.md, B1).
+REVIEWER_PROMPT=""
+
+render_reviewer_prompt() {
+  local skill="$1"
+  local skill_dir="skills/$skill"
+  local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
+  local guidance_rel="scripts/auditing/references/authoring-guidance.md"
+  local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
+  local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
+  local venv_python_rel=".venv/bin/python"
+
+  # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
+  # mis-parses an apostrophe inside a heredoc nested in command substitution.
+  IFS= read -r -d '' REVIEWER_PROMPT <<EOF || true
+Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. Apply changes directly.
+
+Read first, in this order:
+- ${checklist_rel} - the binding bar. It outranks every other input, including the vendored resource below.
+- ${open_items_rel} - calls already settled. Arguing against one of these is wrong, not thorough.
+- ${guidance_rel} - depth behind the bar. Read the section you need when a judgment call is not obvious.
+- ${skill_dir}/SKILL.md and everything else under ${skill_dir}/.
+- ${pdf_rel} - background only, optional.
+
+Scope: only files under ${skill_dir}. Do not edit anything outside it.
+
+Every review runs a pruning pass and reports its result, including "nothing to cut". Removing text is a first-class outcome, not a failure to add value.
+- Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
+- Propose, never execute: removing a whole section, a file under references/ or scripts/, the skill itself, or activation cues found in SKILL.md. Give the evidence and what would be lost; the operator rules on it. For activation cues, write the cue content directly into trigger-cases/<skill>.md - the one scoped exception to dispatch scope - and file a removal proposal for the SKILL.md-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
+- A review that deletes forty lines and adds none is successful. So is one that changes nothing.
+
+Differentiation - report it, never act on it:
+- Judge whether this skill changes what a frontier model would do unprompted. It earns its cost only with an opinionated house convention, a non-obvious process with real decision points, embedded tooling that makes behavior deterministic, or a correction for something models reliably get wrong.
+- Report STRONG or WEAK with one line of evidence. A WEAK verdict is a flag for the operator. Do not delete or rewrite the skill because of it.
+
+Rules:
+- Keep the skill independent: it must never require another skill to be installed, and never check for one.
+- Do not add brainstorming-gate or multi-agent dependencies.
+- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).
+- Keep activation cues and trigger tests out of SKILL.md.
+- Avoid time-sensitive facts and external network assumptions.
+- Structure follows the skill's job. Mandatory: the frontmatter contract, "Use this skill when", "Do not use this skill when". Every other section is earned - do not add one because other skills have it.
+- Voice: third person for the frontmatter description and the opening framing; imperative for procedure steps. No personas.
+- Write script paths skill-relative (scripts/x.sh), never repo-root style (skills/${skill}/scripts/x.sh), which does not resolve once the skill is installed.
+- If splitting references, add references/README.md as an index. Split when a reader does not need the material in line, not because a token count was crossed.
+- Measure reference file size with tiktoken (cl100k_base) using ${venv_python_rel}.
+- If anything is ambiguous, STOP and output QUESTIONS on a line of its own. Do not guess.
+
+Output, in this order:
+- Files changed (or "none")
+- Summary of edits, separating what was removed from what was added, with line counts
+- REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
+- DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
+- Verification run (if any)
+- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither.
+EOF
+  return 0
+}
+
+# Renders scripts/auditing/synthesis-prompt.md (DM2's asset, read from disk
+# and interpolated - never inlined, paraphrased, or converted to a heredoc)
+# with its named placeholders: SKILL_DIRECTORY, SKILL_NAME, CHECKLIST_PATH,
+# OPEN_ITEMS_PATH, REVIEW_ARTIFACTS. Reviews are supplied in full and
+# unmodified, in the order REVIEWER_ARMS declares them, referred to only by
+# position (Review 1 ... Review N) plus the arm that produced each one.
+SYNTHESIS_PROMPT=""
+
+render_synthesis_prompt() {
+  local skill="$1"
+  local skill_dir="skills/$1"
+  local checklist_path="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
+  local open_items_path="scripts/auditing/OPEN_ITEMS.md"
+  local asset arm n msg artifacts last_msg
+
+  IFS= read -r -d '' asset <"$ROOT/scripts/auditing/synthesis-prompt.md" || true
+
+  artifacts=""
+  n=0
+  for arm in "${REVIEWER_ARMS[@]}"; do
+    n=$((n + 1))
+    last_msg="$(arm_last_message_path "$skill" "$arm")" || true
+    msg="$(cat "$last_msg")" || true
+    artifacts="${artifacts}Review ${n} (arm: ${arm}):
+${msg}
+
+"
+  done
+
+  asset="${asset//SKILL_DIRECTORY/$skill_dir}"
+  asset="${asset//SKILL_NAME/$skill}"
+  asset="${asset//CHECKLIST_PATH/$checklist_path}"
+  asset="${asset//OPEN_ITEMS_PATH/$open_items_path}"
+  asset="${asset//REVIEW_ARTIFACTS/$artifacts}"
+  SYNTHESIS_PROMPT="$asset"
   return 0
 }
 
@@ -124,6 +388,10 @@ while (( "$#" )); do
     --model)
       REVIEW_MODEL="${2:-}"
       shift 2
+      ;;
+    --single-model)
+      SINGLE_MODEL=1
+      shift
       ;;
     --skill)
       REQUESTED_SKILLS+=("${2:-}")
@@ -201,13 +469,40 @@ if (( NO_INSTALL == 0 )); then
   "$VENV/bin/python" -m pip install -r "$ROOT/scripts/requirements-audit.txt" >/dev/null
 fi
 
-if (( DRY_RUN == 0 )) && ! command -v codex >/dev/null 2>&1; then
-  echo "error: codex command not found in PATH" >&2
-  exit 1
-fi
+if (( SINGLE_MODEL == 1 )); then
+  if (( DRY_RUN == 0 )) && ! command -v codex >/dev/null 2>&1; then
+    echo "error: codex command not found in PATH" >&2
+    exit 1
+  fi
 
-echo "codex client: $(codex --version 2>/dev/null || echo unknown)"
-echo "model requested: $RESOLVED_MODEL (tier=$REVIEW_TIER vendor=$REVIEW_VENDOR source=$MODEL_SOURCE)"
+  echo "codex client: $(codex --version 2>/dev/null || echo unknown)"
+  echo "model requested: $RESOLVED_MODEL (tier=$REVIEW_TIER vendor=$REVIEW_VENDOR source=$MODEL_SOURCE)"
+else
+  echo "reviewer arms: ${REVIEWER_ARMS[*]} (count ${#REVIEWER_ARMS[@]})"
+  for arm in "${REVIEWER_ARMS[@]}"; do
+    client="$(client_for_arm "$arm")" || exit 1
+    if (( DRY_RUN == 0 )) && ! command -v "$client" >/dev/null 2>&1; then
+      echo "error: $client command not found in PATH (required by reviewer arm $arm)" >&2
+      exit 1
+    fi
+    echo "reviewer arm $arm client: $("$client" --version 2>/dev/null || echo unknown)"
+    build_reviewer_argv "$arm" "" || exit 1
+    if [[ "$arm" == "$REVIEW_VENDOR" ]]; then
+      arm_source="$MODEL_SOURCE"
+    else
+      arm_source="policy"
+    fi
+    echo "reviewer arm $arm model requested: $REVIEWER_MODEL (tier=terra vendor=$arm source=$arm_source)"
+  done
+
+  if (( DRY_RUN == 0 )) && ! command -v "$SYNTHESIS_VENDOR" >/dev/null 2>&1; then
+    echo "error: $SYNTHESIS_VENDOR command not found in PATH (required by synthesis)" >&2
+    exit 1
+  fi
+  echo "synthesis client: $("$SYNTHESIS_VENDOR" --version 2>/dev/null || echo unknown)"
+  build_synthesis_argv || exit 1
+  echo "synthesis model requested: $SYNTHESIS_MODEL (tier=terra vendor=$SYNTHESIS_VENDOR source=policy)"
+fi
 
 "$VENV/bin/python" - <<PY >"$SKILLS_FILE"
 from pathlib import Path
@@ -270,14 +565,8 @@ done
 
 run_skill() {
   local skill="$1"
-  local skill_dir="skills/$skill"
   local log="$LOGDIR/${skill}.log"
   local last_msg="$LOGDIR/${skill}.last-message.txt"
-  local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
-  local guidance_rel="scripts/auditing/references/authoring-guidance.md"
-  local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
-  local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
-  local venv_python_rel=".venv/bin/python"
   local prompt
   local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg" --model "$RESOLVED_MODEL")
 
@@ -291,50 +580,8 @@ run_skill() {
 
   rm -f "$last_msg"
 
-  # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
-  # mis-parses an apostrophe inside a heredoc nested in command substitution.
-  IFS= read -r -d '' prompt <<EOF || true
-Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. Apply changes directly.
-
-Read first, in this order:
-- ${checklist_rel} - the binding bar. It outranks every other input, including the vendored resource below.
-- ${open_items_rel} - calls already settled. Arguing against one of these is wrong, not thorough.
-- ${guidance_rel} - depth behind the bar. Read the section you need when a judgment call is not obvious.
-- ${skill_dir}/SKILL.md and everything else under ${skill_dir}/.
-- ${pdf_rel} - background only, optional.
-
-Scope: only files under ${skill_dir}. Do not edit anything outside it.
-
-Every review runs a pruning pass and reports its result, including "nothing to cut". Removing text is a first-class outcome, not a failure to add value.
-- Delete without asking: a sentence that restates its own heading; a restatement of the frontmatter description; a second statement of a rule already made elsewhere in the same file; a vacuous heading qualifier such as (Deterministic), (Always), (best results); a workflow step whose only output is "report per the output contract".
-- Propose, never execute: removing a whole section, a file under references/ or scripts/, the skill itself, or activation cues found in SKILL.md. Give the evidence and what would be lost; the operator rules on it. For activation cues, write the cue content directly into trigger-cases/<skill>.md - the one scoped exception to dispatch scope - and file a removal proposal for the SKILL.md-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
-- A review that deletes forty lines and adds none is successful. So is one that changes nothing.
-
-Differentiation - report it, never act on it:
-- Judge whether this skill changes what a frontier model would do unprompted. It earns its cost only with an opinionated house convention, a non-obvious process with real decision points, embedded tooling that makes behavior deterministic, or a correction for something models reliably get wrong.
-- Report STRONG or WEAK with one line of evidence. A WEAK verdict is a flag for the operator. Do not delete or rewrite the skill because of it.
-
-Rules:
-- Keep the skill independent: it must never require another skill to be installed, and never check for one.
-- Do not add brainstorming-gate or multi-agent dependencies.
-- Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).
-- Keep activation cues and trigger tests out of SKILL.md.
-- Avoid time-sensitive facts and external network assumptions.
-- Structure follows the skill's job. Mandatory: the frontmatter contract, "Use this skill when", "Do not use this skill when". Every other section is earned - do not add one because other skills have it.
-- Voice: third person for the frontmatter description and the opening framing; imperative for procedure steps. No personas.
-- Write script paths skill-relative (scripts/x.sh), never repo-root style (skills/${skill}/scripts/x.sh), which does not resolve once the skill is installed.
-- If splitting references, add references/README.md as an index. Split when a reader does not need the material in line, not because a token count was crossed.
-- Measure reference file size with tiktoken (cl100k_base) using ${venv_python_rel}.
-- If anything is ambiguous, STOP and output QUESTIONS on a line of its own. Do not guess.
-
-Output, in this order:
-- Files changed (or "none")
-- Summary of edits, separating what was removed from what was added, with line counts
-- REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
-- DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
-- Verification run (if any)
-- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither.
-EOF
+  render_reviewer_prompt "$skill"
+  prompt="$REVIEWER_PROMPT"
 
   (
     cd "$ROOT"
@@ -389,6 +636,41 @@ declare -a MALFORMED_SKILLS=()
 declare -a INFRA_FAILURE_SKILLS=()
 CODEX_CLIENT_BANNER=""
 CODEX_MODEL_BANNER=""
+
+# Reported, never failing: these need an operator ruling, not a fix by the
+# runner. Shared by single mode and dual mode: both populate the same tally
+# arrays above, dual mode only ever from the synthesis artifact (AC8).
+print_operator_decisions() {
+  local any=0
+  echo
+  echo "=== Operator decisions required ==="
+  if (( ${#DIFFERENTIATION_WEAK_SKILLS[@]} > 0 )); then
+    any=1
+    echo "Differentiation flagged WEAK (evidence in each log; nothing was removed):"
+    printf '  - %s\n' "${DIFFERENTIATION_WEAK_SKILLS[@]}"
+  fi
+  if (( ${#REMOVAL_PROPOSAL_SKILLS[@]} > 0 )); then
+    any=1
+    echo "Removal proposals awaiting a ruling (see REMOVAL PROPOSALS in each log):"
+    printf '  - %s\n' "${REMOVAL_PROPOSAL_SKILLS[@]}"
+  fi
+  if (( ${#DIFFERENTIATION_UNKNOWN_SKILLS[@]} > 0 )); then
+    any=1
+    echo "No differentiation verdict reported (reviewer did not follow the output contract):"
+    printf '  - %s\n' "${DIFFERENTIATION_UNKNOWN_SKILLS[@]}"
+  fi
+  if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
+    any=1
+    echo "MALFORMED (last-message file empty or contract violation; see log for detail):"
+    printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
+  fi
+  if (( any == 0 )); then
+    echo "None."
+  fi
+  if (( ${#REVIEW_NO_CHANGE_SKILLS[@]} > 0 )); then
+    echo "Already at the bar, unchanged: ${#REVIEW_NO_CHANGE_SKILLS[@]}"
+  fi
+}
 
 reap_batch() {
   local i pid rc skill
@@ -460,36 +742,294 @@ reap_batch() {
   BATCH_SKILLS=()
 }
 
-count=0
-for skill in "${SKILLS[@]}"; do
-  run_skill "$skill"
-  if (( DRY_RUN == 0 )); then
-    BATCH_PIDS+=("$!")
-    BATCH_SKILLS+=("$skill")
-    count=$((count+1))
-    if (( count % BATCH_SIZE == 0 )); then
-      reap_batch
-    fi
-  else
-    REVIEW_OK_SKILLS+=("$skill")
+# Dual dispatch: one reviewer per declared arm, launched in the loop over
+# REVIEWER_ARMS below - the file's only reviewer-dispatch statement in dual
+# mode. codex keeps its positional-prompt shape; claude takes the prompt on
+# stdin (Constraints, "claude arms take their prompt on stdin").
+declare -a DUAL_ARM_PIDS=()
+declare -a DUAL_ARM_ARMS=()
+declare -a DUAL_ARM_SKILLS=()
+declare -a DUAL_BATCH_SKILLS=()
+
+run_skill_dual() {
+  local skill="$1"
+  local arm client log last_msg prompt
+
+  if (( DRY_RUN == 1 )); then
+    echo "[dry-run] would review: $skill (arms: ${REVIEWER_ARMS[*]})"
+    for arm in "${REVIEWER_ARMS[@]}"; do
+      last_msg="$(arm_last_message_path "$skill" "$arm")" || true
+      build_reviewer_argv "$arm" "$last_msg" || return 1
+      client="$(client_for_arm "$arm")" || return 1
+      printf '[dry-run] reviewer arm %s: %s' "$arm" "$client"
+      printf ' %q' "${REVIEWER_ARGV[@]}"
+      printf ' <dispatch-prompt>\n'
+    done
+    build_synthesis_argv || return 1
+    printf '[dry-run] synthesis: %s' "$SYNTHESIS_VENDOR"
+    printf ' %q' "${SYNTHESIS_ARGV[@]}"
+    printf ' <synthesis-prompt using reviews:'
+    for arm in "${REVIEWER_ARMS[@]}"; do
+      printf ' %s' "$(arm_last_message_path "$skill" "$arm")"
+    done
+    printf '; skill_dir=skills/%s; checklist=scripts/auditing/SKILL_REVIEW_CHECKLIST.md; open_items=scripts/auditing/OPEN_ITEMS.md>\n' "$skill"
+    return 0
   fi
-done
 
-if (( DRY_RUN == 0 )) && (( ${#BATCH_PIDS[@]} > 0 )); then
-  reap_batch
-fi
+  render_reviewer_prompt "$skill"
+  prompt="$REVIEWER_PROMPT"
 
-if (( DRY_RUN == 1 )); then
-  echo "Dry run complete. Planned ${#SKILLS[@]} skills with batch size ${BATCH_SIZE}."
-  exit 0
+  for arm in "${REVIEWER_ARMS[@]}"; do
+    log="$(arm_log_path "$skill" "$arm")" || true
+    last_msg="$(arm_last_message_path "$skill" "$arm")" || true
+    rm -f "$log" "$last_msg"
+    build_reviewer_argv "$arm" "$last_msg" || return 1
+    client="$(client_for_arm "$arm")" || return 1
+    if (( REVIEWER_STDIN == 1 )); then
+      ( cd "$ROOT"; printf '%s' "$prompt" | "$client" "${REVIEWER_ARGV[@]}" ) >"$last_msg" 2>"$log" &
+    else
+      ( cd "$ROOT"; "$client" "${REVIEWER_ARGV[@]}" "$prompt" ) >"$log" 2>&1 &
+    fi
+    DUAL_ARM_PIDS+=("$!")
+    DUAL_ARM_ARMS+=("$arm")
+    DUAL_ARM_SKILLS+=("$skill")
+    echo "[queued] $skill/$arm -> $log"
+  done
+  DUAL_BATCH_SKILLS+=("$skill")
+}
+
+# Per-skill arm-failure record for the phase-one/phase-two gate (AC7). A
+# skill name is arbitrary text (commonly hyphenated), not a legal bash
+# identifier fragment, so this is a linear scan over parallel arrays rather
+# than a dynamically named variable - the same reason capture_call_provenance
+# above uses one.
+declare -a ARM_FAILED_SKILLS=()
+declare -a ARM_FAILED_REASONS=()
+
+arm_failure_reason() {
+  local skill="$1" i
+  for i in "${!ARM_FAILED_SKILLS[@]}"; do
+    if [[ "${ARM_FAILED_SKILLS[$i]}" == "$skill" ]]; then
+      printf '%s\n' "${ARM_FAILED_REASONS[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+record_arm_failure() {
+  local skill="$1" reason="$2"
+  if arm_failure_reason "$skill" >/dev/null; then return 0; fi
+  ARM_FAILED_SKILLS+=("$skill")
+  ARM_FAILED_REASONS+=("$reason")
+}
+
+# Two-phase reap (AC7): phase one classifies every arm's final message for
+# infra/empty detection only, never for a verdict; a skill with a failed arm
+# never reaches phase two, so a synthesis over a subset of the arms never
+# happens.
+reap_phase_one() {
+  local i pid arm skill rc log last_msg outcome key value verdict_file
+  for i in "${!DUAL_ARM_PIDS[@]}"; do
+    pid="${DUAL_ARM_PIDS[$i]}"
+    arm="${DUAL_ARM_ARMS[$i]}"
+    skill="${DUAL_ARM_SKILLS[$i]}"
+    log="$(arm_log_path "$skill" "$arm")" || true
+    last_msg="$(arm_last_message_path "$skill" "$arm")" || true
+    rc=0
+    if wait "$pid"; then
+      capture_call_provenance "$arm" "$log"
+      if [[ ! -s "$last_msg" ]]; then
+        record_arm_failure "$skill" "arm $arm: empty final message"
+        echo "[arm-failed] $skill/$arm (empty final message)"
+        continue
+      fi
+      verdict_file="$LOGDIR/${skill}.${arm}.verdict"
+      classify_review "$last_msg" "$verdict_file"
+      outcome="UNKNOWN"
+      while IFS='=' read -r key value; do
+        case "$key" in
+          OUTCOME) outcome="$value" ;;
+        esac
+      done <"$verdict_file"
+      if [[ "$outcome" == "INFRA-FAILURE" ]]; then
+        record_arm_failure "$skill" "arm $arm: INFRA-FAILURE"
+        echo "[arm-failed] $skill/$arm (INFRA-FAILURE)"
+      else
+        echo "[arm-ok] $skill/$arm ($outcome)"
+      fi
+    else
+      rc=$?
+      capture_call_provenance "$arm" "$log"
+      record_arm_failure "$skill" "arm $arm: exit $rc"
+      echo "[arm-failed] $skill/$arm (exit $rc)"
+    fi
+  done
+  DUAL_ARM_PIDS=()
+  DUAL_ARM_ARMS=()
+  DUAL_ARM_SKILLS=()
+}
+
+declare -a SYNTH_PIDS=()
+declare -a SYNTH_SKILLS=()
+
+dispatch_phase_two() {
+  local skill reason log last_msg
+  for skill in "${DUAL_BATCH_SKILLS[@]}"; do
+    if reason="$(arm_failure_reason "$skill")"; then
+      FAILED_SKILLS+=("$skill (blocked: $reason)")
+      echo "[blocked] $skill (arm failure: $reason)"
+      continue
+    fi
+    log="$(synthesis_log_path "$skill")" || true
+    last_msg="$(synthesis_last_message_path "$skill")" || true
+    rm -f "$log" "$last_msg"
+    build_synthesis_argv || return 1
+    render_synthesis_prompt "$skill" || return 1
+    ( cd "$ROOT"; printf '%s' "$SYNTHESIS_PROMPT" | "$SYNTHESIS_VENDOR" "${SYNTHESIS_ARGV[@]}" ) >"$last_msg" 2>"$log" &
+    SYNTH_PIDS+=("$!")
+    SYNTH_SKILLS+=("$skill")
+    echo "[queued] $skill/synthesis -> $log"
+  done
+  DUAL_BATCH_SKILLS=()
+}
+
+# Reaps synthesis calls and sources the skill's verdict from the synthesis
+# artifact only (AC8) - no reviewer artifact is classified for a verdict or
+# counted in these tallies.
+reap_phase_two() {
+  local i pid skill rc log last_msg outcome differentiation removal_proposals reason key value verdict_file
+  for i in "${!SYNTH_PIDS[@]}"; do
+    pid="${SYNTH_PIDS[$i]}"
+    skill="${SYNTH_SKILLS[$i]}"
+    log="$(synthesis_log_path "$skill")" || true
+    last_msg="$(synthesis_last_message_path "$skill")" || true
+    verdict_file="$LOGDIR/${skill}.synthesis.verdict"
+    rc=0
+    if wait "$pid"; then
+      capture_call_provenance synthesis "$log"
+      if [[ ! -s "$last_msg" ]]; then
+        MALFORMED_SKILLS+=("$skill")
+        echo "[malformed] $skill (synthesis: empty final message; artifact $last_msg)"
+        continue
+      fi
+      classify_review "$last_msg" "$verdict_file"
+      outcome="UNKNOWN"
+      differentiation="UNKNOWN"
+      removal_proposals="0"
+      while IFS='=' read -r key value; do
+        case "$key" in
+          OUTCOME) outcome="$value" ;;
+          DIFFERENTIATION) differentiation="$value" ;;
+          REMOVAL_PROPOSALS) removal_proposals="$value" ;;
+        esac
+      done <"$verdict_file"
+      case "$outcome" in
+        NO-CHANGE|CHANGED)
+          REVIEW_OK_SKILLS+=("$skill")
+          if [[ "$outcome" == "NO-CHANGE" ]]; then
+            REVIEW_NO_CHANGE_SKILLS+=("$skill")
+          fi
+          case "$differentiation" in
+            WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+            STRONG) ;;
+            *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+          esac
+          if [[ "$removal_proposals" == "1" ]]; then
+            REMOVAL_PROPOSAL_SKILLS+=("$skill")
+          fi
+          echo "[ok] $skill (status $outcome, differentiation $differentiation, synthesis $last_msg)"
+          ;;
+        QUESTIONS)
+          FAILED_SKILLS+=("$skill (synthesis blocked: QUESTIONS; artifact $last_msg)")
+          echo "[failed] $skill (synthesis blocked: QUESTIONS, synthesis $last_msg)"
+          ;;
+        INFRA-FAILURE)
+          reason="$(infra_reason_from_log "$log")" || true
+          INFRA_FAILURE_SKILLS+=("$skill (synthesis exit 0: classifier-reported: ${reason:-no error line found})")
+          echo "[infra-failure] $skill (synthesis exit 0: classifier-reported)"
+          ;;
+        *)
+          MALFORMED_SKILLS+=("$skill")
+          echo "[malformed] $skill (synthesis, artifact $last_msg)"
+          ;;
+      esac
+    else
+      rc=$?
+      capture_call_provenance synthesis "$log"
+      reason="$(infra_reason_from_log "$log")" || true
+      INFRA_FAILURE_SKILLS+=("$skill (synthesis exit $rc: ${reason:-no error line found})")
+      echo "[infra-failure] $skill (synthesis exit $rc)"
+    fi
+  done
+  SYNTH_PIDS=()
+  SYNTH_SKILLS=()
+}
+
+count=0
+if (( SINGLE_MODEL == 1 )); then
+  for skill in "${SKILLS[@]}"; do
+    run_skill "$skill"
+    if (( DRY_RUN == 0 )); then
+      BATCH_PIDS+=("$!")
+      BATCH_SKILLS+=("$skill")
+      count=$((count+1))
+      if (( count % BATCH_SIZE == 0 )); then
+        reap_batch
+      fi
+    else
+      REVIEW_OK_SKILLS+=("$skill")
+    fi
+  done
+
+  if (( DRY_RUN == 0 )) && (( ${#BATCH_PIDS[@]} > 0 )); then
+    reap_batch
+  fi
+
+  if (( DRY_RUN == 1 )); then
+    echo "Dry run complete. Planned ${#SKILLS[@]} skills with batch size ${BATCH_SIZE}."
+    exit 0
+  fi
+else
+  for skill in "${SKILLS[@]}"; do
+    run_skill_dual "$skill"
+    if (( DRY_RUN == 0 )); then
+      count=$((count+1))
+      if (( count % BATCH_SIZE == 0 )); then
+        reap_phase_one
+        dispatch_phase_two
+        reap_phase_two
+      fi
+    fi
+  done
+
+  if (( DRY_RUN == 0 )) && (( ${#DUAL_ARM_PIDS[@]} > 0 )); then
+    reap_phase_one
+    dispatch_phase_two
+    reap_phase_two
+  fi
+
+  if (( DRY_RUN == 1 )); then
+    echo "Dual dry run complete. Planned ${#SKILLS[@]} skills with batch size ${BATCH_SIZE}, ${#REVIEWER_ARMS[@]} reviewer arms plus synthesis (call count $(( (${#REVIEWER_ARMS[@]} + 1) * ${#SKILLS[@]} ))). "
+    exit 0
+  fi
 fi
 
 audit_rc=0
 "$VENV/bin/python" "$ROOT/scripts/audit_skills.py" || audit_rc=$?
 
 echo "Completed ${#SKILLS[@]} skills. Logs in $LOGDIR"
-echo "codex client (observed): ${CODEX_CLIENT_BANNER:-unknown}"
-echo "model (observed): ${CODEX_MODEL_BANNER:-unknown}"
+if (( SINGLE_MODEL == 1 )); then
+  echo "codex client (observed): ${CODEX_CLIENT_BANNER:-unknown}"
+  echo "model (observed): ${CODEX_MODEL_BANNER:-unknown}"
+else
+  for arm in "${REVIEWER_ARMS[@]}"; do
+    echo "reviewer arm $arm client (observed): $(provenance_client "$arm")"
+    echo "reviewer arm $arm model (observed): $(provenance_model "$arm")"
+  done
+  echo "synthesis client (observed): $(provenance_client synthesis)"
+  echo "synthesis model (observed): $(provenance_model synthesis)"
+fi
 
 echo
 echo "=== Review results ==="
@@ -507,38 +1047,6 @@ else
   echo "INFRA-FAILURE: none"
 fi
 
-# Reported, never failing: these need an operator ruling, not a fix by the runner.
-print_operator_decisions() {
-  local any=0
-  echo
-  echo "=== Operator decisions required ==="
-  if (( ${#DIFFERENTIATION_WEAK_SKILLS[@]} > 0 )); then
-    any=1
-    echo "Differentiation flagged WEAK (evidence in each log; nothing was removed):"
-    printf '  - %s\n' "${DIFFERENTIATION_WEAK_SKILLS[@]}"
-  fi
-  if (( ${#REMOVAL_PROPOSAL_SKILLS[@]} > 0 )); then
-    any=1
-    echo "Removal proposals awaiting a ruling (see REMOVAL PROPOSALS in each log):"
-    printf '  - %s\n' "${REMOVAL_PROPOSAL_SKILLS[@]}"
-  fi
-  if (( ${#DIFFERENTIATION_UNKNOWN_SKILLS[@]} > 0 )); then
-    any=1
-    echo "No differentiation verdict reported (reviewer did not follow the output contract):"
-    printf '  - %s\n' "${DIFFERENTIATION_UNKNOWN_SKILLS[@]}"
-  fi
-  if (( ${#MALFORMED_SKILLS[@]} > 0 )); then
-    any=1
-    echo "MALFORMED (last-message file empty or contract violation; see log for detail):"
-    printf '  - %s\n' "${MALFORMED_SKILLS[@]}"
-  fi
-  if (( any == 0 )); then
-    echo "None."
-  fi
-  if (( ${#REVIEW_NO_CHANGE_SKILLS[@]} > 0 )); then
-    echo "Already at the bar, unchanged: ${#REVIEW_NO_CHANGE_SKILLS[@]}"
-  fi
-}
 print_operator_decisions
 
 if (( ${#FAILED_SKILLS[@]} > 0 )); then
