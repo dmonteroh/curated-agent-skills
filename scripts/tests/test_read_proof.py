@@ -196,6 +196,68 @@ class BacktickWrappedChallengeLineTests(unittest.TestCase):
         self.assertNotIn("read-proof absent", proc.stdout)
 
 
+REGEN_FIXTURE_SKILL = "__test_skills_list_not_regenerated__"
+
+
+class SkillsListNotRegeneratedTests(unittest.TestCase):
+    def setUp(self):
+        skills_list_snapshot = SKILLS_LIST.read_bytes()
+        self.addCleanup(SKILLS_LIST.write_bytes, skills_list_snapshot)
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        fixture_dir = Path(self.tmpdir.name) / "skill"
+        fixture_dir.mkdir()
+        (fixture_dir / "SKILL.md").write_text(
+            "---\nname: placeholder\n---\nshort\n", encoding="utf-8"
+        )
+        self.skill_link = REPO_ROOT / "skills" / REGEN_FIXTURE_SKILL
+        if self.skill_link.is_symlink() or self.skill_link.exists():
+            self.skill_link.unlink()
+        os.symlink(fixture_dir, self.skill_link, target_is_directory=True)
+        self.addCleanup(self._remove_link)
+        self.snapshot = skills_list_snapshot
+
+    def _remove_link(self):
+        if self.skill_link.is_symlink() or self.skill_link.exists():
+            self.skill_link.unlink()
+
+    def _assert_unchanged(self, proc):
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertEqual(SKILLS_LIST.read_bytes(), self.snapshot)
+
+    def test_default_full_list_dry_run_does_not_regenerate(self):
+        proc = subprocess.run(
+            [str(RUNNER), "--dry-run", "--no-install"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        self._assert_unchanged(proc)
+
+    def test_skill_flag_dry_run_does_not_regenerate(self):
+        proc = subprocess.run(
+            [str(RUNNER), "--skill", REGEN_FIXTURE_SKILL, "--dry-run", "--no-install"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        self._assert_unchanged(proc)
+
+    def test_skills_file_flag_dry_run_does_not_regenerate(self):
+        override = Path(self.tmpdir.name) / "skills_override.txt"
+        override.write_text(f"{REGEN_FIXTURE_SKILL}\n", encoding="utf-8")
+        proc = subprocess.run(
+            [str(RUNNER), "--skills-file", str(override), "--dry-run", "--no-install"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        self._assert_unchanged(proc)
+
+
 class SingleModeInfraFailureOrderingTests(unittest.TestCase):
     def test_infra_failure_is_classified_before_read_proof_check(self):
         proc = _run_single("infra_failure_no_proof")

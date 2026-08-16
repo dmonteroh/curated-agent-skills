@@ -562,21 +562,6 @@ else
   echo "synthesis model requested: $SYNTHESIS_MODEL (tier=terra vendor=$SYNTHESIS_VENDOR source=policy)"
 fi
 
-"$VENV/bin/python" - <<PY >"$SKILLS_FILE"
-from pathlib import Path
-root = Path("${ROOT}") / "skills"
-skills = []
-if root.is_dir():
-    for p in sorted(root.iterdir()):
-        if not p.is_dir():
-            continue
-        if p.name.startswith('.'):
-            continue
-        if (p/'SKILL.md').is_file():
-            skills.append(p.name)
-print('\n'.join(skills))
-PY
-
 if [[ -n "$SKILLS_FILE_OVERRIDE" ]]; then
   if [[ ! -f "$SKILLS_FILE_OVERRIDE" ]]; then
     echo "error: --skills-file path not found: $SKILLS_FILE_OVERRIDE" >&2
