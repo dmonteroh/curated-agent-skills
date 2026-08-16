@@ -14,7 +14,6 @@ This document describes the repeatable workflow for running **parallelized subag
 - `scripts/auditing/references/authoring-guidance.md` — depth behind the bar, read on demand
 - `scripts/auditing/OPEN_ITEMS.md` — settled calls a reviewer must not re-open, plus the parity register
 - One or more skill entry points: `<skill>/SKILL.md`
-- Optional: shared references (e.g., `scripts/auditing/resources/agent_skills_pdf.txt`, background only — the checklist outranks it)
 
 ## Workflow Overview
 

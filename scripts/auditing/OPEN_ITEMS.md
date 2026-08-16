@@ -31,6 +31,7 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | 2026-08-16 | **Bubblewrap is a non-goal; the devcontainer is the isolation boundary.** Codex routes every sandbox mode through bubblewrap, which cannot create a user namespace in this container, so `--sandbox read-only` and `--sandbox workspace-write` both no-op silently: the call exits 0 having read or written nothing. `--sandbox danger-full-access` is the only sandbox value that works here, and every codex arm (single mode's dispatch and the dual-mode codex reviewer arm alike) now uses it. Do not re-open bwrap as a write-prevention mechanism for any codex dispatch. |
 | 2026-08-16 | **Write-prevention for reviewer arms moved to the prompt.** With sandboxing removed as a write barrier for the codex arm, `render_reviewer_prompt`'s authority parameter tells dual-mode arms, in both the Task line and the first `Rules:` bullet, that they are read-only and must not create, edit, delete, or move any file; single mode keeps `Apply changes directly`. The claude arm's existing `--disallowedTools Edit,Write,NotebookEdit,Bash` barrier is unchanged and is the harder guarantee of the two. |
 | 2026-08-16 | **Every reviewer verdict, `QUESTIONS` included, requires a `READ_PROOF:` line as its first output item.** The runner selects one challenge line per skill from `SKILL.md` before any arm is dispatched, and fails an arm whose final message lacks that line or reproduces it wrong (`read-proof absent` / `read-proof mismatch`), blocking the skill before synthesis. This closes the silent-no-read failure mode a sandboxed-but-broken codex arm could produce: an exit-0 `QUESTIONS` that read nothing. |
+| 2026-08-16 | **`agent_skills_pdf.txt` is not given to dispatched reviewers.** The file exists to build the auditing script, not to be read by the agents it dispatches; it stays in the repository at `scripts/auditing/references/agent_skills_pdf.txt` and remains cited as provenance in `SKILL_REVIEW_CHECKLIST.md:11`, `:20`, `:92`. The dispatch prompt in `run_parallel_skill_reviews.sh` no longer names it. |
 
 ## Parity register
 
@@ -66,5 +67,3 @@ The heading and cue lints below are warnings, not issues: 41 of 55 skills carry 
 ## Trial-gated removal candidates
 
 Content kept only until a run shows it is not needed. Recorded so it is not defended out of habit.
-
-- Feeding `resources/agent_skills_pdf.txt` to every reviewer. The checklist now states everything the reviewers need and outranks it. Drop it if one full pass shows no reviewer drew on it.
