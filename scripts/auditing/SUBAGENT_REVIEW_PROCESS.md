@@ -101,8 +101,10 @@ The grouping mechanics behind step b's narrowing, and step c's required output f
 
 Reviews may subtract. This reverses the previous rule, which forbade removal outright and made growth the only sanctioned outcome.
 
+<!-- parity:removal-authority:start -->
 - **Delete autonomously**: sentences restating their own heading, restatements of the frontmatter description, duplicate statements of a rule already made in the same file, vacuous heading qualifiers, and steps whose only output is "report per the output contract".
 - Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
+<!-- parity:removal-authority:end -->
 
 Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and `scripts/auditing/reviewer-prompt.md` — see the parity register in `OPEN_ITEMS.md`.
 

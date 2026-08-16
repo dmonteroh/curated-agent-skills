@@ -20,7 +20,7 @@ import check_parity  # noqa: E402
 SNAPSHOT_PATH = TESTS_DIR / "data" / "audit_snapshot.json"
 
 
-def _build_checklist_text(*, headings: list[str], rows: list[str]) -> str:
+def _build_checklist_text(*, headings: list[str], rows: list[str], removal_region: str | None = None) -> str:
     heading_line = ", ".join(f"`{h}`" for h in headings)
     lines = [
         "## 1. Discovery contract",
@@ -28,6 +28,10 @@ def _build_checklist_text(*, headings: list[str], rows: list[str]) -> str:
         "<!-- parity:canonical-headings:start -->",
         f"Use its canonical heading: {heading_line}.",
         "<!-- parity:canonical-headings:end -->",
+        "",
+        "## 4. Subtraction",
+        "",
+        removal_region if removal_region is not None else _removal_authority_region(),
         "",
         "## 12. Mechanical check index",
         "",
@@ -185,6 +189,141 @@ class DriftedFixtureMainTest(unittest.TestCase):
         rc, out = self._write_and_run(_build_checklist_text(headings=headings, rows=rows))
         self.assertEqual(rc, 1)
         self.assertIn("does not exist", out)
+
+
+_ANCHORS = check_parity.PROSE_FAMILIES["removal-authority"]["anchors"]
+_DELETE_KEYS = [k for k in _ANCHORS if k.startswith("delete:")]
+_PROPOSE_KEYS = [k for k in _ANCHORS if k.startswith("propose:")]
+
+
+def _removal_authority_region(*, omit: tuple[str, ...] = (), duplicate: tuple[str, ...] = ()) -> str:
+    delete_lines = []
+    for key in _DELETE_KEYS:
+        if key in omit:
+            continue
+        delete_lines.append(f"- {_ANCHORS[key]}")
+        if key in duplicate:
+            delete_lines.append(f"- {_ANCHORS[key]}")
+    propose_phrases = [_ANCHORS[key] for key in _PROPOSE_KEYS if key not in omit]
+    for key in duplicate:
+        if key in _PROPOSE_KEYS:
+            propose_phrases.append(_ANCHORS[key])
+    sentence = "Propose, never execute: " + ", ".join(propose_phrases) + "." if propose_phrases else "Propose, never execute: nothing."
+    lines = [
+        "<!-- parity:removal-authority:start -->",
+        *delete_lines,
+        sentence,
+        "<!-- parity:removal-authority:end -->",
+    ]
+    return "\n".join(lines)
+
+
+class ProseFamilyTest(unittest.TestCase):
+    def setUp(self):
+        self._orig = {
+            name: getattr(check_parity, name)
+            for name in ("CHECKLIST_PATH", "PROCESS_DOC_PATH", "REVIEWER_PROMPT_PATH")
+        }
+        self._tmpdir = tempfile.TemporaryDirectory()
+        tmp = Path(self._tmpdir.name)
+        self._paths = {
+            "CHECKLIST_PATH": tmp / "checklist.md",
+            "PROCESS_DOC_PATH": tmp / "process.md",
+            "REVIEWER_PROMPT_PATH": tmp / "reviewer.md",
+        }
+        headings = list(audit_skills.CANONICAL_HEADINGS.values())
+        rows = _rows_for(sorted(audit_skills.list_check_names()))
+        self._paths["CHECKLIST_PATH"].write_text(
+            _build_checklist_text(headings=headings, rows=rows), encoding="utf-8"
+        )
+        for name in ("PROCESS_DOC_PATH", "REVIEWER_PROMPT_PATH"):
+            self._paths[name].write_text(_removal_authority_region(), encoding="utf-8")
+        for name, path in self._paths.items():
+            setattr(check_parity, name, path)
+
+    def tearDown(self):
+        for name, path in self._orig.items():
+            setattr(check_parity, name, path)
+        self._tmpdir.cleanup()
+
+    def _write(self, const_name: str, text: str) -> None:
+        self._paths[const_name].write_text(text, encoding="utf-8")
+
+    def _write_checklist_removal_region(self, removal_region: str) -> None:
+        headings = list(audit_skills.CANONICAL_HEADINGS.values())
+        rows = _rows_for(sorted(audit_skills.list_check_names()))
+        self._write(
+            "CHECKLIST_PATH",
+            _build_checklist_text(headings=headings, rows=rows, removal_region=removal_region),
+        )
+
+    def _run(self) -> tuple[int, str]:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            rc = check_parity.main()
+        return rc, buf.getvalue()
+
+    def test_baseline_all_members_valid_exits_zero(self):
+        rc, out = self._run()
+        self.assertEqual(rc, 0)
+        self.assertIn("removal-authority", out)
+
+    def test_missing_delete_key_reddens_only_that_key_for_that_member(self):
+        self._write("PROCESS_DOC_PATH", _removal_authority_region(omit=("delete:own-heading",)))
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("PARITY FAIL: removal-authority", out)
+        self.assertIn("member SUBAGENT_REVIEW_PROCESS.md \"Removal authority\": missing ['delete:own-heading']", out)
+        self.assertNotIn("SKILL_REVIEW_CHECKLIST.md §4:", out)
+        self.assertNotIn("reviewer-prompt.md delete/propose block:", out)
+
+    def test_missing_propose_key_reddens_only_that_key_for_that_member(self):
+        self._write("REVIEWER_PROMPT_PATH", _removal_authority_region(omit=("propose:activation-cues",)))
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("member reviewer-prompt.md delete/propose block: missing ['propose:activation-cues']", out)
+
+    def test_duplicated_delete_key_reported_as_drift(self):
+        self._write_checklist_removal_region(_removal_authority_region(duplicate=("delete:frontmatter-description",)))
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("duplicated ['delete:frontmatter-description']", out)
+
+    def test_canonical_bullet_count_drift_fails_checklist_member_only(self):
+        self._write_checklist_removal_region(_removal_authority_region(omit=("delete:own-heading",)))
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("bullet count 4 != expected 5", out)
+
+    def test_empty_region_all_nine_keys_missing(self):
+        text = "<!-- parity:removal-authority:start -->\n<!-- parity:removal-authority:end -->\n"
+        self._write("PROCESS_DOC_PATH", text)
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        for key in _ANCHORS:
+            self.assertIn(key, out)
+
+    def test_markers_around_unrelated_block_all_nine_keys_missing(self):
+        text = (
+            "Something unrelated.\n"
+            "<!-- parity:removal-authority:start -->\n"
+            "This paragraph carries none of the anchor phrases.\n"
+            "<!-- parity:removal-authority:end -->\n"
+        )
+        self._write("REVIEWER_PROMPT_PATH", text)
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        for key in _ANCHORS:
+            self.assertIn(key, out)
+
+    def test_deleted_end_marker_exits_2_no_parity_verdict(self):
+        text = "<!-- parity:removal-authority:start -->\n- own heading\n"
+        self._write("PROCESS_DOC_PATH", text)
+        rc, out = self._run()
+        self.assertEqual(rc, 2)
+        self.assertIn("PARITY EXTRACTION ERROR", out)
+        self.assertNotIn("parity: ok", out)
+        self.assertNotIn("PARITY FAIL", out)
 
 
 class SnapshotCrossCheckTest(unittest.TestCase):
