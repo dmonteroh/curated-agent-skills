@@ -312,7 +312,9 @@ select_challenge_line() {
 # and the first Rules bullet - the only two places single and dual mode's
 # renderings differ, besides the read-proof line number. Marker lines
 # (`<!-- parity:... -->`) in the asset are stripped before substitution, so
-# none reaches a dispatched prompt.
+# none reaches a dispatched prompt. The strip uses two plain -e clauses
+# (POSIX BRE, portable to BSD/macOS sed) rather than `\(start\|end\)`,
+# whose `\|` alternation is a GNU BRE extension.
 REVIEWER_PROMPT=""
 
 render_reviewer_prompt() {
@@ -349,7 +351,7 @@ render_reviewer_prompt() {
   } >"$LOGDIR/${skill}.readproof"
 
   local asset
-  asset="$(sed '/^<!-- parity:[a-z][a-z-]*:\(start\|end\) -->$/d' "$ROOT/scripts/auditing/reviewer-prompt.md"; printf x)"
+  asset="$(sed -e '/^<!-- parity:[a-z][a-z-]*:start -->$/d' -e '/^<!-- parity:[a-z][a-z-]*:end -->$/d' "$ROOT/scripts/auditing/reviewer-prompt.md"; printf x)"
   asset="${asset%x}"
   asset="${asset//SKILL_DIRECTORY/$skill_dir}"
   asset="${asset//CHECKLIST_PATH/$checklist_rel}"
