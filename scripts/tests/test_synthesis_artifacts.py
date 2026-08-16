@@ -36,7 +36,7 @@ class SynthesisArtifactClassificationTests(unittest.TestCase):
     def test_questions_artifact_classifies_questions(self):
         result = _classify_fixture("synthesis-questions.txt")
         self.assertEqual(result.outcome, Outcome.QUESTIONS)
-        self.assertEqual(result.differentiation, "STRONG")
+        self.assertIsNone(result.differentiation)
         self.assertIsNone(result.removal_proposals)
 
     def test_malformed_artifact_classifies_malformed(self):
@@ -55,7 +55,7 @@ class SynthesisArtifactClassificationTests(unittest.TestCase):
         # and the trailing QUESTIONS line is never reached.
         result = _classify_fixture("synthesis-questions-quoted-reviewer.txt")
         self.assertEqual(result.outcome, Outcome.QUESTIONS)
-        self.assertEqual(result.differentiation, "STRONG")
+        self.assertIsNone(result.differentiation)
         self.assertIsNone(result.removal_proposals)
 
 

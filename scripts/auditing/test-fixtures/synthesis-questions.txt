@@ -8,9 +8,5 @@ Both positions are grounded in section 7 and neither is a cut - Review 1 propose
 
 Files changed: none.
 
-REMOVAL PROPOSALS: none
-
-DIFFERENTIATION: STRONG - the controller-owned verification barrier is an opinionated convention a frontier model would not produce unprompted.
-
 QUESTIONS
 1. skills/subagent-orchestrator/implementer-prompt.md:28 - Review 1 (section 7) holds the existing step-4 wording, "List recommended verification commands for the controller," already satisfies the bar and proposes no change. Review 2 (section 7) holds the step must be rewritten to "Write the recommended verification commands into the report, one per line, for the controller to run" with the heading renamed to "Controller-Run Verification." Decide: keep the existing wording, or apply Review 2's rewrite and rename.

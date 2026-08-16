@@ -8,9 +8,5 @@ Neither position is a cut - Review 1 proposes nothing and Review 2 proposes a re
 
 Files changed: none.
 
-REMOVAL PROPOSALS: none
-
-DIFFERENTIATION: STRONG - the controller-owned verification barrier is an opinionated convention a frontier model would not produce unprompted.
-
 QUESTIONS
 1. skills/subagent-orchestrator/implementer-prompt.md:28 - Review 1 (section 7) holds the existing step-4 wording already satisfies the bar and proposes no change. Review 2 (section 7) holds the step must be rewritten to "Write the recommended verification commands into the report, one per line, for the controller to run." Decide: keep the existing wording, or apply Review 2's rewrite.
