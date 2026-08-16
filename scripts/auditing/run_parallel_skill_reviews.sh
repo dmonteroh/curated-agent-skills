@@ -350,9 +350,19 @@ render_reviewer_prompt() {
     printf '%s\n' "$challenge_line"
   } >"$LOGDIR/${skill}.readproof"
 
+  local reviewer_prompt_asset="$ROOT/scripts/auditing/reviewer-prompt.md"
+  if [[ ! -r "$reviewer_prompt_asset" ]]; then
+    echo "error: render_reviewer_prompt: cannot read asset '$reviewer_prompt_asset'" >&2
+    return 1
+  fi
+
   local asset
-  asset="$(sed -e '/^<!-- parity:[a-z][a-z-]*:start -->$/d' -e '/^<!-- parity:[a-z][a-z-]*:end -->$/d' "$ROOT/scripts/auditing/reviewer-prompt.md"; printf x)"
+  asset="$(sed -e '/^<!-- parity:[a-z][a-z-]*:start -->$/d' -e '/^<!-- parity:[a-z][a-z-]*:end -->$/d' "$reviewer_prompt_asset"; printf x)"
   asset="${asset%x}"
+  if [[ -z "$asset" ]]; then
+    echo "error: render_reviewer_prompt: asset '$reviewer_prompt_asset' is empty after marker-strip" >&2
+    return 1
+  fi
   asset="${asset//SKILL_DIRECTORY/$skill_dir}"
   asset="${asset//CHECKLIST_PATH/$checklist_rel}"
   asset="${asset//GUIDANCE_PATH/$guidance_rel}"

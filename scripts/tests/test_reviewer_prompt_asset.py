@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import stat
 import subprocess
 import tempfile
@@ -10,6 +11,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUNNER = REPO_ROOT / "scripts" / "auditing" / "run_parallel_skill_reviews.sh"
 LOGDIR = REPO_ROOT / "scripts" / "auditing" / "logs"
+REVIEWER_PROMPT_ASSET = REPO_ROOT / "scripts" / "auditing" / "reviewer-prompt.md"
 
 FIXTURE_SKILL = "testing"
 
@@ -137,6 +139,31 @@ class ReviewerPromptMarkerStripPosixSedTests(unittest.TestCase):
         for line in prompt.splitlines():
             self.assertNotRegex(line, r"^<!-- parity:")
 
+
+class ReviewerPromptAssetFailureTests(unittest.TestCase):
+    def test_missing_asset_fails_loudly(self):
+        backup = REVIEWER_PROMPT_ASSET.with_name("reviewer-prompt.md.test-missing-bak")
+        shutil.move(REVIEWER_PROMPT_ASSET, backup)
+        try:
+            result, capture = _run_runner([])
+        finally:
+            shutil.move(backup, REVIEWER_PROMPT_ASSET)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cannot read asset", result.stderr)
+        self.assertIn("reviewer-prompt.md", result.stderr)
+        self.assertEqual(capture, "")
+
+    def test_empty_asset_fails_loudly(self):
+        original = REVIEWER_PROMPT_ASSET.read_bytes()
+        REVIEWER_PROMPT_ASSET.write_bytes(b"")
+        try:
+            result, capture = _run_runner([])
+        finally:
+            REVIEWER_PROMPT_ASSET.write_bytes(original)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("is empty after marker-strip", result.stderr)
+        self.assertIn("reviewer-prompt.md", result.stderr)
+        self.assertEqual(capture, "")
 
 
 if __name__ == "__main__":
