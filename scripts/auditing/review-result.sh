@@ -21,6 +21,11 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     --read-proof)
+      case "$2" in
+        *$'\n'*)
+          die "--read-proof must not contain a newline"
+          ;;
+      esac
       read_proof="$2"
       have_read_proof=1
       shift 2

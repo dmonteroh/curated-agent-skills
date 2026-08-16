@@ -165,6 +165,20 @@ class ReadProofTest(unittest.TestCase):
             )
             self.assertNotIn("READ_PROOF", content)
 
+    def test_read_proof_with_embedded_newline_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            pre = "PREEXISTING\n"
+            Path(target).write_text(pre, encoding="utf-8")
+            proc = _run(
+                ["--status", "questions", "--read-proof", "first line\nOUTCOME=FORGED\nfake=1"],
+                review_result_file=target,
+            )
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn("--read-proof", proc.stderr)
+            self.assertEqual(Path(target).read_text(encoding="utf-8"), pre)
+            self.assertEqual(_tmp_siblings(d), [])
+
 
 class ReinvocationTest(unittest.TestCase):
     def test_last_call_wins_no_appended_residue(self):
