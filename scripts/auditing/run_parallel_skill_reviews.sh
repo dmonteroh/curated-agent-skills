@@ -49,8 +49,12 @@ Options:
                         10); a batch of B skills runs up to B times the arm
                         count concurrent reviewer processes, then up to B
                         synthesis processes
-  --subagent-sandbox M  Sandbox passed to nested codex exec calls:
-                        workspace-write | danger-full-access (default: danger-full-access)
+  --subagent-sandbox M  Sandbox passed to nested codex exec calls (single-model
+                        mode only): workspace-write | danger-full-access
+                        (default: danger-full-access). workspace-write routes
+                        through bubblewrap and silently no-ops wherever bwrap
+                        cannot create a user namespace: the call exits 0
+                        having written nothing.
   --model NAME          Model passed to nested codex exec calls in single-model
                         mode (default: resolved from the tier policy; see
                         --print-model-policy)
@@ -172,21 +176,24 @@ declare -a REVIEWER_ARGV=()
 REVIEWER_MODEL=""
 REVIEWER_STDIN=0
 
-# Every arm runs at tier terra and is read-only; only the synthesis call
-# writes. The codex arm reuses RESOLVED_MODEL, already computed from policy
-# or REVIEW_MODEL below, with a positional prompt, but with the sandbox
-# pinned to read-only rather than $SUBAGENT_SANDBOX: that knob is
-# single-mode's write-capable dispatch only, and reusing it here would
-# leave the model free to edit skill files from a reviewer arm. The claude
+# Every arm runs at tier terra; only the synthesis call writes. Write
+# prevention for the codex arm lives in the prompt now (the authority
+# parameter threaded into render_reviewer_prompt below), not in the
+# sandbox: bubblewrap cannot create a user namespace in this container, so
+# every sandbox mode codex offers routes through it and no-ops silently -
+# the call exits 0 having read nothing (devcontainer ruling, operator,
+# 2026-08-16). --sandbox danger-full-access is pinned literally here, not
+# routed through $SUBAGENT_SANDBOX, which stays single-mode's write-capable
+# dispatch knob only. The codex arm reuses RESOLVED_MODEL, already computed
+# from policy or REVIEW_MODEL below, with a positional prompt. The claude
 # arm always resolves fresh from policy (REVIEW_MODEL stays codex-scoped);
 # its prompt goes on stdin, never as a positional argument, since
 # --allowedTools/--disallowedTools are variadic and would silently swallow
 # a positional prompt that follows them. --permission-mode dontAsk is
-# required, not cosmetic: the shared reviewer prompt says "Apply changes
-# directly", the client attempts the (denied) Edit tool, and without
-# dontAsk that denial blocks waiting for an interactive response that
-# never arrives in --print mode, hanging past any reasonable timeout with
-# zero output on both streams.
+# retained as a defence, not cosmetic: a denied tool call (Edit, barred by
+# --disallowedTools) would otherwise block waiting for an interactive
+# response that never arrives in --print mode, hanging past any reasonable
+# timeout with zero output on both streams.
 build_reviewer_argv() {
   local arm="$1" last_msg="$2"
   REVIEWER_ARGV=()
@@ -195,7 +202,7 @@ build_reviewer_argv() {
   case "$arm" in
     codex)
       REVIEWER_MODEL="$RESOLVED_MODEL"
-      REVIEWER_ARGV=(exec --sandbox read-only --output-last-message "$last_msg" --model "$REVIEWER_MODEL")
+      REVIEWER_ARGV=(exec --sandbox danger-full-access --output-last-message "$last_msg" --model "$REVIEWER_MODEL")
       ;;
     claude)
       REVIEWER_MODEL="$(resolve_model terra claude)" || return 1
@@ -270,23 +277,77 @@ provenance_model() {
   return 0
 }
 
+# Selects one challenge line, deterministically, from a SKILL.md: eligible
+# lines are non-blank, not a fence delimiter, not inside a fence, and >= 30
+# characters after trimming; the eligible line nearest the file's midpoint
+# wins, ties to the lower number. Bash 3.2-clean (no associative arrays, no
+# mapfile): the selection itself is awk, called through command
+# substitution.
+select_challenge_line() {
+  local file="$1"
+  awk '
+    { ln[NR]=$0 }
+    /^[ \t]*```/{f[NR]=1; inf=!inf; next}
+    { if(inf) f[NR]=1 }
+    END{
+      mid=int(NR/2); best=0; bd=1e9
+      for(i=1;i<=NR;i++){
+        if(f[i]) continue
+        l=ln[i]; gsub(/^[ \t]+|[ \t]+$/,"",l)
+        if(length(l)<30) continue
+        d=(i>mid?i-mid:mid-i)
+        if(d<bd){bd=d; best=i}
+      }
+      print best
+    }
+  ' "$file"
+}
+
 # Shared with the single-model dispatch below: one reviewer prompt, never a
-# second variant.
+# second variant. mode is "single" or "dual"; it selects the authority
+# clause interpolated into the Task line and the first Rules bullet - the
+# only two places single and dual mode's renderings differ, besides the
+# read-proof line number (AC3).
 REVIEWER_PROMPT=""
 
 render_reviewer_prompt() {
   local skill="$1"
+  local mode="$2"
   local skill_dir="skills/$skill"
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
   local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
+  local authority_task authority_rule
+  case "$mode" in
+    single)
+      authority_task="Apply changes directly."
+      authority_rule="- Apply changes directly to files under ${skill_dir}."
+      ;;
+    dual)
+      authority_task="You are a read-only reviewer. Report what must change; do not create, edit, delete, or move any file."
+      authority_rule="- You are a read-only reviewer: do not create, edit, delete, or move any file."
+      ;;
+    *)
+      echo "error: render_reviewer_prompt: unknown mode '$mode' (single, dual)" >&2
+      return 1
+      ;;
+  esac
+
+  local skill_md="$ROOT/skills/$skill/SKILL.md"
+  local challenge_k challenge_line
+  challenge_k="$(select_challenge_line "$skill_md")"
+  challenge_line="$(sed -n "${challenge_k}p" "$skill_md")"
+  {
+    printf '%s\n' "$challenge_k"
+    printf '%s\n' "$challenge_line"
+  } >"$LOGDIR/${skill}.readproof"
 
   # read -d '' rather than "$(cat <<EOF ...)": bash 3.2 (macOS system bash)
   # mis-parses an apostrophe inside a heredoc nested in command substitution.
   IFS= read -r -d '' REVIEWER_PROMPT <<EOF || true
-Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. Apply changes directly.
+Task: Review ${skill_dir}/SKILL.md against the binding quality bar and bring it to that bar. ${authority_task}
 
 Read first, in this order:
 - ${checklist_rel} - the binding bar. It outranks every other input, including the vendored resource below.
@@ -307,6 +368,7 @@ Differentiation - report it, never act on it:
 - Report STRONG or WEAK with one line of evidence. A WEAK verdict is a flag for the operator. Do not delete or rewrite the skill because of it.
 
 Rules:
+${authority_rule}
 - Keep the skill independent: it must never require another skill to be installed, and never check for one.
 - Do not add brainstorming-gate or multi-agent dependencies.
 - Do not modify package manifests or add dependencies (no package.json, lockfiles, pip installs).
@@ -320,12 +382,13 @@ Rules:
 - If anything is ambiguous, STOP and output QUESTIONS on a line of its own. Do not guess.
 
 Output, in this order:
+- READ_PROOF: <line ${challenge_k} of ${skill_dir}/SKILL.md, reproduced verbatim on this same line>
 - Files changed (or "none")
 - Summary of edits, separating what was removed from what was added, with line counts
 - REMOVAL PROPOSALS: numbered, each naming the file and section, the evidence, and what would be lost. Write "none" if there are none.
 - DIFFERENTIATION: STRONG or DIFFERENTIATION: WEAK, followed by one line of evidence
 - Verification run (if any)
-- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither.
+- Exactly one final status line, alone on its own line: REVIEW_STATUS: NO-CHANGE, REVIEW_STATUS: CHANGED, or QUESTIONS. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always: the DIFFERENTIATION: line from §3 and a REMOVAL PROPOSALS: block from §4, written as none when there are none. QUESTIONS ends the review immediately; it carries neither DIFFERENTIATION nor REMOVAL PROPOSALS. READ_PROOF is required on every verdict, QUESTIONS included, and must be this artifact's first output line.
 EOF
   return 0
 }
@@ -575,7 +638,7 @@ run_skill() {
 
   rm -f "$last_msg"
 
-  render_reviewer_prompt "$skill"
+  render_reviewer_prompt "$skill" single
   prompt="$REVIEWER_PROMPT"
 
   (
@@ -667,6 +730,34 @@ print_operator_decisions() {
   fi
 }
 
+# Verifies a call's READ_PROOF line against the challenge captured before
+# dispatch for the skill. Returns 0 (match), 1 (absent), or 2 (mismatch);
+# never touches the failure-tracking arrays itself - callers decide what a
+# non-zero return means for their mode.
+verify_read_proof() {
+  local artifact="$1" expected_file="$2"
+  local line value expected
+  line="$(grep -m1 -E '^[[:space:]]*READ_PROOF:' "$artifact")" || true
+  if [[ -z "$line" ]]; then
+    return 1
+  fi
+  value="${line#*READ_PROOF:}"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  if [[ "$value" == \`*\` && "${#value}" -ge 2 ]]; then
+    value="${value:1:$((${#value} - 2))}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+  fi
+  expected="$(sed -n '2p' "$expected_file")"
+  expected="${expected#"${expected%%[![:space:]]*}"}"
+  expected="${expected%"${expected##*[![:space:]]}"}"
+  if [[ "$value" == "$expected" ]]; then
+    return 0
+  fi
+  return 2
+}
+
 reap_batch() {
   local i pid rc skill
   for i in "${!BATCH_PIDS[@]}"; do
@@ -675,7 +766,8 @@ reap_batch() {
     local review_log="$LOGDIR/${skill}.log"
     local last_msg="$LOGDIR/${skill}.last-message.txt"
     local verdict_file="$LOGDIR/${skill}.verdict"
-    local outcome differentiation removal_proposals reason key value
+    local readproof_file="$LOGDIR/${skill}.readproof"
+    local outcome differentiation removal_proposals reason key value proof_rc
     rc=0
     if wait "$pid"; then
       capture_provenance "$review_log"
@@ -695,6 +787,17 @@ reap_batch() {
           REMOVAL_PROPOSALS) removal_proposals="$value" ;;
         esac
       done <"$verdict_file"
+      proof_rc=0
+      verify_read_proof "$last_msg" "$readproof_file" || proof_rc=$?
+      if (( proof_rc == 1 )); then
+        FAILED_SKILLS+=("$skill (read-proof absent)")
+        echo "[failed] $skill (read-proof absent)"
+        continue
+      elif (( proof_rc == 2 )); then
+        FAILED_SKILLS+=("$skill (read-proof mismatch)")
+        echo "[failed] $skill (read-proof mismatch)"
+        continue
+      fi
       case "$outcome" in
         NO-CHANGE|CHANGED)
           REVIEW_OK_SKILLS+=("$skill")
@@ -771,7 +874,7 @@ run_skill_dual() {
     return 0
   fi
 
-  render_reviewer_prompt "$skill"
+  render_reviewer_prompt "$skill" dual
   prompt="$REVIEWER_PROMPT"
 
   for arm in "${REVIEWER_ARMS[@]}"; do
@@ -824,7 +927,7 @@ record_arm_failure() {
 # never reaches phase two, so a synthesis over a subset of the arms never
 # happens.
 reap_phase_one() {
-  local i pid arm skill rc log last_msg outcome key value verdict_file
+  local i pid arm skill rc log last_msg outcome key value verdict_file readproof_file proof_rc
   for i in "${!DUAL_ARM_PIDS[@]}"; do
     pid="${DUAL_ARM_PIDS[$i]}"
     arm="${DUAL_ARM_ARMS[$i]}"
@@ -851,7 +954,18 @@ reap_phase_one() {
         record_arm_failure "$skill" "arm $arm: INFRA-FAILURE"
         echo "[arm-failed] $skill/$arm (INFRA-FAILURE)"
       else
-        echo "[arm-ok] $skill/$arm ($outcome)"
+        readproof_file="$LOGDIR/${skill}.readproof"
+        proof_rc=0
+        verify_read_proof "$last_msg" "$readproof_file" || proof_rc=$?
+        if (( proof_rc == 1 )); then
+          record_arm_failure "$skill" "arm $arm: read-proof absent"
+          echo "[arm-failed] $skill/$arm (read-proof absent)"
+        elif (( proof_rc == 2 )); then
+          record_arm_failure "$skill" "arm $arm: read-proof mismatch"
+          echo "[arm-failed] $skill/$arm (read-proof mismatch)"
+        else
+          echo "[arm-ok] $skill/$arm ($outcome)"
+        fi
       fi
     else
       rc=$?

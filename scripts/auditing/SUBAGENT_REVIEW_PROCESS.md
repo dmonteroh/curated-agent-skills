@@ -19,7 +19,7 @@ This document describes the repeatable workflow for running **parallelized subag
 ## Workflow Overview
 
 1. **Select a batch** of skills to review (default batch size is 10).
-2. **Spawn subagents in parallel** (one per skill). The runner's subagent sandbox defaults to `danger-full-access` (`--subagent-sandbox`); that flag governs single-model mode's write-capable codex dispatch only — the default multi-arm reviewer arms run read-only regardless of it.
+2. **Spawn subagents in parallel** (one per skill). The runner's subagent sandbox defaults to `danger-full-access` (`--subagent-sandbox`); that flag governs single-model mode's write-capable codex dispatch only. The default multi-arm reviewer arms are read-only by prompt instruction, not by sandbox: bubblewrap cannot create a user namespace in this container, so every codex sandbox mode is a silent no-op (devcontainer ruling, operator, 2026-08-16), and the codex reviewer arm is dispatched with `--sandbox danger-full-access`, same as single mode.
 3. Each subagent:
    - reads `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` and `scripts/auditing/OPEN_ITEMS.md`
    - reads the target `<skill>/SKILL.md`
@@ -127,7 +127,9 @@ Every log ends with exactly one status line:
 - `REVIEW_STATUS: CHANGED` — edits applied, subtraction included.
 - `QUESTIONS` — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
 
-Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.
+Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither `DIFFERENTIATION` nor `REMOVAL PROPOSALS`.
+
+Every artifact, on every verdict including `QUESTIONS`, opens with a `READ_PROOF:` line — the reviewer's first output item, ahead of `DIFFERENTIATION`, `REMOVAL PROPOSALS`, and `REVIEW_STATUS` alike. The runner selects one challenge line per skill from `SKILL.md` before dispatching any arm, writes it to `$LOGDIR/<skill>.readproof`, and requires the reviewer to reproduce that line verbatim on the `READ_PROOF:` line, proving the file was actually read rather than assumed. An arm whose final message has no `READ_PROOF:` line, or whose value does not match, is recorded as a failed arm (`read-proof absent` / `read-proof mismatch`) and blocks the skill before synthesis, regardless of what its `REVIEW_STATUS` or `QUESTIONS` verdict says.
 
 The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling.
 
