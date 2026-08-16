@@ -19,7 +19,7 @@ This document describes the repeatable workflow for running **parallelized subag
 ## Workflow Overview
 
 1. **Select a batch** of skills to review (default batch size is 10).
-2. **Spawn subagents in parallel** (one per skill) in workspace-write mode.
+2. **Spawn subagents in parallel** (one per skill). The runner's subagent sandbox defaults to `danger-full-access` (`--subagent-sandbox`); that flag governs single-model mode's write-capable codex dispatch only — the default multi-arm reviewer arms run read-only regardless of it.
 3. Each subagent:
    - reads `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` and `scripts/auditing/OPEN_ITEMS.md`
    - reads the target `<skill>/SKILL.md`
@@ -28,6 +28,50 @@ This document describes the repeatable workflow for running **parallelized subag
 4. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
 5. Controller (you or main agent):
    - checks success/failure summary from the runner
+
+## Multi-model review
+
+**Pipeline shape.** Each skill review dispatches N reviewer arms — one read-only call per arm — then one synthesis call that reads every arm's review and produces the skill's verdict. There is no third stage. The arm set is read from the runner's `REVIEWER_ARMS` declaration; today it holds codex and claude (N = 2), for N+1 = 3 calls per skill.
+
+**Mechanical default.** The runner's `usage()` states the default and the opt-out, transcribed verbatim:
+
+```
+Default: dual mode. Per skill, dispatch one read-only reviewer per declared
+arm (REVIEWER_ARMS, currently codex and claude), then one synthesis call
+over every arm's review, and report the synthesis outcome as the skill's
+verdict: N+1 calls per skill.
+```
+
+```
+  --single-model        Opt out of the dual default: dispatch one codex
+                        reviewer per skill, as before dual mode existed
+```
+
+No flag runs this default pipeline. `--single-model` (or `SINGLE_MODEL=1`) opts out to the single-reviewer path that predates it.
+
+**Operational default.** Multi-arm review is the standard review pass for every skill in the library; the single-arm mode is an exception a human selects deliberately (operator decision, 2026-08-12).
+
+**Authority split.** Every reviewer arm is read-only and advisory: it reads the skill and the bar and reports a review, applying no edit. The synthesis agent is the only writer in a multi-arm run, holding exactly the existing single reviewer's authority under `SKILL_REVIEW_CHECKLIST.md` §4 and this document's own `Removal authority` section below: it deletes autonomously only the closed five-item list, and whole sections, files under `references/` or `scripts/`, and whole skills stay propose-never-execute, ruled on by the operator.
+
+**Tie-break rule.** The synthesis call resolves disagreement between arms using `synthesis-prompt.md`'s `Tie-break chain`, quoted here in the source's own words for the steps that decide a skill's verdict:
+
+> a. A finding is actionable only if it cites a specific checklist section and the cited condition is verifiable in the skill file. A finding no review can ground in the checklist is not applied.
+>
+> b. Where two or more positions are grounded in the checklist and conflict, subtraction wins. […] One narrowing applies to the union, and only one: it never deletes the last statement of a rule.
+>
+> c. Only a conflict surviving steps a and b […] ends the run with QUESTIONS instead of a change.
+
+The grouping mechanics behind step b's narrowing, and step c's required output format for surviving positions, are not restated here — read them in the asset.
+
+**Model tier and vendor per call site**, transcribed from `./scripts/auditing/run_parallel_skill_reviews.sh --print-model-policy` (`resolved=` values are never repeated in this document — see `--print-model-policy` for the live resolution):
+
+| Site | Tier | Vendor |
+| --- | --- | --- |
+| `reviewer-arm-codex` | terra | codex |
+| `reviewer-arm-claude` | terra | claude |
+| `synthesis` | terra | claude |
+
+**No anonymization stage.** The pipeline anonymizes nothing. The synthesis agent may be able to tell which arm wrote which review, and nothing tries to prevent that. What anchors acceptance instead is the vendor-agnostic framing block and the requirement that every applied finding cite the checklist section it rests on — both carried by `synthesis-prompt.md`, not restated here — and that framing is not a debiasing or concealment mechanism.
 
 ## Runner Commands
 
@@ -65,7 +109,7 @@ Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and the dispatch prompt in `ru
 
 ## Quality Gates
 
-A review is acceptable when all seven hold. Gate 1 can only be satisfied by a subtraction or by an explicit finding that there was nothing to cut — an addition-only review fails it.
+A review is acceptable when all seven hold. Gate 1 can only be satisfied by a subtraction or by an explicit finding that there was nothing to cut — an addition-only review fails it. In a multi-arm run, all seven gates apply to the synthesis output; the reviewer arms' artifacts are inputs to that call, not reviews evaluated separately against Gate 1.
 
 1. **Pruning pass ran.** The log names every sentence, step, and qualifier deleted from the closed five-item list in `SKILL_REVIEW_CHECKLIST.md` §4, or states that the pass found nothing to cut. This gate is a reporting requirement over that closed set, not an independent grant to delete beyond it. Silence is a failure.
 2. **Differentiation reported.** One `DIFFERENTIATION: STRONG|WEAK` line with evidence. Never acted on.
@@ -86,6 +130,10 @@ Every log ends with exactly one status line:
 Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.
 
 The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling.
+
+In a multi-arm run, the synthesis call is the sole source of the skill's verdict; each reviewer arm's own status line is part of its artifact and is read as input, not tallied or averaged into the run's verdict.
+
+A verdict is classified from a call's final-message artifact, and an artifact that quotes another agent's `REVIEW_STATUS` line as a line of its own is classified as that quoted verdict rather than its own — so where a verdict is disputed, check it against the artifact path the runner prints on the per-skill result line.
 
 ## Notes
 

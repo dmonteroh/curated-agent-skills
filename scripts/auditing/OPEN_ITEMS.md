@@ -23,6 +23,11 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | standing | **`mattpocock/skills` is evaluation input only.** Reimplement patterns in this repo's words with a citation; never copy their text. |
 | standing | **`ai-workflows` stays a separate repository.** Its techniques are reimplemented and cited here; its files are never vendored. Three role prompts vendored into `subagent-orchestrator` in Feb 2026 drifted until one contradicted its upstream, and were retired 2026-08-11. |
 | 2026-08-11 | **A skill describes the properties an artifact needs; it does not carry another repository's templates.** `subagent-orchestrator` states what a complete worker packet contains and cites `ai-workflows` as a source to adapt from. Copying templates across a repo boundary with no sync mechanism is the failure this replaces. |
+| 2026-08-16 | **Multi-arm review is the standard review pass for every skill in the library** (N reviewer arms, then one synthesis call), at N+1 calls per skill — 3 per skill, 165 for a 55-skill pass at today's two arms. `--single-model` is an exception a human selects deliberately. |
+| 2026-08-16 | **Every reviewer arm is read-only and advisory; the synthesis agent is the sole writer** in a multi-arm run, holding exactly the existing single reviewer's authority (`SKILL_REVIEW_CHECKLIST.md` §4, `SUBAGENT_REVIEW_PROCESS.md` "Removal authority"). |
+| 2026-08-16 | **The tie-break rule** governing synthesis is `synthesis-prompt.md`'s "Tie-break chain": a finding is actionable only if it cites a specific checklist section and is verifiable in the skill file; among grounded, conflicting positions subtraction wins, applying the union of every review's grounded cuts, narrowed only so the union never deletes the last statement of a rule; a conflict the union does not settle ends the run with `QUESTIONS`. |
+| 2026-08-16 | **The pipeline has no anonymization stage.** Vendor-agnostic framing plus the requirement that every applied finding cite the checklist section it rests on is what replaces it, owned by `synthesis-prompt.md`. |
+| 2026-08-16 | **Model-tier policy** (operator policy 2026-08-12): `sol`/`opus` unused in this pipeline; `terra` for dispatches that need reasoning; `luna` otherwise. Resolution is in code, not in this file — it lives in the runner's resolver and is printed live by `--print-model-policy`; documents name a site, a tier, and a vendor and never restate a resolved model id. |
 
 ## Parity register
 
@@ -31,7 +36,7 @@ Blocks that exist in more than one file on purpose. Edit every member in the sam
 | Family | Members |
 | --- | --- |
 | Removal authority | `SKILL_REVIEW_CHECKLIST.md` §4 · `SUBAGENT_REVIEW_PROCESS.md` "Removal authority" · the dispatch prompt in `run_parallel_skill_reviews.sh` |
-| Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · the dispatch prompt's Output block · `scripts/auditing/review_log.py` |
+| Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · the dispatch prompt's Output block · `scripts/auditing/review_log.py` · `synthesis-prompt.md` "Output" |
 | Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` — machine-checked by `scripts/check_parity.py` |
 | Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §12 table · the check names emitted by `scripts/audit_skills.py` (`list_check_names()`) — machine-checked by `scripts/check_parity.py` |
 
