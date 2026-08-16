@@ -18,7 +18,8 @@ PRINT_POLICY=0
 # Review dispatch (the pipeline's one model-consuming site). Tier terra: it
 # judges SKILL.md against the binding bar, edits files under skills/<name>/,
 # and emits a verdict plus removal proposals. Vendor codex: it is the only
-# dispatch arm that exists; the claude arm is DM3's deliverable.
+# dispatch arm that exists; the claude arm is a separate deliverable, out
+# of this file's scope.
 REVIEW_TIER="terra"
 REVIEW_VENDOR="codex"
 RESOLVED_MODEL=""
@@ -82,7 +83,7 @@ resolve_provenance() {
 
 refuse_forbidden_model() {
   local model="$1"
-  if [[ "$model" =~ (^|[-_.])(sol|opus)([-_.]|$) ]]; then
+  if [[ "${model,,}" =~ (^|[-_.])(sol|opus)([-_.]|$) ]]; then
     echo "error: model '$model' is in the sol/opus tier, which this pipeline does not use (operator policy, 2026-08-12)" >&2
     exit 1
   fi
