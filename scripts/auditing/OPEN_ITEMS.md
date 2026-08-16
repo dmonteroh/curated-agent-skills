@@ -27,7 +27,7 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | 2026-08-16 | **Every reviewer arm is read-only and advisory; the synthesis agent is the sole writer** in a multi-arm run, holding exactly the existing single reviewer's authority (`SKILL_REVIEW_CHECKLIST.md` §4, `SUBAGENT_REVIEW_PROCESS.md` "Removal authority"). |
 | 2026-08-16 | **The tie-break rule** governing synthesis is `synthesis-prompt.md`'s "Tie-break chain": a finding is actionable only if it cites a specific checklist section and is verifiable in the skill file; among grounded, conflicting positions subtraction wins, applying the union of every review's grounded cuts, narrowed only so the union never deletes the last statement of a rule; a conflict the union does not settle ends the run with `QUESTIONS`. |
 | 2026-08-16 | **The pipeline has no anonymization stage.** Vendor-agnostic framing plus the requirement that every applied finding cite the checklist section it rests on is what replaces it, owned by `synthesis-prompt.md`. |
-| 2026-08-16 | **Model-tier policy is resolved in code, not in this file.** Tier resolution lives in the runner's resolver and is printed live by `--print-model-policy`; documents name a site, a tier, and a vendor and never restate a resolved model id. |
+| 2026-08-16 | **Model-tier policy** (operator policy 2026-08-12): `sol`/`opus` unused in this pipeline; `terra` for dispatches that need reasoning; `luna` otherwise. Resolution is in code, not in this file — it lives in the runner's resolver and is printed live by `--print-model-policy`; documents name a site, a tier, and a vendor and never restate a resolved model id. |
 
 ## Parity register
 
