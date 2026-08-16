@@ -752,6 +752,11 @@ verify_read_proof() {
   expected="$(sed -n '2p' "$expected_file")"
   expected="${expected#"${expected%%[![:space:]]*}"}"
   expected="${expected%"${expected##*[![:space:]]}"}"
+  if [[ "$expected" == \`*\` && "${#expected}" -ge 2 ]]; then
+    expected="${expected:1:$((${#expected} - 2))}"
+    expected="${expected#"${expected%%[![:space:]]*}"}"
+    expected="${expected%"${expected##*[![:space:]]}"}"
+  fi
   if [[ "$value" == "$expected" ]]; then
     return 0
   fi
