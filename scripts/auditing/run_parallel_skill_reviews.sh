@@ -14,6 +14,15 @@ SKILLS_FILE="$ROOT/scripts/auditing/skills_list.txt"
 DRY_RUN=0
 NO_INSTALL=0
 declare -a REQUESTED_SKILLS=()
+PRINT_POLICY=0
+# Review dispatch (the pipeline's one model-consuming site). Tier terra: it
+# judges SKILL.md against the binding bar, edits files under skills/<name>/,
+# and emits a verdict plus removal proposals. Vendor codex: it is the only
+# dispatch arm that exists; the claude arm is DM3's deliverable.
+REVIEW_TIER="terra"
+REVIEW_VENDOR="codex"
+RESOLVED_MODEL=""
+MODEL_SOURCE=""
 
 mkdir -p "$LOGDIR"
 
@@ -26,20 +35,77 @@ Options:
   --subagent-sandbox M  Sandbox passed to nested codex exec calls:
                         workspace-write | danger-full-access (default: danger-full-access)
   --model NAME          Model passed to nested codex exec calls (default:
-                        unset, client default from ~/.codex/config.toml)
+                        resolved from the tier policy; see --print-model-policy)
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
   --list-skills         Print discovered skills and exit
   --dry-run             Show planned work without invoking codex
   --no-install          Skip installing audit dependencies
+  --print-model-policy  Print the tier -> model resolution table and exit
   -h, --help            Show this help
 
 Environment:
   PYTHON_BIN            Python interpreter to use (default: python3)
   SUBAGENT_SANDBOX      Nested codex exec sandbox override (same values as --subagent-sandbox)
   REVIEW_MODEL          Model override (same values as --model; default: unset,
-                        client default from ~/.codex/config.toml)
+                        the tier policy resolves the id)
 USAGE
+}
+
+# Model tier policy (operator, 2026-08-12): sol/opus is never used in this
+# pipeline; terra is reserved for dispatches that need reasoning; everything
+# else is luna. Tier equivalence: haiku=luna, sonnet=terra, opus=sol.
+# Vendor default is claude; a call site passing codex states why.
+# This function is the only home for a model id or alias literal in this file.
+resolve_model() {
+  local tier="$1" vendor="${2:-claude}"
+  case "$tier:$vendor" in
+    terra:codex)  printf '%s\n' 'gpt-5.6-terra' ;;
+    terra:claude) printf '%s\n' 'sonnet' ;;
+    luna:claude)  printf '%s\n' 'haiku' ;;
+    luna:codex)   echo "error: no luna model id is pinned for codex; verify one against the installed client and pin it here before adding a luna codex dispatch" >&2; return 1 ;;
+    sol:*|opus:*) echo "error: the sol/opus tier is not used in this pipeline (operator policy, 2026-08-12)" >&2; return 1 ;;
+    *)            echo "error: unknown tier '$tier' for vendor '$vendor' (tiers: luna, terra)" >&2; return 1 ;;
+  esac
+}
+
+resolve_provenance() {
+  case "$1:$2" in
+    terra:codex)              printf '%s\n' 'codex-exec-banner@2026-08-15' ;;
+    terra:claude|luna:claude) printf '%s\n' 'claude-cli-tier-alias@2026-08-12' ;;
+    luna:codex)               printf '%s\n' 'no-verified-id-and-no-consumer' ;;
+    sol:*|opus:*)             printf '%s\n' 'operator-policy@2026-08-12' ;;
+    *)                        printf '%s\n' 'unknown' ;;
+  esac
+  return 0
+}
+
+refuse_forbidden_model() {
+  local model="$1"
+  if [[ "$model" =~ (^|[-_.])(sol|opus)([-_.]|$) ]]; then
+    echo "error: model '$model' is in the sol/opus tier, which this pipeline does not use (operator policy, 2026-08-12)" >&2
+    exit 1
+  fi
+  return 0
+}
+
+print_model_policy() {
+  local tier vendor value
+  printf '%s\n' 'model-policy: operator policy 2026-08-12 - sol/opus unused in this pipeline; terra for dispatches that need reasoning; luna otherwise'
+  printf '%s\n' 'model-policy: tier equivalence haiku=luna sonnet=terra opus=sol'
+  for tier in luna terra; do
+    for vendor in claude codex; do
+      value="$(resolve_model "$tier" "$vendor" 2>/dev/null)" || value='<unpinned>'
+      printf 'tier=%s vendor=%s resolved=%s provenance=%s\n' "$tier" "$vendor" "$value" "$(resolve_provenance "$tier" "$vendor")"
+    done
+  done
+  for tier in sol opus; do
+    printf 'tier=%s vendor=any resolved=<forbidden> provenance=%s\n' "$tier" "$(resolve_provenance "$tier" any)"
+  done
+  value="$(resolve_model "$REVIEW_TIER" "$REVIEW_VENDOR")" || return 1
+  printf 'site=run_skill-review tier=%s vendor=%s resolved=%s source=policy\n' "$REVIEW_TIER" "$REVIEW_VENDOR" "$value"
+  printf '%s\n' 'model-policy: call-site count 1'
+  return 0
 }
 
 SKILLS_FILE_OVERRIDE=""
@@ -65,6 +131,10 @@ while (( "$#" )); do
     --skills-file)
       SKILLS_FILE_OVERRIDE="${2:-}"
       shift 2
+      ;;
+    --print-model-policy)
+      PRINT_POLICY=1
+      shift
       ;;
     --list-skills)
       LIST_ONLY=1
@@ -103,6 +173,20 @@ case "$SUBAGENT_SANDBOX" in
     ;;
 esac
 
+if (( PRINT_POLICY == 1 )); then
+  print_model_policy
+  exit 0
+fi
+
+if [[ -n "$REVIEW_MODEL" ]]; then
+  RESOLVED_MODEL="$REVIEW_MODEL"
+  MODEL_SOURCE="REVIEW_MODEL"
+else
+  RESOLVED_MODEL="$(resolve_model "$REVIEW_TIER" "$REVIEW_VENDOR")" || exit 1
+  MODEL_SOURCE="policy"
+fi
+refuse_forbidden_model "$RESOLVED_MODEL"
+
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "error: $PYTHON_BIN not found" >&2
   exit 1
@@ -122,7 +206,7 @@ if (( DRY_RUN == 0 )) && ! command -v codex >/dev/null 2>&1; then
 fi
 
 echo "codex client: $(codex --version 2>/dev/null || echo unknown)"
-echo "model requested: ${REVIEW_MODEL:-client default (~/.codex/config.toml)}"
+echo "model requested: $RESOLVED_MODEL (tier=$REVIEW_TIER vendor=$REVIEW_VENDOR source=$MODEL_SOURCE)"
 
 "$VENV/bin/python" - <<PY >"$SKILLS_FILE"
 from pathlib import Path
@@ -194,10 +278,7 @@ run_skill() {
   local pdf_rel="scripts/auditing/resources/agent_skills_pdf.txt"
   local venv_python_rel=".venv/bin/python"
   local prompt
-  local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg")
-  if [[ -n "$REVIEW_MODEL" ]]; then
-    codex_args+=(--model "$REVIEW_MODEL")
-  fi
+  local -a codex_args=(exec --sandbox "$SUBAGENT_SANDBOX" --output-last-message "$last_msg" --model "$RESOLVED_MODEL")
 
   if (( DRY_RUN == 1 )); then
     echo "[dry-run] would review: $skill"
