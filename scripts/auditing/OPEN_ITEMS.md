@@ -32,8 +32,8 @@ Blocks that exist in more than one file on purpose. Edit every member in the sam
 | --- | --- |
 | Removal authority | `SKILL_REVIEW_CHECKLIST.md` §4 · `SUBAGENT_REVIEW_PROCESS.md` "Removal authority" · the dispatch prompt in `run_parallel_skill_reviews.sh` |
 | Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · the dispatch prompt's Output block · `scripts/auditing/review_log.py` |
-| Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` |
-| Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §1, §9, §10 · the check names emitted by `scripts/audit_skills.py` |
+| Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` — machine-checked by `scripts/check_parity.py` |
+| Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §12 table · the check names emitted by `scripts/audit_skills.py` (`list_check_names()`) — machine-checked by `scripts/check_parity.py` |
 
 **Dropped 2026-08-12: `Skill lifecycle steps`** (`SKILL_REVIEW_CHECKLIST.md` §1 · `.agent/docs/repo-map.md` "Workflow: add a skill"). The member is gitignored, the family name did not match its members, and reviewers are prohibited from editing it — no reviewer or checker could ever verify this row. `.agent/docs/repo-map.md` now carries a one-line pointer back to the checklist instead.
 

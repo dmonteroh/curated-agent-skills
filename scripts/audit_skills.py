@@ -487,20 +487,51 @@ def _check_skill_md_tokens(doc: SkillDoc) -> list[tuple[str, str]]:
 
 # Order reproduces scan_skill's original emission order for both the issues
 # and warnings lists; reordering this tuple is the only thing that changes it.
-CHECKS: tuple[Callable[[SkillDoc], list[tuple[str, str]]], ...] = (
-    _check_frontmatter,
-    _check_required_fields,
-    _check_entry_length,
-    _check_name_folder_match,
-    _check_repo_root_paths,
-    _check_heading_families,
-    _check_headings_restated,
-    _check_activation_cues,
-    _check_missing_local_refs,
-    _check_network_assumption,
-    _check_frontmatter_tokens,
-    _check_skill_md_tokens,
+# Prefixes are declared by hand here, one entry per check function, and are
+# the sole input to list_check_names() -- see scripts/check_parity.py.
+CHECKS: tuple[tuple[Callable[[SkillDoc], list[tuple[str, str]]], tuple[str, ...]], ...] = (
+    (
+        _check_frontmatter,
+        (
+            "missing_frontmatter",
+            "description_requires_quotes_for_colons",
+            "frontmatter_unquoted_colon",
+            "missing_frontmatter_keys",
+            "unexpected_frontmatter_keys",
+        ),
+    ),
+    (
+        _check_required_fields,
+        (
+            "missing_name_in_frontmatter",
+            "missing_description_in_frontmatter",
+            "missing_metadata_category_in_frontmatter",
+        ),
+    ),
+    (_check_entry_length, ("entry_over_200_lines",)),
+    (_check_name_folder_match, ("name_folder_mismatch",)),
+    (_check_repo_root_paths, ("repo_root_skill_path",)),
+    (_check_heading_families, ("heading_variant", "heading_qualifier")),
+    (_check_headings_restated, ("heading_restated",)),
+    (_check_activation_cues, ("activation_cues_in_skill_md",)),
+    (_check_missing_local_refs, ("missing_local_refs",)),
+    (_check_network_assumption, ("network_assumption",)),
+    (
+        _check_frontmatter_tokens,
+        ("frontmatter_tokens_over_hard_limit", "frontmatter_tokens_over_soft_limit"),
+    ),
+    (
+        _check_skill_md_tokens,
+        ("skill_md_tokens_over_hard_limit", "skill_md_tokens_over_soft_limit"),
+    ),
 )
+
+
+def list_check_names() -> tuple[str, ...]:
+    names: set[str] = set()
+    for _check, prefixes in CHECKS:
+        names.update(prefixes)
+    return tuple(sorted(names))
 
 
 def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[str]]:
@@ -510,7 +541,7 @@ def scan_skill(dirpath: Path, *, token_checks: bool) -> tuple[list[str], list[st
     results: dict[str, list[str]] = {"issue": [], "warning": []}
     if doc.unreadable_texts:
         results["issue"].append(f"unreadable_skill_file:{','.join(sorted(doc.unreadable_texts))}")
-    for check in CHECKS:
+    for check, _prefixes in CHECKS:
         for severity, message in check(doc):
             results[severity].append(message)
     return results["issue"], results["warning"]
@@ -526,11 +557,20 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Skip token checks even if tiktoken is available.",
     )
+    parser.add_argument(
+        "--list-checks",
+        action="store_true",
+        help="Print every check name the scanner can emit, one per line, sorted, and exit.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
+    if args.list_checks:
+        for name in list_check_names():
+            print(name)
+        return 0
     token_checks = not args.no_token_checks
     if token_checks and tiktoken is None:
         msg = (
