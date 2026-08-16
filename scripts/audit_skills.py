@@ -71,8 +71,9 @@ CANONICAL_HEADINGS = {
     "resources": "Resources",
     "scripts": "Scripts",
 }
-# Word-order and plural variants only. Synonyms (Instructions vs Workflow) are a
-# reviewer's call, not a lint.
+# Plural, word-order, and redundant-trailing-qualifier variants (e.g. "common
+# pitfalls to avoid" -> "common pitfalls"). Synonyms (Instructions vs Workflow)
+# are a reviewer's call, not a lint.
 HEADING_ALIASES = {
     "common pitfalls to avoid": "common pitfalls",
     "inputs required": "required inputs",
@@ -84,6 +85,7 @@ HEADING_ALIASES = {
 HEADING_STOPWORDS = {"the", "a", "an", "of", "to", "for", "and"}
 
 H2_RE = re.compile(r"^## +(.*)$")
+H23_RE = re.compile(r"^#{2,3} +(.*)$")
 TRAILING_PAREN_RE = re.compile(r"\([^)]*\)$")
 REPO_ROOT_SKILL_PATH_RE = re.compile(
     r"(?<![\w./~-])(?:\.{1,2}/)?skills/[A-Za-z0-9][A-Za-z0-9_-]*/[\w./-]*?\.(?:md|sh|py|txt|cjs|ts|js)"
@@ -91,9 +93,28 @@ REPO_ROOT_SKILL_PATH_RE = re.compile(
 ACTIVATION_CUE_MARKER_RE = re.compile(r"^[#*\- ]*(activation cue|trigger phrase|trigger test)", re.I)
 SKILL_INTERNAL_REF_PREFIXES = ("references/", "resources/", "scripts/", "assets/", "templates/")
 
+CODE_SPAN_RE = re.compile(r"`[^`]*`")
+MD_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+URL_RE = re.compile(r"https?://\S+|www\.\S+")
+BARE_PATH_RE = re.compile(r"(?<![\w])[\w.~-]*/[\w./~-]+")
+FILENAME_RE = re.compile(r"(?<![\w])[\w-]+\.[A-Za-z][\w]{0,4}(?![\w])")
+
 
 def clean(heading: str) -> str:
     return TRAILING_PAREN_RE.sub("", heading).strip()
+
+
+def _strip_ref_noise(s: str) -> str:
+    """Removes backtick spans, markdown links (keeping link text), URLs, bare
+    a/b paths, and filename tokens so a heading/prose pair does not match
+    only because both sides mention the same reference.
+    """
+    s = CODE_SPAN_RE.sub(" ", s)
+    s = MD_LINK_RE.sub(r"\1", s)
+    s = URL_RE.sub(" ", s)
+    s = BARE_PATH_RE.sub(" ", s)
+    s = FILENAME_RE.sub(" ", s)
+    return s
 
 
 def _prose_lines(lines: list[str]) -> list[str]:
@@ -148,18 +169,18 @@ def _headings_restated(lines: list[str]) -> list[str]:
     """Headings whose own first sentence repeats them — template sediment."""
     out: list[str] = []
     for idx, line in enumerate(lines):
-        m = H2_RE.match(line)
+        m = H23_RE.match(line)
         if not m:
             continue
         heading = m.group(1).strip()
-        base = clean(heading).lower()
+        base = clean(_strip_ref_noise(heading)).lower()
         words = [w for w in re.findall(r"[a-z]+", base) if w not in HEADING_STOPWORDS]
         if len(words) < 2:
             continue
         nxt = _first_prose_line(lines, idx + 1)
         if nxt is None:
             continue
-        following = re.findall(r"[a-z]+", nxt.lower())[:14]
+        following = re.findall(r"[a-z]+", _strip_ref_noise(nxt).lower())[:14]
         if all(w in following for w in words):
             out.append(heading)
     return out

@@ -3,8 +3,7 @@
     "issues": [],
     "name": "adr-madr-system",
     "warnings": [
-      "heading_qualifier:Output contract (always report)",
-      "heading_restated:Quality gates"
+      "heading_qualifier:Output contract (always report)"
     ]
   },
   {
@@ -257,7 +256,9 @@
   {
     "issues": [],
     "name": "pdf-files",
-    "warnings": []
+    "warnings": [
+      "heading_restated:3) Extract or render"
+    ]
   },
   {
     "issues": [],
@@ -278,7 +279,9 @@
   {
     "issues": [],
     "name": "pr-description",
-    "warnings": []
+    "warnings": [
+      "heading_restated:7) Emit and report"
+    ]
   },
   {
     "issues": [],

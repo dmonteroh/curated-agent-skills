@@ -291,6 +291,93 @@ class MainSkipsBrokenSymlinkSkillMdTest(unittest.TestCase):
             self.assertIn("skills: 1", out.getvalue())
 
 
+class StripRefNoiseTest(unittest.TestCase):
+    def test_ac1_code_spans_removed(self):
+        self.assertEqual(
+            audit._strip_ref_noise("check `quality-gates.md` first"), "check   first"
+        )
+
+    def test_ac1_markdown_links_keep_link_text(self):
+        self.assertEqual(
+            audit._strip_ref_noise("see [the README](references/README.md) for more"),
+            "see the README for more",
+        )
+
+    def test_ac1_urls_removed(self):
+        self.assertEqual(
+            audit._strip_ref_noise("visit https://example.com/docs for detail"),
+            "visit   for detail",
+        )
+
+    def test_ac1_bare_paths_removed(self):
+        self.assertEqual(audit._strip_ref_noise("edit a/b/c.py now"), "edit   now")
+
+    def test_ac1_filenames_removed(self):
+        self.assertEqual(audit._strip_ref_noise("open quality-gates.md now"), "open   now")
+
+
+class HeadingsRestatedNoiseAndScopeTest(unittest.TestCase):
+    def test_ac1_backticked_filename_in_prose_no_longer_matches(self):
+        lines = [
+            "## Quality gates",
+            "",
+            "Before finalizing, check `quality-gates.md` for the latest guidance.",
+        ]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+    def test_ac1_noise_stripped_from_heading_too(self):
+        lines = [
+            "## Check `quality-gates.md`",
+            "",
+            "Check quality gates before finalizing.",
+        ]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+    def test_ac2_h3_heading_restated_is_now_scanned(self):
+        lines = [
+            "### Extract or render",
+            "",
+            "Extract or render the pages as needed.",
+        ]
+        self.assertEqual(audit._headings_restated(lines), ["Extract or render"])
+
+    def test_ac2_h4_stays_out_of_scope(self):
+        lines = [
+            "#### Extract or render",
+            "",
+            "Extract or render the pages as needed.",
+        ]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+    def test_ac4_fourteen_word_window_still_matches_at_the_boundary(self):
+        lines = [
+            "## Emit and report",
+            "",
+            "one two three four five six seven eight nine ten eleven twelve emit report",
+        ]
+        self.assertEqual(audit._headings_restated(lines), ["Emit and report"])
+
+    def test_ac4_past_the_fourteen_word_window_no_longer_matches(self):
+        lines = [
+            "## Emit and report",
+            "",
+            "one two three four five six seven eight nine ten eleven twelve thirteen emit report",
+        ]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+    def test_ac4_two_significant_word_gate_still_enforced(self):
+        lines = ["## Workflow", "", "Workflow steps follow below."]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+    def test_ac4_stopword_filter_still_applied(self):
+        lines = [
+            "## The Workflow",
+            "",
+            "The workflow below covers everything you need.",
+        ]
+        self.assertEqual(audit._headings_restated(lines), [])
+
+
 class GoldenSnapshotTest(unittest.TestCase):
     def test_ac7_scan_skill_matches_recorded_snapshot_for_all_skills(self):
         snapshot = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
