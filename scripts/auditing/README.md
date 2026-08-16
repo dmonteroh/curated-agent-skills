@@ -34,7 +34,7 @@ The parallel reviewer installs the same audit dependencies automatically and use
 
 Pipeline behavior:
 
-1. Review subagent updates each selected `skills/<skill>/SKILL.md`.
+1. Per skill, the default pipeline dispatches one read-only review per declared arm, then a synthesis call applies the single change that lands (`--single-model` skips synthesis and lets its one reviewer update `skills/<skill>/SKILL.md` directly).
 2. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
 
 Useful options:
@@ -51,7 +51,24 @@ Useful options:
 
 # List discovered skills
 ./scripts/auditing/run_parallel_skill_reviews.sh --list-skills
+
+# Print the model-tier resolution table and exit
+./scripts/auditing/run_parallel_skill_reviews.sh --print-model-policy
 ```
+
+`--print-model-policy`'s own policy header states the pipeline's tier policy: sol/opus unused in this pipeline; terra for dispatches that need reasoning; luna otherwise (operator policy, 2026-08-12).
+
+### Multi-model review
+
+Default invocation — no flag needed, this is the default pipeline:
+
+```bash
+./scripts/auditing/run_parallel_skill_reviews.sh
+```
+
+Multi-arm review is the standard review pass for every skill in the library; the single-arm mode (`--single-model`) is an exception a human selects deliberately.
+
+Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm declaration (`REVIEWER_ARMS`) holds 2 arms, so N+1 = 3 calls per skill; a full run over all 55 skills in `skills_list.txt` is 165 calls.
 
 ## What Each File Does
 
@@ -73,6 +90,10 @@ Useful options:
   - Supports targeting specific skills and dry-run planning.
   - Reports per-skill success/failure with log paths.
   - Measures reference size via `tiktoken` to decide when to split/index references.
+
+- `synthesis-prompt.md`
+  - Read at the synthesis call: the tie-break chain that resolves disagreement between reviewer arms, the vendor-agnostic framing block, and the sole per-skill write authority in a multi-arm run.
+  - Placeholders (`SKILL_DIRECTORY`, `SKILL_NAME`, `CHECKLIST_PATH`, `OPEN_ITEMS_PATH`, `REVIEW_ARTIFACTS`) are interpolated by the runner before dispatch.
 
 - `resources/agent_skills_pdf.txt`
   - Extracted text from the reference PDF for offline use during reviews.
