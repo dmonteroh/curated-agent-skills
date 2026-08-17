@@ -1,5 +1,0 @@
-The skill's file layout is ambiguous; I cannot determine whether references/ should be split without guidance on the intended reader.
-
-QUESTIONS
-
-1. Should skills/example-skill/references/notes.md be split into two files, or is the current single file intended?

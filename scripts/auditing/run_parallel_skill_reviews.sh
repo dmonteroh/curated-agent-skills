@@ -631,8 +631,6 @@ sys.path.insert(0, sys.argv[1])
 import review_log
 result = review_log.classify(Path(sys.argv[2]).read_text(encoding="utf-8", errors="replace"))
 print("OUTCOME=%s" % result.outcome.value)
-print("DIFFERENTIATION=%s" % result.differentiation)
-print("REMOVAL_PROPOSALS=%s" % ("1" if result.removal_proposals else "0"))
 PY
   return 0
 }
@@ -758,61 +756,70 @@ reap_batch() {
         echo "[malformed] $skill (empty last-message file)"
         continue
       fi
-      if [[ ! -s "$verdict_file" ]]; then
-        classify_review "$last_msg" "$verdict_file"
-      fi
-      outcome="UNKNOWN"
-      differentiation="UNKNOWN"
-      removal_proposals="0"
-      while IFS='=' read -r key value; do
-        case "$key" in
-          OUTCOME) outcome="$value" ;;
-          DIFFERENTIATION) differentiation="$value" ;;
-          REMOVAL_PROPOSALS) removal_proposals="$value" ;;
-        esac
-      done <"$verdict_file"
-      if [[ "$outcome" == "INFRA-FAILURE" ]]; then
-        reason="$(infra_reason_from_log "$review_log")" || true
-        INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
-        echo "[infra-failure] $skill (exit 0: classifier-reported)"
-        continue
-      fi
-      proof_rc=0
-      verify_read_proof "$verdict_file" "$readproof_file" || proof_rc=$?
-      if (( proof_rc == 1 )); then
-        FAILED_SKILLS+=("$skill (read-proof absent)")
-        echo "[failed] $skill (read-proof absent)"
-        continue
-      elif (( proof_rc == 2 )); then
-        FAILED_SKILLS+=("$skill (read-proof mismatch)")
-        echo "[failed] $skill (read-proof mismatch)"
-        continue
-      fi
-      case "$outcome" in
-        NO-CHANGE|CHANGED)
-          REVIEW_OK_SKILLS+=("$skill")
-          if [[ "$outcome" == "NO-CHANGE" ]]; then
-            REVIEW_NO_CHANGE_SKILLS+=("$skill")
-          fi
-          case "$differentiation" in
-            WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
-            STRONG) ;;
-            *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+      if [[ -s "$verdict_file" ]]; then
+        outcome="UNKNOWN"
+        differentiation="UNKNOWN"
+        removal_proposals="0"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+            DIFFERENTIATION) differentiation="$value" ;;
+            REMOVAL_PROPOSALS) removal_proposals="$value" ;;
           esac
-          if [[ "$removal_proposals" == "1" ]]; then
-            REMOVAL_PROPOSAL_SKILLS+=("$skill")
-          fi
-          echo "[ok] $skill (status $outcome, differentiation $differentiation)"
-          ;;
-        QUESTIONS)
-          FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
-          echo "[failed] $skill (blocked: QUESTIONS)"
-          ;;
-        *)
+        done <"$verdict_file"
+        proof_rc=0
+        verify_read_proof "$verdict_file" "$readproof_file" || proof_rc=$?
+        if (( proof_rc == 1 )); then
+          FAILED_SKILLS+=("$skill (read-proof absent)")
+          echo "[failed] $skill (read-proof absent)"
+          continue
+        elif (( proof_rc == 2 )); then
+          FAILED_SKILLS+=("$skill (read-proof mismatch)")
+          echo "[failed] $skill (read-proof mismatch)"
+          continue
+        fi
+        case "$outcome" in
+          NO-CHANGE|CHANGED)
+            REVIEW_OK_SKILLS+=("$skill")
+            if [[ "$outcome" == "NO-CHANGE" ]]; then
+              REVIEW_NO_CHANGE_SKILLS+=("$skill")
+            fi
+            case "$differentiation" in
+              WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+              STRONG) ;;
+              *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+            esac
+            if [[ "$removal_proposals" == "1" ]]; then
+              REMOVAL_PROPOSAL_SKILLS+=("$skill")
+            fi
+            echo "[ok] $skill (status $outcome, differentiation $differentiation)"
+            ;;
+          QUESTIONS)
+            FAILED_SKILLS+=("$skill (blocked: QUESTIONS)")
+            echo "[failed] $skill (blocked: QUESTIONS)"
+            ;;
+          *)
+            MALFORMED_SKILLS+=("$skill")
+            echo "[malformed] $skill"
+            ;;
+        esac
+      else
+        classify_review "$last_msg" "$verdict_file"
+        outcome="UNKNOWN"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+          esac
+        done <"$verdict_file"
+        if [[ "$outcome" == "INFRA-FAILURE" ]]; then
+          reason="$(infra_reason_from_log "$review_log")" || true
+          INFRA_FAILURE_SKILLS+=("$skill (exit 0: classifier-reported: ${reason:-no error line found})")
+          echo "[infra-failure] $skill (exit 0: classifier-reported)"
+        else
           MALFORMED_SKILLS+=("$skill")
           echo "[malformed] $skill"
-          ;;
-      esac
+        fi
+      fi
     else
       rc=$?
       capture_provenance "$review_log"
@@ -929,19 +936,13 @@ reap_phase_one() {
         continue
       fi
       verdict_file="$LOGDIR/${skill}.${arm}.verdict"
-      if [[ ! -s "$verdict_file" ]]; then
-        classify_review "$last_msg" "$verdict_file"
-      fi
-      outcome="UNKNOWN"
-      while IFS='=' read -r key value; do
-        case "$key" in
-          OUTCOME) outcome="$value" ;;
-        esac
-      done <"$verdict_file"
-      if [[ "$outcome" == "INFRA-FAILURE" ]]; then
-        record_arm_failure "$skill" "arm $arm: INFRA-FAILURE"
-        echo "[arm-failed] $skill/$arm (INFRA-FAILURE)"
-      else
+      if [[ -s "$verdict_file" ]]; then
+        outcome="UNKNOWN"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+          esac
+        done <"$verdict_file"
         readproof_file="$LOGDIR/${skill}.readproof"
         proof_rc=0
         verify_read_proof "$verdict_file" "$readproof_file" || proof_rc=$?
@@ -953,6 +954,21 @@ reap_phase_one() {
           echo "[arm-failed] $skill/$arm (read-proof mismatch)"
         else
           echo "[arm-ok] $skill/$arm ($outcome)"
+        fi
+      else
+        classify_review "$last_msg" "$verdict_file"
+        outcome="UNKNOWN"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+          esac
+        done <"$verdict_file"
+        if [[ "$outcome" == "INFRA-FAILURE" ]]; then
+          record_arm_failure "$skill" "arm $arm: INFRA-FAILURE"
+          echo "[arm-failed] $skill/$arm (INFRA-FAILURE)"
+        else
+          record_arm_failure "$skill" "arm $arm: MALFORMED"
+          echo "[arm-failed] $skill/$arm (MALFORMED)"
         fi
       fi
     else
@@ -1011,49 +1027,59 @@ reap_phase_two() {
         echo "[malformed] $skill (synthesis: empty final message; artifact $last_msg)"
         continue
       fi
-      if [[ ! -s "$verdict_file" ]]; then
-        classify_review "$last_msg" "$verdict_file"
-      fi
-      outcome="UNKNOWN"
-      differentiation="UNKNOWN"
-      removal_proposals="0"
-      while IFS='=' read -r key value; do
-        case "$key" in
-          OUTCOME) outcome="$value" ;;
-          DIFFERENTIATION) differentiation="$value" ;;
-          REMOVAL_PROPOSALS) removal_proposals="$value" ;;
-        esac
-      done <"$verdict_file"
-      case "$outcome" in
-        NO-CHANGE|CHANGED)
-          REVIEW_OK_SKILLS+=("$skill")
-          if [[ "$outcome" == "NO-CHANGE" ]]; then
-            REVIEW_NO_CHANGE_SKILLS+=("$skill")
-          fi
-          case "$differentiation" in
-            WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
-            STRONG) ;;
-            *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+      if [[ -s "$verdict_file" ]]; then
+        outcome="UNKNOWN"
+        differentiation="UNKNOWN"
+        removal_proposals="0"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+            DIFFERENTIATION) differentiation="$value" ;;
+            REMOVAL_PROPOSALS) removal_proposals="$value" ;;
           esac
-          if [[ "$removal_proposals" == "1" ]]; then
-            REMOVAL_PROPOSAL_SKILLS+=("$skill")
-          fi
-          echo "[ok] $skill (status $outcome, differentiation $differentiation, synthesis $last_msg)"
-          ;;
-        QUESTIONS)
-          FAILED_SKILLS+=("$skill (synthesis blocked: QUESTIONS; artifact $last_msg)")
-          echo "[failed] $skill (synthesis blocked: QUESTIONS, synthesis $last_msg)"
-          ;;
-        INFRA-FAILURE)
+        done <"$verdict_file"
+        case "$outcome" in
+          NO-CHANGE|CHANGED)
+            REVIEW_OK_SKILLS+=("$skill")
+            if [[ "$outcome" == "NO-CHANGE" ]]; then
+              REVIEW_NO_CHANGE_SKILLS+=("$skill")
+            fi
+            case "$differentiation" in
+              WEAK) DIFFERENTIATION_WEAK_SKILLS+=("$skill") ;;
+              STRONG) ;;
+              *) DIFFERENTIATION_UNKNOWN_SKILLS+=("$skill") ;;
+            esac
+            if [[ "$removal_proposals" == "1" ]]; then
+              REMOVAL_PROPOSAL_SKILLS+=("$skill")
+            fi
+            echo "[ok] $skill (status $outcome, differentiation $differentiation, synthesis $last_msg)"
+            ;;
+          QUESTIONS)
+            FAILED_SKILLS+=("$skill (synthesis blocked: QUESTIONS; artifact $last_msg)")
+            echo "[failed] $skill (synthesis blocked: QUESTIONS, synthesis $last_msg)"
+            ;;
+          *)
+            MALFORMED_SKILLS+=("$skill")
+            echo "[malformed] $skill (synthesis, artifact $last_msg)"
+            ;;
+        esac
+      else
+        classify_review "$last_msg" "$verdict_file"
+        outcome="UNKNOWN"
+        while IFS='=' read -r key value; do
+          case "$key" in
+            OUTCOME) outcome="$value" ;;
+          esac
+        done <"$verdict_file"
+        if [[ "$outcome" == "INFRA-FAILURE" ]]; then
           reason="$(infra_reason_from_log "$log")" || true
           INFRA_FAILURE_SKILLS+=("$skill (synthesis exit 0: classifier-reported: ${reason:-no error line found})")
           echo "[infra-failure] $skill (synthesis exit 0: classifier-reported)"
-          ;;
-        *)
+        else
           MALFORMED_SKILLS+=("$skill")
           echo "[malformed] $skill (synthesis, artifact $last_msg)"
-          ;;
-      esac
+        fi
+      fi
     else
       rc=$?
       capture_call_provenance synthesis "$log"

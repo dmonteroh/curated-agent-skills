@@ -1,9 +1,0 @@
-Files changed: skills/example-skill/SKILL.md
-
-Summary of edits: deleted a sentence that restates its own heading (-1 line).
-
-REMOVAL_PROPOSALS: 1. skills/example-skill/references/redundant.md - covers the same ground as the SKILL.md body with no added detail. Would lose nothing.
-
-DIFFERENTIATION: STRONG - a non-obvious process with real decision points.
-
-REVIEW_STATUS: CHANGED

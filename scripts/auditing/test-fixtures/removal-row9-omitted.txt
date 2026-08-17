@@ -1,7 +1,0 @@
-Files changed: skills/example-skill/SKILL.md
-
-Summary of edits: tightened the frontmatter description (-1 line, +1 line).
-
-DIFFERENTIATION: STRONG - evidence: adds a deterministic verification step.
-
-REVIEW_STATUS: CHANGED

@@ -1,5 +1,0 @@
-The reference file exceeds the token budget but splitting it changes which section is loaded first, and I cannot tell which ordering the operator intends.
-
-## QUESTIONS
-
-1. Should references/big.md split by topic or by workflow stage?

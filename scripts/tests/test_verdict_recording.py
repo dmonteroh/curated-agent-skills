@@ -40,6 +40,14 @@ reviewer_body() {
       printf 'DIFFERENTIATION: STRONG evidence\\n'
       printf 'REVIEW_STATUS: CHANGED\\n'
       ;;
+    guard_recovers_status)
+      "$result_tool" --status changed --read-proof "$expected" --differentiation strong --removals none
+      cat scripts/auditing/test-fixtures/infra-guard-recovers-status-line.txt
+      ;;
+    guard_recovers_questions)
+      "$result_tool" --status questions --read-proof "$expected"
+      cat scripts/auditing/test-fixtures/infra-guard-recovers-questions.txt
+      ;;
   esac
 }
 
@@ -59,6 +67,18 @@ synthesis_body() {
       printf '\\n'
       printf 'QUESTIONS\\n'
       printf '1. skills/%s/SKILL.md - unresolved conflict between reviews.\\n' "$FIXTURE_SKILL"
+      ;;
+    guard_recovers_status)
+      "$result_tool" --status changed --differentiation weak --removals none
+      printf 'ERROR: unexpected status 503 Service Unavailable: {"detail":"upstream saturated"}\\n'
+      printf 'Files changed under skills/%s: trigger-cases updated\\n' "$FIXTURE_SKILL"
+      printf 'REVIEW_STATUS: CHANGED\\n'
+      ;;
+    guard_recovers_questions)
+      "$result_tool" --status questions
+      printf 'stream error: unexpected status 429 Too Many Requests: {"detail":"rate limited"}; retrying 1/5 in 200ms\\xe2\\x80\\xa6\\n'
+      printf 'Synthesis for skills/%s: reviews conflict.\\n' "$FIXTURE_SKILL"
+      printf 'QUESTIONS\\n'
       ;;
   esac
 }
@@ -154,8 +174,8 @@ class ReviewerArmToolVerdictTests(unittest.TestCase):
 
     def test_prose_only_arm_falls_back_to_classify_review_and_reports(self):
         proc = _run_dual("prose_only")
-        self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/codex (read-proof absent)", proc.stdout)
-        self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/claude (read-proof absent)", proc.stdout)
+        self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/codex (MALFORMED)", proc.stdout)
+        self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/claude (MALFORMED)", proc.stdout)
         self.assertNotIn("[infra-failure]", proc.stdout)
         self.assertNotIn("[malformed]", proc.stdout)
 
@@ -172,6 +192,30 @@ class SynthesisToolVerdictTests(unittest.TestCase):
         proc = _run_dual("tool_ok", synth_mode="tool_questions_prose_quoted_nochange")
         self.assertIn(f"[failed] {FIXTURE_SKILL} (synthesis blocked: QUESTIONS", proc.stdout)
         self.assertNotIn(f"[ok] {FIXTURE_SKILL} (status NO-CHANGE", proc.stdout)
+        verdict = LOGDIR / f"{FIXTURE_SKILL}.synthesis.verdict"
+        self.assertTrue(verdict.exists())
+        self.assertIn("OUTCOME=QUESTIONS", verdict.read_text(encoding="utf-8"))
+
+
+class GuardBannerVerdictFileWinsTests(unittest.TestCase):
+    def test_guard_recovers_status_line_verdict_file_wins_over_banner(self):
+        proc = _run_dual("guard_recovers_status", synth_mode="guard_recovers_status")
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/codex (CHANGED)", proc.stdout)
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/claude (CHANGED)", proc.stdout)
+        self.assertNotIn("(INFRA-FAILURE)", proc.stdout)
+        self.assertNotIn("[arm-failed]", proc.stdout)
+        self.assertIn(f"[ok] {FIXTURE_SKILL} (status CHANGED", proc.stdout)
+        verdict = LOGDIR / f"{FIXTURE_SKILL}.synthesis.verdict"
+        self.assertTrue(verdict.exists())
+        self.assertIn("OUTCOME=CHANGED", verdict.read_text(encoding="utf-8"))
+
+    def test_guard_recovers_questions_verdict_file_wins_over_banner(self):
+        proc = _run_dual("guard_recovers_questions", synth_mode="guard_recovers_questions")
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/codex (QUESTIONS)", proc.stdout)
+        self.assertIn(f"[arm-ok] {FIXTURE_SKILL}/claude (QUESTIONS)", proc.stdout)
+        self.assertNotIn("(INFRA-FAILURE)", proc.stdout)
+        self.assertNotIn("[arm-failed]", proc.stdout)
+        self.assertIn(f"[failed] {FIXTURE_SKILL} (synthesis blocked: QUESTIONS", proc.stdout)
         verdict = LOGDIR / f"{FIXTURE_SKILL}.synthesis.verdict"
         self.assertTrue(verdict.exists())
         self.assertIn("OUTCOME=QUESTIONS", verdict.read_text(encoding="utf-8"))

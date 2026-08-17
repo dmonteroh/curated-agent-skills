@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-16
+
+### Removed
+
+- 24 prose-verdict test fixtures under `scripts/auditing/test-fixtures/` and their 25 pinning test methods across `scripts/tests/test_review_log.py` and `scripts/tests/test_synthesis_artifacts.py` (file removed): `malformed-no-status-no-questions.txt`, `questions-bare.txt`, `questions-bold.txt`, `questions-colon.txt`, `questions-heading.txt`, `questions-real.txt`, `questions-with-differentiation-and-removal.txt`, `removal-compliant-baseline.txt`, `removal-duplicate-none.txt`, `removal-row2-heading-lowercase.txt`, `removal-row3-heading-upper-colon.txt`, `removal-row4-bold-colon.txt`, `removal-row4-bold-no-colon.txt`, `removal-row5-titlecase-colon.txt`, `removal-row6-bulleted.txt`, `removal-row6-indented.txt`, `removal-row7-underscore.txt`, `removal-row8-no-colon.txt`, `removal-row9-omitted.txt`, `synthesis-changed.txt`, `synthesis-malformed-truncated.txt`, `synthesis-no-change.txt`, `synthesis-questions-quoted-reviewer.txt`, `synthesis-questions.txt`.
+
 ## 2026-08-11
 
 ### Added
