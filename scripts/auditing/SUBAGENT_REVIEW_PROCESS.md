@@ -124,11 +124,13 @@ A review is acceptable when all seven hold. Gate 1 can only be satisfied by a su
 
 A verdict is recorded by executing `scripts/auditing/review-result.sh` with `--status` set to the outcome, once, when the review (or the synthesis pass) is finished. That execution is what files the result and writes the call's verdict file; the matching prose status line below is commentary for the reader, not the record — a call that only writes prose leaves no result on record and the runner falls back to classifying that prose, landing safety for that path only.
 
+<!-- parity:verdict-enum:start -->
 - `--status no-change` (stated in prose as `REVIEW_STATUS: NO-CHANGE`) — the skill already meets the bar. A successful outcome, not a reason to find something to add.
 - `--status changed` (stated in prose as `REVIEW_STATUS: CHANGED`) — edits applied, subtraction included.
 - `--status questions` (stated in prose as `QUESTIONS`) — blocked on ambiguity; the runner marks the skill failed and the operator resolves it.
 
 Alongside `--status no-change` or `--status changed`, the call always carries `--differentiation` and `--removals`, matching the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4 stated in prose, written as `none`/no removals when there are none. `--status questions` forbids both flags; `QUESTIONS` ends the review immediately and its prose carries neither `DIFFERENTIATION` nor `REMOVAL PROPOSALS`.
+<!-- parity:verdict-enum:end -->
 
 `READ_PROOF` travels as `review-result.sh`'s `--read-proof` argument, not as a prose line. The runner selects one challenge line per skill from `SKILL.md` before dispatching any arm, writes it to `$LOGDIR/<skill>.readproof`, and requires each reviewer arm's call to carry that line verbatim as the `--read-proof` value, proving the file was actually read rather than assumed. An arm whose verdict file carries no `READ_PROOF` key, or whose value does not match, is recorded as a failed arm (`read-proof absent` / `read-proof mismatch`) and blocks the skill before synthesis, regardless of what outcome its verdict file or prose says. The synthesis call passes no `--read-proof`; it reads reviewer artifacts, not `SKILL.md`.
 

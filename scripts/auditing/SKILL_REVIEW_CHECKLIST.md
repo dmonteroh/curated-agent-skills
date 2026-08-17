@@ -134,10 +134,14 @@ Every check name `scripts/audit_skills.py` can emit, and the section above that 
 
 This checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
 
-Exactly one status line ends a review:
+<!-- parity:verdict-enum:start -->
+A verdict is recorded by running `review-result.sh` with `--status no-change|changed|questions`, once, when the review is finished. A status written as prose is commentary for the reader, not the record: it records nothing, and a review that only writes prose leaves no result on record.
 
-- `REVIEW_STATUS: NO-CHANGE` — the skill meets the bar. A first-class outcome.
-- `REVIEW_STATUS: CHANGED` — edits applied.
-- `QUESTIONS` — blocked on ambiguity. Do not guess.
+- `--status no-change` — the skill meets the bar. A first-class outcome.
+- `--status changed` — edits applied.
+- `--status questions` — blocked on ambiguity. Do not guess.
 
-Alongside `REVIEW_STATUS: NO-CHANGE` or `REVIEW_STATUS: CHANGED`, always: the `DIFFERENTIATION:` line from §3 and a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `QUESTIONS` ends the review immediately; it carries neither.
+Alongside `--status no-change` or `--status changed`, always: `--differentiation`, matching the `DIFFERENTIATION:` line from §3, and `--removals`, matching a `REMOVAL PROPOSALS:` block from §4, written as `none` when there are none. `--status questions` takes neither flag; it ends the review immediately.
+
+A reviewer arm also passes `--read-proof`, reproducing the challenge line the runner selected from `SKILL.md` verbatim on the same line; the synthesis call passes none.
+<!-- parity:verdict-enum:end -->

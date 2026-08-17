@@ -33,12 +33,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CHECKLIST_PATH = REPO_ROOT / "scripts" / "auditing" / "SKILL_REVIEW_CHECKLIST.md"
 PROCESS_DOC_PATH = REPO_ROOT / "scripts" / "auditing" / "SUBAGENT_REVIEW_PROCESS.md"
 REVIEWER_PROMPT_PATH = REPO_ROOT / "scripts" / "auditing" / "reviewer-prompt.md"
+SYNTHESIS_PROMPT_PATH = REPO_ROOT / "scripts" / "auditing" / "synthesis-prompt.md"
+RESULT_TOOL_PATH = REPO_ROOT / "scripts" / "auditing" / "review-result.sh"
 
-MARKER_RE = re.compile(r"^<!-- parity:([a-z][a-z-]*):(start|end) -->\s*$", re.M)
+MARKER_RE = re.compile(r"^(?:#\s*)?<!-- parity:([a-z][a-z-]*):(start|end) -->\s*$", re.M)
 BACKTICK_RE = re.compile(r"`([^`]+)`")
 TABLE_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*§(\d+)\s*\|")
 SECTION_HEADING_RE = re.compile(r"^## (\d+)\.", re.M)
 BULLET_RE = re.compile(r"^- ")
+STATUS_FLAG_RE = re.compile(r"--status\s+<?([a-z][a-z-]*(?:\|[a-z][a-z-]*)*)>?")
+SHELL_ALTERNATION_RE = re.compile(r"^\s*\(?([a-z][a-z-]*(?:\|[a-z][a-z-]*)+)\)", re.M)
+
+# Members extracted by heading span (to end of file) instead of a marker
+# pair. synthesis-prompt.md's render step substitutes placeholders with no
+# marker-strip, so a marker there would be dispatched verbatim.
+HEADING_SPAN_MEMBERS = {"SYNTHESIS_PROMPT_PATH": "## Output"}
 
 FAMILY_LABELS = {
     "canonical-headings": (
@@ -71,6 +80,17 @@ PROSE_FAMILIES = {
         ],
         "canonical": ("SKILL_REVIEW_CHECKLIST.md §4", 5),
     },
+    "verdict-enum": {
+        "declared": frozenset({"no-change", "changed", "questions"}),
+        "flag_anchors": ("--differentiation", "--removals"),
+        "members": [
+            ("SKILL_REVIEW_CHECKLIST.md \"Verdicts\"", "CHECKLIST_PATH", "status-flag"),
+            ("SUBAGENT_REVIEW_PROCESS.md \"Verdicts\"", "PROCESS_DOC_PATH", "status-flag"),
+            ("reviewer-prompt.md Output block", "REVIEWER_PROMPT_PATH", "status-flag"),
+            ("synthesis-prompt.md \"Output\"", "SYNTHESIS_PROMPT_PATH", "status-flag"),
+            ("review-result.sh --status enum", "RESULT_TOOL_PATH", "shell-alternation"),
+        ],
+    },
 }
 
 
@@ -94,6 +114,8 @@ class ProseMemberResult(NamedTuple):
     missing: tuple[str, ...]
     duplicated: tuple[str, ...]
     bad_bullet_count: tuple[int, int] | None = None
+    unexpected: tuple[str, ...] = ()
+    missing_flags: tuple[str, ...] = ()
 
 
 class ProseFamilyResult(NamedTuple):
@@ -114,6 +136,14 @@ def _region_lines(text: str, family_id: str) -> list[str]:
         raise ParityExtractionError(family_id, "end marker before start marker")
     region = text[start.end():end.start()]
     return region.splitlines()
+
+
+def _heading_span(text: str, heading: str, family_id: str) -> list[str]:
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if line.strip() == heading:
+            return lines[i + 1:]
+    raise ParityExtractionError(family_id, f"heading {heading!r} not found")
 
 
 def _family3_members(lines: list[str]) -> set[str]:
@@ -172,16 +202,55 @@ def _normalize(lines: list[str]) -> str:
     return text.lower()
 
 
+def _extract_tokens(kind: str, lines: list[str]) -> frozenset[str]:
+    if kind == "shell-alternation":
+        matches = SHELL_ALTERNATION_RE.finditer("\n".join(lines))
+    else:
+        matches = STATUS_FLAG_RE.finditer(_normalize(lines))
+    tokens: set[str] = set()
+    for m in matches:
+        tokens.update(m.group(1).split("|"))
+    return frozenset(tokens)
+
+
 def check_prose_family(family_id: str) -> ProseFamilyResult:
     spec = PROSE_FAMILIES[family_id]
-    anchors = spec["anchors"]
-    canonical_label, canonical_count = spec["canonical"]
+    declared = spec.get("declared")
+    flag_anchors = spec.get("flag_anchors", ())
+    anchors = spec.get("anchors")
+    canonical_label, canonical_count = spec.get("canonical", (None, None))
     member_results = []
     ok = True
-    for label, const_name in spec["members"]:
+    for member in spec["members"]:
+        label, const_name = member[0], member[1]
+        kind = member[2] if len(member) > 2 else None
         path = globals()[const_name]
         text = path.read_text(encoding="utf-8")
-        lines = _region_lines(text, family_id)
+        heading = HEADING_SPAN_MEMBERS.get(const_name)
+        lines = _heading_span(text, heading, family_id) if heading else _region_lines(text, family_id)
+
+        if declared is not None:
+            tokens = _extract_tokens(kind, lines)
+            missing = declared - tokens
+            unexpected = tokens - declared
+            missing_flags: tuple[str, ...] = ()
+            if kind != "shell-alternation":
+                normalized = _normalize(lines)
+                missing_flags = tuple(f for f in flag_anchors if f not in normalized)
+            member_ok = not missing and not unexpected and not missing_flags
+            ok = ok and member_ok
+            member_results.append(
+                ProseMemberResult(
+                    label,
+                    tuple(sorted(missing)),
+                    (),
+                    None,
+                    tuple(sorted(unexpected)),
+                    missing_flags,
+                )
+            )
+            continue
+
         normalized = _normalize(lines)
         missing = []
         duplicated = []
@@ -207,7 +276,13 @@ def check_prose_family(family_id: str) -> ProseFamilyResult:
 def _report_prose(result: ProseFamilyResult) -> None:
     print(f"PARITY FAIL: {result.family_id}")
     for member in result.members:
-        if not member.missing and not member.duplicated and member.bad_bullet_count is None:
+        if (
+            not member.missing
+            and not member.duplicated
+            and member.bad_bullet_count is None
+            and not member.unexpected
+            and not member.missing_flags
+        ):
             continue
         parts = []
         if member.missing:
@@ -217,6 +292,10 @@ def _report_prose(result: ProseFamilyResult) -> None:
         if member.bad_bullet_count is not None:
             actual, expected = member.bad_bullet_count
             parts.append(f"bullet count {actual} != expected {expected}")
+        if member.unexpected:
+            parts.append(f"unexpected {list(member.unexpected)}")
+        if member.missing_flags:
+            parts.append(f"missing-flags {list(member.missing_flags)}")
         print(f"  member {member.label}: " + " ".join(parts))
 
 
