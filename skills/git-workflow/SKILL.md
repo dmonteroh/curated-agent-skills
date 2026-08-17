@@ -30,6 +30,7 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - Recovering lost work (reflog, reset, restore).
 - Running archaeology (bisect) to find a regression.
 - Working on multiple branches in parallel (worktrees).
+- Merging a PR via `gh pr merge` and confirming the merge actually landed.
 
 ## Do not use this skill when
 
@@ -78,6 +79,8 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - Using `git push --force` instead of `--force-with-lease`.
 - Losing uncommitted changes before a reset (stash or commit first).
 - Forgetting to set or verify the upstream branch before pushing.
+- Retrying `gh pr merge` after it exits non-zero. The merge can already have succeeded server-side before the client-visible failure (cited: `cli/cli#3442`, `cli/cli#13380`) — a blind retry can then error confusingly against an already-merged PR. On any non-zero exit, stop and query authoritative PR state instead of retrying, e.g. `gh pr view <number> --json state,mergedAt,mergeCommit,mergeStateStatus`, and decide the next step from that, never from the exit code alone.
+- Proving a PR merged with `git merge-base --is-ancestor <head_sha> origin/<base>`. GitHub's squash and rebase merges deliberately create a *new* commit on the base branch, so the original PR head SHA is never an ancestor of it even when the PR merged cleanly — this check gives a false negative on exactly the two merge strategies most teams use. Confirm merge state from `gh pr view`/`gh api` output instead, never from an ancestor check.
 
 ## Scripts
 

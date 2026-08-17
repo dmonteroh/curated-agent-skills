@@ -21,6 +21,7 @@ Core capabilities:
 - Standardizing documentation structure across a repo.
 - Setting up doc automation (indexing, link checks, doc freshness).
 - Producing a long-form system manual from an existing codebase when needed.
+- Auditing which docs a shipped or in-flight change still needs, and filling those gaps.
 
 ## Do not use this skill when
 
@@ -115,6 +116,54 @@ Output: checklist for doc freshness, link checks, and index updates.
 Decision points:
 - If CI tooling is unavailable, provide manual run steps instead.
 
+## Diataxis coverage pass over a diff
+
+Applies when the trigger is a change rather than a whole repo: it turns "are the docs stale?" from a judgment call into a checkable table. Diataxis is Daniele Procida's documentation framework (`diataxis.fr`); the four quadrants below are its terms.
+
+1) **Extract the surface.** Walk the diff against the base branch and list the new or changed public surface as a flat entity list: commands, flags, config options, API endpoints, exported modules.
+2) **Score every entity against all four quadrants.** The quadrants are defined by reader intent, not by writing style:
+   - reference — "what is the exact signature of Y?"
+   - how-to — "how do I accomplish Y using X?"
+   - tutorial — "walk me through X for the first time"
+   - explanation — "why does X exist?"
+3) **Classify gaps mechanically, not by feel.** Zero coverage on a required quadrant is a critical gap. Reference-only coverage is a common gap, and the most frequent real one: engineers in build mode default to writing reference, and nobody volunteers the explanation doc, so explanation rot accumulates fastest.
+4) **Read the required quadrants off the entity type.** Requirements vary by type rather than applying uniformly — see the matrix below.
+5) **Publish the gaps where a reviewer will see them.** Write the detected gaps into the pull request body as a distinctly labelled subsection, one line per entity, each tagged with the quadrant that would close it (for example: `FooProcessor — zero coverage. Diataxis quadrants: reference, explanation.`). A gap recorded only in the agent's own output is a gap that ships.
+6) **Generate in dependency order: reference, then explanation, then how-to, tutorials last.** Reference fixes the vocabulary the other docs reuse, explanation justifies the design, how-tos build on both, and tutorials are the hardest to write well. This ordering is the originating source's stated design rationale, not a measured result.
+7) **Never mix quadrants inside one file.** A tutorial gets no "Configuration" section; a reference doc gets no "What you'll build" framing. A file that seems to need both is two files.
+
+**Entity type to required quadrants**
+
+| Entity type | Tutorial | How-to | Reference | Explanation |
+| --- | --- | --- | --- | --- |
+| New feature a user interacts with | Yes | Yes | Yes | Maybe |
+| CLI command or flag | Maybe | Yes | Yes | No |
+| Internal module / architecture | No | No | Yes | Yes |
+| Config option | No | Yes | Yes | No |
+| Design pattern / philosophy | No | No | No | Yes |
+| API endpoint | Maybe | Yes | Yes | No |
+| Workflow (multi-step process) | Yes | Yes | No | Maybe |
+
+"Maybe" is a third state, not a soft yes: produce that quadrant when the entity is user-facing or non-obvious, and do not count its absence as a gap.
+
+**Worked coverage table**
+
+| Entity | Entity type | Tutorial | How-to | Reference | Explanation |
+| --- | --- | --- | --- | --- | --- |
+| `--retry-budget` flag | CLI command or flag | not required | gap | existing | not required |
+| `FooProcessor` | Internal module | not required | not required | gap | gap |
+| Scheduled export | New feature a user interacts with | gap | existing | existing | not required |
+
+Cells carry one of four values: `existing` (the quadrant is already covered and still accurate), `gap` (required by the entity type and absent), `not required` (the matrix does not ask for it), and `new` once this pass has written the doc that closes the gap. A `Maybe` cell in the matrix resolves to `existing` or `not required` for that entity — never to `gap`. `FooProcessor` above has no coverage at all: that is the critical case, and it is the row that must reach the PR body. A row reading `existing` under Reference and `gap` everywhere else is the common case.
+
+Output: the coverage table, the gap list published to the PR body, and the docs generated to close the gaps.
+
+Decision points:
+- If there is no diff or base branch to scope against, use the repo-wide workflow above instead.
+- If the scored quadrant disagrees with the author's judgment, the audit is a guide, not a constraint: override the tag by hand and record why in the plan.
+
+Per-quadrant writing templates and the rules that govern each: `references/quadrant-templates.md`.
+
 ## Common pitfalls
 
 - Drafting docs without evidence (prefer code/config/tests as truth).
@@ -149,6 +198,7 @@ Script paths below are relative to this skill's folder. Run each script from the
 ## References
 
 - `references/README.md` for detailed templates and playbooks.
+- `references/quadrant-templates.md` for the reference, explanation, how-to, and tutorial document templates used by the coverage pass, plus the cross-quadrant link sweep run before landing a generated set.
 
 ## Output contract
 

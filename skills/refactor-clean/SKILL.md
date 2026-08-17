@@ -37,6 +37,7 @@ Provides a workflow to refactor code with small diffs, stable behavior, and fast
 2) Establish a safety net
    - If tests exist, run the most relevant subset.
    - If tests are missing, add minimal characterization tests for refactor seams.
+   - If the refactor closes a deprecated write path (redirecting writes to a corrected owner, even if the old target stays legitimately readable during a deprecation window), add a grep-based test asserting no file outside a named allowlist still writes to it, landed in the same change as the fix — a closed path with no tripwire is one copy-paste away from reopening.
    - Output: list of tests to run and any new tests added.
 
 3) Identify hotspots

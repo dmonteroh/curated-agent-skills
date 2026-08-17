@@ -6,3 +6,4 @@ Use this index to locate deeper guidance referenced by `SKILL.md`.
 - `references/index-format.md`: ADR index table format and update rules.
 - `references/quality-gates.md`: Quality checks before finalizing an ADR.
 - `references/sdd-integration.md`: How to link ADRs to specs/tracks/tasks after acceptance.
+- `references/tabling.md`: Template and checklist for shelving a blocked-but-sound decision as `Tabled`.

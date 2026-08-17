@@ -14,6 +14,7 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 
 - Making a decision that affects architecture boundaries, persistence, auth/security posture, API style, reliability/SLOs, scaling, or major vendor/tool choices.
 - Changing a previously accepted architectural decision (create a new ADR that supersedes the old one).
+- Shelving a decision that is sound and reviewed but blocked by something outside the team's control (table it instead of rejecting it or leaving it proposed).
 
 ## Do not use this skill when
 
@@ -24,7 +25,7 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 - ADR directory: docs/adr/
 - ADR index: docs/adr/README.md
 - File naming: `ADR-XXXX-short-title.md` (XXXX is zero-padded)
-- Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
+- Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded; Tabled is a distinct, reversible status (Step F)
 
 ## Required inputs
 
@@ -70,8 +71,9 @@ If there is only 1 realistic option, explicitly justify why.
 ### Step D: Record the decision
 
 Output: a MADR document that includes:
+- Title stated as the question and its answer, not a bare topic label, so the outcome is scannable without opening the body
 - Decision and rationale tied to drivers
-- Consequences (positive and negative)
+- Consequences (positive and negative), tagged to the review pass that surfaced a point when that source is known
 - Risks and mitigations
 - Follow-ups (implementation notes or tasks)
 
@@ -85,18 +87,40 @@ Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 - If changing direction: create a new ADR and mark it as superseding the old one.
 - The old ADR remains as historical context.
 
-### Step F: Update the ADR index in the same change
+### Step F: Table a decision instead of leaving it vague, when it is blocked
+
+Output: an ADR with status `Tabled` — sound and reviewed, but blocked by something outside the team's control. Distinct from `Rejected` (permanent, no path back) and from staying `Proposed` (nothing was settled yet). Tabling turns a blocked-but-sound decision into a resumable artifact instead of either a deleted investigation or a vague "someday" note.
+
+Required in the ADR body:
+- **The blocker, cited concretely.** Point at falsifiable, external, re-checkable evidence, not an internal assertion that "this turned out to be hard" — a documented capability/API gap quoted from its source, a tracked upstream issue (numbered, with its current state), and, where a workaround might exist, a specific check that it was verified and does not clear the bar.
+- **The cost of tabling.** State explicitly what was and wasn't spent (code written or not, research time, artifacts produced). That cost is what justifies keeping the tabled artifact intact instead of deleting it.
+- **The settled sub-decisions, preserved, not just the pitch.** Keep the decisions that took real review effort to reach, not only the summary, so a future resumer does not re-litigate settled ground from scratch.
+- **The un-tabling trigger, tied to something external and independently checkable.** Name the specific event that clears the blocker — an issue closing, a changelog entry, a released capability — not an open-ended "revisit later".
+- **An ordered un-tabling checklist**, run only when the trigger fires, in exactly this sequence:
+  1. Re-confirm the blocking assumption's real current shape. Read whatever changed (an updated API doc, a shipped capability, a closed issue's resolution), capture a concrete example of the new reality, and record it.
+  2. Re-check that the original premise still holds under that reality — does what made the decision worth pursuing still apply in full, or only a narrower slice of it? If narrower, the pitch needs revisiting before implementation, not just the plan.
+  3. Re-run the review that originally vetted the decision, against the *revised* plan, not the frozen one. Most prior findings should carry forward; adjust only what depended on the blocked capability's exact shape.
+  4. If a second, independent review also vetted the original decision, re-run that one too, the same way: concerns tied purely to the now-resolved blocker should disappear, while concerns independent of it still apply and still need addressing.
+  5. Only then execute the original plan.
+
+  This order is load-bearing: re-verifying the blocker before the premise before the review(s) before execution prevents resuming work on top of an assumption that quietly changed shape while shelved.
+- **Tabling is distinct from rejection**, even within the same document: alternatives considered and permanently declined carry no re-trigger and are not resumable; a tabled main path is. File the two under different statuses.
+
+Template and worked structure: `references/tabling.md`.
+
+### Step G: Update the ADR index in the same change
 
 Output: update docs/adr/README.md to include the new/updated ADR metadata and links.
 Use `references/index-format.md` for the index table format and update rules.
 
-### Step G: Self-check pitfalls
+### Step H: Self-check pitfalls
 
 Output: a short checklist of “done” confirmations.
 - Every section in the template is present (no missing headings).
 - Decision drivers are ranked and referenced in the rationale.
 - Consequences include at least one tradeoff.
 - Supersedes section present when replacing an accepted ADR.
+- If tabled: blocker cited concretely, cost of tabling recorded, and an ordered un-tabling checklist present.
 
 ## Output contract (always report)
 
@@ -154,6 +178,8 @@ Script verification:
 - Missing links back to the motivating spec/track/task.
 - Skipping decision drivers and ending up with untraceable rationale.
 - Forgetting to update the ADR index in the same change.
+- Filing a blocked-but-sound decision as `Rejected` (loses the resumable path) or leaving it `Proposed` indefinitely (loses the fact it was already decided) instead of tabling it.
+- Tabling a decision without a concrete, external, re-checkable blocker — "this turned out to be hard" is not a citation.
 
 ## Examples
 

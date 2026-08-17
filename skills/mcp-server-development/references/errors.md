@@ -20,3 +20,7 @@
 - Invalid filter: “Valid values: active|archived. Try filter=active.”
 - Too many results: “Use query=... or limit=20; results are capped.”
 
+## Closed code sets for pluggable backends
+
+When the server wraps an optional or swappable backend provider, give that layer its own closed, enumerated `code` set instead of open-ended exception types, and designate exactly one code as the non-fatal "degrade and continue" signal callers are expected to catch — every other code is fatal to that call. Full contract: `provider-contracts.md`.
+

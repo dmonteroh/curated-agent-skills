@@ -19,6 +19,7 @@ Use this as a pre-merge checklist for ADRs created with `adr-madr-system`.
 - Accepted ADRs are not rewritten to change the decision/rationale (except trivial typos if your repo allows it).
 - ADR index entry is updated in the same change.
   - Prefer managing the index via a managed block and `scripts/update_index.sh` for deterministic multi-agent updates.
+- If tabling a decision instead of accepting or rejecting it, the ADR states status `Tabled`, cites the blocker concretely, records the cost of tabling, preserves the settled sub-decisions, and carries the full ordered un-tabling checklist. See `references/tabling.md`.
 
 ## Multi-agent hygiene
 

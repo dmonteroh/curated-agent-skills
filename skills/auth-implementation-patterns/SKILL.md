@@ -15,6 +15,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Adding OAuth2/social login or SSO
 - Designing session management or RBAC
 - Debugging authentication or authorization issues
+- Exposing a local, already-trusted capability (an agent daemon, dev tool, or CLI) to a remote or third-party caller
 
 ## Do not use this skill when
 
@@ -41,6 +42,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 2. The skill selects an authentication strategy with explicit decision points.
    - If the system is browser-first with server-rendered pages, prioritize session-based auth with secure cookies.
    - If the system is API-first or multi-service, prioritize JWT access tokens with refresh or OAuth2/OIDC.
+   - If a local, already-trusted process is being exposed to a remote or third-party caller (the caller may act on untrusted instructions), treat it as a distinct threat model from client-server web auth: separate the surfaces by socket rather than by an authorization check (a private listener with the full command set, a second listener with a locked path allowlist), put a command allowlist on the exposed listener that denies management commands outright, issue a token ladder with descending power and TTL and reject the top of the ladder if it ever arrives on the exposed surface, and grant capability through a small set of named tiers with the highest tier(s) gated behind an explicit action rather than auto-escalated — see `references/remote-capability-exposure.md` for the full pattern.
    - Output: Strategy decision and chosen flow.
 3. The skill designs the token/session lifecycle and validation rules.
    - If using tokens, define issuer/audience, expiry, refresh, revocation, and rotation.
@@ -65,6 +67,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Missing rotation or revocation strategy for refresh tokens.
 - Ignoring CSRF protection for cookie-based sessions.
 - Conflating authentication with authorization checks at boundaries.
+- Gating a powerful local surface with a single authorization check instead of separating it by transport — a routing bug can bypass a check, but cannot make a caller reach a path that does not exist on the listener it connected to.
 
 ## Output contract
 

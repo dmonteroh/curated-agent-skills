@@ -2,6 +2,7 @@
 
 ## Index
 
+- `finding-triage.md` - False-positive suppression: confidence scale and mode-bound gate, exclusion ledger with carve-backs, standing precedents, anti-anchoring verification, the quote-the-line gate, filter stats and fingerprints.
 - `devsecops-and-testing.md` - DevSecOps automation, testing layers, validation practices.
 - `identity-and-appsec.md` - Authentication, authorization, OWASP risks, secure coding.
 - `cloud-infrastructure.md` - Cloud posture, IAM, network, and infrastructure controls.

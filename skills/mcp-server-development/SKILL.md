@@ -54,6 +54,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - HTTP client + auth; pagination helpers; retry/backoff policy (if applicable).
 - Response formatting helpers (concise vs detailed).
 - Centralized error normalization.
+- If the server wraps one or more optional, swappable backend providers, give them a capability contract: define a small required-op set plus a separate optional-op set (the required set is the honest common denominator across expected providers, not the richest provider's feature list); providers advertise exactly what they back, asserted at construction; an unadvertised call throws a typed error, never a silent no-op; and give that layer a closed, enumerated error-code set with exactly one code designated the non-fatal "degrade and continue" signal, every other code fatal to that call (`references/provider-contracts.md`).
 - Output: Reusable helper modules and integration notes.
 
 6) Add evaluations early
@@ -68,6 +69,8 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - If inputs are ambiguous, add enum constraints and example values.
 - If tool output exceeds a page, add pagination and a summary-only response mode.
 - If auth or permissions are unclear, add an explicit “permission_check” tool before destructive actions.
+- If the server can run with a backend provider disabled or unselected, the resolver returns `null` for "no provider" rather than a stub or mock — callers get an explicit, checkable off state, and the server stays fully functional with the provider off (`references/provider-contracts.md`).
+- If a provider can operate non-locally (network egress), gate every capability call on explicit consent inside the contract itself, not left to each call site: installing/enabling the provider and letting it receive content are two separate axes, and neither is ever auto-granted; a provider that runs entirely locally has nothing to consent to on the egress axis (`references/provider-contracts.md`).
 
 ## Common pitfalls
 
@@ -76,6 +79,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - Missing stable identifiers in responses.
 - Throwing raw upstream errors with no guidance.
 - Skipping evals until after integration.
+- Letting a missing optional capability silently no-op instead of throwing a typed error — a silent no-op is indistinguishable from "ran and legitimately found nothing," which corrupts every caller's ability to reason about the result.
 
 ## Output Contract (Always)
 
@@ -106,6 +110,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - Tool design principles and checklists: `references/tool-design.md`
 - Schema + output conventions: `references/contracts.md`
 - Error handling patterns: `references/errors.md`
+- Optional-capability provider contract: `references/provider-contracts.md`
 - Evaluation playbook: `references/evals.md`
 - Protocol quick reference: `references/protocol-quickref.md`
 - Python SDK notes: `references/python-sdk-notes.md`

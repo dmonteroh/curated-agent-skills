@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling). Includes an optional safe-by-default review script to summarize diffs, scan for risky patterns, and produce a deterministic report."
+description: "Provides high-signal, fast code review with selectable modes (quality, security, performance, tooling), triage of a third-party review bot's comments, an optional blind second-opinion pass, and stop conditions when the review applies its own fixes. Includes a safe-by-default script to scan diffs and produce a deterministic report."
 metadata:
   category: workflow
 ---
@@ -19,11 +19,15 @@ It replaces overlapping code-review skills by providing explicit review modes:
 - Reviewing pull requests, diffs, or local changes.
 - Establishing code review standards for a team.
 - Auditing for correctness, security, performance, or maintainability before merge/release.
+- A third-party review bot has already commented on the diff and its comments need triage.
+- A second, independent reviewer is available and the two reviews need to be combined.
+- The review is authorized to apply its own findings to the working tree and needs stop conditions.
 
 ## Do not use this skill when
 
 - There are no code changes to review.
 - The request is to implement a feature (review can be a follow-up).
+- A hard, automatic merge gate is what is wanted: the scan in step 3 is advisory by construction and exits zero whatever it finds. Blocking rules belong in the project's CI configuration.
 
 ## Required inputs
 
@@ -43,7 +47,7 @@ It replaces overlapping code-review skills by providing explicit review modes:
 2) Review manually using the mode checklists:
 - `references/checklists.md`
 
-## Workflow (best performance, best results)
+## Workflow
 
 ### 1) Establish review context
 
@@ -72,11 +76,47 @@ Output:
 - If project tooling exists, run it (tests/linters). If not available, note it.
 - If `git` is unavailable, document that the scan used a full-repo fallback.
 
+Wiring rules for any advisory scanner used here — this skill's script or a project's own:
+
+- Mark its output INFORMATIONAL and keep it out of the pass/fail decision. It rides inside this step's report section; it never becomes its own pipeline stage, and it never gets a row in a review-readiness or gating dashboard. Those dashboards track reviews that are run and then pass or fail; a diagnostic that cannot fail has no status to show there.
+- Report it as a delta against the base ref — findings this diff introduced and findings it removed (`+2 new / -3 removed`) — not as an absolute count over the tree. A delta is attributable to the diff under review; an absolute count is not, because it also counts hits that predate the change.
+- Exit zero regardless of what the scan finds. A nonzero exit turns the diagnostic into a gate, whatever its documentation says.
+- If the tool is not installed or not runnable, omit its section silently: no warning line, no degraded-mode banner. Availability of an advisory tool is not a review finding.
+
+The bundled `scripts/review.sh` scan reports hits on the changed files as they currently stand; it does not compute the delta itself. Where a delta is required, produce the same hit set for the base version of those files — from a checkout or worktree at the base ref — and subtract. Where that is not possible, label the figure an absolute count — never present a whole-tree count as if it were attributable to this diff.
+
 Output:
 - scan artifacts paths
+- scan delta (new / removed) against the base ref
 - tooling results or missing-tool notes
 
-### 4) Manual review by mode
+### 4) Triage third-party review-bot comments
+
+Applies when another automated reviewer has already commented on the diff. Triage every open comment before writing findings — untriaged bot comments pile up until the whole stream gets ignored, which costs the team the tool. Do not pass the comments through raw, and do not dismiss them in bulk.
+
+Put each open comment in exactly one bucket:
+
+- **Valid** — fold it into this review's own findings at this review's severity scale and fix it before merge. It stops being a separate comment stream at that point.
+- **Already fixed** — reply naming the commit that fixed it. Identify that commit before replying (for example, search history for the change to the cited lines). If no commit can be named, the comment does not belong in this bucket.
+- **False positive** — never auto-dismiss and never auto-reply. Draft the reply explaining why the comment does not apply, present it to a human next to the alternative of accepting the comment, and send only after the human confirms.
+
+Keep a false-positive history file checked into the repository under review, at a fixed path recorded in the project's own docs so every run finds the same file. Append one entry per human-confirmed false positive, recording what a later run must match on — the bot's rule identifier and the code pattern it fired on — plus why it does not apply. Decide and write down that match criterion when the file is created: an entry is reusable only if a later run can decide "same pattern as before" from what is written in it.
+
+On later runs, check each new bot comment against the history first and skip the ones matching a recorded entry, noting the skip in the report instead of replying again.
+
+Count triage outcomes each run (valid / already fixed / false positive) and keep the running totals alongside the history. The bot's precision then becomes a counted trend rather than an impression, and a tool whose precision keeps falling can be argued about with numbers.
+
+Decision points:
+- If a bot comment is valid and no first-party finding covers it, it becomes a finding with its own severity, not a footnote.
+- If the human rejects a drafted false-positive reply, the comment moves to the valid bucket and no history entry is written.
+
+Output:
+- a bucket for every open bot comment, plus the list skipped by history match
+- valid comments merged into the findings list
+- drafted false-positive replies awaiting human confirmation
+- new history entries appended, and this run's triage counts
+
+### 5) Manual review by mode
 
 Pick one or more modes and follow the corresponding checklist:
 - `quality` (default)
@@ -93,17 +133,61 @@ Output:
 - mode-specific notes
 - draft findings list with severity
 
-### 5) Produce feedback in a deterministic format
+### 6) Second-opinion pass
+
+Optional, and worth running only under one constraint: the second reviewer must not see the first review's findings. Blindness is what makes agreement evidence. A reviewer that read the first review and then agreed with it has confirmed nothing — record that as a re-read, not as a second opinion.
+
+- Back the second pass with a different underlying model, or with a human. Two runs of the same model over the same diff share the same blind spots, so their overlap measures little.
+- Give the second pass the same diff and the same change intent, and nothing else from the first pass.
+- Have each pass grade its own findings on the severity scale in `references/output-format.md` and return one verdict: PASS or FAIL. Any BLOCKER means FAIL, mechanically, however the rest of the review reads — the verdict is computed from the findings, never judged after them.
+
+Split the two finding sets three ways and report them as three lists, never merged into one:
+
+- **Overlap** — both passes flagged it. Highest confidence; work these first.
+- **Unique to the first pass** and **unique to the second pass** — one reviewer saw it and the other did not. These are the reason for running two passes at all: they are where each reviewer's blind spots show. A finding is not discounted for being single-source; it is triaged like any other.
+
+Combined verdict: FAIL if a BLOCKER appears in either pass. The same rule applied to the union of the two finding sets, so one reviewer failing the diff is enough to fail it.
+
+If no second reviewer is available, skip this step and say so in the report. A single-pass review is a complete review; a simulated second opinion — the same reviewer re-reading its own output — is not one, and must never be reported as overlap.
+
+Output:
+- per-pass verdicts
+- the three finding lists (overlap, unique to each pass)
+- combined verdict, or a note that only one pass ran
+
+### 7) Produce feedback in a deterministic format
 
 Use `references/output-format.md`.
 
-### 6) Finalize report
+### 8) Finalize report
 
 Output:
 - ordered findings by severity
 - open questions / assumptions
 - suggested follow-ups
 - short change summary
+
+## Applying fixes to the working tree
+
+Everything above produces a report. When the review is additionally authorized to apply its findings, it does not simply loop over them and edit: an auto-apply loop with no risk tiering and no halt condition is unbounded by construction.
+
+**Classify before applying.** Sort every candidate fix into one of three classes:
+
+- **Free** — mechanically reversible and behavior-preserving: formatting, comments and docstrings, dead-import removal, a rename confined to one file's local scope. Apply without drawing on the budget.
+- **Budgeted** — anything that can change behavior: control flow, error handling, concurrency or ordering, resource lifetimes, query shape, serialization and persistence formats. Each one draws down the risk budget.
+- **Never auto-applied** — public API or wire-format signatures, security-relevant logic, authentication and authorization decisions, migrations touching existing rows, generated or vendored files. Report these; do not edit them.
+
+This three-class split is this skill's own cut for code review, chosen so each class is decidable at the moment the fix is written, not measured against outcome data. A project may re-cut the classes — but it writes the new cut down before the first auto-apply run, not during one.
+
+**Two stop conditions, both required.** An absolute cap on fixes applied per run, and a ceiling on accumulated budgeted-class risk that halts the run and hands control back to a human when crossed. Either one alone leaks: a cap alone admits a long run of individually cheap structural edits, and a risk ceiling alone admits an unbounded number of free-class edits. Neither value has a measured right answer, so this skill states none — choose both before the first auto-apply run and record them with the project's review configuration, as chosen defaults rather than derived thresholds.
+
+**One fix per commit.** Each applied fix lands as its own atomic commit carrying the finding's ID in the subject, e.g. `fix(review): FINDING-014 <what changed>`. That is what makes a single fix revertible without unwinding the rest of the run, and what lets the final report point at one commit per finding.
+
+**Re-verify each fix as it lands**, not once at the end. Re-run the specific check that surfaced the finding — the failing test, the linter rule, the scan pattern, the reproduction — and record its result with the commit. If that check does not pass afterwards, revert that commit and demote the finding to reported-only. A fix whose check was never re-run is reported as applied-unverified; it is never reported as verified.
+
+**Report the counts separately**, with verified as a breakdown of applied: `12 applied (11 verified, 1 best-effort), 4 deferred`. Deferred covers both the never-auto-applied class and anything a stop condition cut off. A single "fixed N findings" figure hides exactly the distinction the reader needs.
+
+**Before auto-applying anything a scanner or linter flagged**, enumerate the patterns that tool legitimately mislabels and exempt them by name. A scanner's flag/no-flag output is not a fix list. Patterns that get flagged and are frequently correct as written: deliberate fire-and-forget calls, catch-and-log where an uncaught error would take the process down, total error suppression on a shutdown or emergency path, and pass-through wrappers kept for API stability. Record that list with the project's review configuration, next to the stop-condition values and keyed to the scanner it covers. Re-derived from memory each run, it exempts a different set each run, and the exemptions stop being reviewable.
 
 ## Common mistakes to avoid
 

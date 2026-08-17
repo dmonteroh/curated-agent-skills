@@ -10,4 +10,5 @@ Load only what matches the current mode/runtime.
 - `runtime-codex.md`: Codex-specific dispatch pattern (`codex exec`).
 - `runtime-claude.md`: Claude model/effort policy, dispatch packet, mode notes, and permission recovery.
 - `packet-templates.md`: task board, worker packet, reviewer packet, and final report templates.
+- `worker-surface.md`: worked contrasts for working directory, authority, tool grant and readiness; the untrusted-context summary shape; the pre-dispatch checklist.
 - `agent-optimization.md`: baseline → improve → validate loop for iterative agent quality work.

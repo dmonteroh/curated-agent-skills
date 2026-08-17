@@ -33,9 +33,12 @@ Stop when the following can be answered:
 For each option:
 
 - One-line description
+- Shape: minimal-viable / ideal-architecture / lateral
+- Effort (in both human and agent units where both are in play)
 - Pros (2-5 bullets)
 - Cons (2-5 bullets)
 - Risks (1-3 bullets)
+- Reuses: existing code, patterns, or infrastructure leveraged
 - When to choose it
 
 ## Design Brief Template

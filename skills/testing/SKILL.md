@@ -125,6 +125,10 @@ Outputs:
 - Slow E2E suites without smoke tests.
 - Retrying tests that hide real failures.
 
+## Static-grep regression tests
+
+When a known-bad state has a cheap, fixed textual signature — a specific literal, or a specific pair of literals that must never co-occur in one file — encode it as a grep-based test instead of relying only on integration coverage or code review. Enumerate the relevant files at test-run time (not a hardcoded list) so new files are covered automatically, generate one test case per file so a failure names the offending file, assert on the textual signature rather than on behavior, and fail with a message that states the concrete fix rather than "invariant violated." This is deliberately cheaper and faster than re-triggering the original failure through a live call or an integration run: no network, no process spin-up, no live credentials. It guards against regressions a future contributor could reintroduce by copy-pasting working code into a sibling file without updating both halves. Recipe and a worked example (a forbidden literal pairing that caused a production failure): `references/static-grep-invariant-tests.md`.
+
 ## Output contract (always report)
 
 Use this format whenever the skill runs:
@@ -169,6 +173,7 @@ Script usage and verification:
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
 - `references/performance-regression.md` (perf budgets + CI gates)
+- `references/static-grep-invariant-tests.md` (grep-based regression tests for known-bad textual signatures)
 - `references/unit-test-generation.md` (fast unit test checklist)
 - `references/tdd-iron-laws.md` (TDD loop + verification discipline)
 - `references/testing-anti-patterns.md` (fast test review heuristics)

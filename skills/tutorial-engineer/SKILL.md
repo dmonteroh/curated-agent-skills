@@ -50,6 +50,53 @@ metadata:
 - If the scope is too large for a single tutorial, propose splitting into modules.
 - If examples are non-runnable, label them as pseudo and explain how to validate.
 
+## Tutorial document template
+
+A tutorial is learning-oriented: it takes a newcomer from zero to a working result. That is a distinct documentation quadrant in Diataxis, Daniele Procida's documentation framework (`diataxis.fr`), and the shape below is what keeps a document inside it.
+
+```markdown
+# [Tutorial title — names what the reader will build or learn]
+
+[Opening paragraph: what they will build, why it is useful, and what they will
+understand by the end. Keep it concrete — "You will build a working X that does Y",
+not "This tutorial covers X".]
+
+## What you'll need
+
+[Prerequisites: tools, versions, prior knowledge. Link to installation guides.]
+
+## Step 1: [Set up the foundation]
+
+[Start from a clean state. Show every command. Explain what each does on first
+encounter, briefly — not a lecture.]
+
+[exact command]
+
+[Brief explanation of what just happened.]
+
+## Step 2: [Build the first working piece]
+
+[Get to a working, visible result as fast as possible.]
+
+...
+
+## Step N: [Final step]
+
+## What you built
+
+[Recap: what the reader now has and what it can do. Link to reference docs for
+deeper exploration. Suggest next steps.]
+```
+
+**Rules**
+
+- Reach a working, visible result within the first few steps. If the reader has not seen something work early, the tutorial is too slow and they abandon it. (The originating source puts that cut-off at three steps; the figure is a chosen default with no measurement behind it, so treat it as a starting point rather than a gate.)
+- Every step produces a visible change or output. No "now configure X" without showing what changed.
+- Use the exact commands the reader will type. No "run the appropriate command" abstractions.
+- Where a step commonly fails, show the error and its fix inline rather than deferring it to a troubleshooting section.
+- End with "What you built", connecting the walkthrough back to the real use case.
+- Carry no "Configuration" section. An exhaustive options or settings listing is reference material; a tutorial that grows one has stopped being a tutorial and should be split, with the tutorial linking out to the reference doc.
+
 ## Constraints
 
 - Avoid assuming network access unless explicitly provided.

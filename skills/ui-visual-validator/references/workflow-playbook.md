@@ -56,6 +56,10 @@ For each goal item:
 - Evidence that it is not achieved (what contradicts the goal).
 - If ambiguous: mark as `needs-evidence` and specify the missing state/viewport.
 
+### Step 3a - Criteria, Trunk Test, And Slop Screen
+
+Before state coverage, classify the surface (marketing / app / hybrid), walk the design criteria for the rule set that classification selects, run the trunk test, and run the AI-slop screen. Report each criterion as met / not met / not observable with the measured value where one was taken, and keep the slop result on its own axis — never averaged into the verdict.
+
 ### Step 4 - State Coverage
 
 For each relevant component/page, confirm visually:

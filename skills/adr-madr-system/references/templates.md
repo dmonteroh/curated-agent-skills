@@ -9,7 +9,7 @@ This skill uses **MADR-style** ADRs stored as individual files (recommended for 
 
 ## Status
 
-Proposed | Accepted | Rejected | Deprecated | Superseded
+Proposed | Accepted | Rejected | Deprecated | Superseded | Tabled
 
 ## Date
 
@@ -65,7 +65,7 @@ Why this option best satisfies the decision drivers (explicitly reference driver
 - Positive:
   - ...
 - Negative:
-  - ...
+  - ... (attribute to the review pass that surfaced it, if known — e.g. "(security review)")
 - Risks:
   - ...
 - Mitigations:
@@ -123,3 +123,7 @@ When replacing an accepted ADR, add this to the new ADR (and update the index):
 
 - ADR-XXXX: <Title>
 ```
+
+## Tabled Block
+
+When shelving a decision that is sound and reviewed but blocked by something outside the team's control — not rejected, not still-undecided — use the dedicated template in `references/tabling.md` instead of the blocks above. A plain `Tabled` status line on its own does not carry the blocker citation, the cost of tabling, the preserved sub-decisions, or the un-tabling checklist that make the shelved decision resumable.

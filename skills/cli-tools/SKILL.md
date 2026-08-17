@@ -61,12 +61,28 @@ Provides guidance for designing and implementing command-line tools that are saf
 - If the command can be destructive, require confirmation or `--yes` for non-interactive runs.
 - If interactive prompts are needed, always provide flag/env fallbacks.
 
+## Numeric flag validation
+
+For a flag that must resolve to a bounded integer (`--retries`, `--concurrency`, `--iterations`), resolve it through a pure decision function — no `process.exit`, no I/O — wrapped by a thin CLI-side layer that is the only place allowed to print and exit. The function takes the raw value plus a spec (`{name, default, min, max?}`) and returns either the resolved value or an error; keeping it pure is what makes the cases below unit-testable without spawning a process.
+
+The cases resolve differently on purpose; the asymmetry is the point (reject low, clamp high):
+
+- **Absent** → the declared default. Silent, no warning.
+- **Bare flag, no value** → hard error naming the flag and the expected shape. Never fall back to the default: a bare flag is very likely operator error, not "use the default."
+- **Non-numeric or non-integer** (`"3.7"`, `"abc"`) → hard error via a strict integer pattern. Never truncate or coerce; silent coercion hides that the operator typed something the tool didn't ask for.
+- **Below the declared minimum** → hard error naming the value and the floor.
+- **Above the declared maximum** → clamp to the maximum and warn on stderr. Recoverable, unlike below-minimum.
+- **Repeated flag** → not this function's job. Document explicitly that the upstream flag parser is last-wins rather than re-implementing resolution here.
+
+Motivating failure: a lenient parse (`parseInt(val)`) turns non-numeric input into `NaN`. Nothing throws — a loop bounded by `i < NaN` evaluates false immediately and runs zero iterations. On a flag that gates paid API calls, the command exits 0 having silently made none of them; the bug is invisible until someone notices no calls happened.
+
 ## Common pitfalls
 
 - Mixing logs with primary output (breaks piping).
 - Inconsistent flags across subcommands.
 - Prompting in CI or non-TTY environments.
 - Non-deterministic output ordering (breaks tests).
+- Coercing invalid numeric flag input into a default or a truncated value (`parseInt(x) || default`) instead of hard-erroring — see Numeric flag validation.
 
 ## Output Contract (Always)
 
@@ -90,6 +106,20 @@ Output
 - stdout: JSON array when --json, table otherwise
 - stderr: validation/errors only
 - exit codes: 0 success, 2 validation, 1 runtime
+```
+
+**Example: numeric flag validation, wrong vs right**
+
+Wrong
+```
+const count = parseInt(flags.count) || DEFAULT_COUNT;
+```
+`--count abc` silently becomes `DEFAULT_COUNT` (masking a typo), and there is no upper bound: `--count 999999` runs unbounded.
+
+Right
+```
+const result = normalizeIntFlag(flags.count, { name: "count", default: DEFAULT_COUNT, min: 1, max: MAX_COUNT });
+// absent -> default; bare/non-numeric/below-min -> hard error; above-max -> clamped value + stderr warning
 ```
 
 ## Reporting format

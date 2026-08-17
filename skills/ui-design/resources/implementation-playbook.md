@@ -26,11 +26,12 @@ Use this when you need a repeatable sequence to turn ambiguous requirements into
 
 4) Apply design system rules (if present)
 - Prefer semantic tokens when they exist.
-- If no design system exists, propose a *minimal* token set and surface stack.
+- If no design system exists, propose a *minimal* token set and surface stack — split into safe choices and deliberate risks, each risk priced with what it gains and what it costs, and stop for the human's pick.
 
 5) A11y + interaction pass
 - Keyboard navigation + focus management.
 - Labels, hit targets, contrast, reduced motion.
+- Run the pre-review gate before hand-off; a failed item is a finding, not a note.
 
 6) Review contract
 - If reviewing code, produce `file:line` findings and a prioritized fix list.
