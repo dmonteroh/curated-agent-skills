@@ -88,7 +88,8 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 - `run_parallel_skill_reviews.sh`
   - Spawns parallel subagent reviews (10 per batch by default).
   - Dispatches one read-only reviewer arm per entry in `REVIEWER_ARMS` (`--arms` selects the set), then one synthesis call that is the run's only writer; applied changes, subtraction included, land under the skill folder at that synthesis step.
-  - Reaps the `KEY=VALUE` verdict file each arm writes via `review-result.sh` (`OUTCOME`, `DIFFERENTIATION`, `REMOVAL_PROPOSALS`), and summarizes weak-differentiation and removal-proposal skills for the operator.
+  - Reviewer arms run at `medium` reasoning effort by default — `--effort` overrides (claude arm via `--effort`, codex arm via `-c model_reasoning_effort`); the codex arm always pins `-c service_tier=default` so priority (speed) processing stays off; `--synthesis-effort` sets the synthesis call's effort (unset by default).
+  - Reaps the `KEY=VALUE` verdict file each arm writes via `review-result.sh` (`OUTCOME`, `DIFFERENTIATION`, `REMOVAL_PROPOSALS`), and summarizes weak-differentiation and removal-proposal skills for the operator; proposal text is recorded to `PROPOSALS.md` via `proposals.py record`.
   - Runs `scripts/audit_skills.py` unconditionally after all subagents complete.
   - Supports targeting specific skills and dry-run planning.
   - Reports per-skill success/failure with log paths.
@@ -96,7 +97,19 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 
 - `review-result.sh`
   - The tool every arm executes to record its verdict. Validates `--status`, `--differentiation`, `--removals` and the optional `--read-proof`, then writes `OUTCOME=`, `DIFFERENTIATION=`, `REMOVAL_PROPOSALS=` and `READ_PROOF=` to `$REVIEW_RESULT_FILE`.
+  - When `$REVIEW_REMOVALS_FILE` is set (the runner sets it on the synthesis call only), a real removals block is written there verbatim; `none` and `--status questions` clear any stale copy.
   - Last call wins: a re-invocation replaces the file rather than appending, and a rejected call leaves the previous contents intact.
+
+- `proposals.py`
+  - The removal-ruling loop. `record` (run by the runner after a pass with proposals) appends each proposal from the `<skill>.synthesis.removals` artifacts to `PROPOSALS.md`, one entry per numbered item, deduplicated by content hash against the ledger and the ids already ruled in `OPEN_ITEMS.md`.
+  - `lint` validates every entry — ruling is `pending`/`approved`/`declined`, text matches its checksum — and reports all problems at once.
+  - `apply` lints first and refuses to act on any problem. Declined entries become rows in `OPEN_ITEMS.md` "Removal rulings"; each approved entry gets one writer dispatch (`apply-prompt.md`; model from the runner's `--print-model-policy` synthesis site, overridable via `--dispatch-cmd`), its diff verified non-empty and inside the skill's own surface, then its row appended and the entry cleared. A rerun is a no-op for everything already resolved; pending entries are never touched.
+
+- `PROPOSALS.md`
+  - The pending-rulings ledger, machine-managed by `proposals.py`; holds only entries awaiting a ruling. The operator edits exactly one thing: each entry's `ruling:` line.
+
+- `apply-prompt.md`
+  - The writer prompt for one approved removal: scoped to `SKILL_DIRECTORY` plus the skill's own trigger-case file, forbidden from re-litigating the ruling, and required to end with `APPLIED:` or `APPLY-BLOCKED:`.
 
 - `review_log.py`
   - Infra-banner detection only. `classify()` takes log text and returns `Classification(outcome=…)`, where `Outcome` is exactly `MALFORMED` or `INFRA-FAILURE`; prose verdict resolution was retired, and the verdict itself comes from the `review-result.sh` file the arm writes.

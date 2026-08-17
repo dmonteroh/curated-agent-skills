@@ -1,5 +1,7 @@
 Task: Review SKILL_DIRECTORY/SKILL.md against the binding quality bar and bring it to that bar. AUTHORITY_TASK
 
+Dispatch context: this run is a dispatched subagent of the repository's review pipeline, and the orchestrator has already handled the CLAUDE.md/AGENTS.md session-bootstrap. Skip every bootstrap step - do not run .agent/scripts/status.sh, do not read .agent/ files - and begin the review immediately.
+
 Read first, in this order:
 - CHECKLIST_PATH - the binding bar. It outranks every other input.
 - OPEN_ITEMS_PATH - calls already settled. Arguing against one of these is wrong, not thorough.

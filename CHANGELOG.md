@@ -16,6 +16,8 @@
 - 19 skills: `adversarial-plan-review`, `agent-feedback-ui`, `agent-harness-portability`, `agent-memory-governance`, `codify-exploration`, `context-budget`, `cross-vendor-delegation`, `daemon-lifecycle`, `delivery-pipeline`, `devex-review`, `doc-sync`, `interruption-budget`, `plan-review`, `pre-publication-sanitization`, `prompt-injection-defense`, `prose-de-slopping`, `research-discipline`, `skill-benchmark-harness`, `tool-output-middleware`.
 - 20 reference files across 14 skills: `api-documenter`, `cloud-architect`, `deployment-engineer`, `devops-engineer`, `doc-generate`, `frontend-design`, `grafana-dashboards`, `performance`, `postgresql-engineering`, `security-auditor`, `subagent-orchestrator`, `terraform-engineer`, `ui-design`, `ui-visual-validator`.
 - 19 trigger-case files in `scripts/auditing/trigger-cases/`, one per skill added above; coverage is now 74 of 74 skills.
+- `scripts/auditing/proposals.py`, with `scripts/auditing/PROPOSALS.md` (pending-rulings ledger) and `scripts/auditing/apply-prompt.md` (writer prompt): removal-ruling loop — `record` appends review proposals to the ledger, `lint` validates rulings and checksums, `apply` executes `approved`/`declined` rulings via a scoped writer dispatch and records them in `scripts/auditing/OPEN_ITEMS.md`.
+- `scripts/tests/test_proposals.py`: tests for the ruling loop.
 
 ### Changed
 
@@ -28,6 +30,10 @@
 - 26 trigger-case files extended for skills whose activation scope widened: `adr-madr-system`, `architect-review`, `backend-architect`, `cdd-context`, `cloud-architect`, `code-review`, `database-architect`, `deployment-engineer`, `devops-engineer`, `doc-generate`, `frontend-design`, `git-workflow`, `grafana-dashboards`, `monitoring-expert`, `performance`, `postgresql-engineering`, `prompt-engineering`, `refactor-clean`, `security-auditor`, `shell-scripting`, `subagent-orchestrator`, `terraform-engineer`, `testing`, `tracks-conductor-protocol`, `ui-design`, `ui-visual-validator`.
 - Frontmatter descriptions: `cdd-context`, `cloud-architect`, `performance`, `terraform-engineer`.
 - `CONTENT_TABLE.md` regenerated.
+- `scripts/auditing/review-result.sh` writes the `--removals` text verbatim to `$REVIEW_REMOVALS_FILE` when that variable is set; `scripts/auditing/run_parallel_skill_reviews.sh` sets it on the synthesis call and runs `proposals.py record` after a pass with proposals.
+- `scripts/auditing/synthesis-prompt.md`: the `--removals` argument carries the removal-proposals block verbatim.
+- `scripts/auditing/run_parallel_skill_reviews.sh`: reviewer arms run at `medium` reasoning effort by default, overridable with `--effort` (claude arm via `--effort`, codex arm via `-c model_reasoning_effort`); `--synthesis-effort` sets the synthesis call's effort (default unset); the codex arm pins `-c service_tier=default`.
+- `scripts/auditing/reviewer-prompt.md`, `scripts/auditing/synthesis-prompt.md`, `scripts/auditing/apply-prompt.md`, `scripts/auditing/run_parallel_skill_reviews.sh`, `scripts/auditing/proposals.py`: dispatched calls carry a session-bootstrap exemption (a `Dispatch context:` preamble in all three prompt assets; claude calls also append it via `--append-system-prompt`).
 
 ### Fixed
 

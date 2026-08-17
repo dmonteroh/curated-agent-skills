@@ -77,5 +77,86 @@ class InfraFailureOrderingTests(unittest.TestCase):
         self.assertNotIn("read-proof mismatch", proc.stdout)
 
 
+class BootstrapExemptionTests(unittest.TestCase):
+    """Dispatched calls must not obey the repo's CLAUDE.md session-bootstrap:
+    measured 2026-08-17, an arm ran status.sh, was silently denied under
+    dontAsk, and burned the run to an empty MALFORMED result. The exemption
+    rides in both prompt assets and, for claude calls, the system prompt."""
+
+    def test_claude_calls_append_the_exemption_at_system_prompt_level(self):
+        proc = _run(["--dry-run"])
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        for prefix in ("[dry-run] reviewer arm claude:", "[dry-run] synthesis:"):
+            lines = [l for l in proc.stdout.splitlines() if l.startswith(prefix)]
+            self.assertTrue(lines, proc.stdout)
+            self.assertIn("--append-system-prompt", lines[0])
+            self.assertIn("status.sh", lines[0])
+
+    def test_every_dispatch_prompt_asset_opens_with_the_dispatch_context(self):
+        for asset in ("reviewer-prompt.md", "synthesis-prompt.md", "apply-prompt.md"):
+            text = (REPO_ROOT / "scripts" / "auditing" / asset).read_text(encoding="utf-8")
+            self.assertIn("Dispatch context:", text, asset)
+            self.assertIn(".agent/scripts/status.sh", text, asset)
+
+    def test_bootstrap_carves_out_pipeline_dispatches(self):
+        # CLAUDE.md/AGENTS.md are local files, but the dispatch exemption only
+        # works while both sides agree: the bootstrap names the marker the
+        # prompt assets open with.
+        for name in ("CLAUDE.md", "AGENTS.md"):
+            path = REPO_ROOT / name
+            if not path.exists():
+                continue
+            text = path.read_text(encoding="utf-8")
+            self.assertIn('"Dispatch context:"', text, name)
+
+
+class EffortFlagTests(unittest.TestCase):
+    """--effort / --synthesis-effort render into the dispatched argvs; the
+    dry-run plan prints those argvs verbatim, so it is the assertion surface."""
+
+    @staticmethod
+    def _lines(stdout, prefix):
+        return [line for line in stdout.splitlines() if line.startswith(prefix)]
+
+    def test_default_pins_medium_on_both_arms_and_standard_service_tier(self):
+        proc = _run(["--dry-run"])
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        codex_lines = self._lines(proc.stdout, "[dry-run] reviewer arm codex:")
+        claude_lines = self._lines(proc.stdout, "[dry-run] reviewer arm claude:")
+        self.assertTrue(codex_lines and claude_lines, proc.stdout)
+        self.assertIn("model_reasoning_effort=medium", codex_lines[0])
+        self.assertIn("service_tier=default", codex_lines[0])
+        self.assertIn("--effort medium", claude_lines[0])
+        for line in self._lines(proc.stdout, "[dry-run] synthesis:"):
+            self.assertNotIn("--effort", line)
+
+    def test_effort_override_reaches_both_arms_but_not_synthesis(self):
+        proc = _run(["--dry-run", "--effort", "xhigh"])
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        codex_lines = self._lines(proc.stdout, "[dry-run] reviewer arm codex:")
+        claude_lines = self._lines(proc.stdout, "[dry-run] reviewer arm claude:")
+        self.assertIn("model_reasoning_effort=xhigh", codex_lines[0])
+        self.assertIn("--effort xhigh", claude_lines[0])
+        for line in self._lines(proc.stdout, "[dry-run] synthesis:"):
+            self.assertNotIn("--effort", line)
+
+    def test_synthesis_effort_renders_only_on_the_synthesis_call(self):
+        proc = _run(["--dry-run", "--synthesis-effort", "low"])
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        synth_lines = self._lines(proc.stdout, "[dry-run] synthesis:")
+        self.assertTrue(synth_lines, proc.stdout)
+        self.assertIn("--effort low", synth_lines[0])
+        for line in self._lines(proc.stdout, "[dry-run] reviewer arm claude:"):
+            self.assertIn("--effort medium", line)
+            self.assertNotIn("--effort low", line)
+
+    def test_invalid_effort_level_is_refused(self):
+        for flag in ("--effort", "--synthesis-effort"):
+            proc = _run(["--dry-run", flag, "turbo"])
+            self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+            self.assertIn("low, medium, high, xhigh, max", proc.stderr)
+            self.assertIn(flag, proc.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

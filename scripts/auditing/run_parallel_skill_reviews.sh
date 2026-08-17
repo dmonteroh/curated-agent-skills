@@ -54,6 +54,19 @@ Options:
                         resolved from the tier policy; see
                         --print-model-policy); refused when codex is not
                         among the selected --arms
+  --effort LEVEL        Reasoning effort for every reviewer arm: one of low,
+                        medium, high, xhigh, max (default: medium, the
+                        operator's standing choice, pinned explicitly for
+                        both vendors - claude's own default would be high).
+                        The claude arm gets --effort LEVEL; the codex arm
+                        gets -c model_reasoning_effort=LEVEL. The codex arm
+                        also always pins -c service_tier=default: priority
+                        (speed) processing stays off - it costs more
+  --synthesis-effort LEVEL
+                        Reasoning effort for the synthesis call (same
+                        values; default: unset). This is the run's only
+                        writer - lowering it trades review quality for
+                        speed
   --skill NAME          Review only this skill (repeatable)
   --skills-file PATH    Read skill names (one per line) from PATH
   --list-skills         Print discovered skills and exit
@@ -177,6 +190,15 @@ REVIEWER_STDIN=0
 # the call exits 0 having read nothing (devcontainer ruling, operator,
 # 2026-08-16). --sandbox danger-full-access is pinned literally here, with
 # no separate sandbox knob to override it. The codex arm reuses
+# Measured 2026-08-17: a claude call from the repo root auto-loads CLAUDE.md
+# and can obey its session-bootstrap gate instead of the dispatch - the arm
+# runs .agent/scripts/status.sh, is silently denied under dontAsk, and can
+# burn the whole run to an empty MALFORMED result. Both prompt assets open
+# with a dispatch-context exemption; claude calls also append it at
+# system-prompt level. --bare would skip CLAUDE.md discovery entirely but
+# also skips credential reads and dies "Not logged in" here.
+DISPATCH_BOOTSTRAP_EXEMPTION="This dispatched call's session-bootstrap is already handled by the orchestrator: skip every CLAUDE.md/AGENTS.md bootstrap step (no .agent/scripts/status.sh, no .agent/ reads) and execute the user-message task immediately."
+
 # RESOLVED_MODEL, already computed from policy or REVIEW_MODEL below, with
 # a positional prompt. The claude arm always resolves fresh from policy
 # (REVIEW_MODEL stays codex-scoped); its prompt goes on stdin, never as a
@@ -196,10 +218,23 @@ build_reviewer_argv() {
     codex)
       REVIEWER_MODEL="$RESOLVED_MODEL"
       REVIEWER_ARGV=(exec --sandbox danger-full-access --output-last-message "$last_msg" --model "$REVIEWER_MODEL")
+      if [[ -n "$REVIEW_EFFORT" ]]; then
+        REVIEWER_ARGV+=(-c "model_reasoning_effort=$REVIEW_EFFORT")
+      fi
+      # Pinned, not configurable: priority (speed) processing costs more,
+      # and a user-level config.toml must not switch it on for a dispatch.
+      REVIEWER_ARGV+=(-c "service_tier=default")
       ;;
     claude)
       REVIEWER_MODEL="$(resolve_model terra claude)" || return 1
-      REVIEWER_ARGV=(--print --model "$REVIEWER_MODEL" --permission-mode dontAsk --allowedTools "Read,Glob,Grep,Bash($ROOT/scripts/auditing/review-result.sh:*)" --disallowedTools "Edit,Write,NotebookEdit")
+      REVIEWER_ARGV=(--print --model "$REVIEWER_MODEL")
+      # Value-taking flags go before the variadic tool flags so they can
+      # never be swallowed as one of their values.
+      if [[ -n "$REVIEW_EFFORT" ]]; then
+        REVIEWER_ARGV+=(--effort "$REVIEW_EFFORT")
+      fi
+      REVIEWER_ARGV+=(--append-system-prompt "$DISPATCH_BOOTSTRAP_EXEMPTION")
+      REVIEWER_ARGV+=(--permission-mode dontAsk --allowedTools "Read,Glob,Grep,Bash($ROOT/scripts/auditing/review-result.sh:*)" --disallowedTools "Edit,Write,NotebookEdit")
       REVIEWER_STDIN=1
       ;;
     *)
@@ -217,7 +252,12 @@ SYNTHESIS_MODEL=""
 
 build_synthesis_argv() {
   SYNTHESIS_MODEL="$(resolve_model terra "$SYNTHESIS_VENDOR")" || return 1
-  SYNTHESIS_ARGV=(--print --model "$SYNTHESIS_MODEL" --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write,Bash($ROOT/scripts/auditing/review-result.sh:*)")
+  SYNTHESIS_ARGV=(--print --model "$SYNTHESIS_MODEL")
+  if [[ -n "$SYNTHESIS_EFFORT" ]]; then
+    SYNTHESIS_ARGV+=(--effort "$SYNTHESIS_EFFORT")
+  fi
+  SYNTHESIS_ARGV+=(--append-system-prompt "$DISPATCH_BOOTSTRAP_EXEMPTION")
+  SYNTHESIS_ARGV+=(--permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write,Bash($ROOT/scripts/auditing/review-result.sh:*)")
   return 0
 }
 
@@ -397,6 +437,31 @@ ${msg}
 
 SKILLS_FILE_OVERRIDE=""
 LIST_ONLY=0
+# Operator ruling 2026-08-17: reviewer arms run at medium effort unless a
+# run says otherwise, pinned explicitly so neither vendor's own default
+# (claude: high) nor a user-level config decides. Synthesis effort stays
+# unset by default - it is the run's only writer.
+REVIEW_EFFORT="medium"
+REVIEW_EFFORT_SET=0
+SYNTHESIS_EFFORT=""
+SYNTHESIS_EFFORT_SET=0
+
+# One enum for both flags. claude validates the same set; codex additionally
+# offers ultra on some models, deliberately excluded: a level every arm can
+# run keeps one flag meaningful across the whole arm set.
+validate_effort() {
+  local flag="$1" value="$2"
+  case "$value" in
+    low|medium|high|xhigh|max)
+      return 0
+      ;;
+    *)
+      echo "error: $flag must be one of: low, medium, high, xhigh, max (got '$value')" >&2
+      exit 2
+      ;;
+  esac
+}
+
 while (( "$#" )); do
   case "$1" in
     --batch-size)
@@ -410,6 +475,16 @@ while (( "$#" )); do
     --arms)
       ARMS_OPT="${2:-}"
       ARMS_SET=1
+      shift 2
+      ;;
+    --effort)
+      REVIEW_EFFORT="${2:-}"
+      REVIEW_EFFORT_SET=1
+      shift 2
+      ;;
+    --synthesis-effort)
+      SYNTHESIS_EFFORT="${2:-}"
+      SYNTHESIS_EFFORT_SET=1
       shift 2
       ;;
     --skill)
@@ -451,6 +526,13 @@ done
 if ! [[ "$BATCH_SIZE" =~ ^[1-9][0-9]*$ ]]; then
   echo "error: --batch-size must be a positive integer (got '$BATCH_SIZE')" >&2
   exit 2
+fi
+
+if (( REVIEW_EFFORT_SET == 1 )); then
+  validate_effort --effort "$REVIEW_EFFORT"
+fi
+if (( SYNTHESIS_EFFORT_SET == 1 )); then
+  validate_effort --synthesis-effort "$SYNTHESIS_EFFORT"
 fi
 
 if (( ARMS_SET == 1 )); then
@@ -638,7 +720,7 @@ print_operator_decisions() {
   fi
   if (( ${#REMOVAL_PROPOSAL_SKILLS[@]} > 0 )); then
     any=1
-    echo "Removal proposals awaiting a ruling (see REMOVAL PROPOSALS in each log):"
+    echo "Removal proposals recorded to scripts/auditing/PROPOSALS.md - set each entry's 'ruling:' line, then run: .venv/bin/python scripts/auditing/proposals.py apply"
     printf '  - %s\n' "${REMOVAL_PROPOSAL_SKILLS[@]}"
   fi
   if (( ${#DIFFERENTIATION_UNKNOWN_SKILLS[@]} > 0 )); then
@@ -852,7 +934,7 @@ declare -a SYNTH_PIDS=()
 declare -a SYNTH_SKILLS=()
 
 dispatch_phase_two() {
-  local skill reason log last_msg verdict_file
+  local skill reason log last_msg verdict_file removals_file
   for skill in "${DUAL_BATCH_SKILLS[@]}"; do
     if reason="$(arm_failure_reason "$skill")"; then
       FAILED_SKILLS+=("$skill (blocked: $reason)")
@@ -862,10 +944,11 @@ dispatch_phase_two() {
     log="$(synthesis_log_path "$skill")" || true
     last_msg="$(synthesis_last_message_path "$skill")" || true
     verdict_file="$LOGDIR/${skill}.synthesis.verdict"
-    rm -f "$log" "$last_msg" "$verdict_file"
+    removals_file="$LOGDIR/${skill}.synthesis.removals"
+    rm -f "$log" "$last_msg" "$verdict_file" "$removals_file"
     build_synthesis_argv || return 1
     render_synthesis_prompt "$skill" || return 1
-    ( cd "$ROOT"; printf '%s' "$SYNTHESIS_PROMPT" | REVIEW_RESULT_FILE="$verdict_file" "$SYNTHESIS_VENDOR" "${SYNTHESIS_ARGV[@]}" ) >"$last_msg" 2>"$log" &
+    ( cd "$ROOT"; printf '%s' "$SYNTHESIS_PROMPT" | REVIEW_RESULT_FILE="$verdict_file" REVIEW_REMOVALS_FILE="$removals_file" "$SYNTHESIS_VENDOR" "${SYNTHESIS_ARGV[@]}" ) >"$last_msg" 2>"$log" &
     SYNTH_PIDS+=("$!")
     SYNTH_SKILLS+=("$skill")
     echo "[queued] $skill/synthesis -> $log"
@@ -1006,6 +1089,14 @@ if (( ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
   printf '  - %s\n' "${INFRA_FAILURE_SKILLS[@]}"
 else
   echo "INFRA-FAILURE: none"
+fi
+
+# Ledger, not logs: proposal text is recorded where a ruling can act on it.
+# A record failure must not fail the review run - the text still sits in the
+# per-skill .synthesis.removals artifacts for a manual record pass.
+if (( ${#REMOVAL_PROPOSAL_SKILLS[@]} > 0 )); then
+  "$VENV/bin/python" "$ROOT/scripts/auditing/proposals.py" record --logs-dir "$LOGDIR" \
+    || echo "warning: proposals.py record failed; proposal text remains in $LOGDIR/*.synthesis.removals" >&2
 fi
 
 print_operator_decisions
