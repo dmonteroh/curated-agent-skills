@@ -8,7 +8,7 @@ Total skills: 74
 | --- | --- |
 | `agent-harness-portability` | Tests whether a skill or instruction corpus is harness-agnostic instead of merely asserting it: a per-target disposition pass over the axes on which agent harnesses differ, source-token leakage checks, and a defined repair for each failure. Use when authoring or auditing a portable skill, porting a corpus to another agent, or reviewing an untested portability claim. |
 | `agent-memory-governance` | Governs memory an agent writes for its own future sessions — learnings, project notes, preference profiles, checkpoints — as a prompt-injection surface: quarantine-first trust tiers, human-gated global scope, provenance-gated writes, re-screening at load, and a capped retrieval budget. Use when designing, operating, or reviewing agent-authored memory. |
-| `cdd-context` | Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot. |
+| `cdd-context` | Create and maintain CDD project context docs (product, tech stack, workflow, optional product guidelines) when setting up or updating docs/context, with optional scaffolding, brownfield extraction from an existing codebase, indexing, validation, and a brief snapshot. |
 | `context-budget` | Audits what an agent's standing instruction surface costs before any work starts: prices every always-loaded component, separates always-cost descriptions from on-demand bodies, classifies each as always, sometimes, or rarely needed, and ranks removals by tokens reclaimed. Use when context fills too fast, after adding capabilities, or before expanding a configuration. |
 | `cross-vendor-delegation` | Provides the procedure for handing a bounded task to a model or agent running under another vendor's harness and adjudicating what comes back: content-not-path handoff, an injection-delimited payload, a bounded run whose stall stays diagnosable, a fail-closed verdict gate, and one comparative recommendation. Use when seeking an independent foreign-model opinion, or when a delegate's answer will gate a decision. |
 | `google-stitch-ai` | Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens. |
@@ -51,11 +51,11 @@ Total skills: 74
 
 | Skill | Summary |
 | --- | --- |
-| `cloud-architect` | Design cloud platform architecture (AWS/Azure/GCP): landing zones/accounts, networking, identity/IAM boundaries, service selection, reliability/DR, and multi-region strategy. Produces architecture diagrams + risk/rollback plans. Does not own CI/CD or deep FinOps tactics. |
+| `cloud-architect` | Design cloud platform architecture (AWS/Azure/GCP): landing zones/accounts, networking, hybrid on-prem connectivity, identity/IAM boundaries, service selection, reliability/DR, and multi-region strategy. Produces architecture diagrams + risk/rollback plans. Does not own CI/CD or deep FinOps tactics. |
 | `cost-optimization` | Cloud FinOps cost governance for reducing cloud spend while maintaining reliability. Use when teams need tagging/chargeback, budgets/anomaly detection, rightsizing, commitment strategy (RIs/Savings Plans/CUDs), or unit-cost analysis. Produces a prioritized savings plan with verification gates. |
 | `deployment-engineer` | Design and implement CI/CD and deployment automation: pipeline stages, quality gates, config validation, progressive delivery, rollback/runbooks, and GitOps patterns. Use for release workflows and deployment safety. Not for cloud platform architecture or deep IaC modules. |
 | `devops-engineer` | Operate and evolve runtime infrastructure for reliability, containerization, Kubernetes operations, platform engineering, and operational readiness. Use for runtime reliability, deployment execution, or incident response prep; not for CI/CD pipeline architecture or release automation design. |
-| `terraform-engineer` | Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing. |
+| `terraform-engineer` | Use when implementing infrastructure as code with Terraform across AWS, Azure, GCP, or OCI. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing. |
 
 ## Docs
 
@@ -86,7 +86,7 @@ Total skills: 74
 | `grafana-dashboards` | Provides guidance to create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces. |
 | `migration-observability` | Make database migrations safe and observable. Define progress + safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic. |
 | `monitoring-expert` | Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack. |
-| `performance` | End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, scalability work, or performance gating. |
+| `performance` | End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, data freshness, build-loop timing, scalability work, or performance gating. |
 | `sre-engineer` | Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards). |
 
 ## Research

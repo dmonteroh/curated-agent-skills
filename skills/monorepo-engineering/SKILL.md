@@ -63,6 +63,20 @@ Provides guidance to build monorepos that scale across teams without becoming a 
 - Decision: If shared utilities grow >2 teams, split into domain-specific packages.
 - Output: dependency matrix + enforcement approach.
 
+**Derive the matrix from two tag axes, not one.** Tag every package twice, then write the matrix from the tags instead of drawing it by hand. A hand-drawn matrix records the graph as it happens to be, so every existing edge looks legal; tags state the rule the graph has to satisfy, so a violating edge is a failure rather than a row.
+
+- **Layer** — what kind of thing the package is, drawn from a short list the repo defines once and then reuses. The names are per repo, not universal: `app` / `feature` / `ui` / `data-access` / `util` is one frontend workspace's cut and does not fit a backend or polyglot root, where `service` / `adapter` / `domain` / `util` may be the honest split. Fix the list once; adding a layer per package turns the axis back into a free-for-all.
+- **Domain** — which product area or bounded context the package serves, plus exactly one `shared` value for packages that legitimately serve all of them.
+
+Two rule families follow, and both are required, because each admits edges the other forbids:
+
+- **Layer rule.** Each layer may depend only on layers at or below it in a stated order, and that order must be acyclic. The bottom layer — pure helpers carrying no domain knowledge — may depend only on itself. Writing out every layer's allowed targets is what makes the order explicit and checkable; an order that lives in reviewers' heads is not a constraint.
+- **Domain rule.** Each domain may depend only on itself and on `shared`, and `shared` may depend only on `shared`. The asymmetry is deliberate: a shared package that reaches into a product domain inverts the dependency, and every consumer of that package then silently drags that domain in behind it. This is the rule most likely to be "relaxed just this once" by someone who cannot see what it buys, so record the reason beside it.
+
+The axes catch different violations. Two packages can sit at legal layers and still form an illegal cross-domain edge — a `web` feature importing an `api` feature. Two packages in one domain can still form an illegal upward edge — a util importing a feature. Checking either axis alone passes both cases.
+
+Enforce mechanically with whatever the repo already runs: a lint rule over import statements, a query over the build graph, a CI job that fails on a violating edge. The mechanism is open; what is not open is that the check runs unattended. A boundary enforced only by reviewers reading diffs is a convention, and conventions lose to deadlines. The `>2 teams` decision above is the symptom that a shared package needs splitting; the domain axis is what keeps the halves apart once it has been split.
+
 5) Build speed: caching + affected detection
 - Ensure build outputs are cached and stable.
 - Only run tasks for affected projects on PRs.
@@ -102,7 +116,7 @@ Report in this format:
 **Example output (excerpt)**
 - Summary: Keep pnpm workspaces, add Turbo for caching and affected pipelines.
 - Layout: `apps/` for deployables, `packages/` for shared libs, `tools/` for CI scripts.
-- Boundaries: enforce with lint rules and explicit dependency graph.
+- Boundaries: two tags per package — layer, ordered `app` > `feature` > `data-access` > `util`, and domain, one of `checkout`, `billing`, `shared`. Derived matrix: `packages/checkout-data-access` may import `data-access` and `util` packages tagged `checkout` or `shared`, and nothing else; `packages/shared-utils` may import `util` packages tagged `shared`. Enforced by an import lint rule run in CI, not by review.
 
 ## References (load as needed)
 

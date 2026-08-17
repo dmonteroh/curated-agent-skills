@@ -114,6 +114,18 @@ Bad:
 - Spec/track/task: <link or path>
 ```
 
+## Dating a backfilled ADR
+
+When the ADR records a decision that was already made — a convention found in the codebase, a choice settled in a thread months ago — the `Date` field carries the date the decision was **made**, not the date the ADR was written. Say so in the field, and give the authoring date alongside it:
+
+```markdown
+## Date
+
+2025-11-04 (decision made; backfilled 2026-02-19)
+```
+
+The index row carries the same decision date, so the ADR log stays chronological by decision rather than by transcription. An ADR dated the day it was typed reads as a decision taken that day and silently misrepresents when the project actually committed.
+
 ## Supersedes Block
 
 When replacing an accepted ADR, add this to the new ADR (and update the index):

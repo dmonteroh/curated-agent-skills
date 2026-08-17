@@ -19,6 +19,8 @@ Recover a deleted branch tip:
 git branch recovered/<name> <sha-from-reflog>
 ```
 
+The reflog is not permanent storage. `git gc` expires reflog entries, and entries pointing at commits nothing else reaches — exactly the case after a hard reset or a deleted branch — expire on a shorter schedule than reachable ones. Both windows are set by `gc.reflogExpireUnreachable` and `gc.reflogExpire` and are configurable per repo, so read the repo's own values with `git config --get gc.reflogExpireUnreachable` rather than assuming a default. Treat recovery as time-limited: create the recovery branch as soon as the lost SHA is identified, rather than leaving it in the reflog.
+
 ## Reset modes (know what they do)
 
 - `--soft`: keep changes staged

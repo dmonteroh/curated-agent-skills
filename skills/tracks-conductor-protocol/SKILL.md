@@ -19,6 +19,7 @@ This skill is intentionally optimized for speed:
 - Needing to intake work, formalize it into task briefs, group it into tracks, plan it, and execute it.
 - Requiring an indexing/registry system (like ADR indexes) that stays deterministic across contributors.
 - Ensuring specs/context are created and updated as required (SDD + CDD hygiene).
+- Keeping a plan auditable after execution: commit SHAs recorded per completed task and phase, deviations routed to the artifact they change.
 
 ## Do not use this skill when
 
@@ -112,8 +113,10 @@ Execution is performed per task (TDD/workflow checkpoints, verification, commit 
 - Output: implementation updates plus task status transitions.
 - Follow `references/execution-playbook.md` as the default execution protocol.
 
-Decision point:
+Decision points:
 - If execution needs new context or spec updates, update the track files before coding.
+- If execution departs from the plan, classify the deviation (scope addition, scope reduction, technical deviation, requirement change) and update the artifact that classification obliges — routing table in `references/execution-playbook.md`.
+- When a task or a phase completes, record its commit SHA in the track plan so the plan stays a revert map.
 
 ### 5) Futures + ADR integration
 

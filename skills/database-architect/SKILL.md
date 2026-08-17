@@ -14,6 +14,7 @@ Use this skill when durable data-layer decisions are needed, not short-term quer
 
 - Choosing a database or storage pattern (relational, document, time-series, search)
 - Designing schemas, constraints, and indexes for real access patterns
+- Deciding how concurrent writes to the same entity are kept from overwriting each other
 - Planning sharding/partitioning/replication and lifecycle policies
 - Re-architecting an existing data layer or planning a migration
 
@@ -53,6 +54,7 @@ Produces: 2-3 candidate storage models with tradeoffs.
 - Specifies constraints for invariants (NOT NULL, UNIQUE, CHECK, FK where appropriate).
 - Maps indexes to real access paths (not theoretical ones).
 Decision: If read performance dominates and invariants allow, denormalize with compensating checks.
+Decision: If two writers can modify the same entity concurrently, put the concurrency control in the schema — a per-entity `version` plus a `UNIQUE (entity_id, version)` constraint — so the losing writer fails on the constraint instead of overwriting silently. See `references/modeling-checklist.md`.
 Produces: schema sketch + index plan tied to access patterns.
 
 4) Plan evolution + safety

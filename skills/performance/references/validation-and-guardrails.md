@@ -4,9 +4,12 @@ Use this reference to verify improvements and prevent regressions.
 
 ## Validation checklist
 
-- Re-run the baseline measurement in the same environment.
+- Re-run the baseline measurement in the same environment, in the same session as the winner. A delta assembled from two sessions carries whatever else changed between them.
 - Compare before/after metrics with a simple table.
 - Confirm no increase in error rate or resource saturation.
+- Confirm the freshness age of served values did not increase. A latency win bought with staler data is a regression that a latency-only comparison will score as a success.
+- Read the change back on a deployed surface where one exists: response timing and headers, upstream freshness timestamp, queue or job state, cache and edge state, and the retry or degraded-mode log lines. Client-side labels are not measurement.
+- Confirm the promotion gate in `references/bounded-variant-search.md` passed before a variant was made the default.
 
 ## Load and stress testing
 
@@ -20,9 +23,12 @@ Decision:
 ## Guardrails
 
 - Performance budgets for key endpoints or user journeys.
+- Freshness budgets on cache-, queue-, or stream-backed read paths: a maximum age for a served value, alerted on like any other budget. Choose the value per path from what the consumer can tolerate; there is no portable default.
 - Regression gates in CI where feasible.
 - Dashboards and alerts for SLIs/SLOs.
 - Runbooks for diagnosing regressions.
+- Baselines stored as version-controlled artifacts keyed to the commit they were measured at, rather than local scratch files, so before/after comparison is shared across contributors and can run as a per-PR check.
+- Guardrails on the developer feedback loop too — build, rebuild, test, type check, lint, image build — since nothing else in the pipeline notices when they get slower.
 
 ## Rollout considerations
 

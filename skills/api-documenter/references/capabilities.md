@@ -50,5 +50,5 @@
 ## Automation ideas
 
 - Docs-as-code workflows with CI validation
-- Automated spec linting and example testing
+- Automated spec linting and example testing (rule-authoring pattern: `references/spec-linting.md`)
 - Incremental publishing pipelines

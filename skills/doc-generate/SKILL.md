@@ -22,6 +22,7 @@ Core capabilities:
 - Setting up doc automation (indexing, link checks, doc freshness).
 - Producing a long-form system manual from an existing codebase when needed.
 - Auditing which docs a shipped or in-flight change still needs, and filling those gaps.
+- Orienting a newcomer — human or agent — in an unfamiliar repo, including generating or updating the project's agent-instruction file from detected conventions.
 
 ## Do not use this skill when
 
@@ -116,6 +117,31 @@ Output: checklist for doc freshness, link checks, and index updates.
 Decision points:
 - If CI tooling is unavailable, provide manual run steps instead.
 
+## Onboarding pass for an unfamiliar repo
+
+Applies when the trigger is "document this repo for people who have never seen it" rather than a named doc. Signal tables, convention tables, and artifact outlines: `references/repo-onboarding.md`.
+
+1) **Reconnaissance by signal, not by reading.** Run `scripts/docscan.sh` for the file-count baseline, then resolve each signal family — package manifests, framework fingerprints, entry points, directory shape, config and tooling, test layout — as its own glob query, and open a file only where its signal is ambiguous. Reading the tree file by file is the failure this step exists to prevent: it spends the whole budget before the guide has a first line.
+2) **Map the stack and the architecture pattern** from those signals: languages and version constraints, frameworks, datastores and data-access layers, build and CI tooling; then the shape (single service, monorepo, service split, serverless) and the interface style actually served.
+3) **Trace one request end to end** and write it up as the guide's request-lifecycle section. Method: `references/architecture-documentation.md`.
+4) **Detect the conventions the repo already follows**, not the ones it ought to: naming, error handling, async style, test layout, and — from recent history — branch, commit, and integration conventions.
+5) **Produce the artifacts:** an onboarding guide under the docs tree, and the project's agent-instruction file when the repo keeps one.
+
+Decision points:
+- If a manifest or config declares one framework and the code uses another, the code wins — and the disagreement is itself a line in the guide.
+- If a convention cannot be established from the evidence, write "not established" and name what was checked. A confidently wrong convention costs more than an admitted gap.
+- If the repo has no commits, or `git rev-parse --is-shallow-repository` prints `true`, skip the git-derived conventions and say so in the guide rather than inferring them from what little history is present.
+- If an agent-instruction file already exists, read it in full before writing anything: preserve every project-specific instruction, add rather than replace, and mark what this pass added or changed so a reviewer can see the delta. Not having read it is a stop, not a reason to start fresh.
+- If no such file exists, confirm the filename the project wants before creating one; the convention differs across projects and toolchains, so detect rather than assume.
+
+Anti-patterns for both artifacts:
+- Letting the agent-instruction file grow past what an agent will reliably read in full. It is loaded before every task, so its length is paid every task — cut instead of appending. Keeping it scannable in one sitting is a chosen default, not a measured threshold.
+- Listing every dependency. Only the ones that change how code gets written here earn a line.
+- Explaining self-evident directory names. `src/` does not need a gloss.
+- Restating the README. The guide earns its place by supplying what the README leaves implicit: entry points, the request path, and the conventions.
+
+Output: the onboarding guide, the created or updated agent-instruction file with its additions marked, and the list of conventions that could not be established with the evidence checked for each.
+
 ## Diataxis coverage pass over a diff
 
 Applies when the trigger is a change rather than a whole repo: it turns "are the docs stale?" from a judgment call into a checkable table. Diataxis is Daniele Procida's documentation framework (`diataxis.fr`); the four quadrants below are its terms.
@@ -199,6 +225,7 @@ Script paths below are relative to this skill's folder. Run each script from the
 
 - `references/README.md` for detailed templates and playbooks.
 - `references/quadrant-templates.md` for the reference, explanation, how-to, and tutorial document templates used by the coverage pass, plus the cross-quadrant link sweep run before landing a generated set.
+- `references/repo-onboarding.md` for the reconnaissance and convention signal tables and the two artifact outlines used by the onboarding pass.
 
 ## Output contract
 

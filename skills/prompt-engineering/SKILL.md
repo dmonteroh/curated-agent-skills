@@ -114,6 +114,7 @@ An under-specified request is optimized into a confidently wrong prompt. Before 
 - **Data/instruction boundary**: delimit untrusted content and restate that it is data, not instructions — the cheapest prompt-injection mitigation.
 - **Instruction hierarchy**: System > Developer > User > Tool outputs.
 - **Progressive disclosure**: start simple, add constraints/examples only when needed.
+- **Self-consistency**: where one call is measurably not reliable enough and the answer is discrete and checkable, sample the same prompt n times, take the majority answer, and report the vote share as the confidence signal — an agreement measure, never a calibrated probability. Cost is linear in n; n and temperature are caller choices (`references/eval-coverage.md`).
 - **Self-check**: require a short verification pass against constraints — but treat it as the weakest control available, since it asks the model to notice its own miss. Never leave it as the only thing behind a behavior that must hold; a structural assertion in an eval (see "Evaluation coverage") is a different and stronger kind of guarantee.
 - **Uncertainty handling**: require explicit "missing info" and questions.
 

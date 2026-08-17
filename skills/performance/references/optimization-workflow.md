@@ -10,6 +10,8 @@ Use this as an end-to-end performance runbook.
 
 ## Phase 2: Optimize by Layer
 
+Run this phase as a bounded variant search — budget, ledger, stopping conditions, promotion gate: `references/bounded-variant-search.md`.
+
 - Database: indexes, query plans, pooling, caching.
 - Backend: batching, concurrency, algorithm fixes.
 - Frontend: bundle size, critical path, lazy loading.

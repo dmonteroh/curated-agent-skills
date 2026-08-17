@@ -12,6 +12,7 @@ Provides an end-to-end orchestration workflow. Each dispatched task carries two 
 
 - Work has 2+ independent tasks that can be partitioned by subsystem/module.
 - Disjoint claims (paths/files) can be assigned per task before dispatch.
+- Tasks write surfaces beyond files — a database, a shared service, a deploy target, a bound port, a cache, a shared dataset — whose overlap has to be ruled out before any concurrency.
 - Controller-owned verification barriers are required between worker executions.
 - Deterministic merge/integration is required across multiple worker outputs.
 - Per-task and final quality gates can be defined up front.
@@ -55,6 +56,7 @@ Before orchestration, answer:
 2. Can each domain have disjoint allowed paths + claim set?
 3. Are per-task verification commands and final integration checks defined?
 4. Does the runtime support the chosen execution mode?
+5. For every task that writes a surface in the never-parallel class — destructive commands, schema migrations, writes to a shared table, anything customer-visible in production — is there an explicit human gate before that task runs?
 
 If any answer is "no", do not orchestrate yet.
 
@@ -75,6 +77,18 @@ Load only the runtime guide that matches the host:
 
 - Codex: `references/runtime-codex.md`
 - Claude: `references/runtime-claude.md`
+
+## Claim Sets
+
+A claim set names every surface the task writes, not only the files it edits. Two tasks may run concurrently only when their write surfaces are disjoint on all dimensions at once: file paths, but also databases and schemas, tables, migrations, long-lived services, deploy targets, bound ports, caches, and shared datasets. Two tasks with perfectly disjoint file claims that both run a migration against the same database are not concurrency-safe, and a partition checked on paths alone clears them. The full dimension list, worked contrasts, and a pre-dispatch claim-set check: `references/claim-sets.md`.
+
+Five rules ride on that definition, each with its worked contrast in the reference:
+
+- **A never-parallel class.** Destructive commands, schema migrations, two tasks writing one table, and anything customer-visible in production are never admitted to concurrency on a disjointness check alone — they need an explicit human decision, recorded on the board, before the task runs.
+- **Re-derive the partition mid-flight.** When a running task invalidates the plan, pause its dependents and re-partition rather than letting the fan-out finish against a stale split.
+- **Contract artifacts are a third ownership class.** The controller writes the boundary where two tasks meet, owns it, and issues it read-first and forbidden to modify.
+- **Aggregator files leak out of any partition.** Anything whose content lists its siblings gets one owner, or leaves every claim set for a controller pass after integration.
+- **Stub to unblock.** A task gated on another's output gets a stub shaped by the contract artifact, recorded on the board, replaced at integration.
 
 ## Worker Execution Surface
 
@@ -122,6 +136,8 @@ A claim set says which files a worker may change. Its execution surface says whe
 
 Group work by domain, not by symptom.
 
+Prefer domains that cut through the stack over domains that each take one layer: a layer-per-task split creates inter-layer dependencies by construction, so it yields fewer genuinely independent domains than a feature-per-task split of the same work.
+
 Examples:
 
 - "auth flow regressions" vs "UI rendering glitches" vs "DB migration failure"
@@ -159,18 +175,23 @@ Record each task with:
 
 - Task ID and outcome.
 - Allowed paths, forbidden paths, claim set.
+- Non-file write surfaces claimed: databases and schemas, tables, migrations, services, deploy targets, ports, caches, datasets — `none` where the task writes none.
+- Contract artifacts the task reads, marked controller-owned and read-only, and any stub it is handed against the implementation the stub stands in for.
 - Execution surface: working directory or worktree, authority tier, tool grant, command layer on/off.
+- Long-running processes the task is authorised to start, and who stops them before the barrier.
 - Inputs/evidence.
 - Acceptance criteria.
 - Controller-run verification commands.
-- Review task, for any task whose worker writes code: reviewer scope, inputs, and the diff it reads.
+- Review task, for any task whose worker writes code: reviewer scope, inputs, and the diff it reads. Once review starts, the rounds spent and the findings still open.
+- `depends_on`: the tasks this one must integrate after, if any. This is what dependency-first ordering and the integration gate read.
+- `rollback_plan`, for any task whose integration is not trivially revertible.
 - Status (`queued | running | needs-info | needs-fix | ready | integrated`).
 
-Output: approved task board with claim-set checks.
+Output: approved task board with claim-set checks (`references/claim-sets.md`).
 
 ### 3) Prepare Packets
 
-- Use `references/packet-templates.md` for the worker, reviewer, and final-report shapes.
+- Use `references/packet-templates.md` for the worker, reviewer, fix and final-report shapes.
 - A packet is complete when it carries all of: a one-sentence outcome, read-first paths, an allowed/forbidden claim set, its execution surface, inputs and evidence, acceptance criteria, the controller-run verification commands, and the deliverable shape. A packet missing any of these is a weak packet — fix it before dispatch.
 - Each packet stands alone. A worker must be able to finish without opening the plan or brief the task was cut from; carry a pointer back to that source for provenance, not as a document the worker is expected to read.
 - Inherit an out-of-scope clause verbatim when the source plan states one for this task, and omit the clause entirely when it does not. Never compose one. A worker honors a fabricated boundary exactly as it honors a real one, so an invented "out of scope: the migration path" quietly deletes work nobody excluded — worse than saying nothing, because the omission is invisible in the worker's report.
@@ -199,13 +220,31 @@ Output: per-task worker report (root cause, files changed, recommended verificat
 ### 5) Barrier and Controller Verification
 
 - Confirm worker sessions are fully exited.
+- Confirm the processes those workers started have stopped too. A session exiting says nothing about the servers, builds, watchers, backfills, and deploys it launched, and those keep writing while the controller believes the tree is quiet — so verification reads a tree that is still moving, and the result is unattributable. Account for every long-running process the board authorised: stop it, or wait for it and record its outcome as evidence.
+- A process a worker started does not outlive the barrier unless a continuing service was the requested outcome. A dev server the user asked to be left running is a deliverable; the same process left behind by a worker that finished is a leak.
 - Run task-level verification commands.
 - Re-dispatch only the smallest failing scope with fresh failure evidence.
 
 Output: verified task status and any narrowed follow-up tasks.
 
-### 6) Integration Gate
+### 6) Review Convergence
 
+A review verdict of `fail` is not a terminal state and not a licence to integrate anyway. It opens a bounded loop with a defined exit. Each round: keep the blocking findings, dispatch a fix task scoped to those findings and nothing else with a claim set no wider than the files they name, then re-review with a reviewer that has no memory of the previous round.
+
+- A reviewer that proposed a fix never evaluates that fix. Critique and repair are separate dispatches with separate authority.
+- Cap the rounds before the first one runs. Three rounds is this skill's chosen default, not a measured threshold — fix the value in advance, because a cap chosen after reading the findings is not a cap.
+- At the cap, stop and escalate to the human with the surviving findings and the rounds spent. Integrating at the cap and running one round past it are both failures of this step.
+- Record the round count and the open findings on the board. A task at `needs-fix` with no round count is a task nobody is converging.
+- Why freshness is load-bearing, how to scope the fix packet, and what to do when a finding survives every round: `references/review-convergence.md`.
+
+Output: per-task review verdict with rounds spent — a task cleared for integration, or an escalation carrying the surviving findings.
+
+### 7) Integration Gate
+
+- Integrate one task at a time, in `depends_on` order, never as a batch. Before a task's turn, replay it onto the current integration head — rebase its branch, re-apply its patch, or re-run its change against the integrated tree — and once it lands, re-run the integration checks before the next task starts.
+- Never integrate a task while a task it depends on is failing.
+- One check run over N merged tasks attributes a failure to the batch, not to a task, and the controller then re-dispatches by guessing which one caused it. Re-running after each merge names the task that broke it, and the re-dispatch is that task's scope.
+- Where a task's integration is not trivially revertible, use its recorded `rollback_plan` when its checks fail rather than repairing forward with the bar red.
 - Reconcile overlap/conflicts.
 - Where worker reports disagree, name the disagreement and which task each position came from. Do not average two verdicts into a middle one the evidence does not support; an unresolved conflict is a finding, and resolving it is a decision with a stated reason.
 - Treat a concern raised independently by several workers as blocking rather than as one more item in a list. Independent arrival at the same concern is the signal a fan-out produces that a single worker cannot.
@@ -214,7 +253,7 @@ Output: verified task status and any narrowed follow-up tasks.
 
 Output: final integration result.
 
-### 7) Optional dot-agent Maintenance
+### 8) Optional dot-agent Maintenance
 
 If dot-agent files exist:
 
@@ -231,7 +270,8 @@ Always return:
 - Partition plan (domain → scope | success criteria | constraints).
 - Task board summary.
 - Per-task report: root cause, files changed, verification commands/results, risks.
-- Integration summary: conflicts and final verification.
+- Per reviewed task: the verdict, the rounds spent, and — where the cap was reached — the escalation with the findings that survived it.
+- Integration summary: the order tasks were integrated in, the check result after each merge, conflicts, and final verification.
 - dot-agent maintenance summary (when applicable).
 - Automation summary (only if user approved script creation).
 
@@ -241,15 +281,20 @@ Use the canonical structure in `references/packet-templates.md` (`Final Report T
 
 - Splitting coupled problems (fixing one invalidates the other's scope).
 - Overlapping claims across concurrent tasks.
+- Concurrency cleared on file paths alone, while two tasks write one database, table, port, or dataset.
 - Weak packets (missing evidence or acceptance criteria).
-- Verification attempted before session barrier.
+- Verification attempted before session barrier, or while a process a worker started is still writing.
+- A failing review with nowhere to go: integrated anyway, or re-dispatched round after round with no cap.
+- Batch integration, so a red bar names the batch and no single task.
 - Broad re-dispatch that reintroduces overlap.
 
 ## References
 
 - `references/README.md`
 - `references/execution-modes.md`
+- `references/claim-sets.md`
 - `references/packet-templates.md`
+- `references/review-convergence.md`
 - `references/execution-single-worker.md`
 - `references/execution-queued-serial.md`
 - `references/execution-true-parallel.md`

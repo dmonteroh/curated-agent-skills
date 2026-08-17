@@ -66,6 +66,20 @@ For each option:
 
 - 
 
+## Context
+
+**Discovered facts** (technical; each with the file or command it came from)
+
+- 
+
+**Business constraints** (supplied by the user or a product artifact, never inferred from code; "none supplied yet" if so)
+
+- 
+
+**Assumptions to confirm** (values seen in code that are not yet stated business rules)
+
+- 
+
 ## Proposed Approach
 
 <1-3 paragraphs>

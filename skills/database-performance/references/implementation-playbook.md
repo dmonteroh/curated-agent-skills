@@ -72,6 +72,15 @@ OFFSET pagination becomes slower as offsets grow.
   - `WHERE (created_at, id) < ($cursorCreatedAt, $cursorId)`
   - plus an index on `(created_at, id)` in the same ordering.
 
+### Decide between an estimated and an exact count
+
+An unfiltered `COUNT(*)` reads every row, or every entry of some index, on every call. An index-only scan lowers the constant factor but not the shape: the cost still grows with the table. Before tuning the query, establish which kind of count the caller actually needs.
+
+- **An estimate is enough** for an "about N results" label, a dashboard tile, a capacity gauge, or a decision about whether to paginate at all. Read the planner's cached row estimate out of the catalog instead of scanning. Postgres: `SELECT reltuples::bigint FROM pg_class WHERE relname = 'orders';`. Other engines expose an equivalent estimate in their own statistics or catalog views. Accuracy tracks how recently statistics were refreshed, so the estimate is worst immediately after a bulk load and before the table is analyzed.
+- **An exact count is required** for billing, reconciliation, an invariant check, or any number a user can dispute. Pay for the scan, but shrink it first: filter on an indexed column so the count runs over a selective index range rather than the whole table.
+
+Verification: run the estimate and one exact count against the real table and compare. If the gap exceeds what the call site can tolerate, the estimate path is not usable there — report that rather than shipping it.
+
 ### Fix N+1 at the boundary
 
 Symptoms:

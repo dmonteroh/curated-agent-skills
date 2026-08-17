@@ -15,6 +15,8 @@ Provides UI design and review guidance that turns requirements into briefs, flow
 - Defining or enforcing design-system rules (tokens, surfaces, status hierarchy)
 - Proposing a design system from scratch, where the proposal has to say where it plays safe and where it takes a deliberate risk
 - Producing several distinct design directions for a human to choose between
+- There is a product but no brand, no tokens and no reference material, so the direction has to be elicited before anything can be specified
+- Running the revision loop on a direction the requester has already seen
 - Reviewing UI code for accessibility and consistency using local guidelines
 
 ## Do not use this skill when
@@ -22,6 +24,7 @@ Provides UI design and review guidance that turns requirements into briefs, flow
 - The user explicitly wants UI code implementation only
 - The task is “Google Stitch” specific
 - The task is judging an already-rendered UI from screenshots rather than specifying one
+- A visual direction is already approved — apply it rather than re-eliciting a second, conflicting one
 
 ## Required inputs
 
@@ -31,11 +34,13 @@ Provides UI design and review guidance that turns requirements into briefs, flow
 - If reviewing code: files/links and any local UI guidelines
 - If platform-specific behavior matters: local standards or product conventions
 - If proposing a design system: the product category and the conventions its users already expect, plus any direction already approved earlier in this project
+- If there is no brand to apply: no further input is required — the interview below produces it
 
 ## Workflow
 
 1) Clarify intent and constraints
    - Output: concise requirements summary + explicit assumptions.
+   - Decision: with no visual direction to apply, run the gated interview below first and treat its confirmed summary as the requirements input.
 
 2) Produce the UI brief (design-level contract)
    - Output: goals/non-goals, primary flow, secondary flows, hierarchy + navigation notes.
@@ -61,6 +66,19 @@ Provides UI design and review guidance that turns requirements into briefs, flow
 - If platform is unclear, ask for the primary target before drafting the brief.
 - If platform standards are missing, request local guidelines instead of assuming defaults.
 - If a proposed combination is internally incoherent, name the mismatch and propose the smallest change that resolves it — then accept the user's answer. Nudge, never block.
+- If a value is a browser mechanic rather than a design intent — `clamp()`, intrinsic sizing, `auto`, `%`, container or viewport units, a `minmax()` track — leave it raw instead of promoting it to a token. `references/design-system-contracts.md` carries the boundary.
+
+## Eliciting a direction that does not exist yet
+
+When the requester has a product but no brand, the missing input is a vocabulary rather than a preference: they can judge a direction on sight but cannot author one, so "what should it look like?" returns silence or a link. Ask instead about the product, the impression it should leave, and a few concrete either/ors, then translate the answers into design-system parameters. `references/brand-interview.md` carries the question set, the follow-up for each way an answer fails, and the translation table.
+
+Run it in three gated parts. A gate is not a checklist item — do not advance while any of its answers is missing, because every decision downstream is derived from them.
+
+- **A — product and purpose.** Gate: the name, what it does in plain terms, who it is for, and the single action a visitor should take.
+- **B — brand feel.** Gate: a few adjectives for the impression it should leave (three is a chosen default, not a measured one — enough to triangulate, few enough to force a choice), plus a light or dark direction.
+- **C — visual preferences.** Gate: colour direction, type character, shape language. Then read the whole direction back and get it confirmed before anything downstream depends on it.
+
+The requester will often try to skip this, and the skip is what produces the category template. When they insist, ask only what cannot be defaulted — the primary action and the intended impression — then default the rest and say what was defaulted, because a silent default is indistinguishable from a decision.
 
 ## Design-system proposals: safe choices and deliberate risks
 
@@ -93,6 +111,22 @@ Asked for three design directions, the default output is three siblings: the sam
 - Across successive rounds in the same project, vary light/dark, type, and aesthetic direction. Do not repeat a previous round's combination without saying why it is being repeated — repeating last round's answer is convergence across time.
 - Prior approvals are a demonstrated preference, not a constraint. When a proposal departs from what was approved before, name the departure as deliberate so it does not read as drift.
 - The "safe alternative" to an overused default is itself a default. Design tooling converges on the same escape hatch, so reaching for it is convergence with an extra step — treat a typeface or palette that is widely recommended *as the non-obvious choice* as an obvious one.
+
+## Iterating on a direction the requester has seen
+
+Ask for reaction before asking for edits: first reaction before reading any body copy, whether it reads as *their* product, and what feels wrong or missing. Never ask "do you like it?" — it returns a yes or a no and no information either way.
+
+Then classify the feedback before acting, because only the first class is an edit. Treating the others as edits tunes a direction that has already been rejected.
+
+- **A specific targeted change** — apply it directly.
+- **General dissatisfaction** ("it's boring") — a diagnosis request. Establish whether it is colour, layout or mood, then explore alternatives rather than adjusting the current one.
+- **Partial approval** ("love the layout, hate the colour") — hold the approved part fixed and vary only the named axis.
+- **"Something totally different"** — a rejection of the premise. Re-derive from the brief instead of mutating what is on screen.
+- **Implementation terms** (padding, font size, class names) — a symptom report. Translate to the design-level cause before acting.
+
+`references/brand-interview.md` carries the follow-up question that turns each vague symptom into a named axis.
+
+Guardrails: keep every round retrievable, so "the earlier one was better" is a rollback and not a reconstruction. When consecutive rounds produce only small positive adjustments, offer the exit — ship and refine in context — rather than iterating by default. When what remains is cosmetic, ask for the single most important change left. Order what remains on the same ladder as review findings: blocker, should-fix, nice-to-have.
 
 ## Accessibility rules
 
@@ -134,6 +168,9 @@ The rules below are DOM and WAI-ARIA facts, not framework facts, and are stated 
 - Listing a risk's upside without its cost, which converts the choice back into a recommendation
 - Blocking on a coherence objection after the user has chosen
 - Shipping design directions that differ only in accent colour
+- Generating from a blank brief because the requester skipped the interview, then presenting the category template as a proposal
+- Treating "I don't like it" as an edit instruction and returning a slightly adjusted version of what was rejected
+- Promoting a fluid or intrinsic value to a named token, filling the system with one-use tokens that carry no intent
 
 ## Examples
 
@@ -173,6 +210,14 @@ Use this reporting format, in this order:
 - Labels/ARIA:
 - Motion/contrast:
 - Pre-review gate: <items passed / items failed>
+
+# Brand Direction (if it was elicited rather than supplied)
+- Product / audience / primary action:
+- Impression (adjectives):
+- Light or dark:
+- Colour / type / shape direction:
+- Defaulted without an answer: <items, or none>
+- Confirmed by the requester: <yes | pending>
 
 # Design System Proposal (if proposing a system)
 - Safe choices:

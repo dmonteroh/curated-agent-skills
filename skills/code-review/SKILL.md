@@ -19,6 +19,7 @@ It replaces overlapping code-review skills by providing explicit review modes:
 - Reviewing pull requests, diffs, or local changes.
 - Establishing code review standards for a team.
 - Auditing for correctness, security, performance, or maintainability before merge/release.
+- Reviewing a machine-generated or bulk-refactored change, where the likely defect is an omission rather than a wrong line.
 - A third-party review bot has already commented on the diff and its comments need triage.
 - A second, independent reviewer is available and the two reviews need to be combined.
 - The review is authorized to apply its own findings to the working tree and needs stop conditions.
@@ -124,13 +125,21 @@ Pick one or more modes and follow the corresponding checklist:
 - `performance`
 - `tooling`
 
+**Absence pass** — run alongside whichever modes are selected. Every mode checklist tests properties of the lines that are present; a whole class of defect consists of lines that are not there, and no amount of scrutiny applied to the diff will surface them. Ask what is missing, not what is wrong. This matters most on machine-generated and bulk-refactored changes, which are written for the representative case and are fluent enough that an omission reads as a finished implementation — but the three checks below are good review checks against code of any origin, so run them on the change rather than on a judgment about who or what wrote it.
+
+- **Failure paths.** For every operation in the change that can fail — I/O, network, permissions, allocation, parsing — locate the handler and confirm it catches a specific condition rather than everything. A bare catch-all, an empty handler, or a log-and-continue where continuing is wrong is a finding. Check the candidate against the scanner-exemption patterns listed under "Applying fixes to the working tree" before raising it: deliberate fire-and-forget, catch-and-log where an uncaught error would take the process down, and total suppression on a shutdown path are correct as written, and this pass must not re-raise what that list already exempts.
+- **Resource pairing.** For every acquisition in the change — opened handles, pooled connections, subscriptions, listeners, timers, watchers, temporary files, spawned tasks — locate the matching release, and confirm it runs on the failure path as well as the success path. An acquisition with no release is a finding whether or not the language is garbage-collected: collectors reclaim memory, and do not close connections, cancel timers, or unregister listeners.
+- **Named-symbol existence.** Every module the change imports resolves to a declared dependency, and every external API member it calls exists in the version actually pinned. Generated code invents plausible module names and plausible method names, and calls members a previous major version exported. Neither compilation nor type-checking is this check — a dynamic language will not catch it, and a lockfile that happens to contain a same-named package does not establish that the member exists. Resolve each name against the installed or pinned source, never from memory.
+
 Decision points:
 - If changes touch auth, secrets, or input parsing, include `security`.
 - If changes touch hot paths, queries, or batch jobs, include `performance`.
 - If no tests exist for new behavior, record a test gap.
+- If an imported module or called API member cannot be resolved against the pinned version, that is a finding on its own, not a note — an unresolvable symbol is a change that cannot run.
 
 Output:
 - mode-specific notes
+- absence-pass results: unhandled or over-broad failure paths, unpaired acquisitions, unresolved imports and API members
 - draft findings list with severity
 
 ### 6) Second-opinion pass
@@ -146,13 +155,21 @@ Split the two finding sets three ways and report them as three lists, never merg
 - **Overlap** — both passes flagged it. Highest confidence; work these first.
 - **Unique to the first pass** and **unique to the second pass** — one reviewer saw it and the other did not. These are the reason for running two passes at all: they are where each reviewer's blind spots show. A finding is not discounted for being single-source; it is triaged like any other.
 
+**Deciding that two write-ups are the same finding.** Computing the overlap bucket is itself a judgment call, so fix the criterion before splitting rather than per finding. Left unstated, the test drifts run to run: the same diff reviewed twice yields a different overlap set depending only on how loosely the matcher read, and the skill's highest-confidence bucket becomes its least reproducible one.
+
+- **Match on location and issue, both.** Two findings are the same finding only when they cite the same file and line *and* describe the same underlying problem. Either alone is not a match.
+- **Same location, different problem — keep both**, tagged co-located. Proximity is not identity; collapsing on it deletes one of two real findings and leaves no trace that it existed.
+- **Same problem, different locations — keep both**, cross-referenced. That pair is evidence the mistake was reused across the diff, which is a larger finding than either instance alone. It is not one finding reported twice.
+- **Matched findings with different severities take the higher.** Not an average, not the first pass's. It is the combined verdict's max rule applied one level down, at the finding level.
+- **Matched findings with different fixes keep both recommendations, each attributed to its pass.** Silently picking one discards the disagreement, and disagreement between two blind reviewers is the most informative thing the second pass produces.
+
 Combined verdict: FAIL if a BLOCKER appears in either pass. The same rule applied to the union of the two finding sets, so one reviewer failing the diff is enough to fail it.
 
 If no second reviewer is available, skip this step and say so in the report. A single-pass review is a complete review; a simulated second opinion — the same reviewer re-reading its own output — is not one, and must never be reported as overlap.
 
 Output:
 - per-pass verdicts
-- the three finding lists (overlap, unique to each pass)
+- the three finding lists (overlap, unique to each pass), with co-located and cross-referenced pairs kept as separate findings
 - combined verdict, or a note that only one pass ran
 
 ### 7) Produce feedback in a deterministic format

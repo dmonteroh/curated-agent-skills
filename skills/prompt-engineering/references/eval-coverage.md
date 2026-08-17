@@ -31,7 +31,19 @@ Alongside pass/fail, report:
 
 - **Confidence intervals on both rates**, not point estimates. A bare point estimate from a small case set invites a chase after noise.
 - **Deltas against the previous version in percentage points**, both directions. Percentage points, not percent: "detection −11.1pp, false positives −21.2pp" states a trade a reader can judge; "false positives improved 45%" hides which way the other direction moved.
-- **Every knob that produced the number, recorded beside it**: model and version, prompt version, aggregation or voting rule, confidence floors, timeouts, retry policy. A result detached from its configuration cannot be reproduced or compared against the next one.
+- **Every knob that produced the number, recorded beside it**: model and version, prompt version, aggregation or voting rule (below), confidence floors, timeouts, retry policy. A result detached from its configuration cannot be reproduced or compared against the next one.
+
+## Aggregation rules: sampling and voting
+
+The knob list above requires an aggregation or voting rule beside every result, which presumes one exists. The usual one is **self-consistency**: where a single call is measurably not reliable enough and the task has a discrete, checkable final answer, run the same prompt n times at a non-zero temperature, extract the final answer from each sample, and take the majority. Report the winning answer's **vote share** as the confidence signal and keep the dissenting samples — unanimity and a bare majority are different results that one call cannot tell apart.
+
+Reach for it only when all three hold: the answer is discrete enough to compare across samples, one call has been *shown* insufficient rather than assumed to be, and n× latency and spend are acceptable. Cost is linear in n and the benefit is task-dependent.
+
+- n and the sampling temperature are caller choices set against that cost multiplier; this file states no default for either.
+- Fix the answer-extraction rule and the tie-breaking rule before running, and record both as knobs. A vote taken over loosely extracted answers counts formatting variants as disagreement.
+- Vote share is an **agreement** measure, not a calibrated probability. Recording it as a confidence knob is fine; reporting it as "the answer is 80% likely to be correct" is not.
+- This is orchestration around the call, not scaffolding inside the prompt, so it applies to reasoning models as readily as to classic ones — the returns are usually smaller there, since the model already explores paths internally.
+- It changes the unit under evaluation. Evaluate the voted result, not one sample, and record n and the voting rule with the number; a later run at a different n is otherwise not comparable.
 
 ## Cap the tuning, visibly
 

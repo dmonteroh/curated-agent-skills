@@ -12,7 +12,13 @@
   - `code` (stable)
   - `message` (human/agent readable)
   - `hint` (what to do next)
+  - `stop_condition` (when to stop retrying and escalate)
   - `details` (optional; include only when requested)
+- A `hint` alone invites an unbounded retry loop: nothing in the response says when trying again has stopped being useful, so "try again with a different token" reads as valid on the hundredth attempt as on the first. Every error that invites a retry states its stop condition too, in one of three forms:
+  - a code that is never transient, so retrying it cannot succeed — `INVALID_STATUS`: stop immediately and surface the valid enum;
+  - an attempt or elapsed-time budget the caller enforces — `RATE_LIMITED`: honor the advertised window, stop after the caller's configured number of attempts, and cap the honored wait so a bogus retry-after header cannot stall the caller indefinitely;
+  - a state that should have changed between attempts and did not — `JOB_PENDING`: keep polling only while the job's state or progress marker advances, and stop on unchanged consecutive polls.
+- Any attempt count or wait duration inside a stop condition is a chosen default, not a measured limit: expose it as a value the caller may set, and document it as chosen rather than derived.
 
 ## Examples of good hints
 

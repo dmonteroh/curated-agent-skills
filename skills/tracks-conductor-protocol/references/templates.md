@@ -181,6 +181,7 @@ Location: `docs/project/tracks/<track-slug>/plan.md`
 
 ### Phase 1: <name>
 
+- [x] Task: <link to task brief> `<commit-sha>`
 - [ ] Task: <link to task brief>
 - [ ] Verification: <what proves phase is complete>
 
@@ -192,7 +193,14 @@ Location: `docs/project/tracks/<track-slug>/plan.md`
 
 - Architecture checkpoint: do we need an ADR?
 - Context checkpoint: does CDD context need updating?
+
+| Phase | Checkpoint SHA | Date | Status |
+| --- | --- | --- | --- |
+| Phase 1 | <sha> | YYYY-MM-DD | verified |
+| Phase 2 | | | pending |
 ```
+
+A completed task carries the commit SHA that completed it, and a closed phase carries its checkpoint SHA. This is what makes the plan a revert map rather than a checklist: see `references/execution-playbook.md` for what the recorded SHAs buy and how to record deviations against a completed task.
 
 ## Track Context (CDD bridge)
 

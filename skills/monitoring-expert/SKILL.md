@@ -14,6 +14,8 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
 - Implementing structured logging
 - Creating metrics and dashboards
 - Configuring alerting rules
+- Detecting release regressions against a captured pre-deploy baseline
+- Correlating metrics to traces, or mapping service dependencies
 - Implementing distributed tracing
 - Debugging production issues with observability
 - Performance testing and load testing
@@ -24,6 +26,7 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
 
 - The request is only for a single vendor UI walkthrough with no implementation decisions
 - The system already has a finalized observability plan and only needs routine execution
+- The task is post-deploy smoke or synthetic checking of a deployed URL, not deciding what the service itself measures
 - The user wants unrelated security auditing or code review not tied to monitoring
 
 ## Activation Cues
@@ -48,6 +51,7 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
    - Output: Monitoring goals and scope statement.
 2. **Plan instrumentation** - Define logs, metrics, and traces to add.
    - Decision: If no tracing is feasible, prioritize logs + metrics with correlation IDs.
+   - Decision: If both traces and metrics are collected, attach trace IDs as exemplars on latency histograms so a metric spike resolves to one concrete trace (`references/prometheus-metrics.md`).
    - Output: Instrumentation backlog with owners and acceptance criteria.
 3. **Select collection/storage** - Choose agents, pipelines, retention, and cardinality limits.
    - Decision: If managed services are mandated, align to vendor-specific exporters and limits.
@@ -56,6 +60,8 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
    - Output: Dashboard spec (panels, queries, refresh, owners).
 5. **Define alerting** - Set thresholds, burn-rate alerts, and paging policies.
    - Decision: If alert volume is high, switch to error budget or anomaly alerts.
+   - Decision: If releases must be validated after rollout, capture a pre-deploy baseline and alert on the delta from it alongside the absolute thresholds (`references/alerting-rules.md`).
+   - Decision: If the service terminates TLS, signs tokens, or holds fixed-lifetime credentials, add expiry alerts with enough lead time to complete rotation.
    - Output: Alert policy and routing matrix.
 6. **Performance & capacity** - Plan load tests, profiling, and capacity models.
    - Output: Test plan, profiling targets, and capacity assumptions.
@@ -69,10 +75,10 @@ Load detailed guidance based on context:
 | Topic | Reference | Load When |
 |-------|-----------|-----------|
 | Logging | `references/structured-logging.md` | Pino, JSON logging |
-| Metrics | `references/prometheus-metrics.md` | Counter, Histogram, Gauge |
+| Metrics | `references/prometheus-metrics.md` | Counter, Histogram, Gauge, exemplars |
 | Tracing | `references/opentelemetry.md` | OpenTelemetry, spans |
-| Alerting | `references/alerting-rules.md` | Prometheus alerts |
-| Dashboards | `references/dashboards.md` | RED/USE method, Grafana |
+| Alerting | `references/alerting-rules.md` | Prometheus alerts, baseline regressions, expiry |
+| Dashboards | `references/dashboards.md` | RED/USE method, Grafana, topology |
 | Performance Testing (k6) | `references/performance-testing-k6.md` | Load test types, k6 stages |
 | Performance Testing (tools) | `references/performance-testing-tools.md` | Artillery, Locust, JMeter |
 | Performance Testing (scenarios) | `references/performance-testing-scenarios-metrics.md` | Metrics, user journeys |

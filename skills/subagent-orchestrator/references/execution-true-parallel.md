@@ -11,7 +11,8 @@ If any prerequisite fails, fall back to `execution-queued-serial.md`.
 ## Mandatory Preconditions
 
 - Isolation confirmed for concurrent workers.
-- No overlapping claim sets across concurrent tasks.
+- No overlapping claim sets across concurrent tasks, checked on every write surface rather than on file paths alone (`claim-sets.md`).
+- Contract artifacts for every boundary two concurrent tasks meet at, written and owned by the controller before dispatch.
 - Worktree strategy prepared (`task -> worktree path -> branch`).
 - Integration order and cleanup plan defined before dispatch.
 
@@ -19,9 +20,9 @@ If any prerequisite fails, fall back to `execution-queued-serial.md`.
 
 ### 1) Prepare Parallel Task Set
 
-Select only tasks with disjoint claims and no hard dependencies.
+Select only tasks with disjoint claims and no hard dependencies. Tasks in the never-parallel class — destructive commands, migrations, writes to a shared table, customer-visible production changes — stay out of the subset and run alone behind their human gate.
 
-Output: parallel-ready task subset.
+Output: parallel-ready task subset, and the gated tasks held back with their ordering.
 
 ### 2) Assign Worktrees
 
@@ -49,16 +50,18 @@ Before any verification:
 
 - confirm all concurrent workers exited
 - confirm no remaining active worker sessions
+- confirm the processes those workers started — servers, builds, watchers, backfills, deploys — have stopped or been waited on, and their outcomes recorded
 
 Output: barrier clearance.
 
 ### 5) Verification + Integration
 
 - Run task-level verification as needed.
-- Integrate in planned order.
-- Run full project quality bar.
+- Integrate in planned order, one task at a time: replay each onto the current integration head, then re-run the integration checks before the next one starts.
+- Hold back any task whose dependency is failing.
+- Run full project quality bar over the integrated result.
 
-Output: integration result.
+Output: integration result, with the check outcome recorded per merge.
 
 ### 6) Cleanup
 

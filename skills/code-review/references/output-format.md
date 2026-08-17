@@ -59,6 +59,12 @@ Pass A: FAIL (1 BLOCKER)   Pass B: PASS   Combined: FAIL
 
 Overlap (both passes):
 - src/auth/session.ts:42 (HIGH): ...
+  Fix (pass A): set the attributes at the cookie helper.
+  Fix (pass B): move session issuance behind the shared middleware.
+Co-located, not merged:
+- src/auth/session.ts:42 (LOW): unrelated naming issue on the same line.
+Cross-referenced (same problem, two sites):
+- src/api/orders.ts:31 and src/api/refunds.ts:57 (HIGH): ...
 Unique to pass A:
 - src/api/limits.ts:88 (BLOCKER): ...
 Unique to pass B:

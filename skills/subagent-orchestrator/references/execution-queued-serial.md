@@ -18,7 +18,7 @@ Output: task board with queued tasks.
 
 Choose execution order by dependency/risk:
 
-- dependency-first
+- dependency-first (read `depends_on` from the board; a task runs after everything it depends on)
 - high-risk-first
 - low-conflict-first
 

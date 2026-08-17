@@ -42,11 +42,13 @@ Provides guidance for designing and implementing MCP servers that agents can use
 3) Design input/output contracts
 - Inputs: strict validation (types, ranges, enums), helpful field descriptions.
 - Outputs: stable shape; include primary identifiers; provide concise defaults.
+- Normalize the success path the way errors are normalized: a recommended envelope of `status`, a one-line `summary`, `next_actions` (follow-ups that make sense from this result), and `artifacts` (IDs or paths produced). Declare per tool the fields that carry real information rather than mandating all four on every response, and keep the names identical across the tools that declare them (`references/contracts.md`).
 - Add `readOnlyHint`, `idempotentHint`, `destructiveHint` accurately.
 - Output: Schema drafts for each tool.
 
 4) Make errors actionable
 - Error messages should tell the agent what to try next (valid values, missing permissions, how to filter).
+- Every error path that invites a retry also states its stop condition: the signal that means stop retrying and escalate — a code that is never transient, an attempt or time budget the caller sets, or a state that should have changed between attempts and did not. A retry hint with no stop condition is an invitation to loop (`references/errors.md`).
 - Avoid dumping raw upstream payloads; summarize and keep an escape hatch to “details” if needed.
 - Output: Error shape + example messages.
 
@@ -102,7 +104,8 @@ Provides guidance for designing and implementing MCP servers that agents can use
 **Output (excerpt)**
 - Tools: `search_issues`, `assign_issue`, `summarize_issue_updates`
 - `search_issues` schema includes `status` enum and `max_results` with cap.
-- Errors: `INVALID_STATUS` suggests valid values.
+- `assign_issue` returns `status`, a one-line `summary` ("assigned ISSUE-412 to a.chen"), `next_actions` (`summarize_issue_updates` for the same ID), and `artifacts` (the issue ID).
+- Errors: `INVALID_STATUS` suggests valid values, and stops the loop — it is never transient, so a retry with the same value cannot succeed.
 
 ## References (Optional)
 

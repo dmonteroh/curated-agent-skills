@@ -13,6 +13,7 @@ Provides architectural review guidance for system designs and major changes, foc
 - Evaluating scalability, resilience, or maintainability impacts
 - Assessing architecture compliance with standards and patterns
 - Providing architectural guidance for complex systems
+- Checking layering, bounded-context, or aggregate boundaries in a Clean, Hexagonal, or DDD codebase
 
 ## Do not use this skill when
 
@@ -50,6 +51,7 @@ Provides architectural review guidance for system designs and major changes, foc
 6. Identify architectural violations or anti-patterns.
    - Output: findings with evidence or reasoning.
    - Decision: classify findings as blocking vs. advisory and require fixes for blocking items.
+   - Decision: run the "Boundary violation diagnostics" table below against the design or codebase. Each symptom present is a finding carrying its named structural fix — not an observation to phrase as a preference.
 7. Build a failure modes registry.
    - Output: one table, one row per code path that can fail, with fixed columns: codepath, failure mode, rescued? (yes/no + mechanism), test? (yes/no + which test), what the user sees, and where it is logged.
    - Invariant, stated literally so it is a checkable rule and not a mood: every failure mode needs a rescue, a test, and visibility. Visibility is satisfied jointly by "what the user sees" and "logged" — a failure that is silently rescued with nothing surfaced to the user and nothing written to a log is still a visible gap in the table, even though it is technically "rescued".
@@ -60,6 +62,41 @@ Provides architectural review guidance for system designs and major changes, foc
    - Output: verification plan (tests, load checks, PoC, rollout guardrails).
 10. Document decisions and next steps.
     - Output: ADR suggestion list and owners if provided.
+
+## Boundary violation diagnostics
+
+Layering violations are easier to catch by their observable symptom than by arguing about which pattern the design claims to follow. Each row below is a symptom a reviewer can look for directly, what it means structurally, and the fix that removes it. A symptom found is a finding; the middle column is the evidence, the right column is the recommendation.
+
+| Symptom | What it means structurally | Structural fix |
+| --- | --- | --- |
+| Use-case or business-logic tests need a live database, broker, or third-party service | Business logic has leaked into the infrastructure layer | Put the dependency behind an abstract port and inject a fake or in-memory implementation in tests; the use case accepts the port, never the concrete class |
+| Import cycle between an inner layer and an outer one | An inner-layer module imports a concrete implementation instead of an abstract interface | Inner layers import only from the domain/core layer, never from adapters or infrastructure; wire the concrete implementations at composition time |
+| Framework-specific decorators or annotations (ORM column definitions, serializer field declarations) sit on a core domain object | The domain model is not pure — persistence or transport concerns are fused into it | Keep a separate persistence/transport model and map between it and the domain object at the boundary |
+| A controller or request handler keeps growing | Logic belonging to a use case is accumulating at the transport edge | Extract it into a use-case or service object; a controller parses the request, invokes the use case, and formats the response — nothing else |
+| A value object accepts invalid data and fails deep inside business logic later | Invariants are not enforced at construction | Validate in the constructor so an invalid instance cannot exist at all, surfacing bad data at the boundary |
+| One bounded context imports another context's domain objects directly | The two contexts share a model, so either can break the other | Introduce an anti-corruption layer that translates the foreign model into a local representation; hold a local identifier, not the foreign entity |
+| A domain entity reads configuration or environment | Infrastructure concerns reach into the core | Pass the values in as constructor arguments, resolved at the infrastructure boundary |
+| Two aggregates import each other | Direct coupling where a fact should flow | One aggregate emits a domain event; the other's use case subscribes and reacts, and neither imports the other |
+| A repository calls a use case to do extra work after saving | Persistence is orchestrating behavior | Move the extra work into a domain service or use case; repositories persist state and do not orchestrate |
+
+Where the language has a dependency-graph tool, rendering the module graph makes the direction check mechanical rather than a reading exercise: the domain/core layer must show no outgoing edges to adapters or infrastructure, and any arrow pointing outward is a violation to report.
+
+## Aggregate boundary sizing
+
+Where to draw an aggregate boundary is a recurring call that reviews tend to settle by taste. Put every question below to the design and record the answer. Most decide membership — what sits inside the boundary; one identifies the root; the last is a size check that can overrule a membership answer the others produced.
+
+| Question | If yes |
+| --- | --- |
+| Must these two objects always be consistent with each other, as one atomic change? | Same aggregate |
+| Can they be eventually consistent? | Separate aggregates, synchronized by a domain event |
+| Is one object the owner controlling access to the other? | The owner is the aggregate root |
+| Does removing the root make the child meaningless on its own? | The child belongs inside the aggregate |
+| Would a single state change require loading a large object graph? | The aggregate is too large — split it |
+
+Contrast, on a customer-and-orders model:
+
+- Wrong: `Customer` holds full `Order` objects, so every change to a customer loads that customer's entire order history.
+- Right: `Customer` holds order identifiers only; `Order` is its own aggregate and references the customer by identifier. Consistency between them is maintained by domain events, not by one object graph.
 
 ## Safety
 

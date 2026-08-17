@@ -9,6 +9,8 @@ Load only what matches the current mode/runtime.
 - `execution-prompt-parallel.md`: parallel planning with sequential execution.
 - `runtime-codex.md`: Codex-specific dispatch pattern (`codex exec`).
 - `runtime-claude.md`: Claude model/effort policy, dispatch packet, mode notes, and permission recovery.
-- `packet-templates.md`: task board, worker packet, reviewer packet, and final report templates.
+- `claim-sets.md`: the write surfaces a claim set must enumerate, contract artifacts and aggregator files, worked contrasts, and the pre-dispatch claim-set check.
+- `packet-templates.md`: task board, worker packet, reviewer packet, fix packet, and final report templates.
+- `review-convergence.md`: why a fresh reviewer per round is load-bearing, how to scope a fix packet, the round cap and its escalation.
 - `worker-surface.md`: worked contrasts for working directory, authority, tool grant and readiness; the untrusted-context summary shape; the pre-dispatch checklist.
 - `agent-optimization.md`: baseline → improve → validate loop for iterative agent quality work.

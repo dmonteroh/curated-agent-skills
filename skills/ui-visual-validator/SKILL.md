@@ -16,12 +16,14 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 - Running a visual accessibility pass (focus visibility, contrast concerns, readability)
 - Judging whether a rendered page meets explicit design criteria, not only whether it changed
 - Screening a rendered page for the generic patterns that mark machine-generated design
+- Gating a UI change as done, where the approval has to come from someone other than whoever made the change
 
 ## Do not use this skill when
 
 - Designing a UI or exploring new layouts
 - Lacking visual evidence and a URL + repro steps
 - Reviewing source code rather than rendered output — every criterion here is checked against what the page renders
+- Driving a live browser to exercise behaviour: clicking through flows, watching the console and network, or running an automated accessibility scanner. This skill judges what the evidence shows. Producing that evidence is a separate job, and its checks are functional, not visual.
 
 ## Required inputs
 
@@ -30,12 +32,24 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 - Scope: pages/components/states that are in scope
 - Constraints: target viewports, themes, or environments (if any)
 - Surface type, if known: marketing/landing page, application UI, or hybrid — this selects which criteria apply
+- Source recency: when the rendered source last changed, so each capture can be checked against it
+
+## Evidence admissibility
+
+Four gates decide whether an evidence set can be judged at all. They run at step 1, before any criterion. Failing one is never a reason to `pass` the parts that happen to be present. What each gate rejects, and why: `references/evidence-admissibility.md`.
+
+- **Complete coverage, never a sample.** Enumerate every page, route, slide, tab, modal state, breakpoint and scroll position in scope, record the count, and require one capture per item. The verdict is per page and one failing page fails the surface, so "most pages look fine" is not a `pass`.
+- **Freshness.** A capture is admissible only if it postdates the last change to the source it claims to verify. When capture time or source-change time cannot be established, that is `needs-evidence`, not the benefit of the doubt.
+- **Capture hygiene.** Inspect the artifact before judging the product — real format matches extension, frame fully composited, dimensions match the claimed viewport. A defective capture is a tooling defect, never a product issue.
+- **Motion frames.** A single resting frame is not evidence for anything that moves: each transition needs rest, in-flight and settled; each scroll or entrance reveal needs start/mid/end.
+
+**Animation is never a reason to wave a region through.** "The pixels differ because it is animating" dismisses a diff instead of resolving it. Compare settled state against settled state for fidelity, and judge the motion separately against the reference's own motion, or against the stated intent when there is no reference.
 
 ## Workflow
 
 1. **Inventory evidence**
-   - Output: evidence table listing filename/URL, viewport, theme, state, environment.
-   - If evidence is missing, stop and output `needs-evidence` with a retest plan.
+   - Output: evidence table listing filename/URL, viewport, theme, state, environment, and capture time against the last source change; plus the enumerated in-scope item count the table is meant to cover.
+   - Decision: run the four gates in `Evidence admissibility`. Evidence that fails a gate is not evidence — stop and output `needs-evidence` with a retest plan naming exactly what to re-capture.
 2. **Classify the surface**
    - Output: `marketing`, `app`, or `hybrid`, plus the one observation that decided it.
    - Decision: `marketing` (hero-driven, brand-forward, conversion-focused) applies the landing criteria; `app` (workspace-driven, data-dense, task-focused: dashboards, admin, settings) applies the application criteria; `hybrid` applies landing criteria to the marketing sections and application criteria to the functional ones, section by section.
@@ -59,14 +73,18 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 9. **AI-slop screen**
    - Output: `clean`, or `flagged (<n>)` naming each matched pattern and where it appears.
    - Decision: report this on its own axis. Do not merge it into the pass/partial/fail verdict and do not average it against the design criteria.
-10. **Accessibility (visual) checks**
+10. **Faked-surface check**
+    - Output: per region that is meant to be a live interface, `live`, `suspect (<tell>)`, or `not observable`.
+    - Decision: a `suspect` region blocks `pass` for that region. Name the one capture that would settle it. See `Faked-surface check` below.
+11. **Accessibility (visual) checks**
     - Output: focus visibility findings, contrast concerns, text scaling/wrapping issues.
-11. **Verdict + next actions**
+12. **Verdict + next actions**
     - Decision rules:
       - `pass`: all goals met, no regressions, coverage complete.
       - `partial`: goals mostly met but missing coverage or minor regressions.
       - `fail`: any critical regression or goal not met.
       - `needs-evidence`: missing evidence blocks evaluation.
+    - Decision: a `pass` verdict does not by itself close the work — apply `Completion gate`.
 
 ## Design criteria
 
@@ -85,6 +103,7 @@ Provenance, binding on how these are used: the WCAG ratios come from the standar
 - **Spacing scale**: spacing values come from a scale, not arbitrary numbers (chosen default base: 4px or 8px).
 - **Border-radius hierarchy**: radius varies by element role. One uniform large radius on buttons, cards, inputs and avatars alike is a finding, not a style.
 - **Breakpoint ladder**: verify at the project's breakpoints; when none are stated, the chosen default ladder is 375 / 768 / 1024 / 1440.
+- **CJK line breaking**: when the rendering carries Korean, Japanese or Chinese body or display text, walk the defect classes in `references/cjk-line-breaking.md` on every page's rendering. The Latin-script orphan rule below does not detect them — it asks whether one stray word sits alone, while these defects are a phrase cut where the grammar does not allow it — and a near-identical automated diff score never clears one.
 - **Never** ship body text that is both small and low-contrast; **never** use a placeholder as an element's only label (it disappears once the field has content); **never** drop the visited/unvisited link distinction; **never** float a heading equidistant between two sections — it must sit closer to the section it introduces.
 
 ### Landing criteria — `marketing` surfaces
@@ -120,6 +139,8 @@ These are the checks a reviewer will not volunteer unprompted. Each is observabl
 - No added letterspacing on lowercase body text.
 - `env(safe-area-inset-*)` respected, so content clears notches and home indicators.
 - Motion animates `transform` and `opacity` only, with properties listed explicitly rather than `transition: all`.
+- `will-change` appears only where a first-frame stutter was actually observed, and only on compositor-friendly properties (`transform`, `opacity`, `filter`). `will-change: all` is a finding: it asks the browser to promote everything and gives back the cost the hint exists to avoid.
+- Images carry a hairline neutral inset outline — an `outline` pulled inside the box with a negative `outline-offset`, black at low alpha on light surfaces and white at low alpha on dark — so an image edge does not dissolve into the surface behind it. The tell is a pale photograph on a white card with no discernible edge. Image outlines are never tinted with the brand palette. (The source rubric's 1px width and 10% alpha are chosen defaults; what is checkable is that the edge is defined and neutral.)
 
 ## Trunk test
 
@@ -149,6 +170,20 @@ The test for each: would a designer at a studio that signs its work ship this?
 
 **Provenance:** the pattern list is adapted from a third-party design-review rubric, which credits an OpenAI developer-blog post on frontend design (dated March 2026 there) plus its own in-house methodology. That upstream citation could not be verified from this repository: treat it as reported, not confirmed.
 
+## Faked-surface check
+
+A region can satisfy every criterion above and still not be a live interface: a pasted screenshot, an exported raster, or a background image standing in where components should be. It earns its own pass because a near-identical similarity score is precisely what a pasted picture produces — the closer the fake, the better it scores.
+
+Tells visible in the evidence itself:
+
+- Text inside the region is softer, or anti-aliased differently, than text of the same size outside it.
+- The region keeps its exact internal layout across two breakpoints while everything around it reflowed.
+- Its content is identical in the light and dark captures, including surfaces that the theme should have changed.
+- Artifacts baked into the pixels: a mouse cursor, a scrollbar, a rounded window corner, compression ringing around text.
+- Text scaling moves everything except that region.
+
+Confirming a fake outright means reading the DOM or the component tree, which sits outside what this skill judges. Report the region as `suspect` with the tell that raised it and name the single capture that would settle it — the same region at a second breakpoint usually does.
+
 ## Common pitfalls
 
 - Calling a change "correct" without listing visible evidence.
@@ -160,24 +195,35 @@ The test for each: would a designer at a studio that signs its work ship this?
 - Quoting a chosen default back as a requirement when the project's own design system states a different value.
 - Reporting a criterion as met when the evidence cannot show it; `not observable` plus a retest note is the honest result.
 
+## Completion gate
+
+A verdict is worth what its independence is worth, so closure has two rules.
+
+- **A pass is never self-graded.** It counts only when it comes from a review that did not author the change, judges the current build, and starts from the evidence rather than an earlier round's notes. This holds however clean the automated numbers look: a diff tool aims a review, it does not close one.
+- **Tag every blocking finding `[product]` or `[evidence]`, and route the two differently.** `[product]` means the rendered UI is wrong: fix the source, re-capture the pages the fix touched, get a fresh review. `[evidence]` means the capture is defective and the product is not implicated: repair the capture, re-shoot only the broken artifacts, re-review without touching product code. Misrouting an `[evidence]` finding edits working code to chase a pipeline bug.
+
+Closure has exactly two exits: that independent `pass` with no blocking findings, over a complete and current evidence set — or a written list of the exact gaps that remain, explicitly accepted by whoever owns the change. Silent self-certification is not one of them.
+
 ## Output contract
 
 Use this exact section order:
 
 1. **Verdict**: pass/fail/partial/needs-evidence
 2. **AI-Slop Screen**: `clean` or `flagged (<n>)` with the patterns named — reported independently of the verdict
-3. **Surface Classification**: marketing/app/hybrid + the observation that decided it
-4. **Evidence Inventory**: list of artifacts with viewport/theme/state
-5. **Goals**: checklist with status per goal
-6. **Observations (Objective)**: what is visible
-7. **Intended Diffs Observed**: which goals are satisfied
-8. **Regressions / Unintended Changes**: anything unexpected
-9. **Design Criteria Findings**: per criterion — met/not met/not observable, with measured values
-10. **Trunk Test**: which questions the page answers unaided
-11. **Accessibility (Visual)**: focus visibility, contrast concerns, readability
-12. **Responsive + State Coverage**: breakpoints and states covered + gaps
-13. **Issues (With Severity)**: blocker/major/minor/nit
-14. **Retest Plan**: missing evidence + how to capture it
+3. **Faked-Surface Check**: per region examined — `live`, `suspect (<tell>)`, or `not observable`
+4. **Surface Classification**: marketing/app/hybrid + the observation that decided it
+5. **Evidence Inventory**: artifacts with viewport/theme/state, each one's capture time against the last source change, and the enumerated item count covered
+6. **Goals**: checklist with status per goal
+7. **Observations (Objective)**: what is visible
+8. **Intended Diffs Observed**: which goals are satisfied
+9. **Regressions / Unintended Changes**: anything unexpected
+10. **Design Criteria Findings**: per criterion — met/not met/not observable, with measured values
+11. **Trunk Test**: which questions the page answers unaided
+12. **Accessibility (Visual)**: focus visibility, contrast concerns, readability
+13. **Responsive + State Coverage**: breakpoints and states covered + gaps
+14. **Issues (With Severity)**: blocker/major/minor/nit, each tagged `[product]` or `[evidence]`
+15. **Retest Plan**: missing evidence + how to capture it
+16. **Completion Gate**: satisfied, or the exact remaining gaps and who accepted them
 
 ## Examples
 
@@ -185,12 +231,15 @@ Use this exact section order:
 
 - Verdict: partial
 - AI-Slop Screen: flagged (2) — three-column feature grid in "Why us"; uniform 16px radius on buttons, cards and inputs alike
+- Faked-Surface Check: hero "dashboard preview" — suspect (identical internal layout at 375 and 1280 while everything around it reflowed); settles with a 768px capture of that region
 - Surface Classification: hybrid — marketing hero above the fold, settings table below
-- Evidence Inventory: `settings-desktop-before.png` (1280x800, light, default)
+- Evidence Inventory: 14 states enumerated, 12 captured; `settings-desktop-before.png` (1280x800, light, default, captured after the last source change)
 - Goals: [ ] Updated button padding (needs-evidence at 768px)
+- Regressions / Unintended Changes: Hover state missing from evidence
 - Design Criteria Findings: measure — not met (body copy at 104 characters per line, chosen default is 45-75); palette — met (9 non-gray colours); nested radii — not met (12px card holds a 12px thumbnail inside 8px padding, expected 4px)
 - Trunk Test: "where am I in the scheme of things" unanswered — no breadcrumb or active-nav marker (high impact)
-- Regressions / Unintended Changes: Hover state missing from evidence
+- Issues: (blocker) `[evidence]` `settings-mobile-after.png` is a JPEG named `.png` and its lower third is black — re-shoot before this page can be judged; (major) `[product]` focus ring clipped by the card's overflow
+- Completion Gate: not satisfied — no review by anyone other than the change's author, and two states still uncaptured
 
 **Contrast — the same page, two ways of reporting it**
 

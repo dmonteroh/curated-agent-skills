@@ -16,7 +16,7 @@
 - `references/prompt-optimization-experiments.md`: A/B testing, metrics, nondeterminism handling, and experiment axes beyond prompt text.
 - `references/prompt-optimization-efficiency.md`: Token, latency, and cost reduction tactics.
 
-- `references/eval-coverage.md`: Coverage discipline for LLM-backed units that ship — gate/periodic tiers, a build-checked registry, structural assertions for judgment units, two-directional gates, and the result-record shape.
+- `references/eval-coverage.md`: Coverage discipline for LLM-backed units that ship — gate/periodic tiers, a build-checked registry, structural assertions for judgment units, two-directional gates, aggregation and voting rules (self-consistency), and the result-record shape.
 - `references/harness-porting.md`: Porting one authored instruction set to a second agent runtime — the four rewrite classes, registry validation, and tests parameterized over targets.
 
 - `references/prompt-templates-architecture.md`: Template building blocks and modular composition.

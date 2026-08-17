@@ -1,6 +1,6 @@
 ---
 name: terraform-engineer
-description: "Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing."
+description: "Use when implementing infrastructure as code with Terraform across AWS, Azure, GCP, or OCI. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing."
 metadata:
   category: devops
 ---
@@ -12,7 +12,7 @@ Provides production-grade Terraform infrastructure code with modular design, sec
 
 - Building or updating Terraform modules and root configurations
 - Setting up remote state, locking, and workspace strategies
-- Configuring AWS, Azure, or GCP providers safely
+- Configuring AWS, Azure, GCP, or OCI providers safely
 - Refactoring existing IaC for reuse, security, or compliance
 - Adding infrastructure testing or policy checks
 
@@ -114,4 +114,4 @@ Use the output contract headings exactly and keep each section concise.
 
 ## Knowledge Reference
 
-Terraform 1.5+, HCL syntax, AWS/Azure/GCP providers, remote backends (S3, Azure Blob, GCS), state locking (DynamoDB, Azure Blob leases), workspaces, modules, dynamic blocks, for_each/count, terraform plan/apply, terratest, tflint, Open Policy Agent, cost estimation
+Terraform 1.5+, HCL syntax, AWS/Azure/GCP/OCI providers, remote backends (S3, Azure Blob, GCS), state locking (DynamoDB, Azure Blob leases), workspaces, modules, dynamic blocks, for_each/count, terraform plan/apply, terratest, tflint, Open Policy Agent, cost estimation

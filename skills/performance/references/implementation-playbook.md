@@ -7,6 +7,7 @@ This playbook intentionally stays lean. Use it as a navigation aid, not a textbo
 - Define target journeys/endpoints and success metrics (p95/p99, throughput, error rate, cost).
 - Establish a baseline in a controlled environment.
 - Capture a profile/trace for the baseline.
+- Declare the search budget (max variants, time, spend, data impact) and the correctness gate before optimizing.
 - Optimize one bottleneck at a time; measure after each change.
 - Add guardrails (budgets, dashboards, alerts) to prevent regressions.
 
@@ -16,6 +17,8 @@ This playbook intentionally stays lean. Use it as a navigation aid, not a textbo
 - Backend: expensive loops, serialization, contention, synchronous I/O.
 - Frontend: bundles, render blocking, images, CLS/INP regressions.
 - Infra: over/under-provisioning, cold starts, network hops, noisy neighbors.
+- Freshness: stale cache entries served fast, unbounded queue growth, degraded upstream providers, batch windows that delay a stream.
+- Developer feedback loop: cold build, incremental rebuild, test suite, type check, lint, container image build — the surface no runtime profiler measures.
 
 ## Tooling pointers (choose what's already installed)
 

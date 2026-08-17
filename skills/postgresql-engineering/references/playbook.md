@@ -15,6 +15,7 @@ This file contains the detailed Postgres guidance that was intentionally moved o
 - **Identifiers**: unquoted → lowercased. Avoid quoted/mixed-case names. Convention: use `snake_case` for table/column names.
 - **Unique + NULLs**: UNIQUE allows multiple NULLs. Use `UNIQUE (...) NULLS NOT DISTINCT` (PG15+) to restrict to one NULL.
 - **FK indexes**: PostgreSQL **does not** auto-index FK columns. Add them.
+- **No silent coercion**: a length or precision overflow raises an error instead of truncating or rounding — inserting `999` into `NUMERIC(2,0)` fails outright. Engines that truncate silently will accept the same write, so a value range that "worked" elsewhere is not evidence it will work here.
 - **Sequences/identity have gaps** (normal; don't \"fix\"). Rollbacks, crashes, and concurrency create gaps in ID sequences.
 - **Heap storage**: no clustered PK by default; `CLUSTER` is one-off reorg, not maintained.
 - **MVCC**: updates/deletes leave dead tuples; vacuum handles them—design to avoid hot wide-row churn.
@@ -43,6 +44,7 @@ This file contains the detailed Postgres guidance that was intentionally moved o
 - Prefer transactional DDL for safe testing.
 - Use `CREATE INDEX CONCURRENTLY` to avoid blocking writes (cannot run in a transaction).
 - Avoid table rewrites caused by volatile defaults when adding NOT NULL columns.
+- `CREATE OR REPLACE FUNCTION` with a changed argument signature creates a **new overload** rather than replacing the old function. The previous signature stays callable and existing callers keep resolving to it. Drop the old signature explicitly (`DROP FUNCTION name(argtypes)`) whenever an overload is not what was wanted; verify with `\df name` that only the intended signatures remain.
 
 ## JSONB guidance
 

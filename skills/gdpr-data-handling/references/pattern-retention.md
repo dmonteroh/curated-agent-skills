@@ -13,6 +13,7 @@ Use this reference to define retention schedules and implement deletion workflow
 - Scheduled deletion jobs with audit logging.
 - Event-driven deletion on account closure or contract end.
 - Soft-delete followed by hard-delete after a buffer window.
+- Irreversible anonymization at end of retention instead of deletion, where the downstream use (typically analytics or aggregate reporting) survives losing the identifiers. This is a valid end-of-retention outcome only if re-identification is genuinely infeasible after the transform — including by joining the result against other data the organization holds. If any re-identification key is kept anywhere, the record is still personal data and the retention rule still applies to it unchanged.
 
 ## Exceptions and Holds
 

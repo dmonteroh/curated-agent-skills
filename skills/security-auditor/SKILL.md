@@ -14,6 +14,7 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - Validating authentication, authorization, and data protection controls
 - Triaging scanner or model-generated candidates before any of them are reported as findings
 - Deciding whether an existing control still sits on the boundary it was bought to defend
+- Choosing between candidate mitigations when several attack routes reach the same attacker objective
 
 ## Do not use this skill when
 
@@ -21,6 +22,7 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - You need legal counsel or formal compliance certification
 - You only need a quick automated scan without manual review
 - You cannot name the boundary a control sits on or what else gates that boundary, and the request is to strip it anyway
+- The request is an exhaustive attack-path model of a whole system rather than a tree scoped to one named attacker goal — path counts multiply at every AND node, and the result is unreadable rather than thorough
 
 ## Required inputs
 
@@ -54,7 +56,11 @@ Provides a structured security audit workflow whose findings are gated on eviden
    - Decision: when a finding is verified, search the codebase for the same pattern before moving on — one confirmed instance is evidence the mistake was reused. Report each variant as its own finding, linked to the original, and put it through these same gates rather than inheriting the original's score.
    - Output: filter stats (candidates in, discarded by rule, discarded by verification, reported) and the quoted evidence attached to every surviving finding.
 5. Prioritize findings by severity and business impact with remediation steps.
-   - Output: ranked findings list with impact, likelihood, and remediation owners.
+   - Where several findings are routes to one attacker objective, rank the candidate fixes by attack-path coverage as well as by severity. Scope a tree to that one objective, enumerate its paths — an OR node contributes one path per child, an AND node the cross-product of its children's path sets, so a path is a conjunction of leaves the attacker must all complete — then count how many of those paths each candidate control cuts. Report the share, `paths closed / paths enumerated`, beside each recommendation. Severity orders the finding; coverage orders the fix, and the two orders diverge whenever a low-severity step sits on every path.
+   - Rank every leaf in the path set, including leaves with no mitigation recorded. A high-count leaf with nothing defending it is the most valuable gap the analysis can surface, not an omission to skip past — a ranking restricted to already-mitigated leaves structurally cannot report it.
+   - Decision: if the enumerated path set outgrows what a reader will read, split the tree by attacker goal and enumerate each separately; do not truncate the list to a display cutoff.
+   - Enumeration semantics, the single aggregation convention scores must be computed under, the ordinal-scale caveat, and a worked count: `references/attack-path-analysis.md`.
+   - Output: ranked findings list with impact, likelihood, and remediation owners; where paths were enumerated, the total path count, each recommended control's share of paths closed, and the residual open paths.
    - Decision: if a finding lacks reproducibility, mark it as unverified and flag it.
 6. Validate fixes and document residual risk.
    - Output: verification status, residual risk summary, next steps.
@@ -77,6 +83,9 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - Judging a control by how thorough it looks rather than by what crosses the boundary it sits on
 - Deleting a redundant control outright when demoting it to opt-in preserves the option and the audit trail
 - Padding a report with low-confidence findings because a longer list reads as more thorough
+- Ranking defensive spend by the severity of the threat a control names rather than by how many attack paths it closes
+- Dropping unmitigated leaves out of a choke-point ranking, which hides exactly the gaps the ranking exists to find
+- Scoring two attack paths under different aggregation conventions, which produces a confident ordering out of incomparable numbers
 
 ## Output contract
 
@@ -89,7 +98,7 @@ When this skill runs, respond with a report that includes:
 - Filter stats: candidates in, discarded by rule, discarded by verification, reported
 - Appendix of unverified and low-confidence candidates, kept out of the findings table
 - Where a prior audit of the same scope exists, findings matched on a stable fingerprint and reported as resolved, persistent, and new, with the trend direction
-- Prioritized remediation plan with owners and timelines
+- Prioritized remediation plan with owners and timelines, and where attack paths were enumerated, the total path count, each control's share of paths closed, and the residual open paths
 - Verification status and residual risk
 
 ## Reporting format
@@ -106,7 +115,7 @@ Use this structure in final responses:
 8. Open Questions
 
 ## References
-See `references/README.md` for detailed capabilities, behavioral traits, and knowledge areas. The confidence scale and its mode-bound gate, the exclusion ledger with its carve-backs, the standing precedents, the anti-anchoring verification protocol, the quote-the-line gate, and the filter-stat and fingerprint reporting are in `references/finding-triage.md`.
+See `references/README.md` for detailed capabilities, behavioral traits, and knowledge areas. The confidence scale and its mode-bound gate, the exclusion ledger with its carve-backs, the standing precedents, the anti-anchoring verification protocol, the quote-the-line gate, and the filter-stat and fingerprint reporting are in `references/finding-triage.md`. Attack-path enumeration, choke-point counting, and the aggregation convention behind step 5's coverage ranking are in `references/attack-path-analysis.md`.
 
 ## Examples
 - "Conduct comprehensive security audit of microservices architecture with DevSecOps integration"
@@ -131,6 +140,6 @@ An ingest pipeline ran a secret scanner over every source file before writing th
    - SA-01 | High | `auth/token.py:114` — `TOKEN_TTL = None` with no rotation path | Account takeover | Implement rotation
    - SA-02 | Medium | `auth/scopes.py:27` — client granted `admin:*` | Data exposure | Scope minimization
 5. Filter Stats & Suppressed Candidates: 41 candidates → 33 discarded by rule → 6 discarded on verification → 2 reported. Appendix: SA-A1 (no line quotable for the claimed missing field), SA-A2 (dependency CVE, vulnerable function not called).
-6. Remediation Plan: Address SA-01 short-term, SA-02 medium-term.
+6. Remediation Plan: Address SA-01 short-term, SA-02 medium-term. Path coverage for the account-takeover tree (3 paths enumerated): token rotation closes 3 of 3, scope minimization closes 1 of 3; residual open paths after both, 0 within the enumerated tree.
 7. Verification & Residual Risk: SA-01 pending validation; SA-02 not started.
 8. Open Questions: Confirm token TTL requirements.

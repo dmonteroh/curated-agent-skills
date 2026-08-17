@@ -1,6 +1,6 @@
 ---
 name: cdd-context
-description: "Create and maintain CDD project context docs (product, tech stack, workflow) when setting up or updating docs/context, with optional scaffolding, indexing, validation, and a brief snapshot."
+description: "Create and maintain CDD project context docs (product, tech stack, workflow, optional product guidelines) when setting up or updating docs/context, with optional scaffolding, brownfield extraction from an existing codebase, indexing, validation, and a brief snapshot."
 metadata:
   category: ai
 ---
@@ -13,6 +13,8 @@ Provides guidance for managing project context as first-class artifacts alongsid
 - Starting work in a repo and stable context (what/why/how) is needed before making changes.
 - A team wants consistent, discoverable context artifacts for humans and agents.
 - Context needs updates after meaningful changes (product direction, stack, workflow).
+- Onboarding onto an existing codebase whose stack and workflow are undocumented.
+- User-facing wording needs a canonical home — voice, terminology, or error-message format that humans and agents should follow consistently.
 
 ## Do not use this skill when
 
@@ -49,6 +51,8 @@ Provides guidance for managing project context as first-class artifacts alongsid
   - docs/context/workflow.md
 - Optional (recommended) rehydration snapshot:
   - docs/context/brief.md
+- Optional, add only when the repo produces user-facing text:
+  - docs/context/product-guidelines.md — brand voice and tone, a terminology glossary with preferred and avoided terms, the error-message format, and user-facing copy standards. The three core files own what is built, with what, and how the team works; none of them owns how the product *sounds*, so without this file an agent writing an error string or UI label has no canonical place to check. Keep it optional: a fourth required file that nobody maintains is another stale artifact, not more context.
 
 ## Workflow (single canonical process)
 
@@ -61,23 +65,32 @@ Provides guidance for managing project context as first-class artifacts alongsid
 - If allowed, scaffold minimal stubs for missing core files.
 - Output: list of created files (or note that no files were created).
 - Decision: If file writes are not allowed, only report missing artifacts.
+- Decision: Scaffold `product-guidelines.md` only when the user asks for it or the repo emits user-facing text (UI copy, CLI output, error strings, API messages); it is optional, not a fourth core file.
 
-3) Validate structure
+3) Pre-populate from the existing codebase (brownfield)
+- For an existing codebase, do not hand back empty stubs: read the repository's own signals and fill the drafts with what is demonstrably there.
+- Extract from dependency manifests and lockfiles (languages, frameworks, pinned versions), CI and build configuration (test, lint and type-check commands; quality gates; deploy targets), container and infrastructure files and env templates (data stores, runtime targets), and existing prose (README, CONTRIBUTING, ADRs) for conventions the team already wrote down.
+- Extraction fills `tech-stack.md` and `workflow.md` only. Product intent — goals, users, non-goals, success metrics — is not in the code: a manifest shows what is installed, never why. Leave those for the user to supply, or record them under “Open questions”.
+- Every extracted entry is a draft to be corrected, not a verified record. Mark each one unconfirmed until the user reviews it, and cite the file it came from so the reviewer can check it in one step rather than re-deriving it.
+- Output: pre-populated drafts with each entry marked unconfirmed and sourced, plus a review request naming what could not be extracted.
+- Decision: If the repo is new (no code yet), skip this step and leave the stubs from step 2 as-is.
+
+4) Validate structure
 - Confirm required files and headings exist.
 - Output: validation results or missing headings/files.
 - Decision: If fixes are needed and file writes are allowed, add minimal headings; otherwise report gaps.
 
-4) Update context content
+5) Update context content
 - Edit only relevant sections; avoid rewriting unrelated history.
 - Add an “Open questions” section when information is uncertain.
 - Output: updated file paths and a short change summary.
 
-5) Maintain the index
+6) Maintain the index
 - Update the managed index block in the context README.
 - Output: confirmation that the index block is up to date.
 - Decision: If index markers are missing and file writes are allowed, add them; otherwise report and skip updates.
 
-6) Create/update brief snapshot (optional)
+7) Create/update brief snapshot (optional)
 - If requested, generate/update `brief.md` as a rehydration snapshot.
 - Output: confirmation that `brief.md` was created or updated.
 - Decision: If not requested or file writes are disallowed, report that the snapshot was skipped.
@@ -92,6 +105,8 @@ Use these only if the user allows file writes and scripts:
 ./cdd-context/scripts/context.sh brief
 ./cdd-context/scripts/context.sh validate
 ```
+
+`init` scaffolds the three core files and the index block only. The optional `product-guidelines.md` is created by hand from `references/templates.md`; `index` then picks it up automatically, because it indexes every `*.md` in the context directory, and `validate` still passes, because it requires only the core files.
 
 Environment overrides:
 - `CONTEXT_DIR` (default `docs/context`)
@@ -135,11 +150,24 @@ Output (report summary):
 - Validation results: passed
 - Open questions: none
 
+**Example 3: onboard an existing codebase (brownfield)**
+
+Input:
+"This repo has no context docs. Set them up."
+
+Output (report summary):
+- Summary: Scaffolded core artifacts, then pre-populated the stack and workflow drafts from repository signals.
+- Files created/updated: `docs/context/product.md` (stub), `docs/context/tech-stack.md` (draft), `docs/context/workflow.md` (draft), `docs/context/README.md`
+- Extracted, unconfirmed — please correct: Python 3.12 + FastAPI (`pyproject.toml`); PostgreSQL (`compose.yaml`); tests via `pytest -q` and lint via `ruff check` (`.github/workflows/ci.yml`); PRs require one approval (`CONTRIBUTING.md`).
+- Not extractable, needs you: product one-liner, users, non-goals, success metrics — recorded under “Open questions” in `product.md`.
+- Validation results: passed
+
 ## Output contract
 
 When running this skill, report in the following format:
 - Summary (1–3 bullets)
 - Files created/updated
+- Extracted-and-unconfirmed entries, each with the file it came from, when brownfield extraction ran
 - Validation results (or note if not run)
 - Open questions
 

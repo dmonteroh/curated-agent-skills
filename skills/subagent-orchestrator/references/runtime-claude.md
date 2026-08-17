@@ -112,6 +112,8 @@ Use the `claude --print` subshell pattern below when the controller is a plain s
 wait  # global barrier: run verification only after all workers exit
 ```
 
+`wait` covers only the jobs this shell started. A server, watcher, or build a worker launched detached survives it, so the barrier is not clear until those are stopped or waited on as well.
+
 ## Capturing Worker Output
 
 ```sh

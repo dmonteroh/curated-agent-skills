@@ -3,3 +3,4 @@
 Use these references for deeper guidance when the core workflow needs more detail.
 
 - `references/capabilities.md`: Standards, tooling options, and detailed checklists for API documentation work.
+- `references/spec-linting.md`: Custom lint-rule authoring for API specs — JSONPath selectors, casing and pattern assertions, severity choices, and how to verify a rule fires.

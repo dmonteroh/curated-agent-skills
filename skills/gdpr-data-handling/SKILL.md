@@ -74,6 +74,7 @@ Templates and checklists are in `references/README.md` (load as needed).
 
 6) Set retention + deletion
 - Decision: if legal holds apply, document exceptions and approval gate.
+- Decision: if a downstream use survives losing the identifiers, irreversible anonymization is an alternative end-of-retention outcome to deletion — but only where no re-identification key is retained anywhere; otherwise the record stays personal data and the retention rule still applies. See `references/pattern-retention.md`.
 - Output: retention schedule + deletion mechanism notes.
 
 7) Capture processor/transfer requirements
@@ -81,7 +82,8 @@ Templates and checklists are in `references/README.md` (load as needed).
 - Output: processor/subprocessor register and transfer notes.
 
 8) Prepare breach readiness
-- Output: breach readiness runbook with triage, notification, evidence capture.
+- Decision: fix the notification gate in the runbook before any incident — which severity band triggers supervisory-authority notification, which triggers data-subject notification, and which data categories escalate regardless of band. GDPR states a qualitative risk test rather than tiers, so any tiering is a chosen house rule to agree with counsel, not a legal requirement. Tier table and the record field that traces each decision to it: `references/pattern-breach-notification.md`.
+- Output: breach readiness runbook with triage, the notification gate with its bands defined, evidence capture.
 
 9) Validate gaps
 - Output: compliance checklist with open gaps + owners.
@@ -93,6 +95,9 @@ Templates and checklists are in `references/README.md` (load as needed).
 - Incomplete DSAR coverage (missing backups, archives, or linked systems).
 - Missing audit trails for consent changes or DSAR actions.
 - Ignoring processor/subprocessor access paths and transfer documentation.
+- Setting breach notification thresholds during the incident instead of agreeing them in the runbook beforehand, which decides them for the incident in hand.
+- Treating authority notification and data-subject notification as one decision, when the second is a deliberately higher bar.
+- Calling data anonymized while a re-identification key is still held somewhere, which leaves it personal data under an anonymized label.
 
 ## Examples
 

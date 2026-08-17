@@ -93,16 +93,18 @@ Each pair below is the same input answered softly and rigorously. The weak line 
 ### 1) Understand the idea (question loop)
 
 - Inspect current project context (relevant docs/files) when available.
+- **Keep discovered facts and business constraints in two separate lists.** The repository is evidence about the system, never about the business: it shows how the code behaves today, its conventions, and its contracts. Business rules, compliance and regulatory obligations, contractual SLAs, pricing, data-retention policy, prioritization, and target users cannot be read from code. A value observed in code — a hardcoded limit, a tier threshold, a retention window — is recorded as an assumption to confirm, never filed as a discovered fact, until the user or an authoritative product artifact (PRD, contract, policy document) states it as a business rule. Inferring "the business rule is X" from "the code currently does X" is the specific error this split prevents.
 - Ask one question at a time; prefer multiple choice when it speeds decisions.
 - Clarify: purpose, users, constraints, success criteria, non-goals.
 - Reframe from the pain described, not the feature requested: probe for specific incidents rather than hypotheticals, then name the larger thing that pain implies and say plainly where it differs from the original framing.
-- **Output:** a short problem statement and list of open questions.
+- **Output:** a short problem statement; a `Discovered facts` list, each entry citing the file or command that showed it; a `Business constraints` list, each entry citing who supplied it (or "none supplied yet"); and a list of open questions.
 
 ### 2) Validate premises
 
 - State the assumptions the design would rest on as a numbered list of falsifiable claims about the problem or the system — claims that could turn out to be false. Not "does this sound good?".
 - Ask the user to **agree, disagree, or adjust** each claim.
 - Include, where they apply: what happens if nothing is built; what existing code already solves part of this; and, for a new shippable artifact (binary, library, package, image, app), how users would actually obtain it — an artifact with no distribution channel is one nobody can use.
+- Promote every business constraint still carrying an assumption-to-confirm marker into this list, phrased as the claim the user must accept or correct. An unconfirmed business rule that never reaches the premise list becomes a design constraint nobody agreed to.
 - Treat every accepted premise as binding: the approaches, the recommendation, and the brief may not quietly assume otherwise. When a premise is later revised, return to step 1 for whatever depended on it.
 - **Output:** a numbered premise list carrying the user's verdict on each.
 
@@ -123,10 +125,12 @@ Each pair below is the same input answered softly and rigorously. The weak line 
 - Cover only what matters for decision-making:
   - goals / non-goals
   - scope boundaries
+  - discovered facts and business constraints, kept apart and each sourced
   - main flows and key states
   - risks + mitigations
   - validation (how we know it worked)
-- **Output:** a design brief plus a confirmation request.
+- Run the brief self-check (below) against the draft before showing the first section. It gates delivery: an item that fails is fixed in the brief, not delivered with a caveat attached.
+- **Output:** a design brief that passed the self-check, plus a confirmation request.
 
 ### 5) Decide next step
 
@@ -141,6 +145,26 @@ Each pair below is the same input answered softly and rigorously. The weak line 
 - If the user wants to implement, move to execution planning.
 - If a premise cannot be settled by discussion because it is a technical unknown, run a time-boxed spike (below) and resume at step 2 with its answer.
 - If the questioning stops early under the bounded-insistence rule, carry every still-unanswered question into the brief as an explicit open risk.
+
+## Brief self-check
+
+The `Phrases to replace` table governs what the agent *says* while questioning. This governs what the delivered artifact *claims* — a brief can be written in perfectly rigorous dialogue and still assert things no reader could ever check.
+
+Run every item against the draft before showing it, and again after any revision. Any "no" is fixed before delivery.
+
+- [ ] Does every claim the brief makes about behavior name a scenario, an observable result, and how that result gets verified?
+- [ ] Is every unfalsifiable qualifier — "correctly", "securely", "fast", "robust", "intuitive", "seamless", "scalable" — either replaced with an observable outcome plus a named verification method, or explicitly marked as a human-judgment call with an owner?
+- [ ] Are business constraints listed as supplied or assumed, with none inferred from code?
+- [ ] Are non-goals stated explicitly rather than implied by omission?
+- [ ] Does every risk carry a mitigation someone could actually execute?
+
+The test behind all five: a reader who was not in the conversation can look at any line and independently judge whether it was met.
+
+**Contrast — a single verification line**
+
+- Fails: "Export works correctly and is secure." No scenario, no observable result, no verification method. Two readers can disagree about whether it shipped.
+- Passes: "An authenticated user with at least one visible row clicks Export; the browser downloads a CSV whose columns are `id`, `name`, `created_at`, containing no row belonging to another user. Verified by an integration test plus a manual schema spot-check."
+- Also passes: "Onboarding copy reads as approachable rather than clinical — human-judgment call, reviewed by the design owner before release." The qualifier survives because it is marked as judgment and given an owner, not because it was made measurable.
 
 ## Time-boxed technical spike
 
@@ -225,12 +249,18 @@ Does not assume other skills exist; treats any integrations as optional.
 - Design brief: goals, non-goals, constraints, risks, verification.
 - Next step: "Want an execution plan next?"
 
+**Contrast — a context entry**
+
+- Fails: `Discovered facts: free-tier users are limited to 100 exports per month.` A per-tier cap is a business rule. The code proves the code enforces that number today, not that the business requires it.
+- Passes: `Discovered facts: the export path enforces a per-tier cap read from FREE_TIER_EXPORT_CAP in billing/limits.ts.` plus `Business constraints — to confirm: whether that cap is the intended commercial rule or a leftover default.`
+
 ## Output contract
 
 - A 3–7 bullet problem statement + success criteria
+- Two separate lists: discovered facts (each citing the file or command that showed it) and business constraints (each citing who supplied it, or marked as an assumption to confirm)
 - A numbered premise list with the user's agree/disagree/adjust verdict on each
 - 2–3 approaches with pros/cons and a recommendation, including one minimal-viable and one ideal-architecture option
-- A design brief with explicit non-goals, risks, and a verification plan
+- A design brief with explicit non-goals, risks, and a verification plan, whose every claim is observable-and-verified or marked as a human-judgment call
 - A single next-step question
 - For a spike instead of a brief: one question, one answer with its source, every unreproduced finding marked `UNVERIFIED` with the experiment that would close it
 
@@ -239,6 +269,11 @@ Does not assume other skills exist; treats any integrations as optional.
 ```md
 ## Problem & Success
 - ...
+
+## Context
+- Discovered facts (technical; each with the file or command it came from):
+- Business constraints (supplied by user or product artifact; "none supplied yet" if so):
+- Assumptions to confirm (values seen in code that are not yet stated business rules):
 
 ## Premises
 1. <falsifiable claim> — agreed / adjusted to: ... / rejected
@@ -257,6 +292,7 @@ Approved approach: <recorded user choice>
 - Key flows/states:
 - Risks & mitigations:
 - Verification plan:
+- Self-check: every item passing (anything that failed was fixed, not caveated)
 
 ## Next Step
 - ...

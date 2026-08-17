@@ -15,6 +15,7 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 - Making a decision that affects architecture boundaries, persistence, auth/security posture, API style, reliability/SLOs, scaling, or major vendor/tool choices.
 - Changing a previously accepted architectural decision (create a new ADR that supersedes the old one).
 - Shelving a decision that is sound and reviewed but blocked by something outside the team's control (table it instead of rejecting it or leaving it proposed).
+- Noticing mid-task that one of the decisions above has just been settled in passing, without anyone asking for a record (Step A).
 
 ## Do not use this skill when
 
@@ -53,6 +54,17 @@ Output: 3-5 bullets answering:
 Decision point:
 - If the decision is cross-cutting or long-lived, proceed with an ADR.
 - If it is a local implementation detail, stop and capture a brief note elsewhere.
+
+**Explicit and implicit decision moments carry different obligations.** A decision reaches Step A in one of two ways, and conflating them is how decisions go unrecorded:
+
+- *Explicit* — recording the decision was requested, or someone asked why a past choice was made. Proceed with the workflow as asked.
+- *Implicit* — a decision in one of the categories under "Use this skill when" got settled as a by-product of other work: options were weighed, one was concluded on with a rationale stated in passing, and nobody asked for an ADR. This is the common shape and the one that gets lost.
+
+Decision point for an implicit moment:
+- Name the decision that appears to have been settled, the alternatives that were on the table, and propose recording it.
+- Do **not** create the ADR file unprompted. An unrequested ADR spends reviewer attention and freezes a choice that may still have been exploratory.
+- Do not stay silent either. An unsurfaced decision is one nobody records, which is the failure this skill exists to prevent.
+- If confirmation does not come, stop and leave no partial file behind.
 
 ### Step B: Pull inputs from the spec
 

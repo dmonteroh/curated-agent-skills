@@ -13,6 +13,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - A request asks to create or improve Grafana dashboards
 - A request asks to standardize dashboard layout for on-call usability
 - A request asks for dashboard JSON templates or snippets
+- A request asks for a dashboard covering a specific infrastructure system (message broker, search cluster, database)
 
 ## Do not use this skill when
 
@@ -38,6 +39,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
    - Decision: if KPI-focused, add a KPI row before symptom signals.
 3. Specify panels for each row.
    - Output: panel list with question, viz type, unit, threshold, and query stub.
+   - Decision: if the target is a named infrastructure system (message broker, search cluster, database), seed the system-specific row from `references/operator-panel-sets.md` instead of the generic templates, which carry no system-specific signal.
    - Decision: if a panel depends on a missing metric, propose a fallback panel or mark it as "needs metric".
 4. Draft queries and variables safely.
    - Output: query list + variable list with label constraints.
@@ -109,3 +111,4 @@ Return a report using this format and keep the section order:
 - Index: `references/README.md`
 - Design guide: `references/dashboard-design.md`
 - Implementation playbook: `references/implementation-playbook.md`
+- Per-system panel sets: `references/operator-panel-sets.md`

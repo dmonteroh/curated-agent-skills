@@ -18,13 +18,19 @@ Scope: <pages/components>
 
 Reported independently of the verdict; never averaged into it.
 
+## Faked-Surface Check
+
+- <region>: <live|suspect|not observable> - tell: <what raised it> - settles with: <capture>
+
 ## Surface Classification
 
 <marketing|app|hybrid> - decided by: <observation>
 
 ## Evidence Inventory
 
-- <artifact> (<viewport>, <theme>, <state>, <environment>)
+Enumerated in scope: <n> <pages|slides|routes|states>; captured: <n>.
+
+- <artifact> (<viewport>, <theme>, <state>, <environment>, captured <before|after> the last source change)
 
 ## Goals
 
@@ -70,12 +76,18 @@ Reported independently of the verdict; never averaged into it.
 
 ## Issues (With Severity)
 
-- [ ] (<blocker|major|minor|nit>) <issue> - evidence: <where>
+- [ ] (<blocker|major|minor|nit>) [product|evidence] <issue> - evidence: <where>
 
 ## Retest Plan
 
 - Needed evidence: <state/viewport/theme>
 - Steps to capture: <how>
+
+## Completion Gate
+
+- Independent (non-authoring) review returned: <pass|blocking findings>
+- Evidence set judged: <complete and current|gaps>
+- <Satisfied|Remaining gaps and who accepted them>
 ```
 
 ## Notes On Measurements
@@ -88,6 +100,8 @@ If you only have screenshots:
 - Measure line length by counting characters in one full line of body copy; report the count, not an impression.
 - Count unique non-gray colours by naming each distinct hue you can see (brand, accents, semantic states, tinted surfaces); report the count.
 - Check nested radii by comparing a container corner against the corner of the child inside it: the child should look tighter by the padding gap, not identical.
+- Before measuring anything, confirm the file is what it claims: format matching its extension, no black or missing regions, dimensions equal to the viewport in its label. A capture that fails this is a tooling defect and is reported as `[evidence]`, not as a design finding.
+- For a region suspected of being a pasted image, put its two breakpoint captures side by side: real components reflow, a raster does not.
 
 If you can run the app:
 
