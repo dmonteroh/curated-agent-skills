@@ -49,16 +49,34 @@ def _write_skill(
 
 
 class RepoRootSkillPathRegexTest(unittest.TestCase):
-    def test_ac1_live_false_negative_closed(self):
-        dirpath = REPO_ROOT / "skills" / "refactor-clean"
-        issues, _ = audit.scan_skill(dirpath, token_checks=False)
-        matches = [i for i in issues if i.startswith("repo_root_skill_path:")]
-        self.assertEqual(len(matches), 1)
-        self.assertEqual(
-            matches[0],
-            "repo_root_skill_path:references/analysis-and-hotspots.md:"
-            "skills/refactor-clean/scripts/scan_hotspots.sh",
-        )
+    def test_ac1_reference_only_repo_root_path_reported(self):
+        """A repo-root skill path reachable only through references/ is still reported.
+
+        Reproduces the false negative that motivated the check (`scan_skill` read
+        SKILL.md alone, so `skills/refactor-clean/scripts/scan_hotspots.sh` in
+        `references/analysis-and-hotspots.md` went undetected). Pinned as a fixture:
+        the live occurrence was corrected in `7e039e9`, and asserting on a defect
+        still being present in the tree makes the test fail as the corpus improves.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            dirpath = _write_skill(
+                Path(tmp),
+                "sample",
+                MINIMAL_FRONTMATTER.format(name="sample") + "## Workflow\nDo it.\n",
+                references={
+                    "analysis-and-hotspots.md": (
+                        "- Use `skills/sample/scripts/scan_hotspots.sh` for a quick inventory.\n"
+                    )
+                },
+            )
+            issues, _ = audit.scan_skill(dirpath, token_checks=False)
+            matches = [i for i in issues if i.startswith("repo_root_skill_path:")]
+            self.assertEqual(len(matches), 1)
+            self.assertEqual(
+                matches[0],
+                "repo_root_skill_path:references/analysis-and-hotspots.md:"
+                "skills/sample/scripts/scan_hotspots.sh",
+            )
 
     def test_ac2_documented_install_paths_not_reported(self):
         install_paths = [

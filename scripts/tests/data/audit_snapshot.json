@@ -3,8 +3,41 @@
     "issues": [],
     "name": "adr-madr-system",
     "warnings": [
+      "entry_over_200_lines:202",
       "heading_qualifier:Output contract (always report)"
     ]
+  },
+  {
+    "issues": [],
+    "name": "adversarial-plan-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-architecture-audit",
+    "warnings": [
+      "entry_over_200_lines:205"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "agent-feedback-ui",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-harness-portability",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-memory-governance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-transaction-authority-security",
+    "warnings": []
   },
   {
     "issues": [],
@@ -36,17 +69,25 @@
     "issues": [],
     "name": "brainstorming",
     "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Output Contract (Always),References (Optional)"
+      "entry_over_200_lines:307"
     ]
+  },
+  {
+    "issues": [],
+    "name": "brand-discovery",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "brand-voice",
+    "warnings": []
   },
   {
     "issues": [],
     "name": "cdd-context",
     "warnings": [
       "heading_variant:Inputs required->Required inputs",
-      "heading_qualifier:Workflow (single canonical process),Scripts (optional automation)",
-      "activation_cues_in_skill_md:1"
+      "heading_qualifier:Workflow (single canonical process),Scripts (optional automation)"
     ]
   },
   {
@@ -87,8 +128,25 @@
     "issues": [],
     "name": "code-review",
     "warnings": [
-      "heading_qualifier:Workflow (best performance, best results)"
+      "entry_over_200_lines:255"
     ]
+  },
+  {
+    "issues": [],
+    "name": "codify-exploration",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "competitive-benchmark",
+    "warnings": [
+      "entry_over_200_lines:221"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "context-budget",
+    "warnings": []
   },
   {
     "issues": [],
@@ -97,6 +155,21 @@
       "heading_variant:Output Contract->Output contract",
       "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
     ]
+  },
+  {
+    "issues": [],
+    "name": "cross-vendor-delegation",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "customer-billing-ops",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "daemon-lifecycle",
+    "warnings": []
   },
   {
     "issues": [],
@@ -137,6 +210,11 @@
   },
   {
     "issues": [],
+    "name": "delivery-pipeline",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "deployment-engineer",
     "warnings": [
       "heading_variant:Common pitfalls to avoid->Common pitfalls",
@@ -146,6 +224,16 @@
   {
     "issues": [],
     "name": "deps-audit",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "deterministic-extraction-gate",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "devex-review",
     "warnings": []
   },
   {
@@ -160,16 +248,27 @@
     "issues": [],
     "name": "doc-generate",
     "warnings": [
+      "entry_over_200_lines:261",
       "heading_variant:Inputs required->Required inputs",
       "heading_qualifier:Workflow (best results, best speed)"
     ]
   },
   {
     "issues": [],
+    "name": "doc-sync",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "finetuning-method-selection",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "frontend-design",
     "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (Deterministic),Output contract (Always)"
+      "entry_over_200_lines:243",
+      "heading_restated:Content stress"
     ]
   },
   {
@@ -190,8 +289,7 @@
     "name": "google-stitch-ai",
     "warnings": [
       "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Resources (Optional)",
-      "activation_cues_in_skill_md:1"
+      "heading_qualifier:Resources (Optional)"
     ]
   },
   {
@@ -204,7 +302,29 @@
   },
   {
     "issues": [],
+    "name": "interruption-budget",
+    "warnings": [
+      "heading_restated:Question shape"
+    ]
+  },
+  {
+    "issues": [],
     "name": "jira-issue-management",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "literature-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "living-docs-governance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "loop-design-check",
     "warnings": []
   },
   {
@@ -231,10 +351,16 @@
   },
   {
     "issues": [],
+    "name": "mle-workflow",
+    "warnings": [
+      "entry_over_200_lines:207"
+    ]
+  },
+  {
+    "issues": [],
     "name": "monitoring-expert",
     "warnings": [
-      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract",
-      "activation_cues_in_skill_md:1"
+      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
     ]
   },
   {
@@ -244,6 +370,21 @@
       "heading_variant:Common pitfalls to avoid->Common pitfalls",
       "heading_qualifier:Workflow (fast, deterministic),Output contract (report format),References (load as needed)"
     ]
+  },
+  {
+    "issues": [],
+    "name": "network-change-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "network-device-diagnostics",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "network-segmentation-readiness",
+    "warnings": []
   },
   {
     "issues": [],
@@ -264,9 +405,14 @@
     "issues": [],
     "name": "performance",
     "warnings": [
-      "heading_qualifier:Workflow (orchestration),Output contract (reporting format)",
-      "activation_cues_in_skill_md:1"
+      "entry_over_200_lines:234",
+      "heading_qualifier:Workflow (orchestration),Output contract (reporting format)"
     ]
+  },
+  {
+    "issues": [],
+    "name": "plan-review",
+    "warnings": []
   },
   {
     "issues": [],
@@ -285,25 +431,56 @@
   },
   {
     "issues": [],
+    "name": "pre-publication-sanitization",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "production-audit",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "prompt-engineering",
     "warnings": [
+      "entry_over_200_lines:256",
       "heading_qualifier:Workflow (step-by-step)"
     ]
   },
   {
-    "issues": [
-      "repo_root_skill_path:references/analysis-and-hotspots.md:skills/refactor-clean/scripts/scan_hotspots.sh"
-    ],
+    "issues": [],
+    "name": "prompt-injection-defense",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "prose-de-slopping",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "recsys-pipeline-architect",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "refactor-clean",
     "warnings": []
   },
   {
     "issues": [],
+    "name": "research-discipline",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "root-cause-debugging",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "secrets-management",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -313,6 +490,20 @@
   {
     "issues": [],
     "name": "shell-scripting",
+    "warnings": [
+      "entry_over_200_lines:205"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "skill-benchmark-harness",
+    "warnings": [
+      "entry_over_200_lines:228"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "skill-corpus-maintenance",
     "warnings": []
   },
   {
@@ -325,16 +516,16 @@
     "name": "sre-engineer",
     "warnings": [
       "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)",
-      "activation_cues_in_skill_md:1"
+      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)"
     ]
   },
   {
     "issues": [],
     "name": "subagent-orchestrator",
     "warnings": [
+      "entry_over_200_lines:305",
       "heading_variant:Required Inputs->Required inputs,Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic)"
+      "heading_restated:Worker Execution Surface"
     ]
   },
   {
@@ -355,17 +546,29 @@
     "issues": [],
     "name": "testing",
     "warnings": [
+      "entry_over_200_lines:205",
       "heading_variant:Common pitfalls to avoid->Common pitfalls",
       "heading_qualifier:Output contract (always report)"
     ]
   },
   {
     "issues": [],
+    "name": "tool-output-middleware",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "tracks-conductor-protocol",
     "warnings": [
+      "entry_over_200_lines:201",
       "heading_qualifier:Workflow (unified)",
       "heading_restated:Core principles"
     ]
+  },
+  {
+    "issues": [],
+    "name": "training-data-curation",
+    "warnings": []
   },
   {
     "issues": [],
@@ -376,25 +579,26 @@
   },
   {
     "issues": [],
+    "name": "ui-demo",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "ui-design",
     "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (deterministic),Output contract (always),Resources (optional)"
+      "entry_over_200_lines:243"
     ]
   },
   {
     "issues": [],
     "name": "ui-visual-validator",
     "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
+      "entry_over_200_lines:259"
     ]
   },
   {
     "issues": [],
     "name": "ux-interview",
-    "warnings": [
-      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
-    ]
+    "warnings": []
   }
 ]
