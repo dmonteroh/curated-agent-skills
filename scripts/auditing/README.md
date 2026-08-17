@@ -34,7 +34,7 @@ The parallel reviewer installs the same audit dependencies automatically and use
 
 Pipeline behavior:
 
-1. Per skill, the default pipeline dispatches one read-only review per declared arm, then a synthesis call applies the single change that lands (`--single-model` skips synthesis and lets its one reviewer update `skills/<skill>/SKILL.md` directly).
+1. Per skill, the default pipeline dispatches one read-only review per declared arm, then a synthesis call applies the single change that lands. `--arms <name>[,<name>...]` selects the reviewer arm set (default: `codex,claude`); every arm stays read-only and synthesis stays the run's only writer regardless of arm count.
 2. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
 
 Useful options:
@@ -54,6 +54,9 @@ Useful options:
 
 # Print the model-tier resolution table and exit
 ./scripts/auditing/run_parallel_skill_reviews.sh --print-model-policy
+
+# Run with a single reviewer arm (e.g. one client temporarily unavailable)
+./scripts/auditing/run_parallel_skill_reviews.sh --arms claude
 ```
 
 `--print-model-policy`'s own policy header states the pipeline's tier policy: sol/opus unused in this pipeline; terra for dispatches that need reasoning; luna otherwise (operator policy, 2026-08-12).
@@ -66,7 +69,7 @@ Default invocation — no flag needed, this is the default pipeline:
 ./scripts/auditing/run_parallel_skill_reviews.sh
 ```
 
-Multi-arm review is the standard review pass for every skill in the library; the single-arm mode (`--single-model`) is an exception a human selects deliberately.
+Multi-arm review is the standard review pass for every skill in the library; `--arms <name>[,<name>...]` is how a human deliberately selects a different arm set.
 
 Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm declaration (`REVIEWER_ARMS`) holds 2 arms, so N+1 = 3 calls per skill; a full run over all 55 skills in `skills_list.txt` is 165 calls.
 

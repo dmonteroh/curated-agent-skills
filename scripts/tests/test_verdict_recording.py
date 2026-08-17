@@ -164,25 +164,6 @@ def _run_dual(reviewer_mode: str, synth_mode: str = "tool_changed", skill: str =
         )
 
 
-def _run_single(reviewer_mode: str, skill: str = FIXTURE_SKILL) -> subprocess.CompletedProcess:
-    for stale in LOGDIR.glob(f"{skill}.*"):
-        stale.unlink()
-    with tempfile.TemporaryDirectory() as tmp:
-        bindir = _make_stub_bin(Path(tmp))
-        env = dict(os.environ)
-        env["PATH"] = f"{bindir}{os.pathsep}{env.get('PATH', '')}"
-        env["FIXTURE_SKILL"] = skill
-        env["REVIEWER_MODE"] = reviewer_mode
-        return subprocess.run(
-            [str(RUNNER), "--single-model", "--skill", skill, "--no-install"],
-            cwd=REPO_ROOT,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-
-
 class ReviewerArmToolVerdictTests(unittest.TestCase):
     def test_tool_recorded_verdict_is_arm_ok(self):
         proc = _run_dual("tool_ok")
@@ -202,17 +183,6 @@ class ReviewerArmToolVerdictTests(unittest.TestCase):
         self.assertIn(f"[arm-failed] {FIXTURE_SKILL}/claude (MALFORMED)", proc.stdout)
         self.assertNotIn("[infra-failure]", proc.stdout)
         self.assertNotIn("[malformed]", proc.stdout)
-
-
-class SingleModelBatchVerdictTests(unittest.TestCase):
-    def test_prose_only_batch_reports_malformed_not_parsed_verdict(self):
-        proc = _run_single("prose_only")
-        self.assertIn(f"[malformed] {FIXTURE_SKILL}\n", proc.stdout)
-        self.assertNotIn(f"[ok] {FIXTURE_SKILL} (status", proc.stdout)
-        self.assertNotIn("[infra-failure]", proc.stdout)
-        verdict = LOGDIR / f"{FIXTURE_SKILL}.verdict"
-        self.assertTrue(verdict.exists())
-        self.assertIn("OUTCOME=MALFORMED", verdict.read_text(encoding="utf-8"))
 
 
 class SynthesisToolVerdictTests(unittest.TestCase):

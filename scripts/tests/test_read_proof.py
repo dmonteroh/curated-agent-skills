@@ -137,25 +137,6 @@ def _run_dual(mode: str, skill: str = FIXTURE_SKILL) -> subprocess.CompletedProc
         )
 
 
-def _run_single(mode: str, skill: str = FIXTURE_SKILL) -> subprocess.CompletedProcess:
-    for stale in LOGDIR.glob(f"{skill}.*"):
-        stale.unlink()
-    with tempfile.TemporaryDirectory() as tmp:
-        bindir = _make_stub_bin(Path(tmp))
-        env = dict(os.environ)
-        env["PATH"] = f"{bindir}{os.pathsep}{env.get('PATH', '')}"
-        env["FIXTURE_MODE"] = mode
-        env["FIXTURE_SKILL"] = skill
-        return subprocess.run(
-            [str(RUNNER), "--single-model", "--skill", skill, "--no-install"],
-            cwd=REPO_ROOT,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-
-
 BACKTICK_FIXTURE_SKILL = "__test_backtick_challenge_line__"
 BACKTICK_LINE = "`scripts/auditing/references/authoring-guidance.md`"
 
@@ -257,16 +238,6 @@ class SkillsListNotRegeneratedTests(unittest.TestCase):
             timeout=120,
         )
         self._assert_unchanged(proc)
-
-
-class SingleModeInfraFailureOrderingTests(unittest.TestCase):
-    def test_infra_failure_is_classified_before_read_proof_check(self):
-        proc = _run_single("infra_failure_no_proof")
-        self.assertIn(f"[infra-failure] {FIXTURE_SKILL}", proc.stdout)
-        self.assertIn("unexpected status 500 Internal Server Error", proc.stdout)
-        self.assertNotIn(f"[failed] {FIXTURE_SKILL} (read-proof absent)", proc.stdout)
-        self.assertNotIn("read-proof absent", proc.stdout)
-        self.assertNotIn("read-proof mismatch", proc.stdout)
 
 
 class ReadProofArmOutcomeTests(unittest.TestCase):
