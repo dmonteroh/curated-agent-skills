@@ -71,7 +71,7 @@ Default invocation — no flag needed, this is the default pipeline:
 
 Multi-arm review is the standard review pass for every skill in the library; `--arms <name>[,<name>...]` is how a human deliberately selects a different arm set.
 
-Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm declaration (`REVIEWER_ARMS`) holds 2 arms, so N+1 = 3 calls per skill; a full run over all 55 skills in `skills_list.txt` is 165 calls.
+Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm declaration (`REVIEWER_ARMS`) holds 2 arms, so N+1 = 3 calls per skill; a full run over all 95 skills in `skills_list.txt` is 285 calls. Re-count `skills_list.txt` rather than trusting this figure — the library grows.
 
 ## What Each File Does
 
@@ -87,12 +87,20 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 
 - `run_parallel_skill_reviews.sh`
   - Spawns parallel subagent reviews (10 per batch by default).
-  - Applies changes directly under each skill folder, subtraction included.
-  - Collects per-skill `REVIEW_STATUS`, `DIFFERENTIATION`, and `REMOVAL PROPOSALS` into an operator-decisions summary.
+  - Dispatches one read-only reviewer arm per entry in `REVIEWER_ARMS` (`--arms` selects the set), then one synthesis call that is the run's only writer; applied changes, subtraction included, land under the skill folder at that synthesis step.
+  - Reaps the `KEY=VALUE` verdict file each arm writes via `review-result.sh` (`OUTCOME`, `DIFFERENTIATION`, `REMOVAL_PROPOSALS`), and summarizes weak-differentiation and removal-proposal skills for the operator.
   - Runs `scripts/audit_skills.py` unconditionally after all subagents complete.
   - Supports targeting specific skills and dry-run planning.
   - Reports per-skill success/failure with log paths.
   - Measures reference size via `tiktoken` to decide when to split/index references.
+
+- `review-result.sh`
+  - The tool every arm executes to record its verdict. Validates `--status`, `--differentiation`, `--removals` and the optional `--read-proof`, then writes `OUTCOME=`, `DIFFERENTIATION=`, `REMOVAL_PROPOSALS=` and `READ_PROOF=` to `$REVIEW_RESULT_FILE`.
+  - Last call wins: a re-invocation replaces the file rather than appending, and a rejected call leaves the previous contents intact.
+
+- `review_log.py`
+  - Infra-banner detection only. `classify()` takes log text and returns `Classification(outcome=…)`, where `Outcome` is exactly `MALFORMED` or `INFRA-FAILURE`; prose verdict resolution was retired, and the verdict itself comes from the `review-result.sh` file the arm writes.
+  - Pure text-in/value-out: no filesystem, network, or subprocess access, and importing it has no side effects.
 
 - `reviewer-prompt.md`
   - Read at each reviewer arm's dispatch: the discovery contract, mandatory subtraction, differentiation, rules, and the Output verdict block.
@@ -102,8 +110,8 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
   - Read at the synthesis call: the tie-break chain that resolves disagreement between reviewer arms, the vendor-agnostic framing block, and the sole per-skill write authority in a multi-arm run.
   - Placeholders (`SKILL_DIRECTORY`, `SKILL_NAME`, `CHECKLIST_PATH`, `OPEN_ITEMS_PATH`, `REVIEW_ARTIFACTS`) are interpolated by the runner before dispatch.
 
-- `resources/agent_skills_pdf.txt`
-  - Extracted text from the reference PDF for offline use during reviews.
+- `references/agent_skills_pdf.txt`
+  - Extracted text from the reference PDF, kept for provenance. Not given to dispatched reviewers (`OPEN_ITEMS.md`, settled 2026-08-16).
 
 - `logs/`
   - Subagent execution logs per skill.

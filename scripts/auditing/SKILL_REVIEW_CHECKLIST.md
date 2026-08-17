@@ -8,7 +8,7 @@ Depth and worked examples live in `references/authoring-guidance.md`. Calls alre
 
 ## Provenance of this bar
 
-- `resources/agent_skills_pdf.txt` — text extract of Rick Hightower, "Agent Skills: The Universal Standard Transforming How AI Agents Work", Medium, Jan 2026 (printed 2026-02-04), alongside the vendor docs listed in `README.md`. Background only; this file wins on conflict.
+- `references/agent_skills_pdf.txt` — text extract of Rick Hightower, "Agent Skills: The Universal Standard Transforming How AI Agents Work", Medium, Jan 2026 (printed 2026-02-04), alongside the vendor docs listed in `README.md`. Background only; this file wins on conflict.
 - `mattpocock/skills` → `writing-great-skills` (MIT). Patterns reimplemented in this repo's words, never copied: the process-predictability north star, leading words, teach-by-contrast, the no-op test.
 - The operator's `ai-workflows` → `workflows/conventions.md`: One Rule One Home, the parity register, open items, trial-gated removal.
 - The `dot-agent` operating model's skill doctrine: verification claims must be falsifiable, not asserted.
@@ -17,7 +17,7 @@ Depth and worked examples live in `references/authoring-guidance.md`. Calls alre
 
 - Frontmatter carries `name`, `description`, and `metadata.category`, and no other top-level key.
 - `name` equals the folder name, lowercase with hyphens.
-- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget — soft limit 110 tokens, hard limit 120 tokens, measured over `name` and `description` combined, not `description` alone. These are a derived default from `resources/agent_skills_pdf.txt` (a single third-party source), not measured data.
+- `description` states what the skill does *and* when to use it, in third person, within the frontmatter token budget — soft limit 110 tokens, hard limit 120 tokens, measured over `name` and `description` combined, not `description` alone. These are a derived default from `references/agent_skills_pdf.txt` (a single third-party source), not measured data.
 - Any frontmatter value containing `: ` (colon followed by a space) must be quoted, `description` included — unquoted, it fails the audit (`description_requires_quotes_for_colons`, `frontmatter_unquoted_colon:<key>`).
 - Activation cues live in `scripts/auditing/trigger-cases/<skill>.md`, never in `SKILL.md`.
 
@@ -91,7 +91,7 @@ When a section from a known family is present, use its canonical heading: `Workf
 
 ## 10. Size
 
-- `SKILL.md` stays under a hard limit of 5001 tokens; warning (soft limit) at 4500. Same provenance as §1's frontmatter budget: a derived default from `resources/agent_skills_pdf.txt`, not measured data.
+- `SKILL.md` stays under a hard limit of 5001 tokens; warning (soft limit) at 4500. Same provenance as §1's frontmatter budget: a derived default from `references/agent_skills_pdf.txt`, not measured data.
 - Length beyond 200 lines is a warning, not a defect. The job sets the length.
 
 ## 11. Independence — mandatory
@@ -132,7 +132,7 @@ Every check name `scripts/audit_skills.py` can emit, and the section above that 
 
 ## Verdicts
 
-This checklist outranks background and vendored guidance (`references/authoring-guidance.md`, `resources/`) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
+This checklist outranks background and vendored guidance (everything under `references/`, `authoring-guidance.md` included) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
 
 <!-- parity:verdict-enum:start -->
 A verdict is recorded by running `review-result.sh` with `--status no-change|changed|questions`, once, when the review is finished. A status written as prose is commentary for the reader, not the record: it records nothing, and a review that only writes prose leaves no result on record.
