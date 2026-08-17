@@ -53,6 +53,7 @@ if [ -z "${REVIEW_RESULT_FILE:-}" ]; then
   die "REVIEW_RESULT_FILE is required"
 fi
 
+# <!-- parity:verdict-enum:start -->
 case "$status" in
   no-change|changed|questions)
     ;;
@@ -60,6 +61,7 @@ case "$status" in
     die "--status must be one of: no-change, changed, questions (got: $status)"
     ;;
 esac
+# <!-- parity:verdict-enum:end -->
 
 if [ "$status" = "questions" ]; then
   if [ "$have_differentiation" -eq 1 ]; then

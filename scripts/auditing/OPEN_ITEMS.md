@@ -33,6 +33,7 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | 2026-08-16 | **Every reviewer verdict, `QUESTIONS` included, requires a `READ_PROOF:` line as its first output item.** The runner selects one challenge line per skill from `SKILL.md` before any arm is dispatched, and fails an arm whose final message lacks that line or reproduces it wrong (`read-proof absent` / `read-proof mismatch`), blocking the skill before synthesis. This closes the silent-no-read failure mode a sandboxed-but-broken codex arm could produce: an exit-0 `QUESTIONS` that read nothing. |
 | 2026-08-16 | **`agent_skills_pdf.txt` is not given to dispatched reviewers.** The file exists to build the auditing script, not to be read by the agents it dispatches; it stays in the repository at `scripts/auditing/references/agent_skills_pdf.txt` and remains cited as provenance in `SKILL_REVIEW_CHECKLIST.md:11`, `:20`, `:92`. The dispatch prompt in `run_parallel_skill_reviews.sh` no longer names it. |
 | 2026-08-16 | **Prose verdict resolution is retired; `review_log.py` is infra-banner detection only.** A missing verdict file is now reported `MALFORMED`, never a parsed prose verdict. 24 fixtures and 25 test methods were retired because the rules they pinned are now enforced by `review-result.sh`'s argument validation and its tests; recover their content with `git log --diff-filter=D -- scripts/auditing/test-fixtures/`. |
+| 2026-08-16 | **The verdict is recorded by the tool, not by a prose line.** `SKILL_REVIEW_CHECKLIST.md` "Verdicts" was restated from the `REVIEW_STATUS: NO-CHANGE`/`REVIEW_STATUS: CHANGED`/`QUESTIONS` prose contract to `review-result.sh --status no-change|changed|questions`; the prose form is superseded by tasks 4b and 4c and records nothing. |
 
 ## Parity register
 
@@ -41,7 +42,7 @@ Blocks that exist in more than one file on purpose. Edit every member in the sam
 | Family | Members |
 | --- | --- |
 | Removal authority | `SKILL_REVIEW_CHECKLIST.md` §4 · `SUBAGENT_REVIEW_PROCESS.md` "Removal authority" · `scripts/auditing/reviewer-prompt.md` · the declared anchor table in `scripts/check_parity.py` — machine-checked by `scripts/check_parity.py` |
-| Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · `scripts/auditing/reviewer-prompt.md` "Output" block · `scripts/auditing/review-result.sh` `--status` enum · `synthesis-prompt.md` "Output" |
+| Verdict enum and status lines | `SKILL_REVIEW_CHECKLIST.md` "Verdicts" · `SUBAGENT_REVIEW_PROCESS.md` "Verdicts" · `scripts/auditing/reviewer-prompt.md` "Output" block · `scripts/auditing/review-result.sh` `--status` enum · `synthesis-prompt.md` "Output" · the declared status set in `scripts/check_parity.py` — machine-checked by `scripts/check_parity.py`. `--read-proof` is deliberately outside the checked atom: the synthesis call passes none. |
 | Canonical heading families | `SKILL_REVIEW_CHECKLIST.md` §5 · `CANONICAL_HEADINGS` in `scripts/audit_skills.py` — machine-checked by `scripts/check_parity.py` |
 | Mechanical check list | `SKILL_REVIEW_CHECKLIST.md` §12 table · the check names emitted by `scripts/audit_skills.py` (`list_check_names()`) — machine-checked by `scripts/check_parity.py` |
 

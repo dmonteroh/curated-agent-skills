@@ -20,7 +20,13 @@ import check_parity  # noqa: E402
 SNAPSHOT_PATH = TESTS_DIR / "data" / "audit_snapshot.json"
 
 
-def _build_checklist_text(*, headings: list[str], rows: list[str], removal_region: str | None = None) -> str:
+def _build_checklist_text(
+    *,
+    headings: list[str],
+    rows: list[str],
+    removal_region: str | None = None,
+    verdict_region: str | None = None,
+) -> str:
     heading_line = ", ".join(f"`{h}`" for h in headings)
     lines = [
         "## 1. Discovery contract",
@@ -40,6 +46,10 @@ def _build_checklist_text(*, headings: list[str], rows: list[str], removal_regio
         "| --- | --- | --- |",
         *rows,
         "<!-- parity:check-names:end -->",
+        "",
+        "## Verdicts",
+        "",
+        verdict_region if verdict_region is not None else _verdict_enum_region(),
         "",
     ]
     return "\n".join(lines)
@@ -218,6 +228,49 @@ def _removal_authority_region(*, omit: tuple[str, ...] = (), duplicate: tuple[st
     return "\n".join(lines)
 
 
+_VERDICT_SPEC = check_parity.PROSE_FAMILIES["verdict-enum"]
+_VERDICT_DECLARED = sorted(_VERDICT_SPEC["declared"])
+_VERDICT_FLAGS = _VERDICT_SPEC["flag_anchors"]
+
+
+def _status_lines(*, omit: tuple[str, ...] = (), omit_flags: tuple[str, ...] = ()) -> str:
+    tokens = [t for t in _VERDICT_DECLARED if t not in omit]
+    lines = [f"- `--status {t}`" for t in tokens]
+    flags = [f for f in _VERDICT_FLAGS if f not in omit_flags]
+    if flags:
+        lines.append("Alongside those, the call always carries " + " and ".join(f"`{f}`" for f in flags) + ".")
+    return "\n".join(lines)
+
+
+def _verdict_enum_region(**kwargs) -> str:
+    return "\n".join(
+        ["<!-- parity:verdict-enum:start -->", _status_lines(**kwargs), "<!-- parity:verdict-enum:end -->"]
+    )
+
+
+def _with_verdict_enum(text: str, **kwargs) -> str:
+    return text.rstrip("\n") + "\n\n" + _verdict_enum_region(**kwargs) + "\n"
+
+
+def _synthesis_fixture(*, heading: str = "## Output", **kwargs) -> str:
+    return f"# Synthesis prompt\n\nIntro text.\n\n{heading}\n\n{_status_lines(**kwargs)}\n"
+
+
+def _shell_case_fixture(tokens: tuple[str, ...] = tuple(_VERDICT_DECLARED)) -> str:
+    alternation = "|".join(tokens)
+    return (
+        "#!/usr/bin/env bash\n"
+        "# <!-- parity:verdict-enum:start -->\n"
+        'case "$status" in\n'
+        f"  {alternation})\n"
+        "    ;;\n"
+        "  *)\n"
+        "    ;;\n"
+        "esac\n"
+        "# <!-- parity:verdict-enum:end -->\n"
+    )
+
+
 class ProseFamilyTest(unittest.TestCase):
     def setUp(self):
         self._orig = {
@@ -237,7 +290,7 @@ class ProseFamilyTest(unittest.TestCase):
             _build_checklist_text(headings=headings, rows=rows), encoding="utf-8"
         )
         for name in ("PROCESS_DOC_PATH", "REVIEWER_PROMPT_PATH"):
-            self._paths[name].write_text(_removal_authority_region(), encoding="utf-8")
+            self._paths[name].write_text(_with_verdict_enum(_removal_authority_region()), encoding="utf-8")
         for name, path in self._paths.items():
             setattr(check_parity, name, path)
 
@@ -269,7 +322,7 @@ class ProseFamilyTest(unittest.TestCase):
         self.assertIn("removal-authority", out)
 
     def test_missing_delete_key_reddens_only_that_key_for_that_member(self):
-        self._write("PROCESS_DOC_PATH", _removal_authority_region(omit=("delete:own-heading",)))
+        self._write("PROCESS_DOC_PATH", _with_verdict_enum(_removal_authority_region(omit=("delete:own-heading",))))
         rc, out = self._run()
         self.assertEqual(rc, 1)
         self.assertIn("PARITY FAIL: removal-authority", out)
@@ -278,7 +331,9 @@ class ProseFamilyTest(unittest.TestCase):
         self.assertNotIn("reviewer-prompt.md delete/propose block:", out)
 
     def test_missing_propose_key_reddens_only_that_key_for_that_member(self):
-        self._write("REVIEWER_PROMPT_PATH", _removal_authority_region(omit=("propose:activation-cues",)))
+        self._write(
+            "REVIEWER_PROMPT_PATH", _with_verdict_enum(_removal_authority_region(omit=("propose:activation-cues",)))
+        )
         rc, out = self._run()
         self.assertEqual(rc, 1)
         self.assertIn("member reviewer-prompt.md delete/propose block: missing ['propose:activation-cues']", out)
@@ -297,7 +352,7 @@ class ProseFamilyTest(unittest.TestCase):
 
     def test_empty_region_all_nine_keys_missing(self):
         text = "<!-- parity:removal-authority:start -->\n<!-- parity:removal-authority:end -->\n"
-        self._write("PROCESS_DOC_PATH", text)
+        self._write("PROCESS_DOC_PATH", _with_verdict_enum(text))
         rc, out = self._run()
         self.assertEqual(rc, 1)
         for key in _ANCHORS:
@@ -310,7 +365,7 @@ class ProseFamilyTest(unittest.TestCase):
             "This paragraph carries none of the anchor phrases.\n"
             "<!-- parity:removal-authority:end -->\n"
         )
-        self._write("REVIEWER_PROMPT_PATH", text)
+        self._write("REVIEWER_PROMPT_PATH", _with_verdict_enum(text))
         rc, out = self._run()
         self.assertEqual(rc, 1)
         for key in _ANCHORS:
@@ -324,6 +379,170 @@ class ProseFamilyTest(unittest.TestCase):
         self.assertIn("PARITY EXTRACTION ERROR", out)
         self.assertNotIn("parity: ok", out)
         self.assertNotIn("PARITY FAIL", out)
+
+
+class MarkerRegexWideningTest(unittest.TestCase):
+    def test_bare_marker_matches(self):
+        self.assertIsNotNone(check_parity.MARKER_RE.match("<!-- parity:x:start -->"))
+
+    def test_hash_space_prefixed_marker_matches(self):
+        self.assertIsNotNone(check_parity.MARKER_RE.match("# <!-- parity:x:start -->"))
+
+    def test_hash_prefixed_marker_with_no_space_matches(self):
+        self.assertIsNotNone(check_parity.MARKER_RE.match("#<!-- parity:x:end -->"))
+
+    def test_indented_marker_is_rejected(self):
+        self.assertIsNone(check_parity.MARKER_RE.match("  <!-- parity:x:start -->"))
+
+    def test_indented_hash_prefixed_marker_is_rejected(self):
+        self.assertIsNone(check_parity.MARKER_RE.match("  # <!-- parity:x:start -->"))
+
+
+class VerdictEnumFamilyTest(unittest.TestCase):
+    """Covers the verdict-enum family's own extraction shapes, entirely
+    against temp-file fixtures for all five members."""
+
+    def setUp(self):
+        self._orig = {
+            name: getattr(check_parity, name)
+            for name in (
+                "CHECKLIST_PATH",
+                "PROCESS_DOC_PATH",
+                "REVIEWER_PROMPT_PATH",
+                "SYNTHESIS_PROMPT_PATH",
+                "RESULT_TOOL_PATH",
+            )
+        }
+        self._tmpdir = tempfile.TemporaryDirectory()
+        tmp = Path(self._tmpdir.name)
+        self._paths = {
+            "CHECKLIST_PATH": tmp / "checklist.md",
+            "PROCESS_DOC_PATH": tmp / "process.md",
+            "REVIEWER_PROMPT_PATH": tmp / "reviewer.md",
+            "SYNTHESIS_PROMPT_PATH": tmp / "synthesis.md",
+            "RESULT_TOOL_PATH": tmp / "review-result.sh",
+        }
+        headings = list(audit_skills.CANONICAL_HEADINGS.values())
+        rows = _rows_for(sorted(audit_skills.list_check_names()))
+        self._paths["CHECKLIST_PATH"].write_text(
+            _build_checklist_text(headings=headings, rows=rows), encoding="utf-8"
+        )
+        for name in ("PROCESS_DOC_PATH", "REVIEWER_PROMPT_PATH"):
+            self._paths[name].write_text(_with_verdict_enum(_removal_authority_region()), encoding="utf-8")
+        self._paths["SYNTHESIS_PROMPT_PATH"].write_text(_synthesis_fixture(), encoding="utf-8")
+        self._paths["RESULT_TOOL_PATH"].write_text(_shell_case_fixture(), encoding="utf-8")
+        for name, path in self._paths.items():
+            setattr(check_parity, name, path)
+
+    def tearDown(self):
+        for name, path in self._orig.items():
+            setattr(check_parity, name, path)
+        self._tmpdir.cleanup()
+
+    def _write(self, const_name: str, text: str) -> None:
+        self._paths[const_name].write_text(text, encoding="utf-8")
+
+    def _run(self) -> tuple[int, str]:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            rc = check_parity.main()
+        return rc, buf.getvalue()
+
+    def test_baseline_all_five_members_valid_exits_zero(self):
+        rc, out = self._run()
+        self.assertEqual(rc, 0)
+        self.assertIn("verdict-enum", out)
+
+    def test_drop_questions_from_checklist_member_reddens_only_that_member(self):
+        headings = list(audit_skills.CANONICAL_HEADINGS.values())
+        rows = _rows_for(sorted(audit_skills.list_check_names()))
+        self._write(
+            "CHECKLIST_PATH",
+            _build_checklist_text(headings=headings, rows=rows, verdict_region=_verdict_enum_region(omit=("questions",))),
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("PARITY FAIL: verdict-enum", out)
+        self.assertIn("member SKILL_REVIEW_CHECKLIST.md \"Verdicts\": missing ['questions']", out)
+        self.assertNotIn("SUBAGENT_REVIEW_PROCESS.md \"Verdicts\":", out)
+        self.assertNotIn("reviewer-prompt.md Output block:", out)
+
+    def test_drop_changed_from_process_doc_member_reddens_only_that_member(self):
+        self._write(
+            "PROCESS_DOC_PATH", _with_verdict_enum(_removal_authority_region(), omit=("changed",))
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("member SUBAGENT_REVIEW_PROCESS.md \"Verdicts\": missing ['changed']", out)
+
+    def test_review_status_prose_line_all_three_missing_and_both_flags_missing(self):
+        verdict_block = (
+            "<!-- parity:verdict-enum:start -->\n"
+            "REVIEW_STATUS: NO-CHANGE\n"
+            "REVIEW_STATUS: CHANGED\n"
+            "QUESTIONS\n"
+            "<!-- parity:verdict-enum:end -->"
+        )
+        self._write("PROCESS_DOC_PATH", _removal_authority_region() + "\n\n" + verdict_block + "\n")
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "member SUBAGENT_REVIEW_PROCESS.md \"Verdicts\": "
+            "missing ['changed', 'no-change', 'questions'] "
+            "missing-flags ['--differentiation', '--removals']",
+            out,
+        )
+
+    def test_missing_removals_flag_reported_for_reviewer_prompt_member(self):
+        self._write(
+            "REVIEWER_PROMPT_PATH", _with_verdict_enum(_removal_authority_region(), omit_flags=("--removals",))
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("member reviewer-prompt.md Output block: missing-flags ['--removals']", out)
+
+    def test_shell_fourth_token_reported_unexpected(self):
+        self._write(
+            "RESULT_TOOL_PATH", _shell_case_fixture(tokens=("no-change", "changed", "questions", "blocked"))
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("member review-result.sh --status enum: unexpected ['blocked']", out)
+
+    def test_shell_renamed_token_reports_missing_and_unexpected(self):
+        self._write("RESULT_TOOL_PATH", _shell_case_fixture(tokens=("no-change", "amended", "questions")))
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn("member review-result.sh --status enum: missing ['changed'] unexpected ['amended']", out)
+
+    def test_empty_region_all_three_tokens_missing(self):
+        self._write(
+            "RESULT_TOOL_PATH",
+            "#!/usr/bin/env bash\n# <!-- parity:verdict-enum:start -->\n# <!-- parity:verdict-enum:end -->\n",
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "member review-result.sh --status enum: missing ['changed', 'no-change', 'questions']", out
+        )
+
+    def test_deleted_end_marker_exits_2_not_reported_as_parity(self):
+        self._write(
+            "RESULT_TOOL_PATH",
+            '#!/usr/bin/env bash\n# <!-- parity:verdict-enum:start -->\ncase "$status" in\n  no-change)\n    ;;\nesac\n',
+        )
+        rc, out = self._run()
+        self.assertEqual(rc, 2)
+        self.assertIn("PARITY EXTRACTION ERROR", out)
+        self.assertNotIn("parity: ok", out)
+        self.assertNotIn("PARITY FAIL", out)
+
+    def test_synthesis_output_heading_renamed_exits_2_not_a_silent_skip(self):
+        self._write("SYNTHESIS_PROMPT_PATH", _synthesis_fixture(heading="## Outputs"))
+        rc, out = self._run()
+        self.assertEqual(rc, 2)
+        self.assertIn("PARITY EXTRACTION ERROR", out)
+        self.assertNotIn("parity: ok", out)
 
 
 class SnapshotCrossCheckTest(unittest.TestCase):
