@@ -14,6 +14,8 @@ No pass rate, delta, or score from that instance is carried here. Its numbers de
 
 **Residual.** Blinding removes the label, not every cue. With-skill output may carry the skill's own vocabulary, and a grader familiar with the skill can often tell. State that residual in the report rather than claiming full blinding.
 
+Where the arm variable is the agent, the residual is larger: formatting habits, phrasing, and tool-call style identify an agent about as reliably as a label would, and a grader who recognizes one arm is unblinded on every eval at once rather than on the few where vocabulary leaked. Blinding is still worth doing — it removes the cheapest cue — but report how much of it plausibly survived instead of reporting that it held. (authored)
+
 ## One run per cell
 
 **Observed.** Every cell was a single run. No repeats, no resampling record, no variance estimate across runs of the same cell.
@@ -21,6 +23,8 @@ No pass rate, delta, or score from that instance is carried here. Its numbers de
 **Effect.** At one sample per cell, a single assertion flipping moves the headline by one over the total assertion count — in that instance, the same magnitude as an arithmetic error found in its own rollup. There is no way to distinguish a real effect from run-to-run variation.
 
 **Guard.** Record the repeat count in the run configuration and report the delta as an estimate from that many samples. No repeat count is established as sufficient; whichever is chosen is a chosen budget and is labelled as one. Where only one run per cell is affordable, say so in the limitations rather than reporting the delta as a measurement.
+
+**Second guard, once repeats exist.** Repeats bought without an agreement figure are half-spent: report how many of each cell's repeats passed each assertion, and bucket a split assertion as unstable rather than as its majority (`record-shapes.md`). A mean over a split cell hides exactly what the repeats were bought to expose — that the cell disagrees with itself — and reads identically to a cell where every repeat agreed. (authored)
 
 ## Nothing recorded about the run
 

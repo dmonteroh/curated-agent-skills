@@ -16,6 +16,12 @@
 - prompt: "How do I actually evaluate whether our defenses work, rather than assuming they do because nothing has gone wrong yet?"
   expect_activate: yes
 
+- prompt: "Someone published a skill that does exactly what we need and I want to drop it into the agent's set. What do I look at before it goes in?"
+  expect_activate: yes
+
+- prompt: "A teammate forked a prompt pack off GitHub and edited it straight in the upstream folder. Is that a problem or am I being paranoid?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Our agent reads untrusted pages but has no tools and can't change anything, and that setup is fixed."
   expect_activate: no
@@ -30,4 +36,7 @@
   expect_activate: no
 
 - prompt: "Pick a good confidence threshold for the detector. We only have normal traffic to tune against, no attack samples."
+  expect_activate: no
+
+- prompt: "We're pulling in a new package from PyPI for the build. Check it for known vulnerabilities and a sane maintenance record."
   expect_activate: no

@@ -25,3 +25,6 @@
 
 - prompt: "Tidy up the awkward phrasing in these interview transcript quotes before we print them."
   expect_activate: no
+
+- prompt: "Here are eighteen of my published posts. Work out my house voice from them and write it up so we can reuse it on everything we publish."
+  expect_activate: no

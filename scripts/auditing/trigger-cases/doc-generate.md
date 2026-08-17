@@ -13,6 +13,15 @@
 - prompt: "Our AGENTS.md is stale and misses half our conventions. Refresh it from what's actually in the codebase."
   expect_activate: yes
 
+- prompt: "Every time the assistant touches this old codebase it writes in its own style instead of ours. Work out the rules we actually follow here and write them down so that stops."
+  expect_activate: yes
+
+- prompt: "We captured our conventions three months ago and the codebase has moved on. Check what's changed since and update the rules file without throwing away the old decisions."
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The request is only for a one-off explanation of a single snippet. No planning, just implementation."
+  expect_activate: no
+
+- prompt: "Go through this pull request and flag anywhere the author broke our naming conventions."
   expect_activate: no

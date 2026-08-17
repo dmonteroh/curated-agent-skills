@@ -17,6 +17,7 @@ Use this skill when the user needs architecture decisions for backend services o
 - Planning reliability/observability/rollout (SLIs/SLOs, dashboards, runbooks)
 - Choosing integration mechanisms (sync vs async, queues, webhooks) with failure modes
 - Coordinating provider and consumer work that proceeds in parallel across a boundary owned by different people, teams, or agents
+- Designing a multi-step workflow spanning services that must undo its completed steps when a later step fails
 
 ## Do not use this skill when
 
@@ -54,6 +55,7 @@ Do not use this skill when the user only needs implementation details without ar
 4) Plan failure modes + operability
 - Output: reliability plan covering timeouts, retries, circuit breakers, telemetry fields, alerts, and dashboards.
 - Decision: If sync vs async is unclear, select based on latency, consistency, and failure isolation tradeoffs.
+- Decision: If the workflow spans services and no single transaction can cover them, design the compensating path with the happy path, not after it: one compensation per step, the handling rule for each failure situation, a deadline per step, and the test that fails the workflow at each step index in turn. See "Compensating workflows across services" in `references/architecture-patterns.md`.
 
 5) Rollout plan
 - Output: rollout sequence with migration steps, rollback strategy, and verification gates.

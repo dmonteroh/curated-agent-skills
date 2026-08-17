@@ -1,6 +1,6 @@
 # AI-tell pattern catalogue
 
-Thirty-three named patterns, each with what to watch for and a concrete replacement. Grouped into five families; numbering is stable so the main file's scan list and this catalogue stay in step.
+Thirty-five named patterns, each with what to watch for and a concrete replacement. Grouped into five families; numbering is stable so the main file's scan list and this catalogue stay in step.
 
 Two rules govern every entry.
 
@@ -341,6 +341,30 @@ A fake-candid pause manufactures intimacy before an ordinary point. The tell is 
 
 *Register:* the same words mid-sentence are ordinary in casual writing. Only the standalone opener is the pattern.
 
+### 34. Fake vulnerability arcs
+
+**Watch:** I'll be honest, I used to think, I learned this the hard way, we failed at this for months, my biggest mistake was, and then it clicked.
+
+A confession of struggle is staged in front of the real claim so the claim arrives sounding earned. The tell is that the failure is generic, costs the writer nothing anyone can check, and resolves into exactly the lesson the piece was always going to make.
+
+- **Before:** I'll be honest: for months we shipped without tests and paid for it. That failure taught me what I now believe deeply. Testing is not optional.
+- **After:** We shipped without tests for two quarters.
+
+Keep whatever cost the source actually records, and nothing more. Where it records none, the arc goes and only the claim it was propping up survives; supplying the missing specifics is what the fabrication gate exists to stop.
+
+*Register:* a real failure with a cost the writer can name is not this pattern — it is the hard-to-fabricate detail the guard protects. The tell is an arc with no particulars in it.
+
+### 35. Engagement-farming closing questions
+
+**Watch:** What's your take?, Am I wrong?, What would you add?, Curious what others think, Let me know below.
+
+A question is bolted on after the argument has finished, addressed to nobody in particular, and answering it would change nothing in the text above it. It solicits replies rather than asking anything.
+
+- **Before:** Caching halved the tail latency on that endpoint. What's been your experience with caching? Curious what others think.
+- **After:** Caching halved the tail latency on that endpoint.
+
+*Register:* a question the text has genuinely left open — one the author names and cannot answer — is content. Keep it, and keep it where the uncertainty actually is rather than bolted to the end. *(Authored register note.)*
+
 ## Provenance
 
-The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Every example above is written for this file rather than reproduced from either source. Patterns 26, 27, 28, 30, 31, 32, and 33 extend the Wikipedia families into software and product prose; every note marked *(Authored)* is not in either source.
+The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Every example above is written for this file rather than reproduced from either source. Patterns 26, 27, 28, 30, 31, 32, and 33 extend the Wikipedia families into software and product prose; every note marked *(Authored)* is not in either source. Patterns 34 and 35 come from neither: they restate two entries of a long-form drafting ban-list held in this library's intake material, and their examples and register notes are written here.

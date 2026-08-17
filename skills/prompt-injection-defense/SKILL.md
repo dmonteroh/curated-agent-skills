@@ -16,6 +16,7 @@ The material is generalized from one internal design document, its engineering r
 - Reviewing an existing agent's trust boundaries, or auditing which of its tools can carry attacker text into context
 - Deciding whether a detection layer warns or blocks, and what a single classifier may do on its own
 - Persisting agent-authored notes, memories, or plans that later sessions load into their prompts
+- Adopting third-party instruction content into the agent's own loaded set — a downloaded or forked capability definition, prompt pack, ruleset, or agent definition someone else wrote
 - Building or reviewing the evaluation that decides whether the defense works
 
 ## Do not use this skill when
@@ -50,6 +51,7 @@ Three of the nine existed when the source was written, and all three were determ
    - For each tool the agent can call, ask whether its output reaches the context. Every tool that answers yes is an ingress, including tools that accept no untrusted input themselves. *(Authored: the source's engineering review records two misses — mid-session content, and file-reading tools under a locked-down shell — and proposes no unifying test; this is that test.)*
    - Separate session-start ingress from mid-session ingress. A pre-scan that runs once before the prompt is built does not cover content pulled in later by a mid-session tool call.
    - Include the ingestion surface, not only the tool-output surface: anything the harness auto-loads — per-directory instruction files, bundled configuration, cached artifacts, vendored bundles — is an ingress nobody reviewed. Worked case under Examples.
+   - Count adopted instruction content as an ingress class of its own: a capability definition, prompt pack, ruleset, or agent definition taken from a public source, a colleague, or a distribution channel is text a stranger wrote that loads into the agent's instruction channel in every session that follows, and it is reviewed at adoption or never. Screen it before it installs, not after it fires — read the metadata header *and* the instruction body end to end, and treat unexpected shell commands, file writes, network calls, credential handling, or package installs as findings to resolve first. Weigh whether the upstream source looks maintained: an abandoned one is where a hostile edit sits longest unnoticed. Adopt by copying into a branch and reviewing the diff, never by editing the upstream original in place — editing in place destroys the diff the next review would have read, and leaves the adopted copy and the reviewed copy as the same object.
    - Ask what harm is reachable *through allowed verbs*. An allowlist constrains verbs, not intent: blocking `curl` and `rm` leaves navigation intact, and navigating to an attacker's URL with the user's data in the query string is exfiltration written in the agent's own vocabulary.
    - Output: an ingress table — tool or path, content carried, whether it is scanned, and when in the session it arrives.
 

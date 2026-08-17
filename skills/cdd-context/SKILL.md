@@ -20,12 +20,7 @@ Provides guidance for managing project context as first-class artifacts alongsid
 
 - The request is a one-line change and context is already clear.
 - The user explicitly forbids documentation or file edits.
-
-## Activation cues (trigger phrases)
-
-- "set up context docs" / "docs/context is missing"
-- "update product context" / "update tech stack context" / "update workflow context"
-- "create a context brief" / "rehydration snapshot"
+- The repository already has documentation and instruction surfaces that work, and the request is to *govern* them — give each existing file a maintenance role, put every fact under exactly one owner, and keep the set from drifting as the project ages. Scaffolding this prescribed context set on top of a working structure produces a second, competing documentation system; that request is answered by assigning roles to what is already there, not by creating docs/context beside it.
 
 ## Inputs required
 

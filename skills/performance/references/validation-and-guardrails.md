@@ -24,6 +24,7 @@ Decision:
 
 - Performance budgets for key endpoints or user journeys.
 - Freshness budgets on cache-, queue-, or stream-backed read paths: a maximum age for a served value, alerted on like any other budget. Choose the value per path from what the consumer can tolerate; there is no portable default.
+- An accuracy guardrail on any path whose result is approximate — an approximate index, a sample, a lossy or quantized representation: the accuracy metric re-measured against the exact reference on a schedule, not only during the pass that tuned it. Accuracy drifts with the data rather than with the code, so no deploy, test run, or error rate marks the day it fell.
 - Regression gates in CI where feasible.
 - Dashboards and alerts for SLIs/SLOs.
 - Runbooks for diagnosing regressions.

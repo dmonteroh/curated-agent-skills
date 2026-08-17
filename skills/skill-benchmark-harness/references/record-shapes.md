@@ -53,10 +53,12 @@ All values shown are illustrative fill for the shape. None is a target, a thresh
 {
   "iteration": 2,
   "previous_iteration": {"id": 1, "rollup": "iteration-1/rollup.json"},
+  "arm_variable": "skill",
   "agent": {"model": "…", "model_version": "…", "temperature": null, "top_p": null, "seed": null, "sampling_note": "provider defaults, not pinned"},
   "runner": {"name": "…", "version": "…"},
   "skill_under_test": {"name": "example-skill", "version": "0.3.0", "content_hash": "sha256:9c1e…"},
   "control_arm_definition": "The skill file was removed from the agent's loadable set; every other input identical; each run started in a fresh session.",
+  "target_state": {"repo": "…", "revision": "…", "checkout": "fresh per run from that revision, discarded after"},
   "grader": {"kind": "model", "model": "…", "model_version": "…", "blinded": true, "shuffle_seed": 41},
   "repeats_per_cell": 3,
   "repeats_provenance": "chosen budget, not a measured sufficiency",
@@ -69,6 +71,23 @@ Every field is present or explicitly `null` with a note. A blank field and a def
 
 `control_arm_definition` is prose on purpose, and it is the field most often skipped. "Without the skill" can mean the file was deleted, loading was suppressed, or a different session was used, and those are different experiments.
 
+`arm_variable` names the one thing that differs between arms — `skill` or `agent` — and the rest of the record is read against it. Where it is `agent`, the skill (if any) is loaded identically in both arms and an `arms` block pins each candidate instead:
+
+```json
+{
+  "arm_variable": "agent",
+  "skill_under_test": null,
+  "arms": {
+    "control": {"binary": "…", "binary_version": "…", "model": "…", "model_version": "…"},
+    "treatment": {"binary": "…", "binary_version": "…", "model": "…", "model_version": "…"}
+  }
+}
+```
+
+A binary name without its version is not a pin: an agent that updated between arms is a second variable nobody recorded. The task set, the fixtures, and `target_state` stay identical across arms, and one arm is designated the control so the delta has a stated direction. A record showing both the skill and the agent moving is not a matched pair, and the delta it produces belongs to neither. (authored — the source tool supplies the arm variable, not this record shape.)
+
+`target_state` pins the material the agent works on, which the workspace layout otherwise says nothing about. A revision recorded here plus a fresh checkout per run is what makes two runs a matched pair rather than two passes over a tree that moved between them; a branch name in this field is not a pin. Keep the checkout itself outside the graded document set, so nothing inside it can be read as output. Where the task acts on no repository, say so in the field instead of leaving it out.
+
 ## arm-map.json — the file the grader does not open
 
 ```json
@@ -79,6 +98,8 @@ Every field is present or explicitly `null` with a note. A blank field and a def
 ```
 
 Run ids are opaque and carry no condition token. This file is the only place the mapping exists, and it is read after grading closes, never during. Keeping it out of the run directories is what makes blinding structural instead of a promise.
+
+Condition labels follow the arm variable: `with_skill` and `control` where the skill varies, `treatment` and `control` where the agent does. Never the agent's own name — a label a reader can recognize is a condition token, and it defeats the file it is written in.
 
 ## eval-snapshot.json — one per eval, above the arm split
 
@@ -138,15 +159,19 @@ A field that is always null is a claim the artifact does not support. Either pop
 {
   "weighting": "per-assertion",
   "cells": [
-    {"eval_id": "eval-1", "condition": "with_skill", "passed": 8, "total": 10, "failed_ids": ["multi-commit", "gate-order"]},
-    {"eval_id": "eval-1", "condition": "control", "passed": 4, "total": 10, "failed_ids": ["worktree-isolation", "multi-commit", "gate-order", "gate-coverage", "cleanup-step", "pr-target"]}
+    {"eval_id": "eval-1", "condition": "with_skill", "repeats": 3, "passed": 8, "total": 10,
+     "failed_ids": ["multi-commit", "gate-order"],
+     "assertion_passes": {"worktree-isolation": 3, "multi-commit": 1, "gate-order": 0},
+     "split_ids": ["multi-commit"]},
+    {"eval_id": "eval-1", "condition": "control", "repeats": 3, "passed": 4, "total": 10, "failed_ids": ["worktree-isolation", "multi-commit", "gate-order", "gate-coverage", "cleanup-step", "pr-target"], "assertion_passes": {"worktree-isolation": 0, "multi-commit": 0, "…": 0}, "split_ids": []}
   ],
   "conditions": {"with_skill": {"passed": 21, "total": 26}, "control": {"passed": 13, "total": 26}},
   "delta_pp": 30.8,
   "buckets": {
     "discriminating": ["worktree-isolation", "gate-order"],
     "non_discriminating": ["branch-from-default", "tests-added"],
-    "regression": ["minimal-change"]
+    "regression": ["minimal-change"],
+    "unstable": ["multi-commit"]
   },
   "concentration": {"top_1_share": 0.31, "top_2_share": 0.55},
   "duration": {"with_skill": {"mean_s": 412.5, "sd_s": 88.4}, "control": {"mean_s": 371.0, "sd_s": 64.2}, "sd_estimator": "population"}
@@ -156,6 +181,18 @@ A field that is always null is a claim the artifact does not support. Either pop
 `sd_estimator` is stated because population and sample standard deviation give different numbers from the same data, and an unlabelled figure cannot be compared with anyone else's.
 
 The cell list and the buckets are abridged above — one eval of several, five assertion ids of the suite's full set. In a real record both are exhaustive, because the arithmetic and partition checks below depend on it.
+
+## Per-cell agreement across repeats
+
+A repeat count says how many samples a cell has. It says nothing about whether they agreed, and a cell that disagrees with itself is indistinguishable from a stable one once both are rendered as a single pass bit.
+
+`assertion_passes` closes that: for every assertion in the cell, how many of that cell's repeats passed it. `0` or `repeats` is unanimous; anything between is a split, and `split_ids` lists them. The cell's `passed` count is the per-assertion majority, and the split is carried beside it rather than folded into it — the majority is what the arithmetic check runs on, the split is what says how much the majority is worth.
+
+An assertion split in either arm buckets as `unstable`, not as discriminating, non-discriminating, or a regression: the arms cannot be compared on a row where one of them has no settled outcome. The partition check is unchanged — every id still lands in exactly one bucket, of four.
+
+An even repeat count can tie. A tied assertion is unstable by definition, so no tie-break rule is needed and none is offered; a tie broken silently is the failure this whole section exists to prevent.
+
+No agreement level is established as sufficient. Unanimity is the only self-evident case, and any bar short of it is a chosen default, recorded with the run beside the repeat count — the same treatment the repeat count itself gets. (authored — the source names consistency across repeats as a metric; the shape, the bucket, and the tie rule are this skill's.)
 
 ## The join and the checks
 

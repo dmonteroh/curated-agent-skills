@@ -23,6 +23,7 @@ Provides a single testing skill that covers:
 
 - There is no code or behavior defined to test.
 - The only requirement is an informal discussion of testing theory.
+- The failure under investigation is a defect in the code under test rather than in the tests or the environment they run in. Triaging an intermittent or order-dependent suite is in scope; converging on the root cause of a race inside product code is runtime diagnosis of that code, and the test written from it comes back here afterwards.
 
 ## Required inputs
 
@@ -140,6 +141,12 @@ Outputs:
 - Slow E2E suites without smoke tests.
 - Retrying tests that hide real failures.
 
+## Flaky-test triage
+
+Intermittence is itself evidence, so classify it before forming any theory about the code. Rerun the failure three ways first — the same command at the same scope, the failing test in isolation, and the full scope on a machine with no other suite, build, or agent running — and write down what each one did. The pattern across those runs, not the stack trace, names the cause: a different test failing each run while every one passes alone and a quiet machine goes green is environment contention between concurrent runs, not a bug in any test; the same test failing only inside the full suite is order dependence; the same test failing everywhere is a real race in the code under test.
+
+Then fix the class, not the instance. Contention is fixed in the test infrastructure by namespacing every suite-global resource per run; order dependence by finding the leaking fixture with the recorded shuffle seed and resetting it at teardown. A retry wrapper, a longer sleep, or a quarantine is never the fix for a classified flake, because each one buries a bug report that has already been written. Signature table, the concurrent-run contention checklist, and the full fix policy: `references/flaky-test-triage.md`.
+
 ## Static-grep regression tests
 
 When a known-bad state has a cheap, fixed textual signature — a specific literal, or a specific pair of literals that must never co-occur in one file — encode it as a grep-based test instead of relying only on integration coverage or code review. Enumerate the relevant files at test-run time (not a hardcoded list) so new files are covered automatically, generate one test case per file so a failure names the offending file, assert on the textual signature rather than on behavior, and fail with a message that states the concrete fix rather than "invariant violated." This is deliberately cheaper and faster than re-triggering the original failure through a live call or an integration run: no network, no process spin-up, no live credentials. It guards against regressions a future contributor could reintroduce by copy-pasting working code into a sibling file without updating both halves. Recipe and a worked example (a forbidden literal pairing that caused a production failure): `references/static-grep-invariant-tests.md`.
@@ -189,6 +196,7 @@ Script usage and verification:
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
 - `references/performance-regression.md` (perf budgets + CI gates)
 - `references/static-grep-invariant-tests.md` (grep-based regression tests for known-bad textual signatures)
+- `references/flaky-test-triage.md` (rerun signatures, concurrent-run contention checklist, fix policy)
 - `references/unit-test-generation.md` (fast unit test checklist)
 - `references/tdd-iron-laws.md` (TDD loop, runtime vs compile-time RED, durable RED/GREEN checkpoints)
 - `references/testing-anti-patterns.md` (fast test review heuristics)

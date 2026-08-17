@@ -22,13 +22,6 @@ Provides two workflows for Stitch tasks:
 - The request requires inventing a brand identity without assets or inputs.
 - The request depends on cross-skill dependencies or multi-agent orchestration.
 
-## Activation cues (trigger phrases)
-
-- "Create a DESIGN.md from this Stitch project"
-- "Summarize the Stitch design system"
-- "Polish this Stitch prompt"
-- "Turn this UI idea into a Stitch-ready prompt"
-
 ## Required inputs
 
 - **Mode A (DESIGN.md)**: Stitch project data (exported files or offline assets), screenshots, and project title.

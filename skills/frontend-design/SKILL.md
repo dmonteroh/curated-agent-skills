@@ -15,12 +15,14 @@ The user provides frontend requirements: a component, page, application, or inte
 - Translate a brief into a cohesive visual system and layout
 - The surface is an application shell — dashboard, settings, list-detail, inbox, split pane — whose fixed regions and scrolling body have to hold real content
 - A layout that looked correct against mock content breaks once content is empty, long, or unbroken
+- The surface is a browser-run slide deck or another full-viewport panel sequence, where each panel has to fit one screen with nothing scrolling inside it
 
 ## Do not use this skill when
 
 - The task is design critique or high-level UI feedback without implementation
 - The request is purely backend, data, or infrastructure work
 - The user only wants a neutral or default UI with minimal styling
+- The deliverable is a PowerPoint or Keynote file rather than a browser surface — producing and inspecting binary office decks is a different job with different tooling
 
 ## Inputs to confirm
 
@@ -117,6 +119,40 @@ Marketing pages fail on taste; app shells fail on content. Stress every region a
 
 A layout that only holds the happy-path mock is not finished.
 
+## Full-viewport slide surfaces
+
+A presentation built as a web page is its own surface type: a sequence of full-viewport panels a presenter steps through, not a document a reader scrolls. The aesthetic rules above still apply and the surface is still classified before a direction is chosen — but the scroll-ownership mechanics invert, because nothing inside a panel is allowed to scroll at all.
+
+**One slide is one viewport, and content that does not fit becomes another slide.** Each slide is height-bounded to the viewport — `100dvh`, with a `100vh` fallback for engines without dynamic viewport units — and clips its overflow. A scrollbar inside a slide means the audience is being shown content the presenter cannot see on their own screen. The only correct response to overflow is to split the slide. Shrinking type until it fits is the failure this rule exists to prevent: it trades a visible problem, a slide that is too full, for an invisible one, a slide nobody past the third row can read.
+
+**Type and spacing are fluid, and short viewports are their own case.** Every type size and spacing value scales with the viewport rather than being fixed at one design width. Width alone does not cover it: a laptop at a squat aspect ratio and a phone held in landscape are short, not narrow, and a layout tuned only against width overflows on both. Add height-based breakpoints that tighten padding, step heading sizes down, and drop decorative chrome — position dots, keyboard hints, ornament — before touching body copy. The source's ladder of roughly 700px, 600px and 500px of viewport height is a chosen default, not a measured threshold; put the steps where this deck's own content starts to crowd.
+
+**Density has a ceiling per slide type.**
+
+| Slide type | Ceiling |
+| --- | --- |
+| Title | One heading, one subtitle, an optional tagline |
+| Content | One heading plus 4–6 bullets, or two short paragraphs |
+| Feature grid | Six cards |
+| Code | 8–10 lines |
+| Quote | One quotation and its attribution |
+| Image | One image, held well inside the viewport |
+
+Every figure in that table is a chosen default carried from the source, not a measured limit; what they encode is "few enough to read from the back of a room". Raise one deliberately when the audience and the room argue for it. Crossing one by accident is the signal to split the slide, not to reduce the type scale.
+
+**Deck navigation is a contract, not a flourish.** Keyboard, pointer wheel, and touch swipe all advance and reverse the deck, and a position indicator says where the viewer is in it. Reveal animations fire on the slide entering the viewport rather than on a timer, so a presenter who moves fast is never waiting on a schedule. Under `prefers-reduced-motion: reduce`, reveals resolve to their end state and smooth scrolling becomes instant — a reduced-motion deck still navigates and still shows every slide, it simply stops animating between them.
+
+**Discover the style by showing, not by asking.** A requester who cannot name a typeface can still pick between two rendered slides. Instead of an abstract style questionnaire, ask one question about the feeling the deck should leave, then build two or three single-slide previews in genuinely different directions — each self-contained, each small enough to take in at a glance — and ask which to keep or what to mix. Skip the previews when the requester already knows the direction. Delete them at handoff unless asked to keep them. This inverts the usual order: the visual system is chosen from evidence instead of described in advance, and the extra round trip pays for itself whenever the requester is not a designer.
+
+**Validate against viewport shapes, not one canvas.** Check a large desktop, a laptop, a tablet in portrait, a small phone in portrait, and at least one short landscape shape. The landscape case is where viewport-fit failures actually surface and is the one routinely skipped. The source gives two different lists of specific pixel sizes and they disagree with each other; neither is measured, so the rule is coverage of those five shapes rather than a fixed set of numbers. Where browser automation is already available in the project, use it to confirm that no slide overflows and that keyboard navigation reaches every slide.
+
+**Negated CSS functions are silently ignored.** `right: -clamp(28px, 3.5vw, 44px)` and `margin-left: -min(10vw, 100px)` are invalid: the browser drops the declaration without an error and the element sits in the wrong place. Write the negation as a multiplication instead.
+
+```css
+/* dropped silently */  right: -clamp(28px, 3.5vw, 44px);
+/* applies */           right: calc(-1 * clamp(28px, 3.5vw, 44px));
+```
+
 ## Motion and optical detail
 
 - **Transitions and keyframes are not interchangeable; the choice is about interruptibility.** Use CSS transitions for interactive state changes, because a transition retargets from its current position when the user changes intent mid-motion. Reserve keyframe animations for staged one-shot entrances and loading sequences, where there is no user intent to retarget toward.
@@ -162,6 +198,8 @@ A layout that only holds the happy-path mock is not finished.
 - Forcing a landing-page composition onto a tool built for repeated daily use, or putting marketing sections in front of the working surface
 - Declaring a layout done against happy-path mock content, before empty, long, and unbroken content have been tried
 - Leaving nested scroll containers with no declared job, so nobody can predict what a scroll gesture will move
+- Answering an overfull slide by shrinking type or letting the slide scroll, instead of splitting it in two
+- Fixed-height content boxes that look right on a large monitor and clip on a laptop or on a phone held in landscape
 
 ## Output contract
 

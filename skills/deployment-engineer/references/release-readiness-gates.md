@@ -1,6 +1,6 @@
-# Release-Readiness Gates: Staleness, Canary Depth, Config Fingerprinting, Blocker/Warning
+# Release-Readiness Gates: Staleness, Canary Depth, Config Fingerprinting, Transformed Artifacts, Blocker/Warning
 
-Depth for the four gate mechanics summarized under `SKILL.md`'s Decision points. Use this when designing the specific pass/fail/warn logic for a merge-and-deploy gate, not just when naming that a gate exists.
+Depth for the five gate mechanics summarized under `SKILL.md`'s Decision points. Use this when designing the specific pass/fail/warn logic for a merge-and-deploy gate, not just when naming that a gate exists.
 
 ## Review staleness
 
@@ -45,6 +45,28 @@ Mechanism:
 4. On a mismatch, do not reuse the earlier pass — re-run the full validation dry run and report the change explicitly (for example, a `CONFIG_CHANGED` flag) rather than silently trusting the new configuration.
 
 This needs nothing beyond a hash function and the two file sets being hashed (e.g. `sha256sum` over the relevant paths) — no platform-specific tooling or private data source required.
+
+## Verifying an artifact the release transformed
+
+Some releases do not ship the artifact that was built and approved. A step on the way to production rewrites it — recompressing or repackaging a bundle, minifying, stripping symbols, re-encoding media, converting a container image to another runtime's format, quantizing a model. That step introduces a failure class the rest of the pipeline cannot see: **the transform's exit status, the file's existence, and a successful load all prove nothing.** A malformed transform still produces a structurally valid artifact that opens without error. The damage is to behavior, not to structure, so every check that inspects the file rather than running it passes.
+
+Gate the transform on replayed behavior:
+
+1. **Keep a fixed, version-controlled set of recorded inputs**, together with the outputs the pre-transform artifact produced for them. How many is a per-artifact choice — enough to cover the behaviors the transform can plausibly damage — and any count carried in from elsewhere is a chosen default, not a measured one.
+2. **Replay them through the transformed artifact in its actual target runtime**, the one that will serve it in production — not a convenient equivalent, and not the build environment. A substitute runtime supplies its own defaults for precisely the settings the transform touched, so it can only report that the artifact loads.
+3. **Persist the execution settings from the pre-transform run and reuse that record** for the post-transform run, rather than configuring the second run to nominally matching values. Drift in any setting that shapes the output turns a healthy artifact into a spurious failure and, worse, can hide a real one.
+4. **Pick the comparison from whether the transform is lossless or lossy.** This is the step most gates get wrong, and getting it wrong in either direction disables the gate.
+
+**Lossless transform — byte equality is the gate.** Repackaging, a format conversion that preserves content, a rebuild that should be reproducible: output must match exactly, and any divergence is a defect to investigate rather than a tolerance to widen.
+
+**Lossy transform — byte equality is unmeetable by design and must not gate.** A lossy step legitimately changes the output for every input; a byte-comparison gate over it fails on every run, and a gate that always fails gets switched off, which leaves the transform verified by nothing. The gate is instead **agreement between the downstream checker's verdicts before and after**: run whatever already decides that an output is acceptable — the assertion, the schema or format validator, the perceptual or structural check, the grader — against both the pre- and post-transform output, and compare verdicts. Zero exact matches with every verdict in agreement is the expected healthy result, not a warning. Keep the byte-level diff in the report for triage, because it says how far the output moved, but never let it decide.
+
+Two conditions on the gate itself:
+
+- **An approval of the pre-transform artifact is not evidence about the transform.** Whatever cleared the build — tests, review, a promotion decision — was earned by the artifact that went in, and says nothing about the one that comes out.
+- **Re-run it on version bumps of the transform toolchain or of the target runtime**, not only on the first release that introduced the step. Both are free to change what the same transform produces.
+
+When the gate fails, the mismatched pairs are the diagnostic, not the failure count: read the pre and post outputs side by side. Output that is garbled or structurally broken points at the transform's configuration; output that is well-formed and confidently wrong points at content the transform degraded.
 
 ## Blocker vs. warning
 

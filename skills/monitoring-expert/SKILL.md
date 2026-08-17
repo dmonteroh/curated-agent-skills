@@ -29,14 +29,6 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
 - The task is post-deploy smoke or synthetic checking of a deployed URL, not deciding what the service itself measures
 - The user wants unrelated security auditing or code review not tied to monitoring
 
-## Activation Cues
-
-- “Add observability/monitoring to this service”
-- “We need logs/metrics/traces/alerts”
-- “Set up Prometheus/Grafana/Loki/Jaeger/OpenTelemetry”
-- “Design an alert strategy or SLO/SLA monitoring”
-- “Plan performance tests or profiling for bottlenecks”
-
 ## Required Inputs
 
 - Service overview (architecture, language/runtime, deployment model)

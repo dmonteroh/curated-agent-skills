@@ -63,6 +63,10 @@ The file counts in the table are chosen defaults carried from the source pipelin
 
 Research order, when the phase runs: the repository's own code first, then the documentation of the dependencies already in use, then published packages, then the open web. Adopting a proven implementation beats writing a new one; the phase exists to make that search happen before the code does, not after.
 
+Research ends in one of four named decisions, recorded: **adopt** an existing implementation as it stands, **extend** one behind a thin wrapper, **compose** a small number of existing pieces, or **build** custom *informed by* what the search found. Naming the decision and the finding that drove it is the phase's artifact; a research phase that ends in "I had a look around" hands Plan and Review nothing they can check.
+
+A channel that could not be checked is reported as unchecked, never as nothing found. If a package registry was unreachable, the repository search covered only the files in view, or a dependency's documentation was not available, name the channel and what it leaves unestablished. "Nothing exists for this" and "I could not look" support different decisions, and only the first one justifies building custom.
+
 Scaffold runs only when no end-to-end path exists yet — bootstrapping from a spec document. Everywhere else the first slice already runs and there is nothing to stand up.
 
 If the work turns out to be larger than its stated tier mid-flight, re-state the tier upward and run the phases the new tier adds. **The tier moves up, never down** — a plan skipped on a trivial reading is owed once the reading is corrected. *(Authored: the source pipeline stated floors but not the direction rule.)*

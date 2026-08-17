@@ -5,7 +5,7 @@ metadata:
   category: docs
 ---
 
-Provides a three-part pass: a scan against the catalogue of 33 named tells in `references/ai-tell-patterns.md`, a rewrite of every hit the guard does not protect, and three gates that can fail. The scan list below indexes the catalogue.
+Provides a three-part pass: a scan against the catalogue of 35 named tells in `references/ai-tell-patterns.md`, a rewrite of every hit the guard does not protect, and three gates that can fail. The scan list below indexes the catalogue.
 
 Half the procedure is the catalogue. The other half is the guard that decides which hits are legitimate and must survive untouched, because a pass that fires on every dash and every three-item list produces flat, voiceless text, which is its own tell.
 
@@ -20,6 +20,7 @@ Half the procedure is the catalogue. The other half is the guard that decides wh
 
 - The text carries scattered tells and no cluster. Editing it anyway strips the author's habits and leaves the prose flatter rather than more human. Report the finding instead.
 - The job is to produce new prose. This pass edits what exists and contributes no content of its own.
+- The job is to derive a reusable voice profile from an author's body of published work — choosing which pieces count as source material, reconciling the ones that disagree with each other, and emitting a named profile for later work to load. That is a separate derivation job that runs upstream of this one. This pass reads at most one supplied sample to calibrate a single edit, and emits no profile of its own.
 - The goal is to defeat an AI-detection tool. The pass targets how prose reads, and claims nothing about what any detector reports of the result. *(Authored: the source material makes no claim about detection either.)*
 - The wording is fixed: quotations, transcripts, legal filings, published records, or any passage that has to be reproduced verbatim.
 
@@ -105,6 +106,8 @@ Full entries, with words to watch and a before-and-after rewrite for each, are i
 31. Manufactured punchlines and staccato drama: a run of fragments engineered for momentum.
 32. Aphorism formulas: *X is the currency of Y*, *X becomes a trap*.
 33. Conversational rhetorical openers: *Honestly?*, *Here's the thing*, as standalone hooks.
+34. Fake vulnerability arcs: a staged struggle that resolves into the lesson the piece was always going to make.
+35. Engagement-farming closing questions: a question bolted on after the argument ends, to invite replies rather than to ask anything.
 
 ## False-positive guard
 
@@ -168,10 +171,10 @@ Three delivery modes. All three run the full loop and all three gates; they diff
 
 ## References
 
-- `references/ai-tell-patterns.md`: all 33 patterns with words to watch, a before-and-after rewrite each, and the register notes for the patterns that are legitimate in some documents.
+- `references/ai-tell-patterns.md`: all 35 patterns with words to watch, a before-and-after rewrite each, and the register notes for the patterns that are legitimate in some documents.
 
 ## Provenance
 
-The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified against the live page 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Examples here are written for this file rather than reproduced.
+The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified against the live page 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Examples here are written for this file rather than reproduced. Patterns 34 and 35 do not come from that page: they restate two entries from a long-form drafting ban-list in this library's intake material, in this file's own words.
 
 No efficacy figure is carried, because the source states none: nothing here quantifies how much of a text this pass changes, and nothing claims a particular result from any detection tool. Rules marked *(Authored)* are this skill's, not the source's.

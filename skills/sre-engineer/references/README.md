@@ -41,7 +41,7 @@ Use these references for deeper detail when the core workflow needs expansion.
 
 - `references/incident-response-framework.md` — Incident tracking framework.
 - `references/incident-response-runbook.md` — Incident response playbook.
-- `references/postmortem-template.md` — Blameless postmortem template.
+- `references/postmortem-template.md` — Blameless postmortem template, root-cause disqualifiers, and the verification-vs-validation closure rule for action items.
 - `references/chaos-experiment-design.md` — Experiment definition template.
 - `references/chaos-testing-patterns.md` — Chaos injection patterns.
 - `references/chaos-experiment-runner.md` — Safe execution runner.

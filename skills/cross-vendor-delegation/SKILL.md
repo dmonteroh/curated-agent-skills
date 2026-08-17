@@ -35,6 +35,8 @@ Provides the loop for delegating to an agent under another harness and consuming
 - Two budgets — the delegate's own and the supervising caller's — with the delegate's strictly the smaller.
 - The exclusion list: the caller's own instruction, configuration, and skill directories.
 - Where adjudication lands: a human who will decide, or an unattended pipeline that must fail closed.
+- Who can approve sending the payload to the named recipient, and whether that material is theirs to approve.
+- Which vendor serves the delegate and which serves the caller, or a record that the caller's own could not be established.
 
 ## Workflow
 
@@ -42,7 +44,9 @@ Provides the loop for delegating to an agent under another harness and consuming
 
 Name, in one line, what the foreign model is expected to add that the caller cannot produce alone. Independence of errors, a different training distribution, an adversarial stance the caller has already anchored away from — each is a reason. "More thoroughness" is not, and neither is throughput. If the line cannot be written, do the work in-harness. *(Authored: the source is user-invoked and specifies no trigger.)*
 
-Output: the delegation reason, or a decision not to delegate.
+**A separate process is not automatically a heterogeneous reviewer.** Independence is a claim about which vendor serves each side, and a separate binary, endpoint, or account establishes none of it. Settle it here as one of three states — different vendors, the same one behind two interfaces, or unestablished. The same-family state is a stand-down above; the unestablished state carries through to the report as a label.
+
+Output: the delegation reason and the provider relationship, or a decision not to delegate.
 
 ### 2. Assemble the payload as content, never as a path
 
@@ -72,7 +76,9 @@ Require a completion signal: a terminal sentinel, a structured completion event,
 
 Choose the reasoning setting by how bounded the input is rather than by how important the task feels — bounded input tolerates the thorough setting, a large interactive context needs the faster one, and the maximum setting is opt-in only. *(The source's cost multiplier for the maximum setting is asserted, not measured, and is not carried.)*
 
-Name a capability tier, never a model identifier. A pinned identifier rots when the vendor retires the model, and it fails as an entitlement error indistinguishable from every other empty result.
+Name a capability tier, never a model identifier. A pinned identifier rots when the vendor retires the model, and it fails as an entitlement error indistinguishable from every other empty result. The same rot reaches a pinned client version, and hard-failing every other version on an unrecorded test converts it into an outage.
+
+Do not invoke until the egress gate below has cleared: the approval is a precondition of the call, not a formality after it.
 
 Output: the invocation, its two budgets, and the required completion signal.
 
@@ -83,6 +89,20 @@ Run the ordered checks below before reading a single finding, and classify the r
 ### 6. Adjudicate in four parts
 
 Apply the four rules below in their stated order. Output: the delegate's verbatim output, the caller's own disagreements, the overlap buckets, and one recommendation line.
+
+## The egress gate
+
+Sending is an irreversible transfer of someone's content to a third party. Clear this gate before every invocation, not once per session:
+
+1. **Name the recipient** — which vendor or organization receives the packet, not that "an external model" will see it. Approval without the recipient named is not approval of this transfer.
+2. **Show what is in it.** Display or summarize the packet's actual contents, so the decision is made on the bytes and not on a description of the task.
+3. **Ask for this packet.** Proceed only on an explicit yes for the packet as shown; a standing yes to delegation does not cover the next one. *(Authored: a packet that changes after approval voids it — re-ask.)*
+4. **Withhold what is not approvable.** Proprietary, regulated, credential-bearing, and personal material never leaves without approval of that exact transfer. Redact what the question does not need before asking.
+5. **No approver, no transfer.** *(Authored: the source assumes a user is present.)* An unattended run may send only what a standing written scope already covers; anything outside it stops the delegation rather than proceeding on assumed consent.
+
+**Smallest approvable packet beats maximum context.** This gate and §2's pre-resolution rule pull opposite ways. Where they conflict, narrow the question until its payload is approvable; never widen the packet to satisfy pre-resolution. *(Authored: neither source reconciles the two.)*
+
+Egress allowlists, outbound scanners, and receipt ledgers belong to credential handling, which treats a user-initiated call as already consented. This gate is what that framing leaves out: the in-session ask, for one packet, to one named recipient.
 
 ## The verdict gate
 
@@ -130,6 +150,7 @@ The order below is itself a rule — synthesis placed before the delegate's own 
 - **Payload too large to embed?** Narrow the question or split the task into separately-answerable pieces. Never fall back to sending a path — that trades a bounded cost for an unbounded failure.
 - **Output came back untagged?** Re-run once when the request omitted the vocabulary or the response was truncated. Escalate to a human when the request stated the vocabulary and the delegate answered in prose anyway: that is model behavior, and an identical second request reproduces it.
 - **Delegate disagrees with the caller?** Adopt when its reason names evidence the caller did not have; reject with an argued reason when the caller holds context the payload could not carry; escalate when both positions rest on the same evidence read differently.
+- **The caller's own provider cannot be established?** Run the delegation if it is worth running, but label the result unverified and say the independence claim is unproven. An unverified relationship and a confirmed different one are different results; a report that omits the label implies a diversity it never established.
 - **Delegate's run failed?** Classify before retrying. A retry is the right move for a stall and the wrong move for a malformed request, an expired credential, or a stale model pin — each of which reproduces exactly.
 
 ## Examples
@@ -154,6 +175,8 @@ Recommending:
 Returns a delegation report carrying:
 
 - What was delegated, and the one-line reason a foreign view was expected to add something.
+- The provider relationship, as exactly one of cross-provider, same-provider, or unverified. Independence is read off this line, so it is stated even when nothing could be established.
+- That the transfer was approved, naming the recipient and what the approval covered.
 - The delegate's output verbatim, inside explicit boundaries, unedited.
 - The verdict, naming which ordered check produced it, with fail-closed verdicts labelled as verification failures rather than counts.
 - The failure class and its evidence — exit status, error-stream head, elapsed time — whenever the verdict came from a run that did not complete.
@@ -166,6 +189,7 @@ Returns a delegation report carrying:
 - Sourced from one vendor-specific delegation workflow read in 2026-08, restated here without its host: the fail-closed gate and its ordered checks, content-not-path handoff with reference pre-resolution, the injection-delimited payload, the exclusion list and the post-run validity scan, nested budgets with the inner strictly below the outer, the completion-signal check, reasoning effort chosen by input boundedness, tier-not-identifier, the failure taxonomy keyed on every failure presenting as "no output", and the four adjudication rules including the named boilerplate-reason failures.
 - Not carried: every binary name, flag, sandbox setting, session file, and vendor identifier; the source's timeout durations, which are chosen constants with only their ordering argued; its token-cost multiplier for the maximum reasoning setting, which is asserted rather than measured; its response-stream parser and event names; and its persona framing.
 - Authored, not sourced, and marked at each site: the criterion for delegating at all, and the rule for an unresolved disagreement with no human present. The source is invoked by a user, so it states neither.
+- A second workflow read in 2026-08 — an external-critique pass over a multi-voice deliberation — sourced the egress gate, redaction to the minimum packet, and the three-state provider label. Not carried from it: its harness and command-line mechanisms, its adapter and toggle list, its timeout and packet-size constants, its exact client-version boundary (asserted with no transcript, date, or record of what was tested), and its cited regression test, which is absent from the material it ships with, leaving an isolation claim no reader can check. Authored against it and marked in place: re-asking when an approved packet changes, the unattended-run consent rule, and the minimum-packet reconciliation.
 
 ## References
 

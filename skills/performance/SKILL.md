@@ -19,6 +19,8 @@ Provides a unified performance workflow that combines:
 - Running a bounded search over implementation variants to pick the fastest safe one.
 - Latency work where data freshness, cache staleness, or queue backpressure is in play.
 - Baselining the developer feedback loop (cold build, incremental rebuild, test suite, type check, lint, image build).
+- Optimizing an operation whose result is approximate by construction — an approximate-nearest-neighbour index, a sampled aggregate, a lossy or quantized representation — where speed is bought against answer quality.
+- Speeding up data movement: ingestion, backfill, export, ETL, warehouse load, manifest catch-up, or table synchronization, where "done" means the counts and timestamps still reconcile.
 
 ## Do not use this skill when
 
@@ -26,12 +28,6 @@ Provides a unified performance workflow that combines:
 - There is no way to measure and no feasible baseline plan.
 - No correctness gate can be named for the operation being optimized — settle what must stay true before making it faster.
 - Stale or wrong data is the whole problem and the cost of serving it is not in question; that is a correctness fix, not an optimization pass.
-
-## Activation cues (trigger phrases)
-
-- "slow", "latency", "p95", "p99", "throughput", "RPS", "perf regression"
-- "optimize", "profile", "bottleneck", "hot path", "slow query"
-- "capacity planning", "load test", "performance budget"
 
 ## Required inputs
 
@@ -63,6 +59,7 @@ Output:
 - freshness age wherever a read path is served from a cache, queue, or stream — the age of the value served, tracked as a metric in its own right and not folded into latency
 - constraints: budget, deadline, infra limits, rollout strategy
 - the correctness gate that must stay green for the whole pass
+- where the result is approximate, the accuracy metric that gate is expressed in and the exact reference it is measured against. An approximate index, a sample, or a lossy representation answers plausibly instead of failing, so a variant that degrades quality raises no error and stops nothing. Name the gate as a measurement fixed before the first variant — for a nearest-neighbour index, recall@k against exact search over a held-out query set — never as a judgment that the results still look right. Mechanics: `references/bounded-variant-search.md`.
 - the search budget: max variants, max time, max spend, max data impact
 
 Decision:
@@ -93,6 +90,8 @@ Collect (as available):
 - tracing (distributed traces, span timing)
 - frontend (Core Web Vitals, bundle size, render costs)
 - freshness (age of the value served on cache-, queue-, or stream-backed reads, measured beside the latency to serve it)
+
+Where the work is data movement, split the measurement six ways instead of timing the pipeline end to end: source extraction, network transfer, destination or warehouse load, transform, serving-table freshness, and live-tail growth while the job runs. Each is separately measurable and they fail for different reasons. The last two are what explain a pipeline that is genuinely fast and still looks behind — arrivals outrunning the catch-up window is a different problem from slow processing, and a single end-to-end number cannot tell them apart.
 
 Output:
 - ranked bottlenecks with evidence (top 3 by impact)
@@ -130,10 +129,12 @@ A variant becomes the new default only when all of these hold:
 - the change is encoded durably — source control, a script, a test, or a runbook — not only in the session that found it
 - the summary carries the exact commands and measurements
 - no metric outside the optimized one regressed unnoticed; check freshness age, error rate, and saturation first
+- where the result is approximate, the accuracy metric was re-measured for this variant against the same exact reference and did not drop, and it is reported beside p50/p95/p99. A drop there is a correctness failure, not a tradeoff to mention in passing
 
 Then re-run baseline and winner together in the same environment to confirm the delta survives.
 
 Decision:
+- If the pass optimized data movement, promote only after the accounting block in the output contract reconciles. A throughput figure is gameable in ways a latency figure is not, because the pipeline controls its own denominator: `references/bounded-variant-search.md` carries the guardrails.
 - If the win came from serving older data — a higher hit rate on staler values, a longer TTL, a batch window that delays the stream — that is a correctness cost converted into a latency win, and a dashboard measuring latency alone will report it as a success. Reject it, or re-declare the freshness loss as an accepted trade with a named owner and a freshness budget.
 
 ### Phase 5: Validate + guardrails
@@ -219,6 +220,7 @@ When this skill runs, respond with:
 - Promotion decision (what became the default, what was rejected, the rollback path)
 - Validation plan (tests, measurements, success criteria)
 - Guardrails (budgets, alerts, owners)
+- For a data-movement pass, the accounting block: units discovered, units processed this run, raw rows added, derived rows added, remaining tail measured at readback, runtime, and the correctness check that the manifest or job ledger and the destination tables agree on counts and maximum timestamps. Report every field, zeros included; a gap between raw rows and derived rows is either explained in the same block or reported as an open finding.
 - Open questions or missing data
 
 Phrase the result as the best measured safe variant, never as optimal, unless the search space was actually exhausted.

@@ -33,6 +33,7 @@ Master accessibility implementation to create inclusive experiences that work fo
 
 - Focus order and tab sequence
 - Focus indicators and visible focus states
+- Focus kept clear of sticky headers, footers and other overlays (SC 2.4.11, Level AA)
 - Keyboard shortcuts and hotkeys
 - Focus trapping for modals and dialogs
 
@@ -63,6 +64,7 @@ Master accessibility implementation to create inclusive experiences that work fo
 | AA    | 1.4.3     | Contrast ratio 4.5:1 (text), 3:1 (large text)        |
 | AA    | 1.4.11    | Non-text contrast 3:1                                |
 | AA    | 2.4.7     | Focus visible                                        |
+| AA    | 2.4.11    | Focus not obscured, minimum (NEW in 2.2)             |
 | AA    | 2.5.8     | Target size minimum 24x24px (NEW in 2.2)             |
 | AAA   | 1.4.6     | Enhanced contrast 7:1                                |
 | AAA   | 2.5.5     | Target size minimum 44x44px                          |
@@ -82,23 +84,41 @@ function AccessibleButton({
   variant = "primary",
   isLoading = false,
   disabled,
+  onClick,
   ...props
 }: ButtonProps) {
+  const inactive = disabled || isLoading;
+
   return (
     <button
-      // Disable when loading
-      disabled={disabled || isLoading}
+      // aria-disabled, NOT the native `disabled` attribute. The two are
+      // alternatives, not companions: a natively disabled button is removed
+      // from the accessibility tree and cannot be focused, so neither its
+      // disabled state nor aria-busy is ever announced. Prefer native
+      // `disabled` only when the control has nothing to explain while it is
+      // unavailable.
+      aria-disabled={inactive}
       // Announce loading state to screen readers
       aria-busy={isLoading}
-      // Describe the button's current state
-      aria-disabled={disabled || isLoading}
+      // aria-disabled is advisory: the element still activates, so the handler
+      // must refuse the interaction itself.
+      onClick={(event) => {
+        if (inactive) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event);
+      }}
       className={cn(
         // Visible focus ring
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        // Minimum touch target size (44x44px)
+        // Target size 44x44 CSS px satisfies SC 2.5.5 Target Size (Enhanced),
+        // Level AAA. The Level AA floor is 24x24 (SC 2.5.8, Target Size
+        // (Minimum)); 44x44 is used here because it is the comfortable touch
+        // size, not because AA requires it.
         "min-h-[44px] min-w-[44px]",
         variant === "primary" && "bg-primary text-primary-foreground",
-        (disabled || isLoading) && "opacity-50 cursor-not-allowed",
+        inactive && "opacity-50 cursor-not-allowed",
       )}
       {...props}
     >
@@ -303,34 +323,49 @@ function Layout({ children }) {
 ### Pattern 5: Live Region for Announcements
 
 ```tsx
+// Two permanently mounted regions, not one region whose aria-live is swapped:
+// assistive technology reads a region's politeness when the region enters the
+// accessibility tree, so flipping aria-live in the same update that changes the
+// text is unreliable and degrades an urgent message to polite. Declared at
+// module scope so the component type is stable — a component defined inside the
+// hook is a new type on every render, which remounts the regions and loses the
+// announcement entirely.
+function Announcer({ polite, assertive }: { polite: string; assertive: string }) {
+  return (
+    <>
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {polite}
+      </div>
+      <div role="alert" aria-live="assertive" aria-atomic="true" className="sr-only">
+        {assertive}
+      </div>
+    </>
+  );
+}
+
 function useAnnounce() {
-  const [message, setMessage] = React.useState("");
+  const [polite, setPolite] = React.useState("");
+  const [assertive, setAssertive] = React.useState("");
 
   const announce = React.useCallback(
     (text: string, priority: "polite" | "assertive" = "polite") => {
+      // Honor the caller's urgency: `assertive` interrupts, and is reserved for
+      // errors and other messages that cannot wait for the user to pause.
+      const setMessage = priority === "assertive" ? setAssertive : setPolite;
       setMessage(""); // Clear first to ensure re-announcement
+      // Two commits so the region text actually changes; 100ms is a chosen
+      // default, not a measured threshold.
       setTimeout(() => setMessage(text), 100);
     },
     [],
   );
 
-  const Announcer = () => (
-    <div
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      className="sr-only"
-    >
-      {message}
-    </div>
-  );
-
-  return { announce, Announcer };
+  return { announce, announcer: <Announcer polite={polite} assertive={assertive} /> };
 }
 
 // Usage
-function SearchResults({ results, isLoading }) {
-  const { announce, Announcer } = useAnnounce();
+function SearchResults({ results, error, isLoading }) {
+  const { announce, announcer } = useAnnounce();
 
   React.useEffect(() => {
     if (!isLoading && results) {
@@ -338,9 +373,15 @@ function SearchResults({ results, isLoading }) {
     }
   }, [results, isLoading, announce]);
 
+  React.useEffect(() => {
+    if (error) {
+      announce(`Search failed: ${error.message}`, "assertive");
+    }
+  }, [error, announce]);
+
   return (
     <>
-      <Announcer />
+      {announcer}
       <ul>{/* results */}</ul>
     </>
   );

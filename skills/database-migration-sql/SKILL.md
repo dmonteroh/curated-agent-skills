@@ -31,6 +31,7 @@ Provides guidance for planning and writing forward-only SQL migrations with zero
 
 1) **Confirm constraints**
    - Ask for engine/version, locking tolerance, data volume, and migration runner.
+   - Record which *fork* of the dialect the target runs, not just the family name. Engines that share a dialect name diverge on statement syntax, and a fleet can hold both — so the version answer decides how a statement is written, not only which strategy is safe. Where a needed statement has forked, write the form the recorded version supports rather than the form that is habitual; the known forks are in `references/migration-script-patterns.md`.
    - Output: **Constraints Summary** with assumptions.
 2) **Choose a safe strategy (decision point)**
    - If table is large or high-traffic, use expand/contract or blue/green.

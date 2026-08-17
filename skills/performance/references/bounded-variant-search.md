@@ -16,6 +16,16 @@ The budget's values are **chosen per pass**, not derived. There is no correct de
 
 When the requested target is unrealistic ("make it 20x faster"), keep the ambition and bound the loop anyway. An unreachable target is a reason to declare the budget, not a reason to skip it.
 
+## When the correctness gate cannot fail on its own
+
+Some operations answer approximately by construction: an approximate-nearest-neighbour index, a sampled aggregate, a quantized or otherwise lossy representation, a precomputed result served in place of a fresh one. They return a plausible answer rather than an error when their quality degrades, so no test throws, no alert fires, and a variant that made the answers worse looks exactly like one that made them faster. The gate has to be an explicit measurement or it does not exist.
+
+- Fix the evaluation set before the first variant: a held-out set of inputs that no variant is tuned against.
+- Compute the exact reference once — what the slow exhaustive path returns for that set — and score every variant against it. Scoring one approximate variant against another measures agreement, not accuracy.
+- Choose the accuracy metric explicitly and state its parameters: recall@k against exact search for a nearest-neighbour index, error against the full aggregate for a sample, an output comparison against the unquantized model for a quantized one.
+- Re-measure it for every variant and record it in the ledger row beside the latency number. A correctness column reading "yes" because nothing crashed is not a gate.
+- Keep measuring it after promotion: accuracy against a fixed reference drifts as the underlying data changes, with no code change to attribute the drift to. Guardrail: `references/validation-and-guardrails.md`.
+
 ## One hypothesis per variant
 
 Each variant tests exactly one idea and runs against the same input shape as the baseline. Two changes in one variant produce a delta that cannot be assigned to either.
@@ -66,6 +76,15 @@ A variant does not become the new default until all of these hold:
 - no metric outside the optimized one regressed unnoticed — check freshness age, error rate, and saturation before promoting a latency win.
 
 Then re-run the baseline and the winner together, in the same environment and the same session, and confirm the delta survives. A delta assembled from two sessions includes whatever else changed on the machine between them.
+
+### Guardrails for a data-movement throughput number
+
+A pipeline's throughput figure is gameable in ways a latency figure is not, because the pipeline controls its own denominator. Before promoting one:
+
+- Never delete, trim, or exclude raw data to move the metric.
+- Never skip a failed unit silently. A unit that failed is an unprocessed unit and stays in the count; a run that "finished" by dropping what it could not parse has moved work into an unreported queue.
+- Never report historical backfill progress and live-tail freshness as one number. A run can clear its whole backlog and still be behind on arrivals, and a combined figure hides which of the two the next hour of work should target.
+- Never call the run complete until the manifest or job ledger and the destination tables agree on counts and maximum timestamps. Agreement is the correctness gate for a data-movement pass; runtime is only the metric.
 
 ## Reporting honesty
 

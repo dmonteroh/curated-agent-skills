@@ -13,6 +13,9 @@
 - prompt: "We'll want this same pull again next month. Make it something that replays rather than a fresh guess each session."
   expect_activate: yes
 
+- prompt: "That little extractor has been sitting in my scratch folder for a month and two other people have now asked me for the same numbers. Does it move somewhere shared or stay where it is?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "I just wanted the open PR count on that repo today. Got it, thanks — nothing else needed."
   expect_activate: no
@@ -24,4 +27,7 @@
   expect_activate: no
 
 - prompt: "The script and its captured sample already exist for this one — just run it and give me the output."
+  expect_activate: no
+
+- prompt: "How much ceremony does a change this size deserve before it lands — full review and a staging soak, or is a smoke test enough?"
   expect_activate: no

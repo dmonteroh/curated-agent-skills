@@ -28,6 +28,7 @@ The audit exists because the intuitive measure is the wrong one. Ranking compone
 - The component under question is load-bearing for correctness or safety. This audit reports what a thing costs, never whether it is worth its cost — a safety instruction that costs 400 tokens is a price, not a finding.
 - The regression followed a model change or a prompt change, not a configuration change. Nothing in the standing surface moved, so nothing here explains it.
 - The surface is one short instruction file with no registered tools and no selectable capabilities. There is nothing to rank, and the audit costs more than it can return.
+- The question is whether each capability still deserves its place on the merits — one duplicating another, references that have gone stale, a principle recurring across enough of them to belong in the standing instruction text instead. That is a periodic content grooming pass over the corpus, judged item by item against its siblings and ending in keep, revise, or retire verdicts a human rules on. This audit is the other half of that question and stops where it begins: it prices what a component occupies and reports the price, so a cheap component with nothing to say still passes here.
 
 ## Required inputs
 

@@ -13,6 +13,8 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - Investigating vulnerabilities or designing mitigation plans
 - Validating authentication, authorization, and data protection controls
 - Triaging scanner or model-generated candidates before any of them are reported as findings
+- Deciding which candidates are reportable to a coordinated-disclosure or bounty program, where reachability, program scope, and duplication settle acceptance before severity is weighed
+- Assessing how payment-card data is retained, masked, logged, or kept out of scope entirely
 - Deciding whether an existing control still sits on the boundary it was bought to defend
 - Choosing between candidate mitigations when several attack routes reach the same attacker objective
 
@@ -47,7 +49,7 @@ Provides a structured security audit workflow whose findings are gated on eviden
    - Output: candidate list with file and line references, tool results, manual validation notes.
    - Decision: if production testing is disallowed, use staging or review-only methods.
 4. Triage candidates through the false-positive apparatus before any of them become findings.
-   - Set the confidence gate first, from how the report will be consumed, and hold it for the whole pass. A recurring or unattended sweep reports only clear patterns with quoted evidence, because a sweep that reports a maybe trains its reader to skip the next one; a commissioned assessment read in full by a person gates lower but marks everything under that bar tentative and routes it to an appendix. Deciding the gate per finding means deciding it for the finding currently in hand, which is how it moves.
+   - Set the confidence gate first, from how the report will be consumed, and hold it for the whole pass. A recurring or unattended sweep reports only clear patterns with quoted evidence, because a sweep that reports a maybe trains its reader to skip the next one; a commissioned assessment read in full by a person gates lower but marks everything under that bar tentative and routes it to an appendix. Deciding the gate per finding means deciding it for the finding currently in hand, which is how it moves. A third mode applies when the report leaves for someone else's coordinated-disclosure or bounty program: the gate stays high and three scope filters — remote reachability, the program's published scope, and duplication against existing advisories and reports — run on top of the exclusion ledger, because a program triager closes on those before severity is considered at all. Read the program's rules first; its published scope outranks every filter in this skill.
    - Apply a written exclusion ledger — classes of candidate discarded on sight regardless of how plausible they look — and keep its carve-backs attached to it. The exceptions are what stop the ledger over-firing. Three of them exist because the plain rule did discard something real: cost amplification against a metered API is financial risk, not resource exhaustion; pipeline and CI/CD findings survive the test-only and dev-file exclusions because those files execute with real credentials; agent skill and prompt files are executable instructions rather than documentation, so a documentation exclusion does not reach them. The rest are reasoned rather than debugged, and the ledger marks which is which so a reader can weigh a carve-back before discarding on it. Full ledger, carve-backs, and standing precedents: `references/finding-triage.md`.
    - Verify each surviving candidate with an independent pass that receives the file path and line number plus the exclusion rules, and nothing else. Withhold the candidate's description and the reasoning that produced it: a verifier handed the claim tends to confirm the claim, and the second pass is only worth running if it is an unanchored reading of the same lines.
    - Gate emission on quoted evidence. To report a finding at full confidence, quote the specific line or lines that motivate it — for "field X is not defined on model Y", quote the class body where it would be declared; for "this lookup can return null", quote the initialization; for "A and B race", quote both sides. Where the symbol is generated rather than written — a metaclass, an ORM meta class, a decorator, a migration — quote the construct that generates it. The standard is "the source that creates this symbol was read", not "the name was grepped and not found".
@@ -86,6 +88,8 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - Ranking defensive spend by the severity of the threat a control names rather than by how many attack paths it closes
 - Dropping unmitigated leaves out of a choke-point ranking, which hides exactly the gaps the ranking exists to find
 - Scoring two attack paths under different aggregation conventions, which produces a confident ordering out of incomparable numbers
+- Submitting a local-only sink to a disclosure program, where nothing remote reaches it and reachability decides acceptance before severity is read
+- Treating a personal-data compliance review as covering payment-card obligations, which rest on a separate standard, a separate data set, and a never-retain rule with no consent equivalent
 
 ## Output contract
 
@@ -115,7 +119,7 @@ Use this structure in final responses:
 8. Open Questions
 
 ## References
-See `references/README.md` for detailed capabilities, behavioral traits, and knowledge areas. The confidence scale and its mode-bound gate, the exclusion ledger with its carve-backs, the standing precedents, the anti-anchoring verification protocol, the quote-the-line gate, and the filter-stat and fingerprint reporting are in `references/finding-triage.md`. Attack-path enumeration, choke-point counting, and the aggregation convention behind step 5's coverage ranking are in `references/attack-path-analysis.md`.
+See `references/README.md` for detailed capabilities, behavioral traits, and knowledge areas. The confidence scale and its mode-bound gate, the exclusion ledger with its carve-backs, the standing precedents, the anti-anchoring verification protocol, the quote-the-line gate, and the filter-stat and fingerprint reporting are in `references/finding-triage.md`. Attack-path enumeration, choke-point counting, and the aggregation convention behind step 5's coverage ranking are in `references/attack-path-analysis.md`. The coordinated-disclosure engagement mode and its three reportability filters are in `references/finding-triage.md`, with the submission gate, the classes that carry impact, and the report structure in `references/devsecops-and-testing.md`. The payment-card rules — the never-retained set, the PAN masking cap, and scope reduction through tokenization — are in `references/compliance-checklist.md`.
 
 ## Examples
 - "Conduct comprehensive security audit of microservices architecture with DevSecOps integration"

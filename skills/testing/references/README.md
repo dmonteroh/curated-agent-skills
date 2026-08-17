@@ -7,3 +7,4 @@
 - `performance-regression.md`: perf budgets and CI guardrails.
 - `qa-practice-compact.md`: exploratory testing charters and risk-based focus.
 - `static-grep-invariant-tests.md`: grep-based regression tests for known-bad textual signatures (forbidden literal pairings, deprecated write paths).
+- `flaky-test-triage.md`: reading a rerun signature, the concurrent-run contention checklist, and the fix policy for intermittent and order-dependent failures.

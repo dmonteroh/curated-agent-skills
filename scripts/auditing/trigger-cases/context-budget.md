@@ -28,3 +28,6 @@
 
 - prompt: "Tell me whether our 400-token safety instruction is worth what it costs us."
   expect_activate: no
+
+- prompt: "Go through all sixty of my skills one at a time and tell me which to keep, which to rewrite, and which to delete."
+  expect_activate: no

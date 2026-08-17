@@ -147,7 +147,7 @@ function createSpacingScale(baseUnit: number = 4): Record<string, string> {
   --icon-2xl: 48px; /* Hero icons */
 
   /* Touch target sizes */
-  --touch-target-min: 44px; /* WCAG minimum */
+  --touch-target-min: 44px; /* WCAG 2.2 SC 2.5.5, Level AAA; the Level AA floor is 24px (SC 2.5.8) */
   --touch-target-comfortable: 48px;
 }
 ```

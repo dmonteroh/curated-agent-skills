@@ -7,6 +7,9 @@
 - prompt: "I need help with this: A prompt needs enhancement for Stitch or similar UI generators. Can you guide me?"
   expect_activate: yes
 
+- prompt: "All I have is a rough idea — a mobile settings screen with profile, notifications and a dark mode toggle. Can you turn that into a proper Stitch-ready prompt?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The request needs user research, product strategy, or a full UX design brief. No planning, just implementation."
   expect_activate: no

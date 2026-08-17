@@ -16,14 +16,6 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Improving incident response (triage, stabilization, postmortems)
 - Planning reliability work that balances feature velocity
 
-**Activation cues**
-
-- "Define SLOs/error budgets for this service"
-- "We need paging rules tied to reliability targets"
-- "Reduce on-call toil and automate mitigation"
-- "Build an incident response + postmortem loop"
-- "Turn reliability goals into concrete backlog items"
-
 ## Do not use this skill when
 
 - You only need a dashboard or visualization without SLOs or alerting design
@@ -64,6 +56,8 @@ This skill delivers *reliability management*: turning availability/latency goals
    - Output: toil inventory + automation candidates with ROI.
 6. **Strengthen incident response loop.**
    - Decision: if postmortems are ad hoc, propose a lightweight template and follow-up tracker.
+   - Decision: if a stated root cause names human error, is answered only by retraining or by asking people to be more careful, or restates the problem in other words, send it back — the investigation has stopped at a symptom and has not yet said what in the system permitted the failure.
+   - Decision: an action item closes on evidence that it worked, not on its due date. Hold each item open across a declared monitoring window and attach the effectiveness evidence at closure; if the failure mode recurs inside that window, reopen the original item rather than filing a new one, so a repeat failure stays visible as one unsolved problem instead of a series of separate tickets.
    - Output: incident response improvements and follow-up cadence.
 7. **Deliver reliability backlog.**
    - Output: prioritized backlog with owners, effort, and impact.

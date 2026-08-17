@@ -41,16 +41,31 @@ Decide the gate from how the report will be consumed, once, at the start — nev
 | --- | --- |
 | Recurring or unattended sweep, read in passing, running on every change | Report only 7-8 and above. Zero noise is the objective: a sweep that reports a maybe trains its reader to skip the next one, including the one that mattered. |
 | Commissioned comprehensive assessment, read in full by a person | Gate low, but mark everything below 7 as tentative and route it by the display rules. |
+| Coordinated disclosure or bounty submission, read by a program triager who closes whatever is unproven | Report only 7-8 and above, and only what survives the reportability filters below. The question in this mode is not "is this unsafe" but "does this survive triage": a program closes on reachability, scope, and duplication before it ever weighs severity. |
 
 Display rules, applied after the gate:
 
-| Band | Recurring sweep | Comprehensive assessment |
+| Band | Recurring sweep | Comprehensive assessment | Disclosure or bounty submission |
+| --- | --- | --- | --- |
+| 9-10 | Report normally | Report normally | Submit |
+| 7-8 | Report normally | Report normally | Submit |
+| 5-6 | Suppress | Report with an explicit caveat naming the inferred link | Do not submit — the inferred link is the first thing a triager closes on. Trace it or drop it |
+| 3-4 | Suppress | Appendix only, never the findings table | Do not submit |
+| 1-2 | Suppress | Omit, unless the severity would be top-band — then appendix, with the reason it could not be verified | Do not submit |
+
+## Reportability filters, in disclosure and bounty mode only
+
+Three filters apply on top of the ledger in this mode, and each discards candidates that are real defects. They are scope rules, not correctness rules: a candidate discarded here is still worth fixing and still belongs in an internal assessment, so route it there rather than dropping it on the floor.
+
+| Filter | Discard when | What it removes in practice |
 | --- | --- | --- |
-| 9-10 | Report normally | Report normally |
-| 7-8 | Report normally | Report normally |
-| 5-6 | Suppress | Report with an explicit caveat naming the inferred link |
-| 3-4 | Suppress | Appendix only, never the findings table |
-| 1-2 | Suppress | Omit, unless the severity would be top-band — then appendix, with the reason it could not be verified |
+| Remote reachability | No path reaches the sink from a network request or from another user's action — the sink is driven only by whoever already runs the process or already holds the account | Deserialization and code-execution sinks in local-only tooling; a shell invocation whose arguments are all constants; cross-site scripting a victim can only trigger by pasting into their own session |
+| Program scope | The component, host, repository, or finding class sits outside the program's published scope or its stated exclusions | Findings in a dependency the program does not own, and classes the program lists as excluded regardless of impact |
+| Duplication | An advisory, CVE, published report, or open ticket already covers the same defect | Anything already disclosed upstream, including the same defect reported against a different file in the same code path |
+
+Run the scope and duplication filters first, before any verification effort is spent on the candidate — both are cheap and both are absolute. Reachability is settled by the same end-to-end trace the quote gate already requires, so it costs nothing extra: prove user control reaches the sink, or the candidate is not reportable in this mode.
+
+Read the program's own rules, disclosure channel, and exclusions before triage begins, and treat them as outranking every filter here. **A program's published scope is the authority on what it will accept; nothing in this file overrides it.**
 
 ## The exclusion ledger
 

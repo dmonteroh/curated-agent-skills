@@ -28,6 +28,7 @@ What codification buys is determinism: the same input parses the same way in eve
 - The flow mutates state — writes, posts, purchases, deletions. Those need per-step confirmation and stay outside this procedure: codification is what converts an open-ended capability into an enumerable one, so until the unit exists there is nothing enumerable to approve.
 - The right artifact is a service that other clients call through a published schema. This procedure produces a unit an agent authors for itself from its own transcript: no server to run, no schema to negotiate.
 - What is worth keeping is facts rather than a procedure. Notes recalled into a prompt are a different artifact with a different lifecycle; do not build a unit to hold them.
+- The question is how much process a piece of work deserves in general — depth of review, which gates run, whose approval lands it. That is a per-change delivery judgment; this procedure decides only whether one exploration becomes a unit, and where that unit lives.
 
 ## The unit on disk
 
@@ -45,6 +46,13 @@ Five files, one per concern. "Copy the directory anywhere and it still runs" is 
 The contract is the only metadata file: machine-readable header (name, trigger phrases, arguments, source, dependency version, whether ambient credentials are granted) plus the prose, in one file. A second sidecar of metadata is a second thing to drift.
 
 Naming: lowercase letters, digits and single dashes, starting with a letter, no consecutive dashes, short enough to retype from memory (the source caps length at 32 characters — a chosen default, not a measured one). The header carries 3-5 trigger phrases (also a chosen default) mixing the canonical phrasing with the paraphrases a user would actually say, because those phrases are the unit's entire matching surface.
+
+**Where the unit is written is a second decision.** The five files are the same at either tier; what differs is the location and who is expected to find it.
+
+- **Task-local.** A task that recurs with changing inputs inside one piece of work gets its unit in a scratch or project-local working area — same contract, same fixture, same pinned test, discoverable only by whoever is doing that work, and promoted no further.
+- **Shared.** A task that recurs across sessions, repositories, or people gets its unit in the single location every agent enumerates before exploring (step 11), where its trigger phrases have to compete with every other unit's.
+
+Promotion between the two is a separate call from building the unit at all, and it is skipped in both directions: promote everything and the shared location fills with units nobody else can trigger, promote nothing and each operator rebuilds the same one. Five signals argue for shared: the workflow recurs across sessions, repositories, or people; it needs a specific tool or safety sequencing; failures repeat because a gate keeps getting skipped; it has a stable input/output contract; others benefit from seeing its status. The source's bar is "at least two of the five" — a chosen constant with no derivation behind it — so record *which* signals hold and argue from those, rather than promoting on a count. A unit that stays task-local is a finished outcome, not a half-promoted one.
 
 ## Workflow
 

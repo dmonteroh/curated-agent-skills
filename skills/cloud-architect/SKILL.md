@@ -23,6 +23,8 @@ Provides guidance for designing cloud platform architecture: boundaries, network
 - The task is only secrets backend setup/rotation details
 - The task is purely cost optimization without architecture changes
 - The task is on-premises-only network engineering with no cloud side (LAN design, router/switch configuration, physical circuit procurement)
+- A hybrid link exists and is failing right now — this skill designs the link and decides what to alert on; live read-only triage of a session or interface is a different job with a different output
+- A device configuration is written and needs reviewing before it is pushed into a change window
 
 ## Required inputs
 

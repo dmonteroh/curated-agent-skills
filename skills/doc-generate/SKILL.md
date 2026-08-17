@@ -23,6 +23,7 @@ Core capabilities:
 - Producing a long-form system manual from an existing codebase when needed.
 - Auditing which docs a shipped or in-flight change still needs, and filling those gaps.
 - Orienting a newcomer — human or agent — in an unfamiliar repo, including generating or updating the project's agent-instruction file from detected conventions.
+- Re-running that pass over a repo it has already documented, to fold in the conventions that have changed since.
 
 ## Do not use this skill when
 
@@ -130,6 +131,8 @@ Applies when the trigger is "document this repo for people who have never seen i
 Decision points:
 - If a manifest or config declares one framework and the code uses another, the code wins — and the disagreement is itself a line in the guide.
 - If a convention cannot be established from the evidence, write "not established" and name what was checked. A confidently wrong convention costs more than an admitted gap.
+- If two forms of a convention are close to evenly split, do not record a dominant form. Raise it as one question carrying a path on each side and the cost of mixing them, and wait for that answer before raising the next conflict. Lopsided splits resolve to the majority without asking, and the rejected form still gets written down as a "do not".
+- If the repo already carries an instruction file this pass produced, compare against the commit stamped in it rather than re-deriving from scratch, and append a dated entry for each rule that changed instead of rewriting it. Without that stamp there is no incremental pass — only a full re-run that re-asks every question.
 - If the repo has no commits, or `git rev-parse --is-shallow-repository` prints `true`, skip the git-derived conventions and say so in the guide rather than inferring them from what little history is present.
 - If an agent-instruction file already exists, read it in full before writing anything: preserve every project-specific instruction, add rather than replace, and mark what this pass added or changed so a reviewer can see the delta. Not having read it is a stop, not a reason to start fresh.
 - If no such file exists, confirm the filename the project wants before creating one; the convention differs across projects and toolchains, so detect rather than assume.
@@ -140,7 +143,7 @@ Anti-patterns for both artifacts:
 - Explaining self-evident directory names. `src/` does not need a gloss.
 - Restating the README. The guide earns its place by supplying what the README leaves implicit: entry points, the request path, and the conventions.
 
-Output: the onboarding guide, the created or updated agent-instruction file with its additions marked, and the list of conventions that could not be established with the evidence checked for each.
+Output: the onboarding guide, the created or updated agent-instruction file with its additions marked, the list of conventions that could not be established with the evidence checked for each, and any convention conflict that was raised together with how it was resolved.
 
 ## Diataxis coverage pass over a diff
 

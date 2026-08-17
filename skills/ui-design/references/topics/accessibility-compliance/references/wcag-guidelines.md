@@ -423,6 +423,27 @@ function Modal({ isOpen, onClose, children }) {
 }
 ```
 
+#### 2.4.11 Focus Not Obscured (Minimum) (Level AA) - NEW in 2.2
+
+The focused element must not be *entirely* hidden by author-created content. A sticky header, sticky footer, cookie banner or docked panel that covers the element the user just tabbed to fails this criterion, even though the focus ring itself is drawn correctly — the ring is somewhere off screen or underneath the overlay. (SC 2.4.12 Focus Not Obscured (Enhanced) is the Level AAA version and forbids *partial* obscuring.)
+
+Scroll padding on the scroll container is the fix that survives layout changes, because the browser applies it to every scroll-into-view, including the implicit one that follows a Tab press.
+
+```css
+/* Reserve the sticky chrome's own height so tabbing never parks focus
+   underneath it. Both values are the measured height of the sticky element in
+   this layout, not a recommended constant - keep them tied to the same tokens
+   the header and action bar use, or they drift apart on the next redesign. */
+:root {
+  --sticky-header-height: 4rem;
+  --sticky-footer-height: 5rem;
+  scroll-padding-top: var(--sticky-header-height);
+  scroll-padding-bottom: var(--sticky-footer-height);
+}
+```
+
+Check it by tabbing through the page from the top with the sticky element pinned, and again after scrolling to the middle of a long page: every focused control stays visible. Dismissible overlays satisfy the criterion when the user can close them, so the audit question for a cookie banner is whether it can be dismissed from the keyboard alone.
+
 ### 2.5 Input Modalities (New in 2.2)
 
 #### 2.5.8 Target Size (Minimum) (Level AA) - NEW

@@ -19,6 +19,12 @@
 - prompt: "The agent has started inferring my preferences from what I do rather than what I've told it, and writing those inferences down."
   expect_activate: yes
 
+- prompt: "Did we already try this migration? I have a feeling it came up a few weeks back but I can't remember how it ended — don't guess, go and look."
+  expect_activate: yes
+
+- prompt: "The agent appends a lesson after literally every task now and the file is unreadable. What actually deserves to be written down?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "The agent loads our hand-written engineering handbook at startup and it's getting heavy. Help me decide which pages it still needs."
   expect_activate: no
@@ -27,4 +33,10 @@
   expect_activate: no
 
 - prompt: "Where should the agent stash the API token so it can reuse it in the next session?"
+  expect_activate: no
+
+- prompt: "Which commit introduced this regression? Walk back through the history on this file and tell me where it changed."
+  expect_activate: no
+
+- prompt: "You worked out that root cause twenty minutes ago in this same conversation — just restate it for me."
   expect_activate: no

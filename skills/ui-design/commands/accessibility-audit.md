@@ -24,7 +24,7 @@ Comprehensive audit of UI code for WCAG 2.1/2.2 compliance. Identifies accessibi
 
 - Parse for file path or component name
 - Parse for `--level` flag (AA or AAA)
-- Default to WCAG 2.1 Level AA if not specified
+- Default to WCAG 2.2 Level AA if not specified. WCAG 2.2 carries forward every 2.1 success criterion except 4.1.1 Parsing, which it removed as obsolete, so auditing at 2.2 also satisfies a request phrased as 2.1. If the requester explicitly scoped the audit to 2.1, skip the criteria marked "new in WCAG 2.2" and say so in the report rather than reporting them as passes
 
 ### If no argument:
 
@@ -83,6 +83,12 @@ Create `.ui-design/audits/audit_state.json`:
   "focus_areas": ["all"],
   "status": "in_progress",
   "started_at": "ISO_TIMESTAMP",
+  "automated_scan": {
+    "tool": "TOOL_NAME_OR_NOT_RUN",
+    "violations": 0,
+    "passes": 0,
+    "incomplete": 0
+  },
   "files_audited": 0,
   "issues_found": {
     "critical": 0,
@@ -106,7 +112,19 @@ Identify all files to audit:
 - If directory: Recursively find UI files (`.tsx`, `.vue`, `.svelte`, etc.)
 - If application: Audit all component and page files
 
-### 2. Static Code Analysis
+### 2. Automated Scan
+
+Run an automated scanner before reading any code, and record its output as the audit's starting inventory rather than as its verdict.
+
+- Restrict the run to the rule tag set matching the level being audited, so the scan does not report criteria outside the audit's scope: for a Level AA audit, the WCAG 2.0 A, 2.0 AA, 2.1 AA and 2.2 AA tag sets (axe-core exposes these as the `wcag2a`, `wcag2aa`, `wcag21aa` and `wcag22aa` tags; other scanners use their own names for the same split).
+- Record three counts, not one: **violations**, **passes**, and **incomplete**. Incomplete results are items the scanner could not decide; they are manual review items, never passes.
+- Two ways to run it: inject the scanner into a driven page and evaluate it against the live DOM (this catches computed contrast, ARIA resolution and focus state that static analysis cannot see), or run the equivalent CLI against a served URL. Prefer the live-DOM run when a build is servable.
+
+**A clean scan is not a pass, and never closes the audit.** Automated rules decide only part of the criteria set — label reading, focus order, meaningful alt text, error recovery and reflow all need a human or agent judgment call. The manual checklist below runs in full whatever the scan returned. Report a green scan as "no automated violations", never as "conformant".
+
+Failure branch: if no runnable build, server or driver is available, record the scan as not run, say so in the report, and state that the inventory is code-only. Do not silently skip the step and do not substitute the manual checklist for it — an unrun scan and a clean scan are different findings.
+
+### 3. Static Code Analysis
 
 For each file, check against WCAG criteria:
 
@@ -166,12 +184,13 @@ For each file, check against WCAG criteria:
 - [ ] Skip links present
 - [ ] Page has descriptive title
 - [ ] Focus visible on all elements
+- [ ] Focused element is never fully hidden behind a sticky header, sticky footer, cookie banner or other overlay (SC 2.4.11 Focus Not Obscured (Minimum), Level AA, new in WCAG 2.2). Tab the page from the top and again from mid-scroll; a keyboard-dismissible overlay passes, a permanently docked one that covers the focused control fails
 - [ ] Link purpose is clear
 - [ ] Multiple ways to find pages
 
 **2.5 Input Modalities:**
 
-- [ ] Touch targets are at least 44x44px (AAA: 44px, AA: 24px)
+- [ ] Touch targets meet the minimum for the level being audited: 24x24 CSS px at Level AA (SC 2.5.8, new in WCAG 2.2), 44x44 at Level AAA (SC 2.5.5). A 24x24 target is a pass in an AA audit — do not report it as a failure, and do not report a 44x44 requirement unless the audit was scoped to AAA
 - [ ] Functionality not dependent on motion
 - [ ] Dragging has alternative
 
@@ -205,7 +224,7 @@ For each file, check against WCAG criteria:
 - [ ] Custom components have proper ARIA
 - [ ] Status messages announced to screen readers
 
-### 3. Pattern Detection
+### 4. Pattern Detection
 
 Identify common accessibility anti-patterns:
 
@@ -241,7 +260,7 @@ const antiPatterns = [
 ];
 ```
 
-### 4. Color Contrast Analysis
+### 5. Color Contrast Analysis
 
 If design tokens or CSS available:
 
@@ -252,7 +271,7 @@ If design tokens or CSS available:
   - Large text (18pt+ or 14pt bold): 3:1 (AA), 4.5:1 (AAA)
   - UI components: 3:1 (AA)
 
-### 5. ARIA Validation
+### 6. ARIA Validation
 
 Check ARIA usage:
 
@@ -273,7 +292,7 @@ Generate audit report in `.ui-design/audits/{audit_id}.md`:
 **Date:** {YYYY-MM-DD HH:MM}
 **Target:** {target}
 **WCAG Level:** {level}
-**Standard:** WCAG 2.1
+**Standard:** <the version and level actually audited, e.g. WCAG 2.2 Level AA — never a default left unchanged when the audit was scoped differently>
 
 ## Executive Summary
 
@@ -289,6 +308,7 @@ Generate audit report in `.ui-design/audits/{audit_id}.md`:
 **Criteria Checked:** {n}
 **Criteria Passed:** {n} ({%})
 **Files Audited:** {n}
+**Automated Scan:** {tool | not run} - {n} violations, {n} incomplete (starting inventory only; a clean scan does not establish conformance)
 
 ## Critical Issues (Must Fix)
 

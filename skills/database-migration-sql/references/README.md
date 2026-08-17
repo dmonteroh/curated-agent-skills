@@ -3,5 +3,5 @@
 Use these references when deeper detail is needed.
 
 - `references/zero-downtime-strategies.md`: Expand/contract, blue/green, and online schema change patterns with SQL examples.
-- `references/migration-script-patterns.md`: Forward-only SQL templates, rewrite-free `ADD COLUMN` forms, naming, and idempotency guidance.
+- `references/migration-script-patterns.md`: Forward-only SQL templates, rewrite-free `ADD COLUMN` forms, dialect forks that change how a statement is written, naming, and idempotency guidance.
 - `references/validation-and-rollback.md`: Validation query patterns and rollback guidance.

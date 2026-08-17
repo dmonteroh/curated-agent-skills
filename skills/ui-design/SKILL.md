@@ -154,6 +154,7 @@ The rules below are DOM and WAI-ARIA facts, not framework facts, and are stated 
 - [ ] Icon-only controls carry an accessible name
 - [ ] Decorative images use `alt=""` and `aria-hidden="true"`
 - [ ] Dialogs record the element that opened them, keep Tab/Shift+Tab inside while open, and return focus to that element on close
+- [ ] No sticky header, footer or overlay fully hides the element the user just tabbed to (WCAG 2.2 SC 2.4.11, Level AA; reserve the sticky element's height with scroll padding on the scroll container)
 - [ ] Content that updates without a page load is announced through a live region
 - [ ] `prefers-reduced-motion` is honored for animation
 
