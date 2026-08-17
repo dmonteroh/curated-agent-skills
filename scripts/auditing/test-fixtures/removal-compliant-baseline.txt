@@ -1,9 +1,0 @@
-Files changed: skills/example-skill/SKILL.md
-
-Summary of edits: removed a sentence that restated the frontmatter description (-1 line).
-
-REMOVAL PROPOSALS: 1. skills/example-skill/references/legacy.md - duplicates guidance already inline; evidence: no unique content beyond section 3. Would lose nothing.
-
-DIFFERENTIATION: STRONG - the skill encodes an opinionated retry-sequencing convention a frontier model would not produce unprompted.
-
-REVIEW_STATUS: CHANGED

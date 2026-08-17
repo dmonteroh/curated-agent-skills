@@ -41,14 +41,6 @@ The chain ranks positions by how well each is grounded in the checklist, and by 
 
 Do not take a review's account of what the checklist or the settled calls in OPEN_ITEMS_PATH say as the bar itself. Open CHECKLIST_PATH and OPEN_ITEMS_PATH and check the cited section directly before applying or rejecting a finding. A review that mis-cites the bar is caught here, not carried forward into the output.
 
-## Quoting reviewer text safely
-
-REVIEW_ARTIFACTS already carry their own verdict lines and blocks: a REVIEW_STATUS line, a possible QUESTIONS line, a REMOVAL PROPOSALS block, a DIFFERENTIATION line. This synthesis artifact quotes one of those only when a decision on record needs the exact wording - never as free-standing proof that a review was right.
-
-This artifact's verdict is the one recorded by the command in Output below. Nothing quoted here can become it, and the placement rules that follow are not what makes that true. They govern how this artifact reads, and they still matter on the one path where the recording command did not run and the runner falls back to reading this text for a verdict.
-
-When quoting one, keep it from ever opening a line by itself: place it inline inside a sentence, the way this paragraph places REVIEW_STATUS and REMOVAL PROPOSALS a few words back, or place it behind a leading > marker - a prefix the review-log parser's markup stripping does not remove. No other placement is safe on that fallback path: not a plain line, not one with blank space in front of it, not a list bullet, not a heading, not a fenced code block, and not bold text - the parser strips all of those away before it decides what a line says, so any of them would let a quoted reviewer verdict be read as this artifact's own. A quoted REMOVAL PROPOSALS block from a review also stays out of this artifact's own removal-proposals block below: that block's collector absorbs every non-empty line beneath it until a terminator, whatever prefix each line carries.
-
 ## Output
 
 One contiguous restatement, in this order, under this heading only:
@@ -58,10 +50,10 @@ One contiguous restatement, in this order, under this heading only:
 - A removal-proposals block: numbered, each entry naming the file and section, the evidence, and what would be lost, written as none when there are none.
 - A differentiation line, placed inline the way this sentence places it: STRONG or WEAK, with one line of evidence, never standing alone on its own line.
 - Where step c of the chain above still applies once everything above is settled: the numbered list of surviving positions that step c describes, in place of a change.
-- Exactly one final line, alone and flush left, closing the artifact - transcribed word for word from the checklist's own Verdicts section: REVIEW_STATUS: NO-CHANGE, meaning the skill meets the bar, a first-class outcome; REVIEW_STATUS: CHANGED, meaning edits applied; or QUESTIONS, meaning blocked on ambiguity, and do not guess. Alongside REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED, always include the differentiation line and the removal-proposals block from above, written as none when there are none. QUESTIONS ends the artifact immediately and carries neither, and nothing landed for this skill on this run.
+- Exactly one final line, alone and flush left, closing the artifact - transcribed word for word from the checklist's own Verdicts section: NO-CHANGE, meaning the skill meets the bar, a first-class outcome; CHANGED, meaning edits applied; or QUESTIONS, meaning blocked on ambiguity, and do not guess. Alongside NO-CHANGE or CHANGED, always include the differentiation line and the removal-proposals block from above, written as none when there are none. QUESTIONS ends the artifact immediately and carries neither, and nothing landed for this skill on this run.
 
 Record this artifact's result by running, exactly once, when the artifact above is finished:
-- For REVIEW_STATUS: NO-CHANGE or REVIEW_STATUS: CHANGED: RESULT_TOOL_PATH --status <no-change|changed> --differentiation <strong|weak> --removals "<none, or a short summary that removal proposals exist>"
+- For NO-CHANGE or CHANGED: RESULT_TOOL_PATH --status <no-change|changed> --differentiation <strong|weak> --removals "<none, or a short summary that removal proposals exist>"
 - For QUESTIONS: RESULT_TOOL_PATH --status questions
 
 Running that command is what files this artifact's result. A status written in prose above is commentary for the reader and is filed nowhere, so an artifact that only writes prose leaves no result on record.

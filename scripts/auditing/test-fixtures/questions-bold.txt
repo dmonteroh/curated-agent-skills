@@ -1,5 +1,0 @@
-Two sections in SKILL.md restate the same rule and I am not sure which one the operator intends to keep as canonical.
-
-**QUESTIONS**
-
-1. Should the frontmatter description or the opening framing be treated as canonical when they diverge?

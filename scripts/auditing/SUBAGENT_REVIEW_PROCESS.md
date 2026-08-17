@@ -136,8 +136,6 @@ The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROP
 
 In a multi-arm run, the synthesis call's execution of `review-result.sh` is the sole source of the skill's verdict; each reviewer arm's own tool call and status line are part of its artifact and are read as input, not tallied or averaged into the run's verdict.
 
-A verdict is read from a call's verdict file when the file is non-empty. Only when it is absent or empty does the runner fall back to classifying the call's final-message artifact, and on that fallback path an artifact that quotes another agent's `REVIEW_STATUS` line as a line of its own is classified as that quoted verdict rather than its own — so where a verdict is disputed, check it against the verdict file path the runner prints on the per-skill result line.
-
 ## Notes
 
 - For large or complex skills, route reference material into `references/` and add a short index — when a reader does not need it in line, not because a token count was crossed.
