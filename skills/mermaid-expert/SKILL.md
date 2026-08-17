@@ -1,6 +1,6 @@
 ---
 name: mermaid-expert
-description: "Create Mermaid diagrams for flowcharts, sequences, ERDs, and architecture visuals with clear syntax, styling, and delivery guidance."
+description: "Create Mermaid diagrams for flowcharts, sequences, ERDs, and architecture visuals with clear syntax, styling, and delivery guidance. Use when Mermaid diagram code, diagram type selection, or delivery guidance is needed."
 metadata:
   category: docs
 ---
@@ -28,23 +28,7 @@ metadata:
 
 ## Instructions
 
-Provides Mermaid diagram guidance focused on clear, professional visualizations.
 If detailed examples are required, consult `resources/implementation-playbook.md`.
-
-## Focus Areas
-- Flowcharts and decision trees
-- Sequence diagrams for APIs/interactions
-- Entity Relationship Diagrams (ERD)
-- State diagrams and user journeys
-- Gantt charts for project timelines
-- Architecture and network diagrams
-
-## Diagram Types Expertise
-```
-graph (flowchart), sequenceDiagram, classDiagram, 
-stateDiagram-v2, erDiagram, gantt, pie, 
-gitGraph, journey, quadrantChart, timeline
-```
 
 ## Workflow
 1. Confirm requirements and constraints.
@@ -110,7 +94,7 @@ Because the override produces no diagnostic, confirm the rendered layout rather 
 - **Make a parse failure loud and local.** Where diagrams are embedded in a generated document, a fence that fails to parse should render in place as a visible diagnostic block carrying the parse error and an excerpt of the offending source. The surrounding document still builds, and the failure is impossible to read past. Dropping the diagram silently, or degrading it to blank space, hides the defect until a reader notices something missing.
 - **Give an automated pipeline a strict mode.** The same degradation that warns during authoring should be convertible to a non-zero exit status, so a docs pipeline can fail the build on a broken diagram instead of publishing a placeholder.
 
-## Common pitfalls to avoid
+## Common pitfalls
 - Overcrowded diagrams that hide the main story.
 - Complex node IDs or labels that break rendering.
 - Unsupported syntax for the target renderer.
@@ -126,16 +110,7 @@ Provide the following in every response:
 - 1–3 interpretation notes and validation guidance.
 - Open questions if inputs are missing.
 
-## Reporting format
-
-- **Summary:** purpose, audience, renderer constraints.
-- **Diagram Type:** chosen Mermaid type + rationale.
-- **Basic Diagram:** Mermaid code block.
-- **Styled Diagram:** Mermaid code block or skip reason.
-- **Notes:** interpretation notes + validation tips.
-- **Open Questions:** only if needed.
-
-## Example
+## Examples
 
 **Input:** "Create a Mermaid sequence diagram for a login flow with success and failure paths."
 
@@ -193,5 +168,4 @@ sequenceDiagram
 - `references/README.md`
 - `resources/implementation-playbook.md`
 
-Always provide both basic and styled versions unless the user requests basic-only.
 Include `%%` comments to explain complex syntax when it aids readability.

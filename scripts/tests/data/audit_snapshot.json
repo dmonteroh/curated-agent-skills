@@ -338,9 +338,7 @@
   {
     "issues": [],
     "name": "mermaid-expert",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls,Example->Examples"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
