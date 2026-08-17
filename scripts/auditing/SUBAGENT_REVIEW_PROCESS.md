@@ -18,7 +18,7 @@ This document describes the repeatable workflow for running **parallelized subag
 ## Workflow Overview
 
 1. **Select a batch** of skills to review (default batch size is 10).
-2. **Spawn subagents in parallel** (one per skill). The runner's subagent sandbox defaults to `danger-full-access` (`--subagent-sandbox`); that flag governs single-model mode's write-capable codex dispatch only. The default multi-arm reviewer arms are read-only by prompt instruction, not by sandbox: bubblewrap cannot create a user namespace in this container, so every codex sandbox mode is a silent no-op (devcontainer ruling, operator, 2026-08-16), and the codex reviewer arm is dispatched with `--sandbox danger-full-access`, same as single mode.
+2. **Spawn subagents in parallel** (one per skill). Reviewer arms are read-only by prompt instruction, not by sandbox: bubblewrap cannot create a user namespace in this container, so every codex sandbox mode is a silent no-op (devcontainer ruling, operator, 2026-08-16), and the codex reviewer arm is dispatched with `--sandbox danger-full-access`, pinned literally with no separate sandbox knob.
 3. Each subagent:
    - reads `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` and `scripts/auditing/OPEN_ITEMS.md`
    - reads the target `<skill>/SKILL.md`
@@ -30,9 +30,9 @@ This document describes the repeatable workflow for running **parallelized subag
 
 ## Multi-model review
 
-**Pipeline shape.** Each skill review dispatches N reviewer arms — one read-only call per arm — then one synthesis call that reads every arm's review and produces the skill's verdict. There is no third stage. The arm set is read from the runner's `REVIEWER_ARMS` declaration; today it holds codex and claude (N = 2), for N+1 = 3 calls per skill.
+**Pipeline shape.** Each skill review dispatches N reviewer arms — one read-only call per arm — then one synthesis call that reads every arm's review and produces the skill's verdict. There is no third stage. The arm set defaults to the runner's `REVIEWER_ARMS` declaration (today codex and claude, N = 2, for N+1 = 3 calls per skill) and is selectable with `--arms`.
 
-**Mechanical default.** The runner's `usage()` states the default and the opt-out, transcribed verbatim:
+**Mechanical default.** The runner's `usage()` states the default and the selection flag, transcribed verbatim:
 
 ```
 Default: dual mode. Per skill, dispatch one read-only reviewer per declared
@@ -42,13 +42,14 @@ verdict: N+1 calls per skill.
 ```
 
 ```
-  --single-model        Opt out of the dual default: dispatch one codex
-                        reviewer per skill, as before dual mode existed
+  --arms NAME[,NAME...] Reviewer arms to dispatch, replacing the default
+                        wholesale, order preserved (default: codex,claude);
+                        legal names: codex, claude
 ```
 
-No flag runs this default pipeline. `--single-model` (or `SINGLE_MODEL=1`) opts out to the single-reviewer path that predates it.
+No flag runs this default pipeline. `--arms <name>[,<name>...]` replaces the arm set wholesale — for example, a temporary one-arm run when a client is unavailable.
 
-**Operational default.** Multi-arm review is the standard review pass for every skill in the library; the single-arm mode is an exception a human selects deliberately (operator decision, 2026-08-12).
+**Operational default.** Multi-arm review is the standard review pass for every skill in the library; `--arms <name>[,<name>...]` is how a human deliberately selects a different arm set (operator decision, 2026-08-12).
 
 **Authority split.** Every reviewer arm is read-only and advisory: it reads the skill and the bar and reports a review, applying no edit. The synthesis agent is the only writer in a multi-arm run, holding exactly the existing single reviewer's authority under `SKILL_REVIEW_CHECKLIST.md` §4 and this document's own `Removal authority` section below: it deletes autonomously only the closed five-item list, and whole sections, files under `references/` or `scripts/`, and whole skills stay propose-never-execute, ruled on by the operator.
 
