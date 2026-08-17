@@ -15,12 +15,16 @@ sys.path.insert(0, str(TESTS_DIR))
 SCRIPT = REPO_ROOT / "scripts" / "auditing" / "review-result.sh"
 
 
-def _run(args, *, review_result_file=None, unset_var=False):
+def _run(args, *, review_result_file=None, unset_var=False, removals_file=None):
     env = os.environ.copy()
     if unset_var:
         env.pop("REVIEW_RESULT_FILE", None)
     elif review_result_file is not None:
         env["REVIEW_RESULT_FILE"] = review_result_file
+    if removals_file is None:
+        env.pop("REVIEW_REMOVALS_FILE", None)
+    else:
+        env["REVIEW_REMOVALS_FILE"] = removals_file
     return subprocess.run(
         ["bash", str(SCRIPT), *args],
         capture_output=True,
@@ -294,6 +298,76 @@ class RemovalsAndDifferentiationNormalizationTest(unittest.TestCase):
                 "OUTCOME=CHANGED\nDIFFERENTIATION=WEAK\nREMOVAL_PROPOSALS=1\n",
             )
             self.assertEqual(_tmp_siblings(d), [])
+
+
+class RemovalsSidecarTest(unittest.TestCase):
+    """REVIEW_REMOVALS_FILE is the runner's opt-in: set only on the synthesis
+    call, it captures the --removals text verbatim for proposals.py record."""
+
+    def test_removals_text_written_verbatim_when_sidecar_requested(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            sidecar = str(Path(d) / "result.removals")
+            text = "1. `SKILL.md`, `## X` (whole section) - evidence.\n2. second."
+            proc = _run(
+                ["--status", "changed", "--differentiation", "strong", "--removals", text],
+                review_result_file=target,
+                removals_file=sidecar,
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual(Path(sidecar).read_text(encoding="utf-8"), text + "\n")
+            self.assertIn("REMOVAL_PROPOSALS=1", Path(target).read_text(encoding="utf-8"))
+            self.assertEqual(_tmp_siblings(d), [])
+
+    def test_removals_none_clears_a_stale_sidecar(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            sidecar = Path(d) / "result.removals"
+            sidecar.write_text("stale\n", encoding="utf-8")
+            proc = _run(
+                ["--status", "no-change", "--differentiation", "strong", "--removals", "none"],
+                review_result_file=target,
+                removals_file=str(sidecar),
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertFalse(sidecar.exists())
+            self.assertEqual(_tmp_siblings(d), [])
+
+    def test_status_questions_clears_a_stale_sidecar(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            sidecar = Path(d) / "result.removals"
+            sidecar.write_text("stale\n", encoding="utf-8")
+            proc = _run(
+                ["--status", "questions", "--read-proof", "x"],
+                review_result_file=target,
+                removals_file=str(sidecar),
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertFalse(sidecar.exists())
+
+    def test_no_sidecar_env_means_no_sidecar_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            proc = _run(
+                ["--status", "changed", "--differentiation", "weak", "--removals", "1. cut it."],
+                review_result_file=target,
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual(sorted(p.name for p in Path(d).iterdir()), ["result.txt"])
+
+    def test_validation_failure_leaves_existing_sidecar_untouched(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            sidecar = Path(d) / "result.removals"
+            sidecar.write_text("previous\n", encoding="utf-8")
+            proc = _run(
+                ["--status", "changed", "--removals", "1. cut."],
+                review_result_file=target,
+                removals_file=str(sidecar),
+            )
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertEqual(sidecar.read_text(encoding="utf-8"), "previous\n")
 
 
 class ShellStaticChecksTest(unittest.TestCase):

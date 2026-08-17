@@ -102,6 +102,20 @@ else
   fi
 fi
 
+# Opt-in sidecar: the runner sets REVIEW_REMOVALS_FILE only on the synthesis
+# call, so proposal text is recorded from the one call that has authority to
+# propose. Written before the verdict so a verdict on disk implies the
+# sidecar is already in place; a run without proposals clears any stale one.
+if [ -n "${REVIEW_REMOVALS_FILE:-}" ]; then
+  if [ "$removal_out" = "1" ]; then
+    rtmp="${REVIEW_REMOVALS_FILE}.tmp.$$"
+    printf '%s\n' "$removals" >"$rtmp"
+    mv -f "$rtmp" "$REVIEW_REMOVALS_FILE"
+  else
+    rm -f "$REVIEW_REMOVALS_FILE"
+  fi
+fi
+
 tmp="${REVIEW_RESULT_FILE}.tmp.$$"
 {
   printf '%s\n' "OUTCOME=$outcome"
