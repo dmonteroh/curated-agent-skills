@@ -223,6 +223,79 @@ class ReinvocationTest(unittest.TestCase):
             self.assertEqual(_tmp_siblings(d), [])
 
 
+class RemovalsAndDifferentiationNormalizationTest(unittest.TestCase):
+    def test_removals_free_text_counts_as_proposal(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            proc = _run(
+                ["--status", "changed", "--differentiation", "weak", "--removals", "trim the intro"],
+                review_result_file=target,
+            )
+            self.assertEqual(proc.returncode, 0)
+            content = Path(target).read_text(encoding="utf-8")
+            self.assertEqual(
+                content,
+                "OUTCOME=CHANGED\nDIFFERENTIATION=WEAK\nREMOVAL_PROPOSALS=1\n",
+            )
+            self.assertEqual(_tmp_siblings(d), [])
+
+    def test_removals_none_variants_normalize_to_zero(self):
+        for value in (
+            "none",
+            "None",
+            "NONE",
+            "nOnE",
+            " none ",
+            "  NONE  ",
+            "\tnone\t",
+            " \t nOnE \t ",
+        ):
+            with self.subTest(removals=value):
+                with tempfile.TemporaryDirectory() as d:
+                    target = str(Path(d) / "result.txt")
+                    proc = _run(
+                        ["--status", "changed", "--differentiation", "weak", "--removals", value],
+                        review_result_file=target,
+                    )
+                    self.assertEqual(proc.returncode, 0)
+                    content = Path(target).read_text(encoding="utf-8")
+                    self.assertEqual(
+                        content,
+                        "OUTCOME=CHANGED\nDIFFERENTIATION=WEAK\nREMOVAL_PROPOSALS=0\n",
+                    )
+                    self.assertEqual(_tmp_siblings(d), [])
+
+    def test_status_no_change_differentiation_strong_removals_none(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            proc = _run(
+                ["--status", "no-change", "--differentiation", "strong", "--removals", "none"],
+                review_result_file=target,
+            )
+            self.assertEqual(proc.returncode, 0)
+            content = Path(target).read_text(encoding="utf-8")
+            self.assertEqual(
+                content,
+                "OUTCOME=NO-CHANGE\nDIFFERENTIATION=STRONG\nREMOVAL_PROPOSALS=0\n",
+            )
+            self.assertEqual(_tmp_siblings(d), [])
+
+    def test_removals_empty_string_counts_as_proposal(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = str(Path(d) / "result.txt")
+            proc = _run(
+                ["--status", "changed", "--differentiation", "weak", "--removals", ""],
+                review_result_file=target,
+            )
+            self.assertEqual(proc.returncode, 0)
+            content = Path(target).read_text(encoding="utf-8")
+            self.assertEqual(
+                content,
+                "OUTCOME=CHANGED\nDIFFERENTIATION=WEAK\nREMOVAL_PROPOSALS=1\n",
+            )
+            self.assertEqual(_tmp_siblings(d), [])
+
+
 class ShellStaticChecksTest(unittest.TestCase):
     def test_bash_dash_n_is_silent_and_exits_zero(self):
         proc = subprocess.run(
