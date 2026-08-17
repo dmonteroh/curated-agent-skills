@@ -22,37 +22,36 @@ _STUB_COMMON = """\
 mode="${FIXTURE_MODE:-match}"
 skill="${FIXTURE_SKILL:?FIXTURE_SKILL not set}"
 readproof="scripts/auditing/logs/${skill}.readproof"
+result_tool="scripts/auditing/review-result.sh"
 expected=""
 if [[ -f "$readproof" ]]; then
   expected="$(sed -n '2p' "$readproof")"
 fi
-build_message() {
+record_result() {
   case "$mode" in
     match)
-      printf 'READ_PROOF: %s\\n' "$expected"
-      printf 'Files changed: none\\n'
-      printf 'Summary: no changes (0 removed, 0 added)\\n'
-      printf 'REMOVAL PROPOSALS: none\\n'
-      printf 'DIFFERENTIATION: STRONG one line of evidence\\n'
-      printf 'REVIEW_STATUS: NO-CHANGE\\n'
+      "$result_tool" --status no-change --read-proof "$expected" --differentiation strong --removals none
       ;;
     backtick_interior_whitespace)
-      printf 'READ_PROOF: `   %s`\\n' "$expected"
-      printf 'Files changed: none\\n'
-      printf 'Summary: no changes (0 removed, 0 added)\\n'
-      printf 'REMOVAL PROPOSALS: none\\n'
-      printf 'DIFFERENTIATION: STRONG one line of evidence\\n'
-      printf 'REVIEW_STATUS: NO-CHANGE\\n'
+      "$result_tool" --status no-change --read-proof "\\`   $expected\\`" --differentiation strong --removals none
       ;;
     absent)
-      printf 'Files changed: none\\n'
-      printf 'Summary: no changes (0 removed, 0 added)\\n'
-      printf 'REMOVAL PROPOSALS: none\\n'
-      printf 'DIFFERENTIATION: STRONG one line of evidence\\n'
-      printf 'REVIEW_STATUS: NO-CHANGE\\n'
+      "$result_tool" --status no-change --differentiation strong --removals none
       ;;
     mismatch)
-      printf 'READ_PROOF: this text does not match the challenge line at all\\n'
+      "$result_tool" --status no-change --read-proof "this text does not match the challenge line at all" --differentiation strong --removals none
+      ;;
+    questions_no_proof)
+      "$result_tool" --status questions
+      ;;
+    infra_failure_no_proof)
+      :
+      ;;
+  esac
+}
+build_message() {
+  case "$mode" in
+    match|backtick_interior_whitespace|absent|mismatch)
       printf 'Files changed: none\\n'
       printf 'Summary: no changes (0 removed, 0 added)\\n'
       printf 'REMOVAL PROPOSALS: none\\n'
@@ -83,6 +82,7 @@ for ((i=0;i<${#args[@]};i++)); do
     out="${args[$((i+1))]}"
   fi
 done
+record_result
 if [[ -n "$out" ]]; then
   build_message > "$out"
 fi
@@ -101,6 +101,7 @@ if [[ "${1:-}" == "--version" ]]; then
 fi
 source "$(dirname "$0")/_fixture_common.sh"
 cat >/dev/null
+record_result
 build_message
 exit 0
 """
