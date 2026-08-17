@@ -523,9 +523,7 @@
     "issues": [],
     "name": "subagent-orchestrator",
     "warnings": [
-      "entry_over_200_lines:305",
-      "heading_variant:Required Inputs->Required inputs,Output Contract->Output contract",
-      "heading_restated:Worker Execution Surface"
+      "entry_over_200_lines:264"
     ]
   },
   {

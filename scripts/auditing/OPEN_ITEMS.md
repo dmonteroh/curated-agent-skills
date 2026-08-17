@@ -36,6 +36,16 @@ A review that argues against one of these is wrong, not thorough. Bring new evid
 | 2026-08-16 | **The verdict is recorded by the tool, not by a prose line.** `SKILL_REVIEW_CHECKLIST.md` "Verdicts" was restated from the `REVIEW_STATUS: NO-CHANGE`/`REVIEW_STATUS: CHANGED`/`QUESTIONS` prose contract to `review-result.sh --status no-change|changed|questions`; the prose form is superseded by tasks 4b and 4c and records nothing. |
 | 2026-08-17 | **`--single-model` (single-model mode) is retired.** The one-model run is `--arms <name>` — N reviewer arms plus synthesis, always; the synthesis agent remains the sole writer. `--model`/`REVIEW_MODEL` is scoped to the codex reviewer arm and is refused when codex is not among the selected arms. |
 
+## Removal rulings
+
+Operator rulings on `REMOVAL PROPOSALS` blocks. A review that re-proposes anything ruled here fails Quality Gate 7. Approved removals are executed by the operator or an agent acting on the ruling — never by a review.
+
+| Date | Skill | Proposal | Ruling |
+| --- | --- | --- | --- |
+| 2026-08-17 | `subagent-orchestrator` | `## Worker Execution Surface`, whole section | **Approved, executed.** `references/worker-surface.md` verified to carry every rule in worked form — recursion guard, readiness, untrusted-content extraction, isolated-copy — before the cut. Reference re-opened to stand alone; still reached from Hard Invariant 1. |
+| 2026-08-17 | `subagent-orchestrator` | `references/agent-optimization.md`, whole file + its two pointers | **Approved, executed.** Cited nowhere in `SKILL.md`'s body, off the skill's job, restating rules `## Claim Sets` owns. |
+| 2026-08-17 | `subagent-orchestrator` | `SKILL.md:48`, Hard Invariant 7, second sentence | **Approved but not executed — superseded by the section cut.** Its rationale was "the full statement survives in its owning section" (`:100-103`); that section is now gone, so invariant 7 is the sole remaining in-`SKILL.md` statement of the isolated-copy rule. Executing it would delete the rule, not a duplicate. Do not re-propose without new grounds. |
+
 ## Parity register
 
 Blocks that exist in more than one file on purpose. Edit every member in the same change and diff them against each other. Wording drift between members is a defect, not a style difference.

@@ -1,6 +1,6 @@
 # Worker Execution Surface
 
-Companion to the `Worker Execution Surface` section of `SKILL.md`. That section states the rules; this file makes each one concrete, supplies the summary shape for untrusted content, and gives the check the controller runs before dispatch.
+The execution surface named in Hard Invariant 1 of `SKILL.md`: where a worker boots, what authority it holds there, which capabilities it keeps, and what content it is handed. The controller decides all of it before dispatch and writes it into the packet; a packet naming only a claim set is incomplete. This file states each rule, makes it concrete against a worked contrast, supplies the summary shape for untrusted content, and gives the check the controller runs before dispatch.
 
 ## Examples
 

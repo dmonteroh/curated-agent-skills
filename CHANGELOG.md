@@ -2,6 +2,11 @@
 
 ## 2026-08-17
 
+### Removed
+
+- `subagent-orchestrator`: the `## Worker Execution Surface` section of `SKILL.md`; its rules are carried in worked form by `references/worker-surface.md`.
+- `subagent-orchestrator`: `references/agent-optimization.md`, with its pointers in `SKILL.md` and `references/README.md`.
+
 ### Added
 
 - 21 skills: `agent-architecture-audit`, `agent-transaction-authority-security`, `brand-discovery`, `brand-voice`, `competitive-benchmark`, `customer-billing-ops`, `deterministic-extraction-gate`, `finetuning-method-selection`, `literature-review`, `living-docs-governance`, `loop-design-check`, `mle-workflow`, `network-change-review`, `network-device-diagnostics`, `network-segmentation-readiness`, `production-audit`, `recsys-pipeline-architect`, `root-cause-debugging`, `skill-corpus-maintenance`, `training-data-curation`, `ui-demo`.

@@ -12,5 +12,4 @@ Load only what matches the current mode/runtime.
 - `claim-sets.md`: the write surfaces a claim set must enumerate, contract artifacts and aggregator files, worked contrasts, and the pre-dispatch claim-set check.
 - `packet-templates.md`: task board, worker packet, reviewer packet, fix packet, and final report templates.
 - `review-convergence.md`: why a fresh reviewer per round is load-bearing, how to scope a fix packet, the round cap and its escalation.
-- `worker-surface.md`: worked contrasts for working directory, authority, tool grant and readiness; the untrusted-context summary shape; the pre-dispatch checklist.
-- `agent-optimization.md`: baseline → improve → validate loop for iterative agent quality work.
+- `worker-surface.md`: the execution-surface rules — working directory, authority, tool grant, readiness — each against a worked contrast; the untrusted-context summary shape; the pre-dispatch checklist.
