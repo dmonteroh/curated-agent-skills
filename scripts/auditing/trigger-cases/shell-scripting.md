@@ -13,6 +13,12 @@
 - prompt: "Review this install.sh for quoting and portability problems before we ship it."
   expect_activate: yes
 
+- prompt: "My deploy script shells out to curl, git and helm. How do I write tests for it without actually hitting any of those?"
+  expect_activate: yes
+
+- prompt: "How do I cover the failure branches in this bash wrapper when every branch depends on what the package manager returns?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Write a Python script that parses this JSON file and posts the results to an API."
   expect_activate: no

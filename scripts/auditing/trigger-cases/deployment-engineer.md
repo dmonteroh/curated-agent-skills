@@ -7,6 +7,15 @@
 - prompt: "I need help with this: Adding rollout safety (canary/blue-green), automated rollbacks, and runbooks. Can you guide me?"
   expect_activate: yes
 
+- prompt: "Our release sat waiting nine hours last night: the approver was on holiday and the canary metric never reported either way. What should a gate do when its signal just never arrives?"
+  expect_activate: yes
+
+- prompt: "We're dropping a column next release. How do I stage that so we can still roll the app back if the deploy goes bad?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: Cloud platform architecture (landing zones, network/IAM design). No planning, just implementation."
+  expect_activate: no
+
+- prompt: "Help me decide whether this should be one table or three, and which columns need indexes."
   expect_activate: no

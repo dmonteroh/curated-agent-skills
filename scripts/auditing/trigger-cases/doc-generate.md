@@ -7,6 +7,12 @@
 - prompt: "I need help with this: Standardizing documentation structure across a repo. Can you guide me?"
   expect_activate: yes
 
+- prompt: "A new engineer starts Monday and this repo has no docs at all. What should they read on day one, and can you write it?"
+  expect_activate: yes
+
+- prompt: "Our AGENTS.md is stale and misses half our conventions. Refresh it from what's actually in the codebase."
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The request is only for a one-off explanation of a single snippet. No planning, just implementation."
   expect_activate: no

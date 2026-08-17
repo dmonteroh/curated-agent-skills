@@ -7,6 +7,12 @@
 - prompt: "I need help with this: A team wants consistent, discoverable context artifacts for humans and agents. Can you guide me?"
   expect_activate: yes
 
+- prompt: "Our error strings are all over the place — some say 'Oops!', some dump a stack trace. Where do we write down how the product is supposed to sound so everyone follows it?"
+  expect_activate: yes
+
+- prompt: "I inherited this repo and nothing about the stack, the domain or the release process is written down anywhere. Can we pull that out of the code itself?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The request is a one-line change and context is already clear. No planning, just implementation."
   expect_activate: no
