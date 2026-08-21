@@ -178,6 +178,47 @@ class BacktickWrappedChallengeLineTests(unittest.TestCase):
         self.assertNotIn("read-proof absent", proc.stdout)
 
 
+INDENT_FIXTURE_SKILL = "__test_indented_challenge_line__"
+INDENTED_LINE = "   - Output: an indented list item well over thirty characters long."
+
+
+class IndentedChallengeLineTests(unittest.TestCase):
+    def setUp(self):
+        skills_list_snapshot = SKILLS_LIST.read_bytes()
+        self.addCleanup(SKILLS_LIST.write_bytes, skills_list_snapshot)
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+        fixture_dir = Path(self.tmpdir.name) / "skill"
+        fixture_dir.mkdir()
+        content = (
+            "---\n"
+            "name: placeholder\n"
+            "---\n"
+            "short\n"
+            f"{INDENTED_LINE}\n"
+            "short\n"
+        )
+        (fixture_dir / "SKILL.md").write_text(content, encoding="utf-8")
+        self.skill_link = REPO_ROOT / "skills" / INDENT_FIXTURE_SKILL
+        if self.skill_link.is_symlink() or self.skill_link.exists():
+            self.skill_link.unlink()
+        os.symlink(fixture_dir, self.skill_link, target_is_directory=True)
+        self.addCleanup(self._remove_link_and_logs)
+
+    def _remove_link_and_logs(self):
+        if self.skill_link.is_symlink() or self.skill_link.exists():
+            self.skill_link.unlink()
+        for stale in LOGDIR.glob(f"{INDENT_FIXTURE_SKILL}.*"):
+            stale.unlink()
+
+    def test_indented_challenge_line_reproduced_verbatim_is_arm_ok(self):
+        proc = _run_dual("match", skill=INDENT_FIXTURE_SKILL)
+        self.assertIn(f"[arm-ok] {INDENT_FIXTURE_SKILL}/codex", proc.stdout)
+        self.assertIn(f"[arm-ok] {INDENT_FIXTURE_SKILL}/claude", proc.stdout)
+        self.assertNotIn("read-proof mismatch", proc.stdout)
+        self.assertNotIn("read-proof absent", proc.stdout)
+
+
 REGEN_FIXTURE_SKILL = "__test_skills_list_not_regenerated__"
 
 

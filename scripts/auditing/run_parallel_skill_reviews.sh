@@ -234,7 +234,12 @@ build_reviewer_argv() {
         REVIEWER_ARGV+=(--effort "$REVIEW_EFFORT")
       fi
       REVIEWER_ARGV+=(--append-system-prompt "$DISPATCH_BOOTSTRAP_EXEMPTION")
-      REVIEWER_ARGV+=(--permission-mode dontAsk --allowedTools "Read,Glob,Grep,Bash($ROOT/scripts/auditing/review-result.sh:*)" --disallowedTools "Edit,Write,NotebookEdit")
+      # All three spellings of the one sanctioned command: dispatches run
+      # with cwd $ROOT, and a model that rewrites the prompt's absolute
+      # path to a relative one otherwise meets a silent deny, concludes
+      # Bash is unavailable, and files nothing (the measured MALFORMED
+      # cause of the 2026-08-18 overnight run).
+      REVIEWER_ARGV+=(--permission-mode dontAsk --allowedTools "Read,Glob,Grep,Bash($ROOT/scripts/auditing/review-result.sh:*),Bash(scripts/auditing/review-result.sh:*),Bash(./scripts/auditing/review-result.sh:*)" --disallowedTools "Edit,Write,NotebookEdit")
       REVIEWER_STDIN=1
       ;;
     *)
@@ -257,7 +262,8 @@ build_synthesis_argv() {
     SYNTHESIS_ARGV+=(--effort "$SYNTHESIS_EFFORT")
   fi
   SYNTHESIS_ARGV+=(--append-system-prompt "$DISPATCH_BOOTSTRAP_EXEMPTION")
-  SYNTHESIS_ARGV+=(--permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write,Bash($ROOT/scripts/auditing/review-result.sh:*)")
+  # Same three spellings as the reviewer arm: see build_reviewer_argv.
+  SYNTHESIS_ARGV+=(--permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Edit,Write,Bash($ROOT/scripts/auditing/review-result.sh:*),Bash(scripts/auditing/review-result.sh:*),Bash(./scripts/auditing/review-result.sh:*)")
   return 0
 }
 
@@ -760,6 +766,12 @@ verify_read_proof() {
   if [[ "$found" -eq 0 ]]; then
     return 1
   fi
+  # Strip the recorded value the same way as the expected line below: the
+  # prompt demands the challenge line verbatim, so an arm that keeps the
+  # line's leading indentation must compare equal to the whitespace-stripped
+  # expectation, not fail for its fidelity.
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
   if [[ "$value" == \`*\` && "${#value}" -ge 2 ]]; then
     value="${value:1:$((${#value} - 2))}"
     value="${value#"${value%%[![:space:]]*}"}"

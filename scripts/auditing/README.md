@@ -35,7 +35,8 @@ The parallel reviewer installs the same audit dependencies automatically and use
 Pipeline behavior:
 
 1. Per skill, the default pipeline dispatches one read-only review per declared arm, then a synthesis call applies the single change that lands. `--arms <name>[,<name>...]` selects the reviewer arm set (default: `codex,claude`); every arm stays read-only and synthesis stays the run's only writer regardless of arm count.
-2. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
+2. Every arm must prove it read the skill: its verdict carries a `READ_PROOF` line reproducing a challenge line the runner picked from that skill's `SKILL.md`. An absent or mismatched proof fails the arm and blocks the skill from synthesis. The comparison whitespace-strips both sides and unwraps a wholly backtick-wrapped value — an arm is never failed for reproducing indentation verbatim.
+3. Runner runs `scripts/audit_skills.py` unconditionally once all subagents complete.
 
 Useful options:
 
