@@ -121,13 +121,7 @@ After each write, confirm in one line: which section was saved, that the checkpo
 
 ## Common pitfalls
 
-- Asking the first question before reading state, which silently discards every prior session.
-- Presenting several questions at once because the participant seems short of time.
-- Writing the synthesis while the last two probes were still producing new material.
-- Letting participants discuss a section together before their individual interviews.
 - Compressing the whole sequence into one sitting, which produces a document with the right headings and nothing under them.
-- Recording paraphrase in the `## Raw` part.
-- Writing a file whose name or directory came straight from the conversation without validation.
 
 ## Examples
 

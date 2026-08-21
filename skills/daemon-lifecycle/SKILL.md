@@ -100,20 +100,6 @@ Nothing external supervises the daemon, so it must decide on its own when to exi
 
 Redirect the newly spawned process's output to a log file truncated at the start of this spawn attempt, so a later read reflects only the current attempt, not a stale prior one. Poll for a definite "started" signal — state file present and health check passing — up to a timeout. On timeout, read the log back and include its contents directly in the failure the caller sees, rather than reporting a bare "failed to start." A daemon that fails to start for a real reason (bad config, port conflict, an init-time crash) should never look identical, from the caller's side, to one that simply took too long.
 
-## Decision points
-
-| Point | Branches on |
-|---|---|
-| Attach vs. spawn | Does a state file exist, and does its target pass a health check? |
-| Respawn vs. refuse on version drift | Does the running instance report undrainable work? |
-| Graceful shutdown attempt vs. skip to signal | Is the daemon reachable (health check passed) or already unresponsive? |
-| Wait-and-poll vs. spawn | Did this caller win the exclusive lock? |
-| Attach vs. still spawn, post-lock | Does the re-read under the lock show a racing winner already finished? |
-| Signal vs. refuse to signal | Does the live process's command line contain the expected identity marker? |
-| Escalate to forceful kill vs. stop | Is the process still alive *and* still identity-verified after the grace wait? |
-| Idle: shut down vs. extend vs. force-shutdown | Idle past threshold? Undrainable work present? Extensions already exhausted? |
-| Lock: fail vs. reclaim | Is the recorded lock-holder PID still alive? |
-
 ## Platform scope
 
 The identity check in step 4 depends on reading a live process's own command line, and that operation has no universal cross-platform implementation:
@@ -122,18 +108,6 @@ The identity check in step 4 depends on reading a live process's own command lin
 - On a platform with no real implementation of that read, the identity check always returns "no match," which fails closed, not open: it will never signal an unverified PID. That is safe, but it is not equivalent to support — it also means the daemon's stale-PID reclaim and crash-recovery paths silently stop working on that platform, because nothing there can ever be positively identified and reclaimed by signal.
 
 Do not ship silent degradation as though it were parity with the supported platforms. Before targeting a platform outside Linux and macOS, either implement a real per-platform command-line or process-image query for step 4, or state explicitly in the implementation and its documentation that signal-based reclaim is unavailable there, and define the operator-facing fallback (a documented manual-cleanup procedure, a different eviction mechanism, or an explicit unsupported-platform error at startup). This platform-gap response is authored guidance to close a gap, not a pattern the source material itself implements for non-Linux/macOS targets.
-
-## Common pitfalls
-
-- Signaling an unrelated process because a stale state file's PID was reused by the OS — prevented only by the identity check (step 4); treat any implementation that signals on liveness alone as unsafe by construction.
-- Duplicate daemons from a concurrent-launch race — prevented by the exclusive spawn lock (step 3).
-- A daemon spawned between a caller's first check and its lock acquisition getting spawned over again — prevented specifically by the re-read-under-lock step, not by the lock alone.
-- Permanent deadlock from a crashed lock-holder that never releases its lock — prevented by the stale-lock liveness check and reclaim (step 3).
-- Silent loss of in-memory session state from auto-restarting or auto-killing a busy instance without checking — prevented by the refuse-to-kill branch (step 5).
-- A daemon that never exits because status polling looks like use — prevented by the meaningful-activity/passive-polling distinction (step 6).
-- A daemon that exits mid-task because a naive idle timer doesn't know work is in flight — prevented by the extension-with-hard-ceiling mechanism (step 6).
-- A reader observing a half-written state file during a crash or a concurrent write — prevented by write-temp-then-rename (step 1).
-- A spawn failure that looks identical to "still starting" from the caller's side — prevented by surfacing the startup log on timeout (step 7).
 
 ## Examples
 
@@ -164,15 +138,3 @@ if still_alive(pid) and cmdline_contains_marker(pid, DAEMON_MARKER):
 ```
 
 The only difference is the marker check gating every signal call — but it is the difference between a daemon manager and a process manager that occasionally kills the wrong thing.
-
-## Output contract
-
-When this procedure is applied to a concrete implementation task, report:
-
-- State-file and lock-file layout: fields carried, path-resolution order, permission mode.
-- The spawn-lock mechanism and its stale-holder reclaim condition.
-- The attach-vs-spawn decision table as implemented, mirroring step 5.
-- The identity-verification mechanism chosen per target platform, and which platforms it does not cover.
-- The shutdown escalation sequence and the exact refuse-to-kill condition.
-- The idle-shutdown activity classification (what counts as state-changing vs. passive) and the extension/hard-ceiling policy.
-- Test coverage confirming: concurrent spawn attempts converge on exactly one daemon; a state file pointing at a live, unrelated PID is never signaled; idle timeout fires under passive-only polling and does not fire while state-changing activity continues.

@@ -20,14 +20,14 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - You only need to call existing tools without new MCP server work
 - You need to implement a non-MCP HTTP API
 
-## Inputs required
+## Required inputs
 
 - Target domain + core user/agent workflows
 - Existing APIs or data sources (if any)
 - Constraints (auth, rate limits, privacy, allowed storage)
 - Preferred implementation stack (Node/TS or Python)
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Define the agent workflow
 - Write 3-5 realistic tasks the agent must complete end-to-end.
@@ -81,13 +81,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - Missing stable identifiers in responses.
 - Throwing raw upstream errors with no guidance.
 - Skipping evals until after integration.
-- Letting a missing optional capability silently no-op instead of throwing a typed error — a silent no-op is indistinguishable from "ran and legitimately found nothing," which corrupts every caller's ability to reason about the result.
-
-## Output Contract (Always)
-
-- Proposed tool list (name -> purpose -> inputs/outputs -> safety hints)
-- A minimal “happy path” usage example per tool
-- Evaluation plan (at least 5 scenarios) and how to run it
+- Letting a missing optional capability silently no-op instead of throwing a typed error.
 
 ## Reporting format
 
@@ -107,7 +101,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - `assign_issue` returns `status`, a one-line `summary` ("assigned ISSUE-412 to a.chen"), `next_actions` (`summarize_issue_updates` for the same ID), and `artifacts` (the issue ID).
 - Errors: `INVALID_STATUS` suggests valid values, and stops the loop — it is never transient, so a retry with the same value cannot succeed.
 
-## References (Optional)
+## References
 
 - Index: `references/README.md`
 - Tool design principles and checklists: `references/tool-design.md`

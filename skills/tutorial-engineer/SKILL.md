@@ -16,7 +16,7 @@ metadata:
 - A quick answer is enough and a guided learning path is unnecessary
 - The request is for documentation types like API reference or changelog
 
-## Required Inputs
+## Required inputs
 
 - Target audience and baseline knowledge
 - Desired outcome and scope (feature, workflow, or system)
@@ -101,12 +101,11 @@ deeper exploration. Suggest next steps.]
 
 - Avoid assuming network access unless explicitly provided.
 - Keep commands safe-by-default and warn about destructive steps.
-- Ensure every tutorial step has a verification or expected output.
 
 ## References
 See `references/README.md` for detailed pedagogy, formats, and writing guidelines.
 
-## Common Pitfalls
+## Common pitfalls
 
 - Skipping prerequisites or setup steps
 - Introducing concepts before they are explained
@@ -124,7 +123,7 @@ See `references/README.md` for detailed pedagogy, formats, and writing guideline
 
 "Step 2: Register the OAuth callback route. Update apps/web/src/auth.ts with the callback handler. Run `npm test auth` and confirm the test output includes `OAuth callback registered`."
 
-## Output Contract
+## Output contract
 
 Provide the following in order:
 
@@ -133,11 +132,3 @@ Provide the following in order:
 3. **Tutorial Markdown**: the full walkthrough.
 4. **Verification checklist**: how to validate each stage.
 5. **Assumptions or open questions**.
-
-## Reporting Format
-
-- Scope:
-- Objectives:
-- Tutorial:
-- Verification:
-- Assumptions/Questions:

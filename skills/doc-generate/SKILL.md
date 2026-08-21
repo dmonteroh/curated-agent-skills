@@ -30,7 +30,7 @@ Core capabilities:
 - The request is only for a one-off explanation of a single snippet.
 - There is no code, spec, or source of truth to document.
 
-## Inputs required
+## Required inputs
 
 - Target repo path and doc output location (default: `docs/`).
 - Target audiences and doc goals.
@@ -45,6 +45,8 @@ Core capabilities:
 
 ## Quick start (fast path)
 
+Scans before scoping, on purpose: this condenses the Workflow below and trades its scope-first order for faster time-to-first-doc.
+
 1) Run the repo scan (optional but recommended).
    Output: docs/_docgen/inventory.md.
 2) Draft a doc plan (audiences, doc set, file locations, ownership, update triggers).
@@ -56,7 +58,7 @@ Core capabilities:
 5) (Optional) Run reverse-spec mining when requirements are missing.
    Output: docs/specs/reverse-spec.md.
 
-## Workflow (best results, best speed)
+## Workflow
 
 ### 1) Scope the doc set
 

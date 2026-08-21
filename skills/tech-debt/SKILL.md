@@ -6,8 +6,6 @@ metadata:
 ---
 # Tech Debt
 
-Provides a high-signal technical debt assessment and converts it into an actionable, staged remediation plan.
-
 ## Use this skill when
 
 - Dev velocity is slowing, bug rate is increasing, or on-call is painful.
@@ -95,9 +93,6 @@ Output:
 
 Define how to prove outcomes improved.
 
-Output:
-- tests, benchmarks, and monitoring checks tied to success metrics
-
 ## Script usage (optional)
 
 `scripts/debt_scan.sh` (path relative to this skill's folder) runs a quick, read-only scan in the target repo.
@@ -126,7 +121,7 @@ Verification:
 - Over-scoping into a full rewrite without phased milestones.
 - Ignoring verification; every fix needs a measurable success check.
 
-## Example
+## Examples
 
 Input:
 - “We have frequent production incidents and long deploy times. Can you audit tech debt and propose a remediation plan?”

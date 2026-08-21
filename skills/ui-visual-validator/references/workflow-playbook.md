@@ -19,7 +19,7 @@ Strongly recommended:
 - Interaction states: hover/focus/active/disabled/loading/error/empty.
 - Design references: design tokens or component spec (if any).
 
-## Deterministic Workflow
+## Workflow
 
 ### Step 0 - Evidence Inventory
 

@@ -7,7 +7,7 @@ metadata:
 
 # Tool-Output Middleware
 
-Provides the procedure for interposing a transformation layer on the path from a tool to a model's context. The governing asymmetry: a transform that saves tokens on ninety-nine calls and drops the critical stack frame on the hundredth is a net loss, because the loss is silent and neither the agent nor the user can see that it happened.
+The governing asymmetry: a transform that saves tokens on ninety-nine calls and drops the critical stack frame on the hundredth is a net loss, because the loss is silent and neither the agent nor the user can see that it happened.
 
 **This design is untested.** Its single source is a design document that was tabled before implementation — no code was written, no corpus was ever scanned, and every threshold in it is a chosen constant rather than a measurement. What follows is a design checklist that has not met a real workload. Treat every number as a slot to fill with a measurement of your own, and treat anything marked *(authored)* as this skill's judgment filling a gap the source left open.
 

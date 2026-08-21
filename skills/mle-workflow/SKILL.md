@@ -7,7 +7,7 @@ metadata:
 
 # MLE Workflow
 
-Provides the delivery procedure that turns model work into a production system: the contracts written before code, the gates that decide whether an artifact ships, the serving path that has to be testable, and the signals and rollback that make it operable afterwards. Its unit is a decision the model's output changes — not a metric, and not a notebook.
+Its unit is a decision the model's output changes — not a metric, and not a notebook.
 
 The procedure exists because the failure modes here are quiet. A random split leaks the future into the test set and the offline number looks excellent. A feature transform is copied into the serving code and drifts from the training one over a quarter. A promotion gate never fires because the metric it gates on was never computed. None of these produce an error; they produce a confident number and a system that is worse than the rule it replaced.
 
@@ -39,7 +39,7 @@ The procedure exists because the failure modes here are quiet. A random split le
 - The serving mode and the latency budget attached to it.
 - The cost of each kind of mistake, and who absorbs it.
 
-Name every one of these that is unknown, in the report. An input filled in silently becomes a contract nobody agreed to, and it is discovered at rollout.
+An input filled in silently becomes a contract nobody agreed to, and it is discovered at rollout.
 
 ## Workflow
 
@@ -161,25 +161,9 @@ Run this after every baseline, training run, threshold change, or configuration 
 
 Do not add model complexity until this loop shows the baseline failing for a reason that additional signal or capacity could plausibly fix.
 
-## Review checklist
-
-- [ ] The non-learned alternative was stated and rejected for a named reason
-- [ ] The prediction contract is explicit and carries a refusal condition
-- [ ] The data contract defines entity grain, label timing, feature timing, and a snapshot identifier
-- [ ] Leakage was checked against prediction-time availability, per feature family
-- [ ] Training reproduces from code, configuration, data version, and seed on a clean machine
-- [ ] Metrics compare against both a baseline and the current production model
-- [ ] Slice metrics and guardrails cover the high-risk cohorts
-- [ ] Promotion gates are automated, declared before training finished, and refuse on a missing metric
-- [ ] Training-time and serving-time transformations are shared or equivalence-tested
-- [ ] The artifact carries its version, configuration, data reference, and preprocessing
-- [ ] The serving path validates inputs and has a timeout, a fallback, and an exercised rollback
-- [ ] Monitoring covers system health, feature drift, prediction drift, and label arrival
-- [ ] Sensitive fields are excluded from artifacts, logs, and examples
-
 ## Common pitfalls
 
-Five failure shapes the checklist above does not catch on its own, each with the tell that gives it away.
+Five failure shapes the workflow above does not catch on its own, each with the tell that gives it away.
 
 - A random split leaks future information into validation and test. The tell is an offline number better than anything the team expected, arriving before anyone has looked at a slice.
 - The headline metric improves while an important slice regresses, and only the headline is reported. The aggregate is the one number that can hide the finding that matters.

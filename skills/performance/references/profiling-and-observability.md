@@ -2,12 +2,6 @@
 
 Use this reference to collect evidence for bottlenecks and establish baselines.
 
-## Required inputs
-
-- Target scope (service, endpoint, UI flow, batch job)
-- Environment details (hardware, dataset size, config flags)
-- Success metrics (latency percentiles, throughput, error rate, cost)
-
 ## Telemetry checklist
 
 - Metrics: request latency, error rate, saturation (CPU, memory, I/O).

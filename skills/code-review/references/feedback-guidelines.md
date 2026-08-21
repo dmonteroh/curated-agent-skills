@@ -20,8 +20,3 @@ Observation: The retry loop never caps attempts.
 Impact: Under outage conditions it may overwhelm downstream services.
 Suggestion: Add exponential backoff and a max retry count.
 ```
-
-## Handling disagreement
-
-- Ask for intent or constraints before reasserting a recommendation.
-- Offer a validation path (benchmark, test, or smaller change).

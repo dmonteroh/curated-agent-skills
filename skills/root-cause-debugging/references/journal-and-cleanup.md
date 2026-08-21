@@ -4,7 +4,7 @@ One file at the repository root holds the whole session. It exists for two reaso
 
 Exclude it from version control through the **per-clone** exclude mechanism, not the committed ignore file. A committed ignore entry outlives the session and leaks a debugging convention into the repository; a per-clone exclude disappears with the clone.
 
-## Why the six environment questions decide the next step
+## Why the seven environment questions decide the next step
 
 | Question | What a wrong answer costs |
 | --- | --- |
@@ -14,6 +14,7 @@ Exclude it from version control through the **per-clone** exclude mechanism, not
 | What configuration does the code path need? | Missing configuration produces early-return paths that impersonate the reported bug convincingly. |
 | Does a repro or a failing test already exist? | Amplifying an existing repro is cheaper and more faithful than inventing one that reproduces something adjacent. |
 | Will a watcher or supervisor restart the process? | Restarts drop debugger connections and invalidate breakpoints mid-observation, which reads as a flaky bug rather than a flaky session. |
+| Does this session have a wall-clock budget, and how long? | Without a stated figure, Phase 3's budget trigger has nothing to check, and a floor invented after the fact is not "written down before the session starts." |
 
 ## Template
 
@@ -31,6 +32,7 @@ Goal: <one-sentence statement of the reported failure>
 - Existing repro or failing test: <path, or none>
 - Watchers stopped: <yes / not applicable>
 - Baseline: <revision under test, working tree clean? yes/no>
+- Wall-clock budget: <duration, or none — the Phase 3 trigger>
 
 ## Hypotheses
 1. [unverified|confirmed|falsified|inconclusive] <claim, one sentence>

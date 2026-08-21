@@ -141,19 +141,6 @@ Nothing in the written rows says which trace produced them. The filter can only 
 
 > Rank the passing traces, keep the top fraction, filter the kept set against the reserved identifier list and log what it dropped, *then* reduce the survivors to `{"messages": [...]}` and write the provenance card that records each row's source identifier.
 
-## Common pitfalls
-
-- Shaping rows first and holding the evaluation set out afterwards, when there is no longer anything to match on.
-- Hand-labelling an ungraded record to unblock a batch, which puts an unverified verdict into the set under the same field name as a graded one.
-- Keeping every row that cleared the pass bar and calling that selection.
-- Building preference pairs from the best output of one task and the worst of another.
-- Pre-rendering conversations to a flat text field, then reporting that loss masking is enabled.
-- Applying the template after concatenation.
-- Turning on concatenation and leaving a schedule keyed to the old example count.
-- Deduplicating within the new batch only, so every earlier batch's rows come back.
-- Recording a generated/not-generated ratio without the rule that classified the rows, leaving the number unauditable.
-- Treating the card as documentation to write once the run is under way.
-
 ## References
 
 - `references/README.md` — index.

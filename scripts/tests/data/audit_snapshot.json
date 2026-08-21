@@ -2,10 +2,7 @@
   {
     "issues": [],
     "name": "adr-madr-system",
-    "warnings": [
-      "entry_over_200_lines:202",
-      "heading_qualifier:Output contract (always report)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -47,9 +44,7 @@
   {
     "issues": [],
     "name": "architect-review",
-    "warnings": [
-      "heading_variant:Example->Examples"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -59,17 +54,13 @@
   {
     "issues": [],
     "name": "backend-architect",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
-      "heading_qualifier:Output Contract (Always)",
-      "heading_restated:Use this skill when,Do not use this skill when"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "brainstorming",
     "warnings": [
-      "entry_over_200_lines:307"
+      "entry_over_200_lines:300"
     ]
   },
   {
@@ -86,8 +77,7 @@
     "issues": [],
     "name": "cdd-context",
     "warnings": [
-      "heading_variant:Inputs required->Required inputs",
-      "heading_qualifier:Workflow (single canonical process),Scripts (optional automation)"
+      "heading_qualifier:Scripts (optional automation)"
     ]
   },
   {
@@ -106,18 +96,12 @@
   {
     "issues": [],
     "name": "cli-tools",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "cloud-architect",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls,Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -128,7 +112,8 @@
     "issues": [],
     "name": "code-review",
     "warnings": [
-      "entry_over_200_lines:255"
+      "entry_over_200_lines:243",
+      "heading_qualifier:Scripts (optional)"
     ]
   },
   {
@@ -140,7 +125,7 @@
     "issues": [],
     "name": "competitive-benchmark",
     "warnings": [
-      "entry_over_200_lines:221"
+      "entry_over_200_lines:210"
     ]
   },
   {
@@ -188,10 +173,7 @@
   {
     "issues": [],
     "name": "database-migration-orm",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -248,9 +230,7 @@
     "issues": [],
     "name": "doc-generate",
     "warnings": [
-      "entry_over_200_lines:261",
-      "heading_variant:Inputs required->Required inputs",
-      "heading_qualifier:Workflow (best results, best speed)"
+      "entry_over_200_lines:263"
     ]
   },
   {
@@ -267,17 +247,13 @@
     "issues": [],
     "name": "frontend-design",
     "warnings": [
-      "entry_over_200_lines:243",
-      "heading_restated:Content stress"
+      "entry_over_200_lines:243"
     ]
   },
   {
     "issues": [],
     "name": "gdpr-data-handling",
-    "warnings": [
-      "heading_variant:Inputs required->Required inputs,Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (fast, high-signal)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -287,17 +263,14 @@
   {
     "issues": [],
     "name": "google-stitch-ai",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "grafana-dashboards",
     "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls,Example->Examples",
-      "heading_qualifier:Workflow (Deterministic),Example (Input \u2192 Output),References (Optional)"
+      "heading_variant:Example->Examples",
+      "heading_qualifier:Resources (Copy/Adapt),Example (Input \u2192 Output)"
     ]
   },
   {
@@ -330,10 +303,7 @@
   {
     "issues": [],
     "name": "mcp-server-development",
-    "warnings": [
-      "heading_variant:Inputs required->Required inputs,Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -350,9 +320,7 @@
   {
     "issues": [],
     "name": "mle-workflow",
-    "warnings": [
-      "entry_over_200_lines:207"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -403,8 +371,8 @@
     "issues": [],
     "name": "performance",
     "warnings": [
-      "entry_over_200_lines:234",
-      "heading_qualifier:Workflow (orchestration),Output contract (reporting format)"
+      "entry_over_200_lines:223",
+      "heading_qualifier:Workflow (orchestration)"
     ]
   },
   {
@@ -423,9 +391,7 @@
   {
     "issues": [],
     "name": "pr-description",
-    "warnings": [
-      "heading_restated:7) Emit and report"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -441,7 +407,7 @@
     "issues": [],
     "name": "prompt-engineering",
     "warnings": [
-      "entry_over_200_lines:256",
+      "entry_over_200_lines:247",
       "heading_qualifier:Workflow (step-by-step)"
     ]
   },
@@ -496,7 +462,7 @@
     "issues": [],
     "name": "skill-benchmark-harness",
     "warnings": [
-      "entry_over_200_lines:228"
+      "entry_over_200_lines:210"
     ]
   },
   {
@@ -512,10 +478,7 @@
   {
     "issues": [],
     "name": "sre-engineer",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -527,9 +490,7 @@
   {
     "issues": [],
     "name": "tech-debt",
-    "warnings": [
-      "heading_variant:Example->Examples"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -541,11 +502,7 @@
   {
     "issues": [],
     "name": "testing",
-    "warnings": [
-      "entry_over_200_lines:205",
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Output contract (always report)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -556,9 +513,7 @@
     "issues": [],
     "name": "tracks-conductor-protocol",
     "warnings": [
-      "entry_over_200_lines:201",
-      "heading_qualifier:Workflow (unified)",
-      "heading_restated:Core principles"
+      "heading_qualifier:Workflow (unified)"
     ]
   },
   {
@@ -569,9 +524,7 @@
   {
     "issues": [],
     "name": "tutorial-engineer",
-    "warnings": [
-      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -582,7 +535,7 @@
     "issues": [],
     "name": "ui-design",
     "warnings": [
-      "entry_over_200_lines:243"
+      "entry_over_200_lines:233"
     ]
   },
   {

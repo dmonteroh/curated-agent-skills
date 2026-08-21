@@ -19,6 +19,30 @@
 - prompt: "Our PCI assessment is in six weeks. Work out what card data the checkout service ends up keeping and whether anything unmasked reaches the logs."
   expect_activate: yes
 
+- prompt: "Conduct comprehensive security audit of microservices architecture with DevSecOps integration"
+  expect_activate: yes
+
+- prompt: "Implement zero-trust authentication system with multi-factor authentication and risk-based access"
+  expect_activate: yes
+
+- prompt: "Design security pipeline with SAST, DAST, and container scanning for CI/CD workflow"
+  expect_activate: yes
+
+- prompt: "Create GDPR-compliant data processing system with privacy by design principles"
+  expect_activate: yes
+
+- prompt: "Perform threat modeling for cloud-native application with Kubernetes deployment"
+  expect_activate: yes
+
+- prompt: "Implement secure API gateway with OAuth 2.0, rate limiting, and threat protection"
+  expect_activate: yes
+
+- prompt: "Design incident response plan with forensics capabilities and breach notification procedures"
+  expect_activate: yes
+
+- prompt: "Create security automation with Policy as Code and continuous compliance monitoring"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: You lack authorization or scope approval for security testing. No planning, just implementation."
   expect_activate: no

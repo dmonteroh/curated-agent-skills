@@ -2,17 +2,6 @@
 
 This playbook is for tasks that benefit from concrete, reusable diagram patterns and consistently rendered Mermaid output.
 
-## Default Output Contract
-
-When producing a diagram:
-
-- Request the *purpose* and *audience* (on-call, dev, exec, onboarding).
-- Choose the minimal diagram type that answers the question.
-- Produce:
-  - A basic Mermaid diagram (render-safe)
-  - An optional styled variant (theme/config), if it improves clarity
-  - 1-3 notes on how to read it + what is intentionally omitted
-
 ## Diagram Type Selection
 
 - `flowchart` - process, decision tree, pipelines

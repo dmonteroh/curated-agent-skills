@@ -124,11 +124,7 @@ Output: created commit hash and final message, or the clarification question tha
 
 ## Decision points
 
-- If the index already holds a deliberate partial staging: commit only the index; ask before adding more.
-- If the diff is empty after staging: do not commit; report.
 - If the user asks for a custom type: use it only when documented in-repo or present in history; otherwise propose the nearest standard type.
-- If history is not conventional-commit shaped: confirm before introducing the format.
-- If multiple unrelated concerns are detected: propose a split; do not silently merge them.
 
 ## Common pitfalls
 

@@ -1,6 +1,6 @@
-# TypeScript MCP SDK Notes (Practical)
+# TypeScript MCP SDK Notes
 
-Use this as a “things I always forget” checklist.
+Use this as a compact checklist for real implementations.
 
 ## Defaults
 

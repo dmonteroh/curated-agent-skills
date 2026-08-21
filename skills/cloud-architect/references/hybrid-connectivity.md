@@ -86,21 +86,6 @@ Alerting split, consistent with page-on-symptoms and ticket-on-causes:
 - One path down while its peer is up: ticket. Redundancy is gone and nothing user-visible has happened yet — that is the entire reason to measure per tunnel.
 - BGP session flapping, or a received-prefix count that changes with no change request behind it: ticket and investigate. It usually precedes a routing incident.
 
-## When the session is down: triage order for a hybrid link
-
-The signals above say a link is degraded. This is the order to work it, and it differs from generic device triage in one structural way: **you only own one end.** The provider's side is unreadable, so every check below is written to isolate whether the fault is on the half you can see before opening a ticket that will otherwise bounce back.
-
-1. **Establish which object is down.** Tunnel state and BGP session state are different things and they disagree in a diagnostic way: a tunnel up with BGP down is a routing or policy problem on one side; a tunnel down takes BGP with it and the question is transport. Read both before forming a hypothesis.
-2. **Identify the address family and VRF carrying the prefixes**, not just the peer address. A session reported Established while the expected prefixes are missing is usually a different AFI than the one being read.
-3. **Capture the last reset reason and the matching log lines before any reset.** On a hybrid path the reason frequently names the far end ("peer closed the session", "hold timer expired"), which is the difference between a ticket the provider accepts and one they return.
-4. **Prove transport to the peer source address** — the address the tunnel actually sources from, not the gateway's primary or a loopback assumed by convention. Mismatched update source is a common outcome of a rebuild on the on-premises side.
-5. **Check prefix policy before concluding transport failed.** Both directions filter; a filter change on either end presents as a session that is up and useless. Compare advertised and received prefix counts against what the change record says should be there.
-6. **Only then open the provider ticket**, carrying the tunnel state, BGP state, last reset reason, transport result, and prefix counts. A ticket without these gets the same five questions back.
-
-Never clear the session as a first diagnostic step. It destroys the reset reason — the single most useful field for a fault whose cause is on the end you cannot read — and on a redundant pair it can move traffic onto the path you were about to investigate.
-
-If both ends are yours and the fault is device-level rather than link-level, this ordering stops here: what follows is read-only evidence collection against the device itself, which is a different procedure with a different output.
-
 ## Common pitfalls
 
 - Treating private connectivity as a yes/no answer when the real decision is VPN versus dedicated, with different cost, latency, and lead-time consequences.

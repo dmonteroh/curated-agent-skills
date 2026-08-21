@@ -19,8 +19,6 @@ The product is a description of habits that is specific enough to draft against.
 
 ## Do not use this skill when
 
-*(This section is authored. The source procedure ships no stand-down.)*
-
 - A profile has already been derived in this session. Reuse it. A second derivation from the same sources produces a second, slightly different answer and no reason to prefer either.
 - The job is editing prose that already exists so it reads less machine-generated. That is an editing pass against a draft, and calibrating to a sample is one step inside it, not a separate deliverable.
 - No real source material exists. A profile derived from nothing is invention presented as observation, and everything downstream inherits the fiction. Say the samples are missing and ask for them.
@@ -46,7 +44,7 @@ Rules that decide the set:
 - **Prefer recent material**, unless the requester states that older writing is the canonical voice.
 - **Never use generic platform exemplars** — a "great LinkedIn post" template, a viral thread teardown, a model's idea of how a founder writes. Those describe a format's conventions, not this author's habits, and a profile built on them reproduces the average of the platform, which is the exact output the profile exists to prevent.
 - **Separate a public voice from a working voice** when the set clearly splits, rather than blending them.
-- **Gather enough that each habit appears in more than one sample.** A single piece shows a mood; a habit is what repeats. Stop adding samples once new ones stop changing the profile. *(Authored: the source names a fixed sample count with no justification. The observable condition replaces it.)*
+- **Gather enough that each habit appears in more than one sample.** A single piece shows a mood; a habit is what repeats. Stop adding samples once new ones stop changing the profile.
 
 ## Workflow
 
@@ -135,7 +133,3 @@ Rules for the block:
 - Filling a thin field to make the block look complete.
 - Re-deriving the profile on the next task instead of loading the one already produced.
 - Carrying an inherited list of banned phrases the author's own writing never demonstrates.
-
-## Provenance
-
-The source-selection order, the conflict rule, and the profile's field set come from the candidate procedure this skill was rewritten from. Its shipped defaults for one named individual's voice were dropped: a fingerprint for a specific person is not a default for anyone else, and it made the file look populated where it was actually empty. Rules marked *(Authored)* are this skill's, not the source's.

@@ -7,8 +7,6 @@ metadata:
 
 # Research Discipline
 
-Provides evidence-labeling and escalation discipline for research and investigation output: every claim tagged by how it was known, sources checked lightest first, and freshness-sensitive findings dated.
-
 ## Use this skill when
 
 - Reporting findings from a lookup, investigation, comparison, or fact-finding task.
@@ -31,8 +29,6 @@ Use the lightest source that can actually answer the question, and stop there:
 1. **Local documentation first.** Check whatever is already supplied or already on disk — files, docs, prior conversation context — before doing anything else.
 2. **The repository itself, if documentation doesn't settle it.** Code and data are often more current than the docs describing them; read or search the actual repository before going outside it.
 3. **External search last, and only after 1 and 2 have been checked and found insufficient.** "Found insufficient" means actually checked, not skipped because it seemed slower.
-
-The floor: an external search is not justified for something local documentation or the repository already answers. If step 1 or 2 settles the question, stop and report from that evidence — do not escalate for thoroughness's own sake.
 
 ### Before the ladder: is the question searchable as phrased?
 

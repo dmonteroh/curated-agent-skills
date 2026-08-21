@@ -32,7 +32,7 @@ Tokenize design *intent*. Keep browser *mechanics* raw.
 
 The failure this prevents is token bloat: every fluid value promoted to a named token produces a system full of one-use tokens that carry no intent and cannot be reasoned about as a set. The inverse failure is the more familiar one — an intent value hardcoded at the call site, which makes the decision invisible and unchangeable in one place.
 
-Applying the boundary to the usual "no hardcoded values" rule: a raw value is a defect when it stands in for an intent token that exists or should exist, and is correct when it is a browser mechanic doing a job no token can do. Note that `references/topics/design-system-patterns/overview.md` lists "hardcoded values: using raw values instead of tokens" as a flat anti-pattern with no carve-out; read that entry with this boundary applied.
+Applying the boundary to the usual "no hardcoded values" rule: a raw value is a defect when it stands in for an intent token that exists or should exist, and is correct when it is a browser mechanic doing a job no token can do.
 
 ## Minimal contract skeleton (copy/paste)
 

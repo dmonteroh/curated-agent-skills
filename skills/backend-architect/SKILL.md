@@ -10,8 +10,6 @@ Provides backend architecture guidance focused on design quality and operability
 
 ## Use this skill when
 
-Use this skill when the user needs architecture decisions for backend services or APIs.
-
 - Designing a new service/API or changing service boundaries
 - Defining contracts (request/response, events, schemas) and compatibility rules
 - Planning reliability/observability/rollout (SLIs/SLOs, dashboards, runbooks)
@@ -20,8 +18,6 @@ Use this skill when the user needs architecture decisions for backend services o
 - Designing a multi-step workflow spanning services that must undo its completed steps when a later step fails
 
 ## Do not use this skill when
-
-Do not use this skill when the user only needs implementation details without architectural impact.
 
 - You only need a local code fix with no architectural impact
 - You need deep physical database tuning or schema refactoring beyond service boundaries
@@ -60,10 +56,6 @@ Do not use this skill when the user only needs implementation details without ar
 5) Rollout plan
 - Output: rollout sequence with migration steps, rollback strategy, and verification gates.
 - Decision: If rollout risk is high, require canary or feature-flagged release.
-
-6) Assemble final report
-- Output: response formatted exactly per the Output Contract sections.
-- Decision: If any required input is missing, include it in Open questions and flag assumptions.
 
 ## Contract-first boundary changes
 
@@ -145,7 +137,7 @@ Delete handwritten copies once generated or derived versions exist; a surviving 
 
 Never change an implementation first and update the contract afterward: a contract written after the fact records what happened, it does not coordinate parallel work or prevent drift. Renaming a field in one implementation without changing and reviewing the artifact is a breaking change even when that implementation's own tests stay green. For an additive change, verify that existing consumers still work; for a breaking one, apply the versioning or migration policy rather than silently repurposing an existing field.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Treating contracts as implementation details instead of stable interfaces
 - Skipping backward compatibility and migration sequencing
@@ -163,7 +155,7 @@ Never change an implementation first and update the contract afterward: a contra
 - Boundary artifact: the payments-orchestrator OpenAPI document is authoritative; the invoicing team's client and fixtures generate from it, and the ledger integration validates provider responses against it before merge.
 - Operability: 99.9% availability SLO; traces include payment_intent_id.
 
-## Output Contract (Always)
+## Output contract
 
 Produce a report using this format:
 - Architecture sketch: boundaries + contract summary + 2-3 alternatives with tradeoffs

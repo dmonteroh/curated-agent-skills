@@ -6,8 +6,6 @@ metadata:
 ---
 # ADR MADR System
 
-Provides guidance to create high-quality ADRs (MADR style) as separate files and maintain a lightweight index for discoverability.
-
 Defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
 
 ## Use this skill when
@@ -38,7 +36,6 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 ## Constraints and conventions
 
 - Follow any existing ADR templates, numbering, or status policies in the repo.
-- Keep ADRs as append-only history; use superseding instead of edits.
 - Keep ADR and index paths consistent within the same change.
 - Prefer repo-local paths or already-provided URLs; do not assume network access.
 
@@ -134,7 +131,7 @@ Output: a short checklist of “done” confirmations.
 - Supersedes section present when replacing an accepted ADR.
 - If tabled: blocker cited concretely, cost of tabling recorded, and an ordered un-tabling checklist present.
 
-## Output contract (always report)
+## Output contract
 
 - New or updated ADR file path(s)
 - Updated ADR index path
@@ -156,11 +153,6 @@ Before finalizing, check `references/quality-gates.md` and `references/README.md
 ## SDD integration notes
 
 When the ADR is accepted, update the relevant spec/track/task artifact to link to it (and ensure the ADR links back). See `references/sdd-integration.md`.
-
-## Verification
-
-- If any script from `scripts/` is run, report the command(s) and result(s).
-- Do not claim completion without verification output when scripts are used.
 
 ## Optional scripts
 

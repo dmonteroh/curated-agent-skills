@@ -1,6 +1,6 @@
 ---
 name: pr-description
-description: "Generate a paste-ready pull request description from task briefs and the branch diff against a base branch. Produces three required sections — What & Why, How, Manual Verification Playbook — with change-type-aware playbook recipes. Use when a pull request body needs to be drafted or refreshed."
+description: "Generates a paste-ready pull request description from task briefs and the branch diff against a base branch. Produces three required sections — What & Why, How, Manual Verification Playbook — with change-type-aware playbook recipes. Use when a pull request body needs to be drafted or refreshed."
 metadata:
   category: git
 ---
@@ -31,7 +31,7 @@ Provides a deterministic workflow for producing a pull request body that meets a
 ## Defaults
 
 - Output: a single markdown block, paste-ready, no surrounding commentary inside it.
-- Fixed section order: What & Why, How, Manual Verification Playbook. No additional top-level sections, no file inventories, no author attribution.
+- No additional top-level sections, no file inventories, no author attribution.
 - Tone: factual, atemporal, impersonal, neutral.
 - Spell out implementation acronyms on first use ("common table expression" rather than "CTE").
 
@@ -112,10 +112,6 @@ Apply to the entire body:
 - Compose *What & Why* from commit messages, code intent, and call sites.
 - Flag the weaker grounding in the agent reply — never inside the body: name the assumption made about intent and ask the user to confirm the *Why* before pasting.
 
-### 7) Emit and report
-
-Emit the body as one markdown block, then report around it per the output contract.
-
 ## Output contract
 
 The PR body must contain exactly the three headings in order, be paste-ready, and satisfy the step-level and global writing rules.
@@ -130,9 +126,7 @@ The agent reply around the markdown block must include:
 
 ## Decision points
 
-- If the diff against the base is empty: stop and report.
 - If briefs and diff contradict on intent: follow the diff, surface the contradiction, and ask before treating the brief as authoritative.
-- If classification is genuinely ambiguous between two categories: choose `mixed` and split the playbook.
 - If multiple unrelated concerns land in one PR: produce a `mixed` body and note that splitting the PR may be cleaner.
 - If the user supplies a non-default base: use it and state the override in the agent reply.
 

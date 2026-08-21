@@ -34,7 +34,3 @@ Applies when an MCP server wraps one or more optional, swappable backend provide
 
 - The provider contract is strictly an enhancement layer, never a hard dependency: the host must work with the provider disabled.
 - When no provider is selected, the resolution mechanism returns `null` — not a stub or mock implementation. A `null` gives callers an explicit, checkable "off" state; a stub that silently does nothing hides the fact that a feature is unavailable.
-
-## Source
-
-`docs/designs/CODE_INTELLIGENCE_PROVIDER_CONTRACT.md`, a third-party project design doc surfaced through this repo's skill-intake extraction pipeline (`tmp/new-skills/_extracted/feeds/mcp-server-development.md`). The six-code enumeration above is carried as an example, not a requirement of this contract shape.

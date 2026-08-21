@@ -6,8 +6,6 @@ metadata:
 ---
 # code-explain
 
-Provides code explanations through clear narratives, diagrams, and step-by-step breakdowns.
-
 This skill is intentionally different from `doc-generate`:
 - `code-explain` = explain one subsystem/module/flow extremely well
 - `doc-generate` = generate/maintain a documentation set (indexes, runbooks, onboarding, reverse-specs)
@@ -63,20 +61,15 @@ This skill is intentionally different from `doc-generate`:
 - If the user asks for changes or refactors, switch to guidance-only and ask for confirmation before implementation.
 - If there is no runnable code, provide a design-level explanation and state assumptions.
 
-### Common pitfalls to avoid
+### Common pitfalls
 
 - Mixing explanation with implementation changes.
 - Skipping inputs/outputs or invariants.
 - Overusing diagrams when a short narrative is clearer.
 
-### Templates (optional)
-
-- `references/explainer-template.md`
-- `references/diagram-patterns.md`
-
 ## Output Format
 
-### Output contract (deterministic)
+### Output contract
 
 Produce a single explainer in this structure:
 1) **What it is** (1–3 sentences)

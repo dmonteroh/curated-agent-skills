@@ -165,14 +165,7 @@ Round 1 shape, wrong beside right:
 
 | Pitfall | Why it defeats the protocol |
 | --- | --- |
-| Dropping a round to save time | The rounds are the filter. One pass of mixed critique is the default behavior this replaces. |
-| Softening the briefs into a request for feedback | Adversarial pressure is the mechanism; politeness returns hedges. |
-| Synthesizing before Round 3 returns | Preserves precisely the findings Round 3 was about to kill. |
-| Carrying conceded material because it still reads well | Conceded means defeated. The distillate holds survivors only. |
-| Broadcasting the full Round 2 bundle into Round 3 | Removes the input asymmetry; defenses converge on each other instead of on evidence. |
 | One reviewer holding two vectors | Its findings stop being separable, and the louder vector quietly absorbs the other. |
-| Writing the plan in the same pass that distilled it | A distiller holding a draft has already decided; the separation is the point. |
-| Treating a vector as needing a particular model tier | Unevidenced in the source, and it constrains who can run the panel for no reason. |
 
 ## Provenance
 

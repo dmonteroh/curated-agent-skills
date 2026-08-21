@@ -6,8 +6,6 @@ metadata:
 ---
 # API Documenter
 
-Provides API documentation guidance focused on accurate, developer-friendly docs that reduce integration time.
-
 ## Use this skill when
 
 - The task requires creating or updating API documentation for public or internal users
@@ -21,7 +19,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - The request is only an informal note or meeting summary
 - There is no API surface or interface to document
 
-## Inputs to collect
+## Required inputs
 
 - API surface: endpoints/events, request/response shapes, error formats
 - Auth and security: schemes, scopes, rate limits, headers
@@ -29,7 +27,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - Audience: primary personas and their success criteria
 - Tooling constraints: doc site, templates, CI requirements
 
-## Constraints and assumptions
+## Constraints
 
 - Use only the provided API details; flag missing or conflicting inputs
 - Label synthetic examples as representative if real payloads are unavailable
@@ -64,7 +62,6 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 
 - If documentation targets external users, include onboarding and auth setup guides.
 - If multiple APIs exist, add a navigation map and versioning policy.
-- If examples are missing, request or synthesize representative payloads and label them.
 - If auth requirements are unclear, request required scopes, token types, and headers.
 
 ## Common pitfalls

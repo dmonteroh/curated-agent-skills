@@ -6,8 +6,6 @@ metadata:
 ---
 # SRE Engineer
 
-This skill delivers *reliability management*: turning availability/latency goals into measurable SLIs/SLOs, actionable alerting, runbooks, and a sustainable improvement loop.
-
 ## Use this skill when
 
 - Defining SLIs/SLOs and error budgets
@@ -37,7 +35,7 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Keep the workflow self-contained; do not require other skills or tools.
 - Avoid time-sensitive assumptions and external network dependencies.
 
-## Workflow (Deterministic)
+## Workflow
 
 1. **Scope critical paths.**
    - Decision: if critical paths are unclear, ask for the top 3 journeys and traffic mix.
@@ -70,7 +68,7 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Alerting without clear runbook mitigations
 - Automating responses without safe rollback
 
-## Output Contract (Always)
+## Output contract
 
 Provide a response with the following sections in order:
 

@@ -6,8 +6,6 @@ metadata:
 ---
 # Doc Sync
 
-Provides a reconciliation pass that runs after the code on a branch is final and before it merges: every documentation file is checked against the branch diff, factual drift is corrected in place, and everything judgmental is escalated rather than guessed.
-
 The posture is the inverse of writing documentation. Writing is a creative job that stops often to ask what to say; reconciliation is a mostly autonomous job over a narrow factual surface that refuses to touch anything else. Getting the split wrong in either direction is the failure this pass exists to prevent: an agent that asks about every corrected file path wastes the review, and an agent that rewrites an architecture doc's rationale because the diff "seemed to contradict it" has silently changed what the project claims about itself.
 
 ## Use this skill when
@@ -92,7 +90,7 @@ Read the full current text of a file before editing it — the file's own diff i
 
 **6. Detect architecture-diagram drift.** Extract the entity names — modules, services, data flows — from any ASCII diagram or diagram-source block in the docs, and cross-reference each against the diff. Flag every entity that was renamed, split, removed, or moved in the code. **This is advisory only: never auto-edit a diagram, in either ASCII or diagram source.** Updating one correctly requires judgment about layout and about which relationships still hold, and an edit that satisfies a rename while destroying the diagram's shape is worse than the stale name. Report the drift as debt and let a human redraw.
 
-**7. Reconcile the changelog.** Skip if the branch did not touch it. Otherwise read the entire file first, then work under the never-clobber rules and the sell test below.
+**7. Reconcile the changelog.** Skip if the branch did not touch it. Otherwise work under the never-clobber rules and the sell test below.
 
 **8. Run the cross-doc consistency and discoverability pass.** Compare README's feature list against the agent-instructions file's description of the same surface; ARCHITECTURE's component list against CONTRIBUTING's project-structure description; and the changelog's latest version against the version file. Then check that every documentation file is reachable from README or from the agent-instructions file — a doc nothing links to is a doc nobody reads, so flag it. Fix clear factual contradictions; escalate narrative ones.
 
@@ -145,17 +143,6 @@ Ask it for exactly four things:
 
 - The heuristics are generic and depend on no particular project layout; a repository missing any canonical file simply skips that file's checks.
 - Anything this pass writes is aimed at a competent reader who has not seen the code: concrete, specific, and free of internal shorthand.
-
-## Common pitfalls
-
-- Treating "the version was already bumped" as a reason to skip the version step
-- Regenerating a changelog entry because it reads awkwardly — an awkward but factually correct entry gets a wording edit or a question, never a fresh entry
-- Editing a diagram to match a renamed module, and silently breaking its layout or the relationships it encoded
-- Auto-fixing a narrative contradiction between two docs because the fix looked obvious
-- Marking a tracked TODO complete on partial evidence
-- Reporting a file's changes as "updated <file>", which forces the reviewer to re-read the file to review the pass
-- Reading only a doc file's diff instead of its full current text
-- Reporting "all documentation is up to date" from a run that never established a diff base
 
 ## Examples
 

@@ -107,7 +107,7 @@ A settings page and a docs app both want a fixed side-nav shell; a support inbox
 
 ### Content stress
 
-Marketing pages fail on taste; app shells fail on content. Stress every region against each of these before the layout is done:
+Marketing pages fail on taste; app shells fail on content.
 
 - **Empty** — no rows, no avatar, no value. Does the region collapse gracefully, or leave a broken frame?
 - **Long label in a short slot** — truncation (`text-overflow: ellipsis`) or wrapping is designed, never accidental.

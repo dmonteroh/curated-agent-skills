@@ -17,8 +17,6 @@ Provides a procedure for recording a walkthrough video of a running web applicat
 
 ## Do not use this skill when
 
-*(The whole of this section is authored: the source carried no stand-down at all, and without one this procedure fires on every request that mentions a browser.)*
-
 - **Judging whether a UI change is correct.** Deciding that a rendered page meets its criteria is verification against explicit criteria, from static evidence — a different job with a different input. It is also a boundary this skill must not cross in the other direction: **a demo recording is inadmissible as verification evidence**, because it carries an injected cursor, a subtitle bar and deliberate pacing pauses, every one of which contaminates the rendering that a verification pass exists to judge.
 - **Exercising the application to find out whether it works** — clicking through flows to check behaviour, watching the console and network, asserting on outcomes. The rehearsal phase below resembles that and is not it: it asserts that elements resolve, never that anything behaved correctly. Functional verification is a separate job, and running it here under cover of a rehearsal is the failure this boundary exists to prevent.
 - **Running an accessibility scanner, or producing accessibility findings**, over the page being recorded. Nothing in this procedure reads the accessibility tree, and a recording is not an audit.
@@ -36,8 +34,6 @@ Provides a procedure for recording a walkthrough video of a running web applicat
 - A browser-automation driver with the capabilities below
 
 ## Driver capabilities
-
-*(Authored: the source assumed one specific automation library throughout. These are the capabilities that library was being used for, stated so any driver can be checked against them.)*
 
 The procedure needs a driver that can do four things:
 
@@ -101,7 +97,7 @@ Then, throughout the take:
 - **Type per character** at a visible rate, after clearing the field. A field that fills instantly reads as a page glitch.
 - **Scroll smoothly** rather than jumping to an offset.
 - **Hold after every state change** long enough for someone who has never seen the screen to read what changed.
-- **Pan a dense screen** — a dashboard or overview — by moving the pointer across a handful of key elements in turn, skipping anything below the fold. Express the fold as a fraction of the viewport height, never as a pixel constant. *(Authored: the source used a bare pixel value that was silently derived from its own chosen viewport and stopped matching as soon as the viewport changed.)*
+- **Pan a dense screen** — a dashboard or overview — by moving the pointer across a handful of key elements in turn, skipping anything below the fold. Express the fold as a fraction of the viewport height, never as a pixel constant.
 - **Subtitle each phase transition** with one short line in a consistent form — `Step N - Action` — and clear it during long pauses where the screen speaks for itself.
 - **Copy the finished video to the agreed filename.** Drivers commonly write to a generated name; a generated name is not a deliverable.
 - **Decide about popups and new tabs before recording, not after.** Most drivers record a new tab to its own separate video, so the main file shows the flow apparently stalling. Either keep the flow in one page, or plan to capture and merge the pieces.
@@ -156,7 +152,7 @@ Further chosen defaults: viewport 1280x720; the pointer moved in roughly ten inc
 - The field map per page from phase 1
 - The rehearsal result: each step with its pass or fail
 - Deviations: any pacing default that was overridden, any driver capability that was missing, and what the recording lacks as a result
-- An explicit statement of what the recording does not establish. *(Authored.)* A video of a flow completing is routinely read as proof that the flow works; it is a demonstration, and saying so on handover is part of delivering it.
+- An explicit statement of what the recording does not establish. A video of a flow completing is routinely read as proof that the flow works; it is a demonstration, and saying so on handover is part of delivering it.
 
 ## Examples
 

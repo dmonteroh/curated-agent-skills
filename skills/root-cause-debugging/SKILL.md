@@ -35,7 +35,7 @@ Two disciplines hold across every phase, and most of the procedure exists to enf
 
 ### Phase 0 — Ground the session, then open the journal
 
-Answer all six before attaching anything; each answer goes in the journal's environment snapshot, where `references/journal-and-cleanup.md` records why each one decides the next step.
+Answer all seven before attaching anything; each answer goes in the journal's environment snapshot, where `references/journal-and-cleanup.md` records why each one decides the next step.
 
 1. What actually launches the process, including any wrapper?
 2. Are symbols, debug info, or source maps present and current?
@@ -43,6 +43,7 @@ Answer all six before attaching anything; each answer goes in the journal's envi
 4. What configuration does the code path need to reach the bug?
 5. Does a repro or a failing test already exist?
 6. Will a watcher, reloader, or supervisor restart the process mid-session?
+7. Does this session have a wall-clock budget before Phase 3's reframe triggers, and if so, how long?
 
 **Gate.** Any answer of "not sure" blocks Phase 1. Guessing here produces false-positive hypotheses that cost a full round to refute.
 
@@ -155,11 +156,3 @@ The message also states the **root cause as a mechanism in one sentence** rather
 - `references/reframing.md`: the three framings with their bodies, and the synthesis order.
 - `references/qa-surfaces.md`: product-surface table for the re-run, and the silent-failure signal list.
 - `references/partial-evidence.md`: evidence tiers and the combination rule for when the real operation cannot be run.
-
-## Provenance
-
-- **Numbers.** Three constants remain, each labelled where it appears: the floor of three hypotheses, the two-failed-round reframe trigger, and the over-fixing alarm. Dropped as unsupported: a "95% of ground truth" rating on one evidence tier, a claim that reframing resolves almost all stuck sessions within one round, a fixed two-hour cutoff, and binary-inspection size and flag parameters belonging to material this skill does not carry.
-- **Dropped.** A worked example headed "from a real session" reported a root cause, file, line, and diffstat inside a named product tree, unverifiable from the source. Per-runtime attach manuals and third-party tool manuals went with it; identifying the runtime and its launcher survives as Phase 0.
-- **Unresolved deferrals.** The source deferred its logging standard and its test-isolation bar to a skill that does not exist. The logging standard is restated inline in Phase 6; test-isolation and intermittent-suite triage are excluded and named in the stand-down instead.
-- **Second source.** The compound-cause branch and the confirmed/falsified/inconclusive verdict vocabulary come from a second candidate in the same drop, marked where they appear.
-- **Authored.** Two departures from the sources, marked inline: replacing the fixed two-hour reframe trigger with a budget the session names up front, and stating that a toggle is itself a journalled artifact.

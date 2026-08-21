@@ -8,7 +8,7 @@ metadata:
 
 Provides the protocol that sits between two symmetrical failures. An agent that stops too often turns approval into reflex: it spends the human's attention *and* launders unreviewed decisions as approved ones. An agent that stops too rarely reaches the same place silently — the human never learns a choice was made for them.
 
-Two mechanisms carry this skill because both are enforced rather than advised: door typing fixed at the declaration site, and option-set integrity under a tool's option cap. Rationing interruptions against a budget — the practice this skill is named for — appears below as a design under review, clearly marked, and must not be read as established practice.
+Two mechanisms carry this skill because both are enforced rather than advised: door typing fixed at the declaration site, and option-set integrity under a tool's option cap. Rationing interruptions against a budget — the practice this skill is named for — is not implemented by this skill and must not be read as established practice.
 
 ## Use this skill when
 
@@ -96,18 +96,6 @@ The prose fallback carries the same content the tool call would have, and each b
 
 Emit literal characters in every question and option string; never hand-escape them as codepoints. Only escapes the serialization format itself requires stay. The reason is a model-behavior fact rather than a formatting preference: escaping requires recalling each codepoint from training, which is unreliable, and the trigger for reflexive escaping — a long, multi-line question dense with non-Latin script — is exactly where miscoding is most damaging and where the human sees mojibake instead of a question. Length is not a reason to escape.
 
-## Rationing the remainder — a design pattern, not established practice
-
-**Status: unproven.** Everything in this section comes from a document whose own status line reads *not yet implemented*, and a search across the accompanying source drop found no implementation of its ranking, its state store, its auto-accepted list, or its reopen command. It is a specification with a known gap list, not a procedure with evidence behind it. Adopt it as a design to build and validate; do not cite it as practice.
-
-The intended shape: rank the pending decisions, surface only the top few as real questions, auto-accept the rest into a list the human can actually see, and offer a command that reopens any auto-accepted item as a real question. Its accounting rules — spending that is chain-scoped and never resets, carried forward across handoffs, spent on the hardest-to-reverse decisions first, with consent gates and one-shot setup prompts exempt — are in `references/rationing-pattern.md`. One of them belongs here because it is the safety property rather than an accounting detail: **one-way doors surface uncapped regardless of the budget; only two-way decisions are capped.**
-
-**No number here survived.** The per-phase cap is stated by the source itself as uncalibrated. The intended ratio of surfaced to auto-accepted decisions is a target for a calibration pass that was never run, not a measurement. The ranking formula — severity times irreversibility times whether the human's opinion changes the outcome — is recorded in the source as **broken**, not chosen: the multiplication collapses the scale, an additive alternative was considered, and neither was validated. Carry the three factors as ranking inputs; carry no combining rule and no constants. The source's own most transferable line is its refusal to inherit a set of magic numbers from an adjacent effort whose authors had already abandoned them.
-
-A companion catalog lists principles for deciding without the human: prefer completeness, match existing patterns, choose reversible options, follow the human's past choices on similar decisions, defer ambiguous items, escalate security. The source states **no precedence** among them and never says what happens when two conflict, so this is a checklist, not a ladder — do not apply it as an ordered sequence. Two adjacent practices around it are supported and worth taking on their own: queue taste decisions — close calls, borderline scope expansions, disagreements between reviewers — to a single final approval gate instead of interrupting per item, and report the split afterwards ("9 decisions auto-resolved, 2 taste decisions approved") so the human can audit what was decided for them.
-
-Gaps to close before building any of it: `references/rationing-pattern.md`.
-
 ## Common pitfalls
 
 - Trimming an option to satisfy a cap and reporting the trimmed set as the decision space
@@ -143,4 +131,3 @@ Right: no declaration exists, so the destructive-verb test runs first, returns o
 ## References
 
 - `references/decision-brief-format.md` — the question format, its self-check, the prose-channel layout, and the continuation rule
-- `references/rationing-pattern.md` — the unproven budget design, its accounting rules, and the gaps to close before building it

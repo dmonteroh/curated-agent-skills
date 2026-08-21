@@ -107,6 +107,7 @@ Use `references/README.md` to load detailed guidance by topic.
 - Create circular module dependencies
 - Skip input validation
 - Commit .terraform directories
+- Run `terraform apply`, `destroy`, or other state-mutating commands without explicit operator approval
 
 ## Reporting format
 

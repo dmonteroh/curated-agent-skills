@@ -6,8 +6,6 @@ metadata:
 ---
 # UI Design
 
-Provides UI design and review guidance that turns requirements into briefs, flows, component specs, and design-system rules. It is intentionally framework-agnostic and does not assume any implementation stack.
-
 ## Use this skill when
 
 - Requirements are unclear and you need a UI brief + flow before implementation
@@ -164,14 +162,6 @@ The rules below are DOM and WAI-ARIA facts, not framework facts, and are stated 
 - Overloading the UI with multiple status colors or competing emphasis
 - Missing keyboard/focus/label requirements in interactive components
 - Providing pixel-perfect visuals when the user asked for structural guidance only
-- Assuming platform conventions without local confirmation
-- Presenting one coherent recommendation, or an undifferentiated menu, instead of a labelled safe/risk split — both hide which decisions were bets
-- Listing a risk's upside without its cost, which converts the choice back into a recommendation
-- Blocking on a coherence objection after the user has chosen
-- Shipping design directions that differ only in accent colour
-- Generating from a blank brief because the requester skipped the interview, then presenting the category template as a proposal
-- Treating "I don't like it" as an edit instruction and returning a slightly adjusted version of what was rejected
-- Promoting a fluid or intrinsic value to a named token, filling the system with one-use tokens that carry no intent
 
 ## Examples
 

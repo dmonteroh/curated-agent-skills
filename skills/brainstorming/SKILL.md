@@ -28,8 +28,6 @@ metadata:
 
 ## Overview
 
-Provides a structured dialogue that turns fuzzy ideas into a clear, testable design brief.
-
 Default posture is to clarify and avoid premature implementation.
 
 ## Interview posture
@@ -220,12 +218,7 @@ Does not assume other skills exist; treats any integrations as optional.
 
 ## Key Principles
 
-- **One question at a time** - Avoids overwhelming with multiple questions
-- **Multiple choice preferred** - Keeps answers easier than open-ended when possible
 - **YAGNI ruthlessly** - Removes unnecessary features from all designs
-- **Explore alternatives** - Proposes 2-3 approaches before settling
-- **Incremental validation** - Presents design in sections and validates each
-- **Be flexible** - Returns to clarification when something doesn't make sense
 
 ## Common pitfalls
 

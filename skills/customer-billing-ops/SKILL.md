@@ -7,7 +7,7 @@ metadata:
 
 # Customer billing operations
 
-Provides a repeatable procedure for handling one named customer's billing problem end to end: who is this customer, what actually happened to their billing state, what is the safest fix, and what follow-up goes back to them. The procedure exists because the fast answer to a billing complaint — refund it — is often the wrong one, and is always the least reversible one.
+The procedure exists because the fast answer to a billing complaint — refund it — is often the wrong one, and is always the least reversible one.
 
 ## Use this skill when
 

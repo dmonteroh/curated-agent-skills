@@ -1,4 +1,4 @@
-# Python MCP SDK Notes (Practical)
+# Python MCP SDK Notes
 
 Use this as a compact checklist for real implementations.
 

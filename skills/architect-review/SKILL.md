@@ -5,7 +5,6 @@ metadata:
   category: architecture
 ---
 # Architect Review
-Provides architectural review guidance for system designs and major changes, focusing on scalability, resilience, maintainability, and tradeoffs across distributed systems and clean architecture patterns.
 
 ## Use this skill when
 
@@ -103,14 +102,11 @@ Contrast, on a customer-and-orders model:
 - Avoid approving high-risk changes without validation plans.
 - Document assumptions and dependencies to prevent regressions.
 
-## Pitfalls to avoid
+## Common pitfalls
 - Reviewing without clear constraints or goals
 - Ignoring data flows, failure modes, or operational requirements
 - Suggesting over-engineering without a tradeoff analysis
 - Missing cross-service impact or migration complexity
-- Skipping the premise check and reviewing a design for a problem that may not be the right one to solve
-- Designing or approving a new component before checking whether an existing asset already covers the need
-- Treating failure-mode coverage as a prose judgment call instead of a table — a gap hides easily in a paragraph and stands out in a row with an empty cell
 
 ## Output contract
 Produce an **Architectural Review Report** using Markdown headings with these exact labels, in this order:
@@ -123,12 +119,12 @@ Produce an **Architectural Review Report** using Markdown headings with these ex
 - Recommendations with tradeoffs
 - Validation plan
 - Decisions/ADRs and next steps
-Format the premise check, reuse-first audit, and failure modes registry as tables; format the remaining sections as bullet points. Label each finding as `blocking` or `advisory`. In the failure modes registry, a row is complete only when rescued?, test?, and the visibility columns all carry a concrete answer — a missing or hedged cell is a gap, not a stylistic choice.
+Format the premise check, reuse-first audit, and failure modes registry as tables; format the remaining sections as bullet points. Label each finding as `blocking` or `advisory`.
 
 ## References
 See `references/README.md` for detailed reference guides and knowledge areas.
 
-## Example
+## Examples
 **Input:** "We want to split a monolith into services for payments and orders; review the design for boundaries and data ownership."
 
 **Output (excerpt):**
@@ -141,13 +137,3 @@ See `references/README.md` for detailed reference guides and knowledge areas.
 - Recommendations with tradeoffs: introduce payment bounded context + event-driven order updates; use saga with compensations.
 - Validation plan: load-test event throughput; run migration rehearsal.
 - Decisions/ADRs and next steps: draft ADR for event schema and ownership.
-
-## Example Interactions
-- "Review this microservice design for proper bounded context boundaries"
-- "Assess the architectural impact of adding event sourcing to our system"
-- "Evaluate this API design for REST and GraphQL best practices"
-- "Review our service mesh implementation for security and performance"
-- "Analyze this database schema for microservices data isolation"
-- "Assess the architectural trade-offs of serverless vs. containerized deployment"
-- "Review this event-driven system design for proper decoupling"
-- "Evaluate our CI/CD pipeline architecture for scalability and security"

@@ -52,7 +52,7 @@ If you cannot run verification in the current environment, say so explicitly and
 - Key risks mitigated or explicitly accepted.
 - No untracked scope expansion:
   - If new work is discovered, create a new intake or task.
-- If the change introduces/depends on an architectural decision, create/update an ADR via `adr-madr-system`.
+- If the change introduces/depends on an architectural decision, create/update an ADR using the repo's ADR format.
 
 ## Ordered dispatch (optional)
 
@@ -113,8 +113,7 @@ Two constraints on this routing:
 
 When implementation is complete, finish the branch with verification-first workflows.
 
-- If `git-workflow` exists, use `git-workflow/references/finish-branch.md`.
-- Otherwise: verify tests, then choose merge vs PR vs keep.
+- Verify tests, then choose merge vs PR vs keep.
 
 ## When to stop and create more artifacts
 

@@ -6,7 +6,7 @@ metadata:
 ---
 # Agent Harness Portability
 
-Provides the pass that turns "runs on any agent" into a result: a per-axis disposition table across the declared targets, checks that can fail, and a defined repair for each failure. The claim is normally asserted once and never tested, and nothing errors when it is wrong — a wrong instruction is still readable, so the agent reads a tool it does not have or a path that does not exist, and improvises.
+The claim is normally asserted once and never tested, and nothing errors when it is wrong — a wrong instruction is still readable, so the agent reads a tool it does not have or a path that does not exist, and improvises.
 
 ## Use this skill when
 

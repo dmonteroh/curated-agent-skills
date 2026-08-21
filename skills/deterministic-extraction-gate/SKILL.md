@@ -95,9 +95,6 @@ A record that a model corrected is a new instance and is marked as corrected, wi
 - Sending every record to a model when the format is regular, and paying per record for something a parser settles once.
 - Writing a parser for genuinely free-form text and then patching it per failure until it is a pile of special cases.
 - Skipping the gate entirely and assuming the parser is right, which is the same as claiming a miss rate of zero without measuring one.
-- Measuring the escalation rate and calling it accuracy. It is a cost figure; the miss rate is the accuracy figure.
-- Raising the escalation threshold when a run costs too much. That does not make the parser better — it makes the gate quieter.
-- Letting the model rewrite unflagged records "while it is there", which destroys the only property that made the deterministic branch worth having.
 
 ## Provenance
 

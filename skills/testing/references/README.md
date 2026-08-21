@@ -1,6 +1,5 @@
 # Testing references index
 
-- `unit-test-generation.md`: checklist for fast, focused unit tests.
 - `tdd-iron-laws.md`: TDD loop reminders, the two valid RED paths (runtime and compile-time), verification discipline, and durable RED/GREEN checkpoints in git.
 - `testing-anti-patterns.md`: quick heuristics to spot flaky or slow tests.
 - `test-report-template.md`: consistent structure for reporting results.

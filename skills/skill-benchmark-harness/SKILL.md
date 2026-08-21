@@ -174,7 +174,6 @@ Version the run as an iteration, recording the previous iteration's id and rollu
 Hold prompts back. Repeated iteration against a fixed eval set tunes the skill to that set; keep prompts no iteration has seen and run them before declaring an improvement. (authored)
 
 - Check: every regression id in the rollup appears as its own named section with a proposed next action. A regression mentioned only inside a count is not reported.
-- Output: the final report per the output contract.
 
 ## Constraints
 
@@ -202,23 +201,6 @@ Hold prompts back. Repeated iteration against a fixed eval set tunes the skill t
 - Every regression as its own named section, with both arms' evidence and a proposed next action.
 - Cost side: duration per arm with the estimator named, and token or call counts or an explicit "not recorded".
 - Limitations: repeat count, residual blinding cues, and whether the graded artifacts were plans or executed work.
-
-## Common pitfalls
-
-- Leaving the condition in a path, a filename, or a field the grader reads, then calling the grading independent.
-- Storing assertion text instead of ids in the grading record, leaving positional alignment as the only join.
-- Transcribing rollup numbers instead of recomputing them, so several "independent" artifacts agree with each other and disagree with the evidence.
-- Letting the spec drift after a run with no per-run snapshot, leaving an old iteration's numbers uninterpretable.
-- Reading a delta carried by one or two unguessable-fact assertions as improved judgment.
-- Iterating against a fixed eval set with no held-out prompts, and mistaking fit to the set for improvement.
-
-## Provenance
-
-Generalized from one worked instance of a paired skill benchmark: the directory convention, the record shapes, the evidence-citation discipline, the above-the-arm-split layout, the discrimination-and-prune step, and the named-regression rule are read off it.
-
-Two later additions come from elsewhere: the strictness ladder, the trace-assertion class, and the per-level reporting rule from a third-party compliance-measurement tool, whose own scoring averaged the levels and is deliberately not carried; the per-run isolated checkout pinned to a recorded revision, and the agent as an arm variable, from an agent-comparison tool. Neither source supplies a number used here.
-
-Rules tagged **(authored)** are not. They close defects that instance exhibited — unblinded grading, no recorded run configuration, grading records that could not be joined to the spec, a hand-transcribed and arithmetically wrong headline, and a discrimination split done by eye. The tag also marks judgment no source supplied. Its pass rates and deltas are deliberately not carried here: they describe one private run and are neither targets nor reference values. No count in this procedure is measured — prompt count, repeat count, stopping rule, and any cost ceiling are chosen budgets, recorded as such with each run.
 
 ## References
 

@@ -172,7 +172,7 @@ Eight sections, in this order:
 1. **Executive summary** — decision-first, no methodology. Where the client is strong, where it is exposed, who occupies its target position, and the moves. Written so a reader who stops here still knows what to do.
 2. **Landscape and category framing** — a multi-axis map, at minimum a 2×2, with the client's tension plot as the headline artifact. Place every profiled competitor and the client.
 3. **Competitor tiers** — one short paragraph per tier: who is in it and why it matters. This sets expectations before the detail.
-4. **Benchmarking matrix** — competitors × dimensions, rows grouped by tier. The tension dimension appears as **two separate sub-columns**, never one. Include the client's own honest self-assessment as a row. Use a heatmap so patterns are scannable. **No blended total column.** Call out the columns where the client leads and where it trails.
+4. **Benchmarking matrix** — competitors × dimensions, rows grouped by tier. The tension dimension appears as **two separate sub-columns**, never one. Include the client's own honest self-assessment as a row. Use a heatmap so patterns are scannable. Call out the columns where the client leads and where it trails.
 5. **Deep dives** — the four roles from Stage 2, in narrative form, chosen for instruction rather than ranking. Each one: what they do, what the client should learn, what the client should avoid.
 6. **White-space and threats** — argued from the maps and the matrix, never asserted. Confirm whether the target quadrant is genuinely open; that confirmation is the report's central empirical claim. State the client's own risks alongside rivals', including the risk its own chosen position carries.
 7. **Strategic recommendations** — prioritized and sequenced by impact against effort. **Check every recommendation against the emphasis mix from the brief and flag any that would shift it**, in the form "this shifts the emphasis from X toward Y; confirm intent." A recommendation that quietly re-weights the client's own strategy is a decision made on their behalf.
@@ -190,17 +190,6 @@ The consumer receives:
 - The tiered candidate set with axis positions and source links, and the profiled set with the role that admitted each entry plus any role nothing could fill.
 - One profile card per profiled competitor, every score carrying its justification and source.
 - The eight-section report, with the three decision questions answered and the trigger questions appended.
-- No composite score and no averaged tension value anywhere in any of the above.
-
-## Common pitfalls
-
-- Producing a total or ranking column because a table of separate scores looks unfinished. It is the intended shape.
-- Averaging the tension poles into one "positioning" number, which deletes the finding.
-- Scoping before the brief exists, or inventing a strategic tension to unblock the work.
-- Scoring against a dimension list that changed partway through the set, so early and late competitors were not asked the same question.
-- Treating self-reported site copy as a verified attribute because it was the only source available.
-- Assembling from an incomplete card set and arguing white-space from the gap that leaves.
-- Leading the report with methodology, so the reader meets the process before the finding.
 
 ## Examples
 

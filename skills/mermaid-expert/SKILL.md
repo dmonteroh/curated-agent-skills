@@ -46,7 +46,7 @@ If detailed examples are required, consult `resources/implementation-playbook.md
 ## Decision points
 - If required inputs are missing, ask targeted questions before drafting.
 - If the renderer lacks support for a diagram type (e.g., C4), fall back to `flowchart`.
-- If the diagram has grown past what a reader can scan without tracing edges by hand, split it into smaller diagrams and provide a map that links them. Node-count cut-offs are chosen defaults with no measurement behind them, and published figures disagree — this skill's references use ~30–50 nodes as the ceiling, while other guidance treats 5–15 as the comfortable range. Judge by whether the main story still reads, and use any specific number only as a prompt to re-check.
+- If the diagram has grown past what a reader can scan without tracing edges by hand, see `references/advanced-features.md` (Large Diagrams) for when and how to split it.
 - If the layout needs to fold a long single-direction flow into two rows, use the racetrack construction below rather than fighting the default layout.
 
 ## Racetrack layout for loops

@@ -6,7 +6,7 @@ metadata:
 ---
 # CDD Context
 
-Provides guidance for managing project context as first-class artifacts alongside code. This skill is standalone and does not depend on other skills.
+Provides guidance for managing project context as first-class artifacts alongside code.
 
 ## Use this skill when
 
@@ -22,7 +22,7 @@ Provides guidance for managing project context as first-class artifacts alongsid
 - The user explicitly forbids documentation or file edits.
 - The repository already has documentation and instruction surfaces that work, and the request is to *govern* them — give each existing file a maintenance role, put every fact under exactly one owner, and keep the set from drifting as the project ages. Scaffolding this prescribed context set on top of a working structure produces a second, competing documentation system; that request is answered by assigning roles to what is already there, not by creating docs/context beside it.
 
-## Inputs required
+## Required inputs
 
 - Repo root (current working directory)
 - Existing context conventions (directory or filenames), if any
@@ -49,7 +49,7 @@ Provides guidance for managing project context as first-class artifacts alongsid
 - Optional, add only when the repo produces user-facing text:
   - docs/context/product-guidelines.md — brand voice and tone, a terminology glossary with preferred and avoided terms, the error-message format, and user-facing copy standards. The three core files own what is built, with what, and how the team works; none of them owns how the product *sounds*, so without this file an agent writing an error string or UI label has no canonical place to check. Keep it optional: a fourth required file that nobody maintains is another stale artifact, not more context.
 
-## Workflow (single canonical process)
+## Workflow
 
 1) Discover existing context
 - Locate any existing context directory and files (prefer repo conventions).
@@ -95,10 +95,10 @@ Provides guidance for managing project context as first-class artifacts alongsid
 Use these only if the user allows file writes and scripts:
 
 ```sh
-./cdd-context/scripts/context.sh init
-./cdd-context/scripts/context.sh index
-./cdd-context/scripts/context.sh brief
-./cdd-context/scripts/context.sh validate
+scripts/context.sh init
+scripts/context.sh index
+scripts/context.sh brief
+scripts/context.sh validate
 ```
 
 `init` scaffolds the three core files and the index block only. The optional `product-guidelines.md` is created by hand from `references/templates.md`; `index` then picks it up automatically, because it indexes every `*.md` in the context directory, and `validate` still passes, because it requires only the core files.
@@ -109,7 +109,7 @@ Environment overrides:
 - `CONTEXT_BRIEF_FILE` (default `docs/context/brief.md`)
 
 Verification step:
-- Run `./cdd-context/scripts/context.sh validate` after scaffolding or edits.
+- Run `scripts/context.sh validate` after scaffolding or edits. `validate` checks the three core files and the index markers; it does not check `brief.md`.
 
 Required tools:
 - POSIX shell with standard Unix utilities (`mkdir`, `cat`, `grep`, `awk`, `sort`, `mktemp`, `date`).

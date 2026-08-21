@@ -7,7 +7,7 @@ metadata:
 
 # Fine-Tuning Method Selection
 
-Provides a routing procedure for training-recipe decisions on a language model. The ordering is the technique: the data shape actually in hand selects the method, and the selected branch then has to clear its own precondition gate before a run is configured. A method picked first and fitted with data afterwards still trains cleanly — on a signal nobody meant to give it.
+Provides a routing procedure for training-recipe decisions on a language model. A method picked first and fitted with data afterwards still trains cleanly — on a signal nobody meant to give it.
 
 This procedure carries no hyperparameter values. Rank, learning rate, batch size, epoch count and sampling width are settings, and the routing decision does not depend on any of them.
 

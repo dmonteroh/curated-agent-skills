@@ -6,8 +6,6 @@ metadata:
 ---
 # Database Migration (ORM)
 
-Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separate raw SQL migration process.
-
 ## Use this skill when
 
 - Creating or reviewing ORM migrations (schema + data transforms)
@@ -28,7 +26,7 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 - Deployment model (single app, multi-service, version skew tolerance)
 - Rollback tolerance and irreversible operations (if any)
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Confirm context and constraints
 - Capture ORM tool, DB engine/version, change type, and downtime limits.
@@ -63,21 +61,13 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 - Adding default values that rewrite large tables without planning
 - Skipping rollback clarity for forward-only operations
 
-## Output Contract (Always)
+## Output contract
 
 - Migration context summary (ORM, DB, constraints)
 - Rollout strategy (expand/backfill/contract with gates)
 - Artifact list (migrations, backfill job, app toggle steps)
 - Rollback matrix (reversible vs forward-only)
 - Verification checklist (tests, rehearsal, monitoring)
-
-## Reporting Format (Use This)
-
-1. **Migration Context**
-2. **Strategy & Decision Points**
-3. **Artifacts & Execution Steps**
-4. **Rollback Matrix**
-5. **Verification & Monitoring**
 
 ## Examples
 
@@ -91,6 +81,6 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 4. Rollback Matrix: revert schema changes, pause backfill, restore old code paths.
 5. Verification & Monitoring: staging rehearsal, backfill progress metrics, post-cutover checks.
 
-## Resources (Optional)
+## Resources
 
 - References index: `references/README.md`

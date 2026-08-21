@@ -7,7 +7,7 @@ metadata:
 
 # UX Interview
 
-One question per turn, one section at a time, each section closed by a stated saturation condition rather than by a question count. Every requirement that leaves this skill names the moment in the transcript it came from.
+Every requirement that leaves this skill names the moment in the transcript it came from.
 
 ## Use this skill when
 
@@ -97,8 +97,6 @@ Close early, and say why, when the interviewee asks to stop, when answers turn s
 - Writing a requirement from a stated preference rather than an observed action. Only described behavior becomes a requirement; a preference is recorded as a wish and marked as one.
 - Recording a solution the interviewee proposed as if it were the need. Ask what that solution would fix and record *that*; the proposal rides along as a candidate.
 - Advancing past a "usually" or a "mostly". Those words name an unmapped branch, and branches are where an interaction spec breaks.
-
-*(Authored: these three replace four pitfalls the file previously stated, each of which repeated a workflow step or an interview rule already above.)*
 
 ## Output contract
 

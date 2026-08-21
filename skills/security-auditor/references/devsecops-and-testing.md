@@ -16,7 +16,6 @@
 - Interactive testing (IAST) for runtime signal collection.
 - Dependency and container scanning for transitive and image risks.
 - Infrastructure scanning for misconfigurations and exposed services.
-- See `references/security-scanning.md` for condensed tool examples and outputs.
 
 ## Security Testing & Validation
 

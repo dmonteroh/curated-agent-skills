@@ -60,7 +60,7 @@ Output: verified task statuses.
 
 Output: final integration status.
 
-## Common Mistakes
+## Common pitfalls
 
 - Choosing `true-parallel` without confirming session isolation.
 - Overlapping claim sets across tasks.

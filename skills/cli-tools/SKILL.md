@@ -38,7 +38,7 @@ Provides guidance for designing and implementing command-line tools that are saf
 - Disable color/progress when output is not a TTY.
 - Handle SIGINT (Ctrl+C) gracefully and exit with standard codes.
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Define the command surface and examples.
    - Output: command/flag matrix draft with brief intent.
@@ -78,13 +78,10 @@ Motivating failure: a lenient parse (`parseInt(val)`) turns non-numeric input in
 
 ## Common pitfalls
 
-- Mixing logs with primary output (breaks piping).
-- Inconsistent flags across subcommands.
-- Prompting in CI or non-TTY environments.
 - Non-deterministic output ordering (breaks tests).
 - Coercing invalid numeric flag input into a default or a truncated value (`parseInt(x) || default`) instead of hard-erroring — see Numeric flag validation.
 
-## Output Contract (Always)
+## Output contract
 
 - A command/flag matrix (what exists and why).
 - Output behavior (stdout/stderr + exit codes).
@@ -122,20 +119,7 @@ const result = normalizeIntFlag(flags.count, { name: "count", default: DEFAULT_C
 // absent -> default; bare/non-numeric/below-min -> hard error; above-max -> clamped value + stderr warning
 ```
 
-## Reporting format
-
-```
-Summary:
-- Command/flag matrix
-- Output behavior and exit codes
-- Validation rules
-- Test plan
-Notes:
-- Pitfalls avoided
-- Decision points applied
-```
-
-## Resources (Optional)
+## Resources
 
 - End-to-end playbook + CLI spec template: `resources/implementation-playbook.md`
 - Reference index: `references/README.md`

@@ -79,57 +79,30 @@ Provides a structured security audit workflow whose findings are gated on eviden
 - Treating compliance requirements as a substitute for threat modeling
 - Missing business context when prioritizing remediation
 - Forwarding scanner output as findings, leaving every consumer to re-verify the list
-- Handing a verifier the finding it is meant to check, which anchors it into agreement
-- Choosing the confidence bar per finding instead of per engagement, which moves it for whichever finding is in hand
-- Writing an exclusion rule without the carve-back that stops it discarding real findings
-- Judging a control by how thorough it looks rather than by what crosses the boundary it sits on
-- Deleting a redundant control outright when demoting it to opt-in preserves the option and the audit trail
 - Padding a report with low-confidence findings because a longer list reads as more thorough
-- Ranking defensive spend by the severity of the threat a control names rather than by how many attack paths it closes
-- Dropping unmitigated leaves out of a choke-point ranking, which hides exactly the gaps the ranking exists to find
 - Scoring two attack paths under different aggregation conventions, which produces a confident ordering out of incomparable numbers
 - Submitting a local-only sink to a disclosure program, where nothing remote reaches it and reachability decides acceptance before severity is read
 - Treating a personal-data compliance review as covering payment-card obligations, which rest on a separate standard, a separate data set, and a never-retain rule with no consent equivalent
 
 ## Output contract
 
-When this skill runs, respond with a report that includes:
+When this skill runs, respond with a report that includes the following, in this order:
 
-- Scope and constraints
-- Threat model summary and attack surface highlights
-- Control-to-boundary map, flagging any control that gates nothing crossing a boundary
-- Findings table (id, severity, quoted evidence with file and line, impact, remediation)
-- Filter stats: candidates in, discarded by rule, discarded by verification, reported
-- Appendix of unverified and low-confidence candidates, kept out of the findings table
-- Where a prior audit of the same scope exists, findings matched on a stable fingerprint and reported as resolved, persistent, and new, with the trend direction
-- Prioritized remediation plan with owners and timelines, and where attack paths were enumerated, the total path count, each control's share of paths closed, and the residual open paths
-- Verification status and residual risk
-
-## Reporting format
-
-Use this structure in final responses:
-
-1. Summary
-2. Scope & Constraints
-3. Threat Model Highlights & Control-to-Boundary Map
-4. Findings (table, each row carrying its quoted evidence)
-5. Filter Stats & Suppressed Candidates
-6. Remediation Plan
-7. Verification & Residual Risk
-8. Open Questions
+1. Scope and constraints
+2. Threat model summary and attack surface highlights
+3. Control-to-boundary map, flagging any control that gates nothing crossing a boundary
+4. Findings table (id, severity, quoted evidence with file and line, impact, remediation)
+5. Filter stats: candidates in, discarded by rule, discarded by verification, reported
+6. Appendix of unverified and low-confidence candidates, kept out of the findings table
+7. Where a prior audit of the same scope exists, findings matched on a stable fingerprint and reported as resolved, persistent, and new, with the trend direction
+8. Prioritized remediation plan with owners and timelines, and where attack paths were enumerated, the total path count, each control's share of paths closed, and the residual open paths
+9. Verification status and residual risk
+10. Open questions, where inputs are missing
 
 ## References
 See `references/README.md` for detailed capabilities, behavioral traits, and knowledge areas. The confidence scale and its mode-bound gate, the exclusion ledger with its carve-backs, the standing precedents, the anti-anchoring verification protocol, the quote-the-line gate, and the filter-stat and fingerprint reporting are in `references/finding-triage.md`. Attack-path enumeration, choke-point counting, and the aggregation convention behind step 5's coverage ranking are in `references/attack-path-analysis.md`. The coordinated-disclosure engagement mode and its three reportability filters are in `references/finding-triage.md`, with the submission gate, the classes that carry impact, and the report structure in `references/devsecops-and-testing.md`. The payment-card rules — the never-retained set, the PAN masking cap, and scope reduction through tokenization — are in `references/compliance-checklist.md`.
 
 ## Examples
-- "Conduct comprehensive security audit of microservices architecture with DevSecOps integration"
-- "Implement zero-trust authentication system with multi-factor authentication and risk-based access"
-- "Design security pipeline with SAST, DAST, and container scanning for CI/CD workflow"
-- "Create GDPR-compliant data processing system with privacy by design principles"
-- "Perform threat modeling for cloud-native application with Kubernetes deployment"
-- "Implement secure API gateway with OAuth 2.0, rate limiting, and threat protection"
-- "Design incident response plan with forensics capabilities and breach notification procedures"
-- "Create security automation with Policy as Code and continuous compliance monitoring"
 
 **Worked case — a control sitting on the wrong side of the boundary**
 

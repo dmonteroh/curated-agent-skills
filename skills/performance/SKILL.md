@@ -43,8 +43,8 @@ Provides a unified performance workflow that combines:
 In the target repo (not this skills repo):
 
 ```sh
-./performance/scripts/perf.sh scan
-./performance/scripts/perf.sh report
+scripts/perf.sh scan
+scripts/perf.sh report
 ```
 
 This writes a deterministic report to `docs/_docgen/performance/REPORT.md`.
@@ -159,16 +159,9 @@ Output:
 - Calling a bounded search's winner "optimal" — it is the best measured safe variant
 - Tuning runtime while the build, test, and lint loop degrades unmeasured
 
-## Tools & scripts
+## Scripts
 
-`scripts/perf.sh` is a safe-by-default helper that scans repo signals and emits a deterministic report.
-
-Usage:
-
-```sh
-./performance/scripts/perf.sh scan
-./performance/scripts/perf.sh report
-```
+`scripts/perf.sh` is a safe-by-default helper that scans repo signals and emits a deterministic report. Usage: see Quick start above.
 
 Outputs:
 - `docs/_docgen/performance/raw/inventory.md`
@@ -179,7 +172,7 @@ Requirements:
 - `rg` (optional; falls back to `find`)
 
 Verification:
-- Confirm the report exists and lists inventory + measurement plan.
+- Confirm `docs/_docgen/performance/REPORT.md` exists and its `## Inventory` and `## What to measure first` sections are both non-empty; a missing file or an empty section is a failing run.
 
 Decision:
 - If the script is unavailable or not permitted, follow the workflow phases manually and document equivalent outputs.
@@ -208,7 +201,7 @@ Wrong — "p95 dropped sharply after raising the cache TTL." Latency improved; t
 
 Right — the same change reported with freshness age beside latency, so the trade is visible and someone owns the decision to accept it.
 
-## Output contract (reporting format)
+## Output contract
 
 When this skill runs, respond with:
 
@@ -228,7 +221,3 @@ Phrase the result as the best measured safe variant, never as optimal, unless th
 ## References
 
 See `references/README.md` for detailed tactics, workflows, and source material.
-
-## Resources
-
-- `scripts/perf.sh` (scan + report wrapper)

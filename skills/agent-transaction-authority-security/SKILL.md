@@ -8,7 +8,7 @@ metadata:
 
 Provides a control procedure for the case where a wrong or hijacked model output becomes an irreversible loss of funds. The individual controls are ordinary; what makes them hold is that each one lives in deterministic code the model cannot edit, is never asked to consult, and cannot talk past. A limit written into a system prompt or a tool description is a suggestion, and the threat model here includes text that argues with suggestions.
 
-The source material is a set of controls without an order or a stated rationale. Rules added beyond it are marked *(Authored)*. Every constant in the source was a chosen default with no derivation; those figures are stated qualitatively below, and the one worked example labels its numbers as placeholders.
+The source material is a set of controls without an order or a stated rationale. Rules added beyond it are marked *(Authored)*.
 
 ## Use this skill when
 
@@ -69,17 +69,6 @@ Run the controls in this order. Each one assumes the one before it is already st
    - Record refusals, cap breaches, simulation aborts, and breaker halts beside successful sends, with the input that produced each.
    - A log of successful sends only cannot answer the question an incident actually asks, which is what the agent *tried* to do.
    - Output: the event set logged, and where it is written.
-
-## Pre-deploy checklist
-
-- Every value-moving capability has a named gate, and the gate is outside the model's reach
-- Per-action and rolling-window ceilings are enforced, and committed before dispatch
-- Simulation runs before every send, and a caller-supplied minimum is mandatory
-- Breakers halt on loss runs, on windowed drawdown, and on an invalid baseline, and clear only on an explicit human action
-- The signing account holds session funds only, and a missing key stops startup
-- Routing, adverse-movement tolerance, and expiry are set per strategy
-- Every decision is logged, refusals included
-- Untrusted content entering the agent's context is defended at its own layer — and none of the controls above depend on that defense working
 
 ## Examples
 

@@ -41,8 +41,8 @@ It replaces overlapping code-review skills by providing explicit review modes:
 1) Run the scan (optional but recommended):
 
 ```sh
-./code-review/scripts/review.sh scan
-./code-review/scripts/review.sh report
+scripts/review.sh scan
+scripts/review.sh report
 ```
 
 2) Review manually using the mode checklists:
@@ -172,18 +172,6 @@ Output:
 - the three finding lists (overlap, unique to each pass), with co-located and cross-referenced pairs kept as separate findings
 - combined verdict, or a note that only one pass ran
 
-### 7) Produce feedback in a deterministic format
-
-Use `references/output-format.md`.
-
-### 8) Finalize report
-
-Output:
-- ordered findings by severity
-- open questions / assumptions
-- suggested follow-ups
-- short change summary
-
 ## Applying fixes to the working tree
 
 Everything above produces a report. When the review is additionally authorized to apply its findings, it does not simply loop over them and edit: an auto-apply loop with no risk tiering and no halt condition is unbounded by construction.
@@ -206,7 +194,7 @@ This three-class split is this skill's own cut for code review, chosen so each c
 
 **Before auto-applying anything a scanner or linter flagged**, enumerate the patterns that tool legitimately mislabels and exempt them by name. A scanner's flag/no-flag output is not a fix list. Patterns that get flagged and are frequently correct as written: deliberate fire-and-forget calls, catch-and-log where an uncaught error would take the process down, total error suppression on a shutdown or emergency path, and pass-through wrappers kept for API stability. Record that list with the project's review configuration, next to the stop-condition values and keyed to the scanner it covers. Re-derived from memory each run, it exempts a different set each run, and the exemptions stop being reviewable.
 
-## Common mistakes to avoid
+## Common pitfalls
 
 - Treating lint/style nits as blockers.
 - Assuming intent instead of asking for clarification.
@@ -217,11 +205,11 @@ This three-class split is this skill's own cut for code review, chosen so each c
 
 Provide the report sections and finding format in `references/output-format.md`.
 
-## Script usage and verification (optional)
+## Scripts (optional)
 
 Commands:
-- `./code-review/scripts/review.sh scan`
-- `./code-review/scripts/review.sh report`
+- `scripts/review.sh scan`
+- `scripts/review.sh report`
 
 Requirements:
 - `git` for diff context (falls back to full repo scan if missing).
@@ -231,7 +219,7 @@ Verification:
 - Confirm `docs/_docgen/code-review/REPORT.md` was created.
 - Confirm the report lists changed files and pattern hits.
 
-## Example output snippet
+## Examples
 
 ```
 Findings:

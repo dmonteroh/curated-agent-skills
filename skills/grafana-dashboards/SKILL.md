@@ -6,8 +6,6 @@ metadata:
 ---
 # Grafana Dashboards
 
-Provides production-ready Grafana dashboards with consistent layout, safe queries, and operator-focused usability.
-
 ## Use this skill when
 
 - A request asks to create or improve Grafana dashboards
@@ -29,7 +27,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Existing dashboard JSON or screenshots (if refactoring)
 - Constraints (time range defaults, label cardinality limits, naming standards)
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Confirm scope and data sources.
    - Output: a 2-4 sentence scope summary + list of data sources.
@@ -58,7 +56,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Queries are performant (recording rules for expensive aggregations).
 - Panels are stable (avoid tiny denominators; avoid misleading averages).
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Using unbounded labels (wildcards or regex on high-cardinality labels).
 - Relying on averages for latency or error rates without percentiles.
@@ -66,7 +64,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Omitting units or thresholds, which hides intent.
 - Building dashboards that only work at one specific time range.
 
-## Assets (Copy/Adapt)
+## Resources (Copy/Adapt)
 
 - Dashboard stubs:
   - `assets/dashboard-templates.json`
@@ -77,19 +75,6 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
   - `assets/panel-examples.json`
 - Alert rule patterns (structure only):
   - `assets/alert-templates.json`
-
-## Output contract
-
-Return a report using this format and keep the section order:
-
-1. Summary
-2. Inputs & Assumptions
-3. Layout Sketch (rows + intent)
-4. Panel Specs (question, viz, unit, threshold, query stub)
-5. Queries & Variables (safe label bounds)
-6. Drilldowns & Links
-7. JSON Snippets or Template References
-8. Quality Gates (pass/fail + fixes)
 
 ## Example (Input → Output)
 
@@ -106,9 +91,8 @@ Return a report using this format and keep the section order:
 7. JSON Snippets: `assets/dashboard-templates.json` skeleton + panel JSON blocks.
 8. Quality Gates: Pass; add recording rule for p99 latency if needed.
 
-## References (Optional)
+## References
 
 - Index: `references/README.md`
 - Design guide: `references/dashboard-design.md`
-- Implementation playbook: `references/implementation-playbook.md`
 - Per-system panel sets: `references/operator-panel-sets.md`

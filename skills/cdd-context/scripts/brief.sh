@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 
-# Create/update a deterministic "rehydration snapshot" for agents:
+# Create/update a "rehydration snapshot" template for agents:
 # docs/context/brief.md
+#
+# Writes a fixed-shape placeholder (e.g. "<fill from product.md>", "...")
+# for a human or agent to fill in from the core context files below.
+# `validate` does not check brief.md; review its content by hand.
 #
 # Safe-by-default:
 # - writes only under docs/context/

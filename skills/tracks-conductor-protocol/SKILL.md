@@ -1,6 +1,6 @@
 ---
 name: tracks-conductor-protocol
-description: "Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD."
+description: "Runs a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. For structured work management aligned to SDD/CDD."
 metadata:
   category: workflow
 ---
@@ -38,10 +38,7 @@ This skill is intentionally optimized for speed:
 
 Environment overrides:
 - `TCD_PROJECT_DIR`, `TCD_TODO_DIR`, `TCD_TASKS_DIR`, `TCD_TRACKS_DIR`, `TCD_FUTURES_DIR`
-- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`, `TCD_ARCHIVE_TODO_DIR`, `TCD_ORDER_FILE`, `TCD_NEW_ADR`
-
-## Core principles
-See `references/README.md` for core principles, traceability rules, and escalation guidance.
+- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`, `TCD_ARCHIVE_TODO_DIR`, `TCD_ORDER_FILE`
 
 ## Required inputs
 
@@ -125,9 +122,6 @@ Decision points:
 - If a decision is current and architectural: record it as an ADR using the repo's ADR format.
 - If scripts are unavailable, add Future entries by following `references/futures.md` and update the Futures block in `work_index.md`.
 
-## Indexing + decision points
-See `references/README.md` for managed index blocks, decision points, and common mistakes.
-
 ## Validation
 
 Use:
@@ -196,6 +190,3 @@ Assistant output (summary format):
 ## References
 
 - `references/README.md` for the full index of templates and playbooks
-
-## Escalation rules
-See `references/README.md` for escalation and cross-linking guidance.

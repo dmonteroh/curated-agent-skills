@@ -10,10 +10,6 @@ Provides one canonical skill that combines:
 - **Patterns** (instruction calibration, few-shot, structured outputs, reasoning controls, safety, evaluation)
 - **Applied workflows** (define success -> calibrate to model -> draft -> test -> iterate -> deploy/monitor)
 
-## Non-negotiable requirement
-
-When creating or updating a prompt, this skill always includes the complete prompt text in a single copy/paste block. It does not describe a prompt without showing it.
-
 ## Use this skill when
 
 - Building AI features and agent behaviors (system prompts, tool-use prompts, routing).
@@ -103,15 +99,10 @@ An under-specified request is optimized into a confidently wrong prompt. Before 
 - Decision: if output looks shallow on a genuinely hard task after a model change, check that the new model was given a comparable reasoning budget before rewriting prompt text — a migration moves the effort scale as well as the model, so the defect may be the setting rather than the wording.
 - Output: deployment checklist.
 
-## Patterns (high leverage)
+## Patterns
 
-- **Calibrated instruction strength**: plain imperatives; escalate emphasis only for true invariants. Aggressive `CRITICAL:`/`MUST` language causes overtriggering on literal-following models.
-- **Reasoning via configuration**: on reasoning models, control depth with the API thinking/effort settings, not prompt scaffolding; keep manual chain-of-thought for classic models or when the response must show auditable steps.
-- **Enforce, don't beg**: schema-enforced structured outputs and strict tool schemas over "return only JSON" prose.
-- **Cache-first layout**: stable prefix before volatile content; never interpolate timestamps or IDs into the system prompt.
 - **Tool descriptions are prompts**: state when to call each tool ("Call this when..."), not just what it does.
 - **Explicit scope and motivation**: say where instructions apply and why the task matters; literal models do not generalize unstated intent.
-- **Data/instruction boundary**: delimit untrusted content and restate that it is data, not instructions — the cheapest prompt-injection mitigation.
 - **Instruction hierarchy**: System > Developer > User > Tool outputs.
 - **Progressive disclosure**: start simple, add constraints/examples only when needed.
 - **Self-consistency**: where one call is measurably not reliable enough and the answer is discrete and checkable, sample the same prompt n times, take the majority answer, and report the vote share as the confidence signal — an agreement measure, never a calibrated probability. Cost is linear in n; n and temperature are caller choices (`references/eval-coverage.md`).
@@ -144,7 +135,7 @@ Shipping one authored corpus — system prompts, agent instruction files, a temp
 
 ## Common pitfalls
 
-- Missing full prompt block (violates the non-negotiable rule).
+- Missing full prompt block (violates the Output contract's Prompt block rule).
 - "Think step by step" scaffolding on reasoning models — redundant at best, quality-reducing at worst.
 - Emphasis inflation (`CRITICAL`, `ALWAYS`, `NEVER` on routine guidance) causing overtriggering.
 - Begging for JSON in prose when the platform enforces schemas (or relying on assistant prefills, which current Claude models reject).

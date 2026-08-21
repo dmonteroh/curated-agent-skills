@@ -149,8 +149,8 @@ Each check names what its failure means and where to return.
 1. A tier was stated before any code was written, and the work that followed matched it. If it did not, the classifier read the wrong signals — re-size and re-state.
 2. Every phase the tier included produced its artifact, and every phase it excluded produced nothing. A half-written plan means Plan ran degraded, which the phase order forbids.
 3. Gate 1 was honored if Plan ran, and Gate 2 was honored unconditionally. An implementation edit or a commit with no preceding approval is a failed run, not a fast one.
-4. The security pass ran whenever the diff touched a trigger. If it ran on a diff that touched none, the trigger list was read wrong — check which category was thought to apply.
-5. Commits are conventional and each is scoped to one logical change, and changed behavior has tests, per the repository's own testing policy.
+4. The security pass ran whenever the diff touched a trigger, and never when it did not. Either mismatch means the trigger list was read wrong — check which category applies, and run the pass before Gate 2 if it is still missing.
+5. Commits are conventional and each is scoped to one logical change, and changed behavior has tests, per the repository's own testing policy. A commit mixing unrelated changes, or shipping behavior with no test, has not met the check — split the commit or add the test before Gate 2.
 
 ## Provenance
 

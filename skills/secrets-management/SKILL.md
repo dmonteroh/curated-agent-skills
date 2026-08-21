@@ -100,18 +100,9 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 - Create any credential file the tool persists with owner-only permissions at creation time, rather than writing under the ambient umask and tightening afterward. The chmod-after-write window leaves the file briefly group- or world-readable (CWE-377, CWE-367); a test that sets a permissive umask, saves a key, and asserts the resulting mode fails against the tighten-afterward implementation.
 - Output: documented resolution order, the disambiguation warning text, and the permission mode applied at file creation. Detail and worked cases: `references/ambient-credential-resolution.md`.
 
-## Common mistakes to avoid
+## Common pitfalls
 
-- Storing secrets in source control, container images, or build artifacts
 - Reusing the same secret across environments or teams
-- Printing secrets via verbose logging or debugging dumps
-- Long-lived CI/CD tokens without rotation or scope limits
-- No audit trail for reads, updates, or rotations
-- Denylisting outbound files, so every newly introduced artifact type ships by default
-- Treating a content scan as the egress boundary instead of a second line behind structural exclusion
-- Recording the egress audit entry after transmission, where a failed write leaves the send untraceable
-- Dropping a blocked payload instead of preserving the queue for retry
-- Printing a credential's value to show which one a tool picked up
 
 ## Examples
 
@@ -129,14 +120,6 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 
 - Wrong: `Using API key sk-live-1a2b3c4d… from the environment.` The value is printed, and the message still does not say why this key was the one selected.
 - Right: `Using API key from $SERVICE_API_KEY, whose value matches ./.env in this directory. This run may bill that project's account.` The source and the consequence are named; nothing about the key is disclosed.
-
-## Reporting format
-
-1. Secret inventory (what/where/owner/rotation)
-2. Access model + backend decision (with rationale)
-3. Integration plan (CI/CD and/or runtime) with least-privilege boundaries
-4. Rotation + incident response plan
-5. Verification steps (masking, access policy, rotation checks)
 
 ## Output contract
 

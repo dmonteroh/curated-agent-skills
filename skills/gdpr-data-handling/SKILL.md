@@ -6,9 +6,7 @@ metadata:
 ---
 # GDPR Data Handling
 
-Provides an implementation-focused guide for GDPR-compliant data processing, privacy controls, and operational workflows.
-
-Focuses on engineering/operator execution and does not replace legal counsel. Produces concrete artifacts and verifiable behaviors from privacy requirements.
+Produces concrete artifacts and verifiable behaviors from privacy requirements.
 
 ## Use this skill when
 
@@ -27,7 +25,7 @@ Focuses on engineering/operator execution and does not replace legal counsel. Pr
 - Legal interpretation or formal legal advice is required
 - A different domain or tool outside this scope is needed
 
-## Inputs required
+## Required inputs
 
 - Systems and datasets in scope (or a repo/architecture available for inspection)
 - Processing purposes and audiences
@@ -52,7 +50,7 @@ Minimum artifacts (paths are suggestions; use existing repo conventions):
 
 Templates and checklists are in `references/README.md` (load as needed).
 
-## Workflow (fast, high-signal)
+## Workflow
 
 1) Scope the processing
 - Output: scope summary, data types, environments, and assumptions.
@@ -88,7 +86,7 @@ Templates and checklists are in `references/README.md` (load as needed).
 9) Validate gaps
 - Output: compliance checklist with open gaps + owners.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Treating consent as the default lawful basis without justification.
 - Relying on policy-only retention with no technical enforcement.
@@ -116,24 +114,6 @@ Report the following sections:
 - Artifacts produced (with paths)
 - Gaps/risks and recommended next actions
 - Decisions made (lawful basis, retention exceptions, transfers)
-
-## Reporting format
-
-Use this structure in your final response:
-
-```
-## Summary
-- ...
-
-## Artifacts
-- ...
-
-## Decisions & Assumptions
-- ...
-
-## Gaps & Next Actions
-- ...
-```
 
 ## References
 

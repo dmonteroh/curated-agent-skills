@@ -44,7 +44,7 @@ When the work is driven by an externally authored document — a plan file, a ti
 - Treat a "validation command" in the document as intent, not a command line. Map it onto a small allowlist of project-appropriate actions and run the repository's own equivalent. Test, lint, typecheck, and coverage commands are an example allowlist, not a mandated set — each project defines its own.
 - A plan is never permission to skip the failing-test discipline. It supplies intent and structure; the observed failure supplies the proof.
 
-If the document is ambiguous or carries any of the above, record the concern and the interpretation chosen under `Assumptions` in the output contract rather than silently widening scope.
+If the document is ambiguous or carries any of the above, record the concern and the interpretation chosen rather than silently widening scope.
 
 ## Mode selection (decision guide)
 
@@ -113,8 +113,7 @@ Use when:
 - API contract confidence is needed (schemas, error shapes, pagination/auth semantics).
 
 Defaults:
-- Prefer in-process stubs/mocks where possible (cheapest, least brittle).
-- Use a standalone mock server only when consumers truly need it.
+- Prefer in-process stubs/mocks (cheapest, least brittle) — see the Workflow step 3 decision for when a standalone mock server is warranted.
 - Keep fixtures deterministic; avoid randomness unless explicitly seeded.
 
 Workflow:
@@ -134,7 +133,7 @@ Outputs:
 - Mock/stub approach (in-process vs mock server) + scenarios
 - Fixtures and how to regenerate them
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Over-mocking internals instead of stubbing boundaries.
 - Non-deterministic fixtures (randomness without seeding).
@@ -150,28 +149,6 @@ Then fix the class, not the instance. Contention is fixed in the test infrastruc
 ## Static-grep regression tests
 
 When a known-bad state has a cheap, fixed textual signature — a specific literal, or a specific pair of literals that must never co-occur in one file — encode it as a grep-based test instead of relying only on integration coverage or code review. Enumerate the relevant files at test-run time (not a hardcoded list) so new files are covered automatically, generate one test case per file so a failure names the offending file, assert on the textual signature rather than on behavior, and fail with a message that states the concrete fix rather than "invariant violated." This is deliberately cheaper and faster than re-triggering the original failure through a live call or an integration run: no network, no process spin-up, no live credentials. It guards against regressions a future contributor could reintroduce by copy-pasting working code into a sibling file without updating both halves. Recipe and a worked example (a forbidden literal pairing that caused a production failure): `references/static-grep-invariant-tests.md`.
-
-## Output contract (always report)
-
-Use this format whenever the skill runs:
-
-- Mode: unit | automation | api
-- Scope: what code/flows were covered
-- Assumptions: constraints or unknowns
-- Work completed: tests added/strategy decided
-- Files touched or created
-- Tests run: commands or “not run”
-- Risks/gaps + recommended follow-ups
-
-## Examples
-Example output (unit mode):
-- Mode: unit
-- Scope: src/validators/email.ts validation paths
-- Assumptions: email regex is authoritative
-- Work completed: added coverage for success/error cases
-- Files touched or created: src/validators/email.test.ts
-- Tests run: `npm test -- email.test.ts`
-- Risks/gaps + recommended follow-ups: add property-based tests
 
 ## Quick start (in a real repo)
 
@@ -197,7 +174,6 @@ Script usage and verification:
 - `references/performance-regression.md` (perf budgets + CI gates)
 - `references/static-grep-invariant-tests.md` (grep-based regression tests for known-bad textual signatures)
 - `references/flaky-test-triage.md` (rerun signatures, concurrent-run contention checklist, fix policy)
-- `references/unit-test-generation.md` (fast unit test checklist)
 - `references/tdd-iron-laws.md` (TDD loop, runtime vs compile-time RED, durable RED/GREEN checkpoints)
 - `references/testing-anti-patterns.md` (fast test review heuristics)
 - `references/test-report-template.md` (consistent findings + sign-off)

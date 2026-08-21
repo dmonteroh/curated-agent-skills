@@ -237,7 +237,7 @@ Always return:
 
 Use the canonical structure in `references/packet-templates.md` (`Final Report Template`) for consistent reporting.
 
-## Common Failure Modes
+## Common pitfalls
 
 - Splitting coupled problems (fixing one invalidates the other's scope).
 - Overlapping claims across concurrent tasks.

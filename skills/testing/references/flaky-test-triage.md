@@ -48,4 +48,4 @@ Fix the class, not the instance.
 
 *(Authored reconciliation. The automation-mode stability plan in this skill's entry point allows retries at the framework edge as a blunt backstop for an unclassified suite. This policy governs a flake that has been classified: once its signature is known it is a known bug, and retrying a known bug hides it.)*
 
-A flake that was classified but not fixed is a finding to report, not to drop: record the signature, the evidence, and the classification, and state them in the output contract's risks and gaps.
+A flake that was classified but not fixed is a finding to report, not to drop: record the signature, the evidence, and the classification, and state them as risks and gaps when reporting the result.

@@ -97,9 +97,8 @@ Provides two workflows for Stitch tasks:
 - **Mode A:** Provide `DESIGN.md`, plus any open questions for missing tokens.
 - **Mode B:** Provide enhanced prompt in Markdown and state whether `DESIGN.md` was used.
 - If `DESIGN.md` is missing, recommend creating it via Mode A.
-- End with the reporting format described below.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Inventing brand colors or typography without evidence
 - Mixing web and mobile patterns in one prompt
@@ -128,19 +127,7 @@ Page Structure
 4. Table of top accounts
 ```
 
-## Reporting format
-
-Provide results in this structure:
-
-```
-## Output
-- Mode: DESIGN.md | Prompt
-- Inputs used: Project data | Offline assets (list assets)
-- Files created/updated: <paths or none>
-- Open questions: <list or none>
-```
-
-## Resources (Optional)
+## Resources
 
 - UI/UX keyword palette: `references/KEYWORDS.md`
 - Reference index: `references/README.md`

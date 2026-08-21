@@ -130,16 +130,6 @@ The review produces, in the conversation and then in the plan file:
 
 Write the report as the plan file's final section and record the commit the review ran against. A later reader compares that commit with the current head — `git rev-list --count <reviewed-commit>..HEAD` — to see how far the plan has moved since. A stale review is worse than no review, because it reads as clearance. The report's last line is either the unresolved-decisions list or an explicit statement that there are none; an absent line is indistinguishable from a review that never asked anything.
 
-## Common pitfalls
-
-- Emitting a finding at a confidence high enough to display when its motivating line was never quoted.
-- Holding every finding until the end and delivering them as one document. That is a report, not a review; the decisions never happened.
-- Skipping a section because of the plan's genre.
-- Letting the posture drift: arguing for less work under expansion, or adding scope back under reduction.
-- Presenting the plan as the only implementable option because it is the one already written down.
-- Dropping the suppressed appendix to make the review look cleaner.
-- Treating an unanswered question as agreement.
-
 ## Examples
 
 Passes the gate — the evidence is quoted, so it reports normally:

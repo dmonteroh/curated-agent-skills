@@ -46,7 +46,6 @@ Provides a read-only triage loop for a network device that is already misbehavin
    - Decision: if nothing incremented over the interval, the symptom is not currently reproducing — say so rather than acting on historical state.
    - Output: the delta, and the interval it was measured over.
 6. **Sort every candidate action into read-only or change-window** per `## Constraints`, and report. This skill ends here.
-   - Output: the evidence record per `## Output contract`.
 
 ## BGP session symptoms
 
@@ -97,15 +96,6 @@ Read-only is the default, and the following are change-window actions with a wri
 - Changing speed, duplex, or MTU on a live link
 
 Removing a filter to test whether the filter is the problem converts a single-neighbour fault into an outage and destroys the evidence at the same time. Read hit counters, logs, and path state instead. If a reset is approved, use the least disruptive option the platform supports — soft reconfiguration or route refresh before a hard clear — and record why it is safe.
-
-## Common pitfalls
-
-- Clearing counters before recording a baseline
-- Reading one end of a link and concluding which end is faulty
-- Treating historical CRCs as an active problem without a time window
-- Assuming `Active` means the remote side is down
-- Ignoring VRF, address family, or update-source differences
-- Hard-resetting a peer before reading the last reset reason and the logs
 
 ## Output contract
 

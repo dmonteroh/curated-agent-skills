@@ -10,7 +10,7 @@ Provides a procedure for turning an exploration that already succeeded — probi
 
 The pattern applies wherever acquisition is cheap to re-run but interpretation was the expensive part to work out, and interpretation can be written as a pure function of one capturable input. That seam decides whether a unit is worth building; the subject matter does not. It transfers unchanged to an HTTP response, a command's stdout, a log file, a config dump, or a query result set.
 
-What codification buys is determinism: the same input parses the same way in every session, and the result stops depending on which turns the agent happened to take. Replay is also faster than re-exploration, but the source material asserts that speedup without ever measuring it — state the benefit qualitatively and never as a latency figure or a multiplier.
+Replay is also faster than re-exploration, but the source material asserts that speedup without ever measuring it — state the benefit qualitatively and never as a latency figure or a multiplier.
 
 ## Use this skill when
 
@@ -127,12 +127,8 @@ for it in items:
 
 ## Common pitfalls
 
-- Re-exploring a solved problem every session and returning a slightly different answer each time.
 - Codifying the wrong thing: a plausible script assembled from failed attempts, unrelated chat, or an earlier session, which never actually ran end to end.
 - A shared dependency drifting under a unit authored months earlier, so it breaks or, worse, quietly returns different data.
-- A half-written unit left on disk after a failed run, which future agents then reach for.
-- Smoke tests that assert only that nothing threw.
-- Treating a removed environment variable as isolation.
 - Contract prose that reads like a chat log, so the next reader cannot tell what the unit returns without running it.
 
 ## Output contract
