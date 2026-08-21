@@ -47,8 +47,12 @@ Useful options:
 # Run a smaller custom batch
 ./scripts/auditing/run_parallel_skill_reviews.sh --batch-size 4
 
-# Target a subset
+# Target a subset: --skill is repeatable and each flag takes a comma-separated list
 ./scripts/auditing/run_parallel_skill_reviews.sh --skill testing --skill deps-audit
+./scripts/auditing/run_parallel_skill_reviews.sh --skill testing,deps-audit,code-review
+
+# Review the skills named in a file (one per line, # comments and blank lines ignored)
+./scripts/auditing/run_parallel_skill_reviews.sh --skills-file scripts/auditing/logs/retry-skills.txt
 
 # List discovered skills
 ./scripts/auditing/run_parallel_skill_reviews.sh --list-skills
@@ -58,7 +62,33 @@ Useful options:
 
 # Run with a single reviewer arm (e.g. one client temporarily unavailable)
 ./scripts/auditing/run_parallel_skill_reviews.sh --arms claude
+
+# Override the codex arm's model (codex-scoped; the claude arm always resolves from policy)
+./scripts/auditing/run_parallel_skill_reviews.sh --model gpt-5.6-terra
+
+# Reviewer-arm reasoning effort (default medium) and synthesis effort (default unset)
+./scripts/auditing/run_parallel_skill_reviews.sh --effort high --synthesis-effort high
+
+# Skip the pip install of audit dependencies (they must already be in .venv)
+./scripts/auditing/run_parallel_skill_reviews.sh --no-install
 ```
+
+### Re-running a failed pass
+
+A run that leaves any skill without a real verdict (failed arm, MALFORMED, INFRA-FAILURE, blocked synthesis) ends by writing the deduped set to `scripts/auditing/logs/retry-skills.txt` and printing a paste-ready retry line:
+
+```
+Retry: 35 skills without a real verdict (list saved to scripts/auditing/logs/retry-skills.txt):
+  scripts/auditing/run_parallel_skill_reviews.sh --skill agent-feedback-ui,auth-implementation-patterns,...
+```
+
+Paste that line back, or point the runner at the saved file:
+
+```bash
+./scripts/auditing/run_parallel_skill_reviews.sh --skills-file scripts/auditing/logs/retry-skills.txt
+```
+
+Each failing run overwrites `retry-skills.txt` (and `logs/` is gitignored) — copy it elsewhere if it must survive the next pass. Do not run a review pass and `proposals.py apply` at the same time: apply verifies each writer dispatch against a whole-tree diff snapshot, so concurrent synthesis edits get misattributed to the writer and fail its entries; run one to completion first (either order works — proposal targets and no-verdict skills cannot overlap, since proposals only come from successful synthesis calls).
 
 `--print-model-policy`'s own policy header states the pipeline's tier policy: sol/opus unused in this pipeline; terra for dispatches that need reasoning; luna otherwise (operator policy, 2026-08-12).
 
@@ -92,8 +122,8 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
   - Reviewer arms run at `medium` reasoning effort by default — `--effort` overrides (claude arm via `--effort`, codex arm via `-c model_reasoning_effort`); the codex arm always pins `-c service_tier=default` so priority (speed) processing stays off; `--synthesis-effort` sets the synthesis call's effort (unset by default).
   - Reaps the `KEY=VALUE` verdict file each arm writes via `review-result.sh` (`OUTCOME`, `DIFFERENTIATION`, `REMOVAL_PROPOSALS`), and summarizes weak-differentiation and removal-proposal skills for the operator; proposal text is recorded to `PROPOSALS.md` via `proposals.py record`.
   - Runs `scripts/audit_skills.py` unconditionally after all subagents complete.
-  - Supports targeting specific skills and dry-run planning.
-  - Reports per-skill success/failure with log paths.
+  - Supports targeting specific skills (`--skill` comma lists, `--skills-file`) and dry-run planning.
+  - Reports per-skill success/failure with log paths; when any skill ends without a real verdict, writes the retry set to `logs/retry-skills.txt` and prints a paste-ready `--skill` retry line.
   - Measures reference size via `tiktoken` to decide when to split/index references.
 
 - `review-result.sh`
@@ -104,7 +134,7 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 - `proposals.py`
   - The removal-ruling loop. `record` (run by the runner after a pass with proposals) appends each proposal from the `<skill>.synthesis.removals` artifacts to `PROPOSALS.md`, one entry per numbered item, deduplicated by content hash against the ledger and the ids already ruled in `OPEN_ITEMS.md`.
   - `lint` validates every entry — ruling is `pending`/`approved`/`declined`, text matches its checksum — and reports all problems at once.
-  - `apply` lints first and refuses to act on any problem. Declined entries become rows in `OPEN_ITEMS.md` "Removal rulings"; each approved entry gets one writer dispatch (`apply-prompt.md`; model from the runner's `--print-model-policy` synthesis site, overridable via `--dispatch-cmd`), its diff verified non-empty and inside the skill's own surface, then its row appended and the entry cleared. A rerun is a no-op for everything already resolved; pending entries are never touched.
+  - `apply` lints first and refuses to act on any problem. Declined entries become rows in `OPEN_ITEMS.md` "Removal rulings"; each approved entry gets one writer dispatch (`apply-prompt.md`; model from the runner's `--print-model-policy` synthesis site, overridable via `--dispatch-cmd`), its diff verified non-empty and inside the skill's own surface, then its row appended and the entry cleared. A rerun is a no-op for everything already resolved; pending entries are never touched. After any execution it runs the full `./scripts/audit-skills.sh`; `--no-audit` skips that. Do not run it concurrently with a review pass — see "Re-running a failed pass" above.
 
 - `PROPOSALS.md`
   - The pending-rulings ledger, machine-managed by `proposals.py`; holds only entries awaiting a ruling. The operator edits exactly one thing: each entry's `ruling:` line.
@@ -155,8 +185,8 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 ### Runner defaults
 
 - Batch size defaults to `10`.
-- The runner auto-discovers skills under `skills/*/SKILL.md`.
-- Pass `--skill <name>` one or more times to restrict scope.
+- The default skill set comes from `skills_list.txt` (hand-maintained, one name per line).
+- Pass `--skill <name>[,<name>...]` (repeatable) or `--skills-file <path>` to restrict scope; an empty `--skill` value is an error, never a full-roster run.
 - `scripts/audit_skills.py` runs unconditionally after subagent updates complete.
 
 ## Logs and Gitignore

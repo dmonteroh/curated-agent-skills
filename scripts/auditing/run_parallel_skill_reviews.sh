@@ -67,7 +67,9 @@ Options:
                         values; default: unset). This is the run's only
                         writer - lowering it trades review quality for
                         speed
-  --skill NAME          Review only this skill (repeatable)
+  --skill NAME[,NAME...]
+                        Review only these skills (repeatable; a failed run
+                        prints a ready-to-paste retry line in this form)
   --skills-file PATH    Read skill names (one per line) from PATH
   --list-skills         Print discovered skills and exit
   --dry-run             Show planned work without invoking codex or claude
@@ -494,7 +496,27 @@ while (( "$#" )); do
       shift 2
       ;;
     --skill)
-      REQUESTED_SKILLS+=("${2:-}")
+      # Accepts a comma-separated list so a failed run's retry line pastes
+      # back in one flag. Same head/remainder split as --arms: bash 3.2 has
+      # no mapfile, and the --skill path must stay 3.2-clean.
+      skill_opt="${2:-}"
+      skill_added=0
+      skill_remainder="$skill_opt,"
+      while [[ -n "$skill_remainder" ]]; do
+        skill_head="${skill_remainder%%,*}"
+        skill_remainder="${skill_remainder#*,}"
+        skill_head="${skill_head#"${skill_head%%[![:space:]]*}"}"
+        skill_head="${skill_head%"${skill_head##*[![:space:]]}"}"
+        if [[ -n "$skill_head" ]]; then
+          REQUESTED_SKILLS+=("$skill_head")
+          skill_added=1
+        fi
+      done
+      if (( skill_added == 0 )); then
+        echo "error: --skill needs at least one skill name (got '$skill_opt')" >&2
+        exit 2
+      fi
+      unset skill_opt skill_added skill_remainder skill_head
       shift 2
       ;;
     --skills-file)
@@ -1116,6 +1138,30 @@ print_operator_decisions
 if (( ${#FAILED_SKILLS[@]} > 0 )); then
   echo "Failed skills:"
   printf '  - %s\n' "${FAILED_SKILLS[@]}"
+fi
+
+# Retry helper: every skill this run left without a real verdict (MALFORMED
+# entries are bare names; FAILED/INFRA-FAILURE entries are "name (reason)"),
+# deduped in roster order, saved one-per-line and printed as a paste-ready
+# --skill list so a partial re-run never needs hand-transcription.
+declare -a RETRY_SKILLS=()
+add_retry_skill() {
+  local name="$1" seen
+  for seen in "${RETRY_SKILLS[@]:-}"; do
+    if [[ "$seen" == "$name" ]]; then return 0; fi
+  done
+  RETRY_SKILLS+=("$name")
+}
+for retry_entry in "${MALFORMED_SKILLS[@]:-}" "${FAILED_SKILLS[@]:-}" "${INFRA_FAILURE_SKILLS[@]:-}"; do
+  [[ -n "$retry_entry" ]] && add_retry_skill "${retry_entry%% *}"
+done
+unset retry_entry
+if (( ${#RETRY_SKILLS[@]} > 0 )); then
+  printf '%s\n' "${RETRY_SKILLS[@]}" >"$LOGDIR/retry-skills.txt"
+  retry_csv="$(IFS=,; printf '%s' "${RETRY_SKILLS[*]}")"
+  echo
+  echo "Retry: ${#RETRY_SKILLS[@]} skills without a real verdict (list saved to $LOGDIR/retry-skills.txt):"
+  echo "  scripts/auditing/run_parallel_skill_reviews.sh --skill $retry_csv"
 fi
 
 if (( ${#FAILED_SKILLS[@]} > 0 || ${#INFRA_FAILURE_SKILLS[@]} > 0 )); then
