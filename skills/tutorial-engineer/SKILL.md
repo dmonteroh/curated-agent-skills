@@ -37,9 +37,9 @@ metadata:
 4. **Draft the tutorial content**
    - Write steps with commands, code, expected outputs, and explanations.
    - Output: full Markdown tutorial with runnable or explicitly marked pseudo steps.
-5. **Add exercises and troubleshooting**
-   - Include practice tasks and common failure modes with fixes.
-   - Output: exercises + troubleshooting section.
+5. **Add exercises and anticipate failures**
+   - Include practice tasks. Place each common failure and its fix inline at the step where it occurs, never in a trailing troubleshooting section.
+   - Output: exercises + an inline error-and-fix note on every step that commonly fails.
 6. **Deliver with verification checklist**
    - Provide a final checklist and any assumptions.
    - Output: verification checklist + assumptions list.
@@ -129,6 +129,6 @@ Provide the following in order:
 
 1. **Scope summary**: audience, goal, prerequisites.
 2. **Objectives**: measurable outcomes and checkpoints.
-3. **Tutorial Markdown**: the full walkthrough.
+3. **Tutorial Markdown**: the full walkthrough, including the practice exercises and the inline error-and-fix notes.
 4. **Verification checklist**: how to validate each stage.
 5. **Assumptions or open questions**.

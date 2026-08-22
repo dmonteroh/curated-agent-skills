@@ -31,9 +31,9 @@ Select the smallest format that fits.
 - Step 1..N
   - Intent
   - Change (files/commands)
-  - Verify
-- Troubleshooting
-- Summary
+  - Verify, with the step's common failure and its fix inline
+- Practice exercises
+- What you built
 
 ## Quality Gates
 

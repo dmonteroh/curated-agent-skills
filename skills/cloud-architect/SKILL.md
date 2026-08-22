@@ -1,6 +1,6 @@
 ---
 name: cloud-architect
-description: "Design cloud platform architecture (AWS/Azure/GCP): landing zones/accounts, networking, hybrid on-prem connectivity, identity/IAM boundaries, service selection, reliability/DR, and multi-region strategy. Produces architecture diagrams + risk/rollback plans. Does not own CI/CD or deep FinOps tactics."
+description: "Designs cloud platform architecture (AWS/Azure/GCP) when a system is being designed for cloud, migrated to it, or connected to on-premises networks: landing zones/accounts, networking, hybrid on-prem connectivity, identity/IAM boundaries, service selection, reliability/DR, and multi-region strategy. Produces architecture diagrams + risk/rollback plans. Does not own CI/CD or deep FinOps tactics."
 metadata:
   category: devops
 ---
@@ -82,16 +82,18 @@ metadata:
 ## Examples
 
 **Example prompt**
-"Design the AWS architecture for a multi-tenant analytics platform with EU data residency and 99.9% availability."
+"We are moving analytics and production reporting to Azure. The factory-floor control systems stay on-premises, and the cloud workloads need reliable, low-latency access to them."
 
 **Example output (abridged)**
-- Summary: Multi-tenant analytics platform on AWS, tenant-isolated schemas in a shared Aurora PostgreSQL cluster, S3 + Glue as the data lake, all resources pinned to eu-west-1/eu-central-1 for residency. Tradeoff: shared-cluster multi-tenancy over silo-per-tenant to control operating cost, accepting a noisy-neighbor risk mitigated by per-tenant connection pooling and Performance Insights.
-- Architecture decisions: Compute — ECS Fargate over Lambda (ingestion load is steady, not spiky); EKS rejected (no in-house Kubernetes operating experience). Data — Aurora PostgreSQL over DynamoDB (workload needs ad hoc analytical joins).
-- Diagram(s): logical diagram (API Gateway → Fargate → Aurora → S3/Glue → BI layer); a data-flow diagram tracing one tenant's request path through the tenant-isolation boundary.
-- Risks and mitigations: cross-tenant data leakage via the shared cluster, mitigated with row-level security and per-tenant IAM roles; EU residency drift from a default multi-region bucket policy, mitigated with an SCP denying non-EU regions.
-- RPO/RTO and DR strategy: RPO 15 minutes via Aurora continuous backup; RTO 1 hour via warm standby in eu-central-1; quarterly restore drill.
-- Implementation plan + verification gates: Phase 0 discovery (2wk) → Phase 1 landing zone + IAM (2wk, gate: SCP denies non-EU regions) → Phase 2 data plane (3wk, gate: restore drill passes) → Phase 3 app plane (3wk, gate: load test at 2x peak) → Phase 4 cutover (1wk, gate: tenant smoke tests pass).
-- Open questions: tenant count at launch (affects schema-per-tenant vs pooled-schema); whether any tenant requires residency outside the EU.
+- Summary: Hub-and-spoke landing zone in the region nearest the plant, one hybrid termination into the hub, per-environment spokes behind it. Control systems stay on-premises behind an integration tier the cloud reads from and never reaches through. Tradeoff: a dedicated circuit over VPN-only, accepting materially higher recurring cost for latency that does not vary with internet conditions, because production reporting depends on this link.
+- Architecture decisions: Connectivity — dedicated circuit primary with VPN backup; VPN-only rejected (jitter on a link reporting depends on). Compute — managed PaaS over containers (steady telemetry ingestion, not spiky). The rejected option and its driver are recorded, because reversing the connectivity choice means re-provisioning.
+- Diagram(s): logical diagram (on-premises integration tier → two paths → hub → analytics/reporting spokes); a network diagram showing both paths and where each one terminates on-premises.
+- Risks and mitigations: a degraded link reads as unexplained application latency, mitigated with per-tunnel link health (tunnel state, BGP session, loss, latency) alerted separately from the application golden signals and never aggregated, because an aggregate hides the loss of redundancy; a single comms room at the plant defeats facility diversity, recorded as accepted residual risk rather than claimed as redundancy.
+- RPO/RTO and DR strategy: RPO 15 minutes, RTO 4 hours for reporting, warm standby in the paired region. On the link itself: two paths terminating on different on-premises devices in different facilities, BGP on both, because a static route cannot fail over.
+- Implementation plan + verification gates: Phase 0 discovery — order the circuit here rather than at build time, because its lead time is weeks and owns the critical path, and confirm the CIDR plan does not overlap the on-premises estate before the order goes in (gate: order placed, zero overlap) → Phase 1 landing zone + connectivity (gate: drain one path deliberately, traffic moves, advertised prefixes and MTU validated) → Phase 2 data plane (gate: restore drill passes) → Phase 3 reporting (gate: output reconciles with the existing on-premises reports).
+- Open questions: measured peak throughput per source; whether the plant has a second physical entry point.
+
+Writing "Phase 1: stand up the landing zone and the circuit" is the common form of this plan and the wrong one: it puts a multi-week procurement inside a build phase and discovers the lead time after the schedule is committed.
 
 ## Resources
 

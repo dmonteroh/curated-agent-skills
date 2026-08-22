@@ -8,7 +8,7 @@ Use this when you intentionally run across multiple cloud providers.
 - M&A / org structure forces multiple providers.
 - Extremely high availability requirements with true provider independence.
 
-## Common Pitfalls
+## Common pitfalls
 
 - Hidden complexity in identity, networking, observability, and incident response.
 - Divergent managed services make portability expensive.

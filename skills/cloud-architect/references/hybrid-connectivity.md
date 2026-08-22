@@ -88,9 +88,4 @@ Alerting split, consistent with page-on-symptoms and ticket-on-causes:
 
 ## Common pitfalls
 
-- Treating private connectivity as a yes/no answer when the real decision is VPN versus dedicated, with different cost, latency, and lead-time consequences.
 - Clearing a BGP session to "see if it comes back" before the last reset reason is captured.
-- Ordering a dedicated circuit after the implementation plan is committed, then discovering its lead time owns the critical path.
-- Calling a single tunnel highly available.
-- Discovering a CIDR overlap after the link is live.
-- Instrumenting the applications and not the link.

@@ -139,13 +139,6 @@ Output: a short checklist of “done” confirmations.
 - If superseding: old ADR ID and new ADR ID
 - Verification commands/results when scripts are used
 
-Reporting format:
-- ADRs: <list of ADR file paths>
-- Index: <ADR index path>
-- Links: <spec/track/task references>
-- Supersedes: <old ADR ID -> new ADR ID or "none">
-- Verification: <commands/results or "none">
-
 ## Quality gates
 
 Before finalizing, check `references/quality-gates.md` and `references/README.md` for the latest guidance.
@@ -187,7 +180,7 @@ Script verification:
 
 ## Examples
 
-Example output (reporting format):
+Example output:
 - ADRs: docs/adr/ADR-0007-event-delivery.md
 - Index: docs/adr/README.md
 - Links: `docs/specs/eventing.md#L40`

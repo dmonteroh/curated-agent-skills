@@ -2,15 +2,9 @@
 
 This playbook is an optional deep-dive used when the task needs concrete deliverables (diagrams, IaC skeletons, checklists, runbooks). Keep the skill standalone: do not assume other skills exist.
 
-## Default Deliverables
+## IaC Approach
 
-Pick the smallest set that satisfies the task.
-
-- Architecture diagram(s): at least one logical view; add network / data flow views as needed.
-- A short decision summary: what is being built, why, and the main tradeoffs.
-- A risk register: top 3-7 risks + mitigations.
-- An implementation plan: phases + verification steps.
-- IaC approach: Terraform/OpenTofu modules (preferred) or cloud-native IaC.
+Prefer Terraform/OpenTofu modules over cloud-native IaC (CloudFormation, Bicep, Deployment Manager); use a cloud-native tool only when the team's existing tooling or an org mandate requires it.
 
 ## Discovery Checklist (Ask These First)
 

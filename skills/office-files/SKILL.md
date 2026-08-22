@@ -1,6 +1,6 @@
 ---
 name: office-files
-description: "Work with Microsoft Office OOXML files (.docx/.pptx/.xlsx): inspect structure, extract text/tables, produce diffs, and generate clean Markdown summaries. Tool-agnostic and safe-by-default (prefers read-only workflows). Use when a task involves Word, PowerPoint, or Excel files."
+description: "Works with Microsoft Office OOXML files (.docx/.pptx/.xlsx): inspects structure, extracts text/tables, produces diffs, and generates clean Markdown summaries. Tool-agnostic and safe-by-default (prefers read-only workflows). Use when a task involves Word, PowerPoint, or Excel files."
 metadata:
   category: docs
 ---
@@ -34,7 +34,7 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 - Works on local files only; no network assumptions.
 - Uses stdlib-only scripts; no external dependencies.
 
-## Safety Rules (Default)
+## Safety Rules
 
 - Prefer read-only extraction/inspection.
 - Never destroy the original file; write outputs next to it or to a temp path.
@@ -43,7 +43,6 @@ Provides workflows for inspecting, extracting, and diffing OOXML office files.
 
 ## Quickstart (Scripts)
 
-All scripts are stdlib-only and work without external Python deps.
 Required: Python 3 with access to the local filesystem.
 Run from the skill folder; paths below are relative to it.
 
@@ -69,7 +68,7 @@ Run from the skill folder; paths below are relative to it.
   ```
   Add `--json` for a machine-readable report. Exit status: 0 clean, 1 findings, 2 unreadable package.
 
-Verification: if you generate a modified file or derived artifact, open it in Office or LibreOffice to confirm the content matches expectations.
+Verification: open any generated or modified file in Office or LibreOffice and compare it against the reported Findings. The check fails if the application shows a repair prompt on open, or if a slide, sheet, or section named in Findings is absent from the opened file; report the artifact as incomplete rather than declaring success.
 
 ## Workflow
 
@@ -117,10 +116,7 @@ Part maps and the full graph-resolution procedure: `references/pptx-notes.md`. T
 
 ## Common pitfalls
 
-- Treating legacy formats (`.doc`, `.xls`, `.ppt`) as OOXML; ask for conversion first.
 - Assuming charts or embedded images are extracted as text; call out missing visual data.
-- Skipping verification after generating a derived artifact.
-- Reading slide or sheet order off member filenames instead of the relationship graph, and reporting the guess as the document's order.
 - Presenting a deck summary as complete without saying which parts failed to parse or were skipped.
 
 ## Examples
@@ -146,13 +142,13 @@ Report using this template:
 - Gaps/limits: missing visuals, unsupported elements, or uncertainties
 - Next steps: verification or follow-up requests
 
-## Output Contract
+## Output contract
 
 When asked to work with an office file:
 
 - Use the Output format template above.
 - Ensure Gaps/limits captures missing visuals or unsupported elements.
 
-## References (Optional)
+## References
 
 - `references/README.md`

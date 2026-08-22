@@ -53,7 +53,7 @@ An under-specified request is optimized into a confidently wrong prompt. Before 
 - Decision: count the items that are both missing and material to this task. At or above the trigger, ask one bounded batch of clarifying questions and stop there rather than drafting; below it, record the gaps under Assumptions and draft anyway. Defaults: trigger at 3 missing items, ceiling of 3 questions — both are chosen defaults, not measured values. The shape is what matters: a trigger and a ceiling, so "ask clarifying questions" cannot expand into an interview.
 - Item 11 is the one an unprompted draft almost never contains, and it is not optional here: every prompt this skill emits carries an explicit scope-boundary section written as a short "Do not:" list.
 
-## Workflow (step-by-step)
+## Workflow
 
 1) Define success
 - Action: capture task definition, user impact, failure modes, required format, and metrics.
@@ -125,13 +125,7 @@ For any prompt, agent, or tool call that ships to production. Depth, a result-re
 
 ## Porting to another harness
 
-Shipping one authored corpus — system prompts, agent instruction files, a template library — to a second agent runtime is a portability problem distinct from adapting prompt *content* to a different model, and the two usually arrive together. Field-by-field detail: `references/harness-porting.md`.
-
-- **Express per-target differences as declarative data, never as branches in the generator.** The test to hold to: adding a target is one config entry plus a registry line, with no change to the generator, the setup, or the tooling. The first `if target == …` guarantees the next one, and from then on no one can read the full rewrite set for a single target in one place.
-- **Four rewrite classes cover nearly every difference**: frontmatter transformation (allowlist/denylist over fields, a description-length limit with an explicit overflow policy — fail, truncate, or warn — renames, and conditional field injection); ordered literal path rewrites, where order matters because a later rewrite can re-hit an earlier one's output; tool-name rewrites onto neutral capability prose, so the text never tells a reader to use a tool the target lacks; and section suppression, so a capability the target does not have degrades to nothing instead of to dead prose.
-- **Keep the cross-model boundary warning as a per-target field**, so a target with weaker isolation can carry a stronger warning without changing what the others emit.
-- **Validate the registry for collisions** — duplicate target names, output subdirectories, or install roots. A collision does not crash; it silently overwrites one target's output, and a user finds it.
-- **Parameterize the test suite over the registry** so a new target inherits it with no new test code: output exists for every source item, no source-side path leaked into the output, frontmatter valid under that target's rules, freshness check passes, self-references excluded.
+Shipping one authored corpus — system prompts, agent instruction files, a template library — to a second agent runtime is a portability problem distinct from adapting prompt *content* to a different model, and the two usually arrive together. The organizing rule (per-target differences expressed as declarative data, never as branches in the generator), the four rewrite classes, the per-target cross-model boundary warning, the registry collision check, and the test suite parameterized over the registry: `references/harness-porting.md`.
 
 ## Common pitfalls
 
