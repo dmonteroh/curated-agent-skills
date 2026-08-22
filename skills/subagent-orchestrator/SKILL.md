@@ -6,7 +6,7 @@ metadata:
 ---
 
 # Subagent Orchestrator
-Provides an end-to-end orchestration workflow. Each dispatched task carries two controller-decided halves: a claim set (which files the worker may change) and an execution surface (which directory it boots in, what authority it holds there, which capabilities it keeps, and what content it is handed).
+Each dispatched task carries two controller-decided halves: a claim set (which files the worker may change) and an execution surface (which directory it boots in, what authority it holds there, which capabilities it keeps, and what content it is handed).
 
 ## Use this skill when
 
@@ -17,6 +17,7 @@ Provides an end-to-end orchestration workflow. Each dispatched task carries two 
 - Deterministic merge/integration is required across multiple worker outputs.
 - Per-task and final quality gates can be defined up front.
 - Workers will run as separate sessions or processes holding their own working directories, credentials, tool grants, and command layers.
+- A dispatched review/fix loop is running unbounded — the same finding keeps bouncing between reviewer and implementer — and needs a cap and a defined exit (workflow step 6).
 
 ## Do not use this skill when
 
@@ -34,6 +35,7 @@ Provides an end-to-end orchestration workflow. Each dispatched task carries two 
 - Evidence (errors, failing tests, logs, repro).
 - Allowed paths, forbidden paths, and candidate claim sets.
 - Verification commands and quality bar.
+- Effort authorization: worker reasoning effort defaults to `medium` on every vendor; a level above it is selected only when the operator has authorized it here or as standing policy — never by interrupting a running orchestration to ask.
 - Runtime capabilities (single session only, or isolated concurrency support).
 - For each worker runtime: how it is launched, which directory it may boot in, what authority and tool grant it can be given, and whether it carries its own command/skill layer.
 
@@ -41,7 +43,7 @@ Provides an end-to-end orchestration workflow. Each dispatched task carries two 
 
 1. Every task has explicit allowed paths, forbidden paths, claim set, and execution surface: working directory, authority tier, and tool grant (`references/worker-surface.md`).
 2. Concurrency is allowed only with confirmed session isolation and disjoint claims.
-3. Verification never runs while any worker session is active.
+3. Controller verification reads only quiet surfaces: it never runs while any worker session or worker-started process that writes the surfaces under verification is active. With per-task worktrees and disjoint claims a finished task may be verified while siblings run; without that isolation, verification waits for the global barrier.
 4. Worker prompts are self-contained and non-interactive; blocked work returns `QUESTIONS`.
 5. Controller owns verification, integration, and final completion status.
 6. Completion requires passing project quality gates.
@@ -50,15 +52,20 @@ Provides an end-to-end orchestration workflow. Each dispatched task carries two 
 
 ## Activation Decision Gate
 
-Before orchestration, answer:
+Two checks, at two moments.
 
-1. Are there at least 2 independent domains?
-2. Can each domain have disjoint allowed paths + claim set?
+Entry — before step 0:
+
+1. Are there at least 2 candidate domains that look independent? Fewer is not a stop: delegate as `single-worker`, or stand down per `Do not use this skill when`.
+2. Can disjoint allowed paths and claim sets plausibly be assigned per domain? If not, investigate first (`single-worker`) and partition after.
+
+Dispatch — answered by the end of step 2, before any worker runs:
+
 3. Are per-task verification commands and final integration checks defined?
-4. Does the runtime support the chosen execution mode?
-5. For every task that writes a surface in the never-parallel class — destructive commands, schema migrations, writes to a shared table, anything customer-visible in production — is there an explicit human gate before that task runs?
+4. Did the preflight probe confirm the runtime supports the selected execution mode?
+5. For every task that writes a surface in the never-parallel class (`## Claim Sets`), is the explicit human gate recorded on the board?
 
-If any answer is "no", do not orchestrate yet.
+If any dispatch answer is "no", do not dispatch yet.
 
 ## Execution Modes
 
@@ -67,9 +74,8 @@ Select exactly one mode per pass:
 - `single-worker`: one task, or root cause is still uncertain/shared. Read `references/execution-single-worker.md`.
 - `queued-serial`: multiple tasks, one worker session at a time. Read `references/execution-queued-serial.md`.
 - `true-parallel`: isolated concurrent sessions + disjoint claims + worktree plan. Read `references/execution-true-parallel.md`.
-- `prompt-parallel`: prepare all packets now, execute sequentially. Read `references/execution-prompt-parallel.md`.
 
-If uncertain, use `single-worker` or `queued-serial`. See `references/execution-modes.md` for a concise mode comparison.
+If uncertain, use `single-worker` or `queued-serial`.
 
 ## Runtime Adapter
 
@@ -80,11 +86,11 @@ Load only the runtime guide that matches the host:
 
 ## Claim Sets
 
-A claim set names every surface the task writes, not only the files it edits. Two tasks may run concurrently only when their write surfaces are disjoint on all dimensions at once: file paths, but also databases and schemas, tables, migrations, long-lived services, deploy targets, bound ports, caches, and shared datasets. Two tasks with perfectly disjoint file claims that both run a migration against the same database are not concurrency-safe, and a partition checked on paths alone clears them. The full dimension list, worked contrasts, and a pre-dispatch claim-set check: `references/claim-sets.md`.
+A claim set names every surface the task writes, not only the files it edits. Two tasks may run concurrently only when their write surfaces are disjoint on all dimensions at once: file paths, but also databases and schemas, tables, migrations, long-lived services, deploy targets, bound ports, caches, and shared datasets. The full dimension list, worked contrasts, and a pre-dispatch claim-set check: `references/claim-sets.md`.
 
 Five rules ride on that definition, each with its worked contrast in the reference:
 
-- **A never-parallel class.** Destructive commands, schema migrations, two tasks writing one table, and anything customer-visible in production are never admitted to concurrency on a disjointness check alone — they need an explicit human decision, recorded on the board, before the task runs.
+- **A never-parallel class.** Destructive commands, schema migrations, two tasks writing one table, and anything customer-visible in production are never admitted to concurrency at all, whatever the disjointness check says: the gated task runs alone, behind an explicit human decision recorded on the board before it runs.
 - **Re-derive the partition mid-flight.** When a running task invalidates the plan, pause its dependents and re-partition rather than letting the fan-out finish against a stale split.
 - **Contract artifacts are a third ownership class.** The controller writes the boundary where two tasks meet, owns it, and issues it read-first and forbidden to modify.
 - **Aggregator files leak out of any partition.** Anything whose content lists its siblings gets one owner, or leaves every claim set for a controller pass after integration.
@@ -121,11 +127,6 @@ Output: partition plan listing domain → scope | success criteria | constraints
   - one worktree per task (`task -> worktree path -> branch`)
   - disjoint claim sets across concurrent tasks
   - integration order and cleanup plan
-- If dot-agent files exist, load in this order:
-  1. .agent/purpose.md
-  2. .agent/memory.md
-  3. Last 5-10 entries from .agent/session-log.md
-  4. Relevant docs in .agent/docs/
 
 Output: mode decision + preflight notes + initial task board.
 
@@ -136,8 +137,10 @@ Record each task with:
 - Task ID and outcome.
 - Allowed paths, forbidden paths, claim set.
 - Non-file write surfaces claimed: databases and schemas, tables, migrations, services, deploy targets, ports, caches, datasets — `none` where the task writes none.
+- Human gate, for any task whose surfaces put it in the never-parallel class: the recorded decision and who took it.
 - Contract artifacts the task reads, marked controller-owned and read-only, and any stub it is handed against the implementation the stub stands in for.
 - Execution surface: working directory or worktree, authority tier, tool grant, command layer on/off.
+- Runtime probe result, carried over from preflight.
 - Long-running processes the task is authorised to start, and who stops them before the barrier.
 - Inputs/evidence.
 - Acceptance criteria.
@@ -166,7 +169,8 @@ Output: one packet per task.
 - Keep worker scope constrained to claim sets.
 - Hold to the progress contract below while workers run.
 - Do not take over a worker's task. When a worker fails or hangs, re-dispatch it with the failure as evidence or return to the user for direction; a controller that quietly hand-codes the patch itself destroys the record of what the worker could not do.
-- For repetitive orchestration, propose automation scripts only after user confirmation.
+- When a worker returns `QUESTIONS`: answer from the board, the contract artifact, or the source plan; escalate to the user only what those cannot answer. The answer travels in a re-issued packet — never as a message into a running session — and the task moves `needs-info` back to `queued` on re-issue. A `QUESTIONS` return counts against no round cap.
+- For repetitive orchestration, create automation scripts only after the user has confirmed the proposal to add them.
 
 Progress contract — what the user hears while workers run:
 
@@ -182,6 +186,7 @@ Output: per-task worker report (root cause, files changed, recommended verificat
 - Confirm worker sessions are fully exited.
 - Confirm the processes those workers started have stopped too. A session exiting says nothing about the servers, builds, watchers, backfills, and deploys it launched, and those keep writing while the controller believes the tree is quiet — so verification reads a tree that is still moving, and the result is unattributable. Account for every long-running process the board authorised: stop it, or wait for it and record its outcome as evidence.
 - A process a worker started does not outlive the barrier unless a continuing service was the requested outcome. A dev server the user asked to be left running is a deliverable; the same process left behind by a worker that finished is a leak.
+- In `true-parallel`, a task that ran in its own worktree with disjoint claims may be verified early — as soon as its own session and authorised processes have stopped — while siblings still run. Verification that touches shared surfaces, and the integration checks, wait for the global barrier.
 - Run task-level verification commands.
 - Re-dispatch only the smallest failing scope with fresh failure evidence.
 
@@ -192,9 +197,9 @@ Output: verified task status and any narrowed follow-up tasks.
 A review verdict of `fail` is not a terminal state and not a licence to integrate anyway. It opens a bounded loop with a defined exit. Each round: keep the blocking findings, dispatch a fix task scoped to those findings and nothing else with a claim set no wider than the files they name, then re-review with a reviewer that has no memory of the previous round.
 
 - A reviewer that proposed a fix never evaluates that fix. Critique and repair are separate dispatches with separate authority.
-- Cap the rounds before the first one runs. Three rounds is this skill's chosen default, not a measured threshold — fix the value in advance, because a cap chosen after reading the findings is not a cap.
+- Cap the rounds before the first one runs. Three rounds is this skill's chosen default, not a measured threshold.
 - At the cap, stop and escalate to the human with the surviving findings and the rounds spent. Integrating at the cap and running one round past it are both failures of this step.
-- Record the round count and the open findings on the board. A task at `needs-fix` with no round count is a task nobody is converging.
+- Record the round count and the open findings on the board.
 - Why freshness is load-bearing, how to scope the fix packet, and what to do when a finding survives every round: `references/review-convergence.md`.
 
 Output: per-task review verdict with rounds spent — a task cleared for integration, or an escalation carrying the surviving findings.
@@ -213,16 +218,6 @@ Output: per-task review verdict with rounds spent — a task cleared for integra
 
 Output: final integration result.
 
-### 8) Optional dot-agent Maintenance
-
-If dot-agent files exist:
-
-- Update .agent/memory.md with stable decisions/knowledge.
-- Append 2-5 lines to .agent/session-log.md.
-- Update .agent/docs/ only when behavior/flows/dependencies changed.
-
-Output: maintenance summary.
-
 ## Output contract
 
 Always return:
@@ -232,33 +227,19 @@ Always return:
 - Per-task report: root cause, files changed, verification commands/results, risks.
 - Per reviewed task: the verdict, the rounds spent, and — where the cap was reached — the escalation with the findings that survived it.
 - Integration summary: the order tasks were integrated in, the check result after each merge, conflicts, and final verification.
-- dot-agent maintenance summary (when applicable).
 - Automation summary (only if user approved script creation).
 
 Use the canonical structure in `references/packet-templates.md` (`Final Report Template`) for consistent reporting.
 
-## Common pitfalls
-
-- Splitting coupled problems (fixing one invalidates the other's scope).
-- Overlapping claims across concurrent tasks.
-- Concurrency cleared on file paths alone, while two tasks write one database, table, port, or dataset.
-- Weak packets (missing evidence or acceptance criteria).
-- Verification attempted before session barrier, or while a process a worker started is still writing.
-- A failing review with nowhere to go: integrated anyway, or re-dispatched round after round with no cap.
-- Batch integration, so a red bar names the batch and no single task.
-- Broad re-dispatch that reintroduces overlap.
-
 ## References
 
 - `references/README.md`
-- `references/execution-modes.md`
 - `references/claim-sets.md`
 - `references/packet-templates.md`
 - `references/review-convergence.md`
 - `references/execution-single-worker.md`
 - `references/execution-queued-serial.md`
 - `references/execution-true-parallel.md`
-- `references/execution-prompt-parallel.md`
 - `references/runtime-codex.md`
 - `references/runtime-claude.md`
 - `references/worker-surface.md`

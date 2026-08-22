@@ -46,7 +46,9 @@ Output: per-task worker reports.
 
 ### 4) Global Barrier
 
-Before any verification:
+A task that ran in its own worktree with disjoint claims may take its task-level verification early, once its own session and authorised processes have stopped (Hard Invariant 3). The barrier below gates everything else: shared-surface verification and integration.
+
+Before that:
 
 - confirm all concurrent workers exited
 - confirm no remaining active worker sessions
