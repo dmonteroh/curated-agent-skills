@@ -54,7 +54,6 @@ metadata:
 ## Decision points
 
 - If no manifests are detected, stop and report "no dependency evidence found".
-- If scan tooling is missing, document the missing tool and skip that scan.
 - If license policy is provided, classify conflicts; otherwise list notable licenses only.
 - If only transitive vulnerabilities exist with no direct fix, recommend pinning or replacement options.
 

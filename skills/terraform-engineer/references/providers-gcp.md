@@ -1,5 +1,7 @@
 # Terraform GCP Provider Configuration
 
+Versions and constraints below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Basic Configuration
 
 ```hcl

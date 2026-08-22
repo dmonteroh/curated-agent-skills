@@ -126,26 +126,6 @@ Output: created commit hash and final message, or the clarification question tha
 
 - If the user asks for a custom type: use it only when documented in-repo or present in history; otherwise propose the nearest standard type.
 
-## Common pitfalls
-
-- Clobbering a deliberate partial staging with `git add -A`.
-- Staging secrets, build artifacts, or scratch files because they happened to be in the tree.
-- Losing the user's key nouns and verbs when rewriting the title.
-- Vague titles ("update files", "fix issues") or titles describing mechanics instead of effect.
-- Inventing scopes that near-duplicate existing ones instead of reusing history.
-- Adding unconfirmed issue footers or attribution trailers the repo does not use.
-- Retrying a failed pre-commit hook with `--no-verify`.
-
-## Output contract
-
-Always report:
-- Branch: `<branch>`
-- Staged: `<how staging was done; anything held back and why>`
-- Title: `<title>`
-- Body: `<body>`
-- Commit: `<hash or "not created">`
-- Notes: `<convention source, assumptions, or "none">`
-
 ## Examples
 
 Input: "commit unstaged changes" on branch `feature/on-demand-download`; the diff adds a UI button and a handler calling the export endpoint; an untracked `debug.log` is present.

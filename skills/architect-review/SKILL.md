@@ -97,17 +97,6 @@ Contrast, on a customer-and-orders model:
 - Wrong: `Customer` holds full `Order` objects, so every change to a customer loads that customer's entire order history.
 - Right: `Customer` holds order identifiers only; `Order` is its own aggregate and references the customer by identifier. Consistency between them is maintained by domain events, not by one object graph.
 
-## Safety
-
-- Avoid approving high-risk changes without validation plans.
-- Document assumptions and dependencies to prevent regressions.
-
-## Common pitfalls
-- Reviewing without clear constraints or goals
-- Ignoring data flows, failure modes, or operational requirements
-- Suggesting over-engineering without a tradeoff analysis
-- Missing cross-service impact or migration complexity
-
 ## Output contract
 Produce an **Architectural Review Report** using Markdown headings with these exact labels, in this order:
 - Context summary (assumptions + open questions)
@@ -120,9 +109,6 @@ Produce an **Architectural Review Report** using Markdown headings with these ex
 - Validation plan
 - Decisions/ADRs and next steps
 Format the premise check, reuse-first audit, and failure modes registry as tables; format the remaining sections as bullet points. Label each finding as `blocking` or `advisory`.
-
-## References
-See `references/README.md` for detailed reference guides and knowledge areas.
 
 ## Examples
 **Input:** "We want to split a monolith into services for payments and orders; review the design for boundaries and data ownership."

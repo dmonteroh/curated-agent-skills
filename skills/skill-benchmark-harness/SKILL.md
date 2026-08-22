@@ -177,10 +177,7 @@ Hold prompts back. Repeated iteration against a fixed eval set tunes the skill t
 
 ## Constraints
 
-- **Sample size.** One run per cell yields no variance estimate, and a single assertion flip moves the headline by one over the total assertion count — often the same magnitude as the effect being claimed. Record the repeat count and report the delta as an estimate from that many samples. No repeat count is established as sufficient; whichever is chosen is a chosen budget, labelled as one. Where only one run per cell is affordable, say so in the limitations rather than reporting the delta as a measurement. Repeats also settle what their count cannot — whether a cell agrees with itself (step 7). (authored)
-- **Plans are not behavior.** If the outputs are proposal documents, the report says "plans" and claims stated intent, nothing more. Plan grading is cheap and deterministic; an execution tier is the only one that measures behavior, and it is a separate, more expensive design with its own assertions — the trace class in step 2. State which tier was used.
-- **Review surface.** Whatever renders the results shows both arms' per-assertion evidence side by side. A viewer displaying only the treatment arm hides the control and every rollup error with it.
-- **Declared fields get populated or removed.** A field that is always null, always the same value, or never read is a claim the artifact does not support.
+Four bounds on what a run may claim, each recorded with the defect that produced it and the guard that closes it in `references/threats-to-validity.md`: sample size (one run per cell yields no variance estimate — record the repeat count and label it a chosen budget), plans are not behavior (name the tier graded; only an execution tier measures behavior), review surface (both arms' per-assertion evidence side by side, or the control and every rollup error with it stay hidden), and declared fields (populate one or remove it).
 
 ## Decision points
 
@@ -204,7 +201,4 @@ Hold prompts back. Repeated iteration against a fixed eval set tunes the skill t
 
 ## References
 
-- `references/README.md` — index.
-- `references/record-shapes.md` — record shapes, the id join, and the recomputation checks.
-- `references/threats-to-validity.md` — the defect catalog behind these rules, each with its symptom and guard.
-- `references/behavioral-compliance.md` — the strictness ladder, trace assertions, and the per-level reporting rule, for runs where behavior rather than a deliverable is under test.
+See `references/README.md` for the index and when to read each file.

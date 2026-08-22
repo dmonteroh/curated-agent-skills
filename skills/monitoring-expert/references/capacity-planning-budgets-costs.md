@@ -40,6 +40,8 @@ function checkBudget(actual, budget, metric) {
 
 ### Instance Sizing
 
+Rates below are illustrative on-demand figures from a single region at authoring time, not current pricing — look up live rates before sizing a real budget.
+
 ```javascript
 function optimizeInstanceSize(workload) {
   const instances = [

@@ -20,7 +20,7 @@ metadata:
 - You only need chaos experiment manifests without reliability targets
 - You only need cloud platform architecture without operational practices
 
-## Inputs to request
+## Required inputs
 
 - Service/system name, environment, and owners
 - Critical user journeys and traffic mix
@@ -54,8 +54,7 @@ metadata:
    - Output: toil inventory + automation candidates with ROI.
 6. **Strengthen incident response loop.**
    - Decision: if postmortems are ad hoc, propose a lightweight template and follow-up tracker.
-   - Decision: if a stated root cause names human error, is answered only by retraining or by asking people to be more careful, or restates the problem in other words, send it back — the investigation has stopped at a symptom and has not yet said what in the system permitted the failure.
-   - Decision: an action item closes on evidence that it worked, not on its due date. Hold each item open across a declared monitoring window and attach the effectiveness evidence at closure; if the failure mode recurs inside that window, reopen the original item rather than filing a new one, so a repeat failure stays visible as one unsolved problem instead of a series of separate tickets.
+   - Decision: apply the root-cause disqualifier list and the action-item verification-vs-validation standard from `references/postmortem-template.md` when reviewing postmortems and closing action items.
    - Output: incident response improvements and follow-up cadence.
 7. **Deliver reliability backlog.**
    - Output: prioritized backlog with owners, effort, and impact.

@@ -46,7 +46,7 @@ When the work is driven by an externally authored document — a plan file, a ti
 
 If the document is ambiguous or carries any of the above, record the concern and the interpretation chosen rather than silently widening scope.
 
-## Mode selection (decision guide)
+## Decision points
 
 - If the user asks for new/updated tests for code changes, choose **unit**.
 - If the user asks for test strategy, CI gating, or flakiness fixes, choose **automation**.
@@ -113,7 +113,6 @@ Use when:
 - API contract confidence is needed (schemas, error shapes, pagination/auth semantics).
 
 Defaults:
-- Prefer in-process stubs/mocks (cheapest, least brittle) — see the Workflow step 3 decision for when a standalone mock server is warranted.
 - Keep fixtures deterministic; avoid randomness unless explicitly seeded.
 
 Workflow:
@@ -132,13 +131,6 @@ Outputs:
 - API test plan (what to cover + where: unit/integration/e2e)
 - Mock/stub approach (in-process vs mock server) + scenarios
 - Fixtures and how to regenerate them
-
-## Common pitfalls
-
-- Over-mocking internals instead of stubbing boundaries.
-- Non-deterministic fixtures (randomness without seeding).
-- Slow E2E suites without smoke tests.
-- Retrying tests that hide real failures.
 
 ## Flaky-test triage
 
@@ -168,7 +160,6 @@ Script usage and verification:
 ## References
 
 - `references/README.md` (index of reference material)
-- `resources/unit-playbook.md` (unit testing patterns)
 - `resources/automation-playbook.md` (E2E/CI strategy patterns)
 - `resources/api-testing-mocking-playbook.md` (API tests + deterministic mocking patterns)
 - `references/performance-regression.md` (perf budgets + CI gates)

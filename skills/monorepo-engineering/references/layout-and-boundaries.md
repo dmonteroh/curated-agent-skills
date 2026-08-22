@@ -26,9 +26,3 @@ Avoid:
 - importing across sibling apps
 - circular dependencies between packages
 - “kitchen sink” shared packages with unrelated concerns
-
-## Versioning approach (at the boundary level)
-
-- Keep most packages private unless publishing is required.
-- Use workspace protocol (e.g., `workspace:*`) for internal deps.
-- Keep dependency updates centralized and automated where possible.

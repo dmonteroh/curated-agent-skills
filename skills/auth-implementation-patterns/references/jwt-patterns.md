@@ -7,7 +7,7 @@
 - Set `exp`, `iat`, and issuer/audience claims.
 - Keep access tokens short-lived (minutes, not days).
 
-## Example (Pseudocode)
+## Examples
 
 ```ts
 function issueAccessToken(user) {

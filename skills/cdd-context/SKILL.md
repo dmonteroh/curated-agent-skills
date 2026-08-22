@@ -90,7 +90,7 @@ Provides guidance for managing project context as first-class artifacts alongsid
 - Output: confirmation that `brief.md` was created or updated.
 - Decision: If not requested or file writes are disallowed, report that the snapshot was skipped.
 
-## Scripts (optional automation)
+## Scripts
 
 Use these only if the user allows file writes and scripts:
 
@@ -116,7 +116,6 @@ Required tools:
 
 ## Common pitfalls
 
-- Overwriting existing context instead of honoring repo conventions.
 - Missing the index markers in `docs/context/README.md`.
 - Treating `brief.md` as the source of truth (it is a snapshot).
 - Leaving stale “Open questions” unanswered after decisions are made.

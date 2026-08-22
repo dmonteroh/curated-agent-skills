@@ -1,6 +1,6 @@
 ---
 name: brand-discovery
-description: "Runs a brand identity interview across several sessions: one question per turn, captured to disk after every section, and checkpointed so a later session resumes where the last one stopped. Interviews multiple stakeholders separately and reconciles them afterwards. Produces a written identity reference that designers, writers, and outside collaborators can be briefed from."
+description: "Runs a brand identity interview across several sessions: one question per turn, captured to disk after every section, and checkpointed so a later session resumes where the last one stopped. Interviews multiple stakeholders separately and reconciles them afterwards. Produces a written identity reference that designers, writers, and outside collaborators can be briefed from. Use when a brand's identity is being created, repositioned, or made explicit across multiple sessions or stakeholders."
 metadata:
   category: marketing
 ---
@@ -19,8 +19,6 @@ Identity work sits upstream of product and interface work. This procedure establ
 - The requester wants a repeatable method with a written artifact, not an ad hoc conversation.
 
 ## Do not use this skill when
-
-*(This section is authored. The source procedure ships no stand-down.)*
 
 - The goal is a specification for how a product should behave for its users — task flows, screens, friction, desired changes. That is discovery about interacting with a built thing, it runs after identity rather than instead of it, and its questions and its output are different.
 - The requester wants one short brand conversation and no artifact. The checkpointing and file discipline here cost more than a single chat returns.
@@ -67,7 +65,7 @@ On every activation, before asking a single interview question:
 
 Run the sections in order. Honour a request to jump, and record the skip in the checkpoint so a later session knows the sequence is not contiguous. **The list is closed:** a section name that is not on it is rejected, not created.
 
-*(Authored: the source keyed each section to a published brand framework. Those are not reproduced here. If a named instrument is used to structure a section — an archetype set, a positioning template, an identity prism — introduce it to the participants by author and title rather than presenting it as this procedure's own.)*
+*(If a named instrument is used to structure a section — an archetype set, a positioning template, an identity prism — introduce it to the participants by author and title rather than presenting it as this procedure's own.)*
 
 ## Section file contract
 
@@ -100,7 +98,7 @@ The checkpoint is one small file beside the section files, rewritten after every
 - Section file names: only names on the enumerated sequence above.
 - Output directory: an absolute path inside the agreed project directory. Reject relative paths and any path containing a `..` segment.
 
-Reject and ask again rather than silently repairing the value. *(Authored: the source specifies the validation rules but not what to do on a rejection; a silently corrected path writes a file where nobody looks for it.)*
+Reject and ask again rather than silently repairing the value.
 
 After each write, confirm in one line: which section was saved, that the checkpoint is updated, and what comes next.
 
@@ -109,7 +107,7 @@ After each write, confirm in one line: which section was saved, that the checkpo
 1. **Interview each participant separately**, writing their answers to a per-participant file rather than into the shared section file. Discussing a section as a group first anchors everyone to whoever speaks first, and the disagreement that would have been the most useful material never surfaces.
 2. **Finish a section with every participant before reconciling it.**
 3. **Reconcile in the shared section file:** where the answers converge, where they diverge and who holds which position, and which tensions are productive enough to take into a group conversation rather than settle on paper.
-4. **Never average two answers into one.** A split recorded as a split is data; a split averaged is invention. *(Authored: the source requires flagging contradictions but does not state the ban.)*
+4. **Never average two answers into one.** A split recorded as a split is data; a split averaged is invention.
 
 ## Output contract
 

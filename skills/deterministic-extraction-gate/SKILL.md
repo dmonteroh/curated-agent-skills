@@ -28,7 +28,7 @@ Writing a parser for consistently formatted text is not the interesting part; a 
 
 ## Workflow
 
-1. **Sample and characterize.** Draw a random sample from the corpus. Write down the record boundary and the required fields. If no record boundary can be stated over that sample, stop — this is free-form, and the stand-down above applies. *(This replaces the source's entry test, "more than 90% follows a pattern", which is circular: that rate cannot be known before a parser exists to measure it.)*
+1. **Sample and characterize.** Draw a random sample from the corpus. Write down the record boundary and the required fields. If no record boundary can be stated over that sample, stop — this is free-form, and the stand-down above applies.
 2. **Write the deterministic parser** over the record grammar the sample showed — a regular expression, a real grammar, a dialect-aware reader, a structural walk; whatever the format earns. Regular expressions are one option among these, not the technique. **Interpretation must be a pure function of one input string** — same input, same output, no I/O — because an impure parser cannot be replayed against the labelled sample in step 5, and a gate that cannot be replayed cannot be measured.
 3. **Account for coverage, not only for output.** Every region of the input is either consumed by a matched record or recorded as an unmatched region with its offsets. This is the step that is usually missing, and its absence is what blinds the gate: text the parser never matched produces no record, and a record is the only thing a per-item check can inspect. A parser that reports only what it found cannot report what it lost.
 4. **Flag with reason codes, never with a score.** Each check emits a named reason — `missing_required_field`, `field_count_out_of_range`, `unmatched_region`, `value_failed_type_check`, `duplicate_identifier`, `field_crosses_record_boundary`. Any flag escalates. Do not compose penalties into a pseudo-continuous confidence unless the weights were fitted against labelled data; an unfitted weighted sum is a boolean wearing a decimal point, and it hides which check fired.
@@ -36,7 +36,7 @@ Writing a parser for consistently formatted text is not the interesting part; a 
 6. **Gate on those two rates.** Miss rate above what the consumer tolerates → the flag set is wrong: add a check that catches the observed misses, or escalate everything. Escalation rate above the cost budget → tighten the parser, never loosen the flags. Both tolerances belong to the consumer of the data; this procedure supplies neither and no default is offered.
 7. **Escalate flagged records only**, each carrying its raw source region. Use the cheapest model that clears the labelled sample — established by running the sample, not by reputation. The model returns a correction or a no-change sentinel; it never sees and never rewrites an unflagged record.
 8. **Never mutate parsed records.** Corrections produce new instances, so a before/after diff over a run stays auditable and a bad correction is attributable.
-9. **Log both rates per run.** A change in the source format surfaces first as a rising escalation rate, well before it surfaces as bad data downstream. That early signal is most of the value of having a gate.
+9. **Log both rates per run.** A change in the source format surfaces first as a rising escalation rate, well before it surfaces as bad data downstream. That early signal is most of the value of having a gate. An absent or stale miss rate is logged as absent, never as zero.
 
 ## Examples
 
@@ -78,27 +78,3 @@ print(len(records), reasons(records, unmatched), [blind_score(r) for r in record
 The scorer gives every record it can see full marks, because both records it can see are fine. Record `102` was never parsed, so it was never scored, so it was never escalated — it left the pipeline as silence. Coverage accounting reports the gap at offsets 12 to 26 and escalates the raw text, which is the only route by which a model ever gets to look at it.
 
 **A wrong version of the same gate.** Penalties of 0.3, 0.5 and 0.2 subtracted from 1.0, escalating below 0.95, is not a tunable confidence cutoff — every threshold between 0.8 and 1.0 produces identical behavior, because the score can only be 1.0 or at most 0.8. It is an any-flag-raised boolean with a decimal point painted on, and the decimal point makes it look calibrated.
-
-## Output contract
-
-Every run of the pipeline emits, alongside the records:
-
-- `records_parsed`, a count, and `input_consumed`, the fraction of the input covered by matched records.
-- `unmatched_regions` — offsets and raw text for each, so an escalation carries its own source.
-- `escalation_rate` for the run, and the reason-code histogram behind it.
-- `miss_rate` from the most recent adjudication, with the size and date of the labelled sample it came from. An absent or stale figure is reported as absent, never as zero.
-
-A record that a model corrected is a new instance and is marked as corrected, with the reason codes that escalated it.
-
-## Common pitfalls
-
-- Sending every record to a model when the format is regular, and paying per record for something a parser settles once.
-- Writing a parser for genuinely free-form text and then patching it per failure until it is a pile of special cases.
-- Skipping the gate entirely and assuming the parser is right, which is the same as claiming a miss rate of zero without measuring one.
-
-## Provenance
-
-- **Numbers.** Every figure in the source was dropped, and none is replaced by a default here. Removed: a headline "regex handles 95-98% of cases" generalized from one corpus to all structured text; a results table reporting 410 items, 98.0% parser success, 8 flagged items, "about 5 model calls" (its own pipeline calls once per flagged item, so 8), "about 95% cost savings" (a call reduction of about 98%), and a test-coverage percentage that measures the implementation rather than the technique; and a pinned model identifier, replaced by "the cheapest model that clears the labelled sample". The 0.95 threshold and its 0.3 / 0.5 / 0.2 penalties survive only in *Examples*, as the anti-pattern they are: they are named there to show the arithmetic, never carried as a setting.
-- **Rebuilt, not carried.** The source's gate inspected only parsed items — choice count, field presence, field length — so a record parsed confidently and wrongly scored full marks and was never escalated, and a record never parsed at all was invisible to it. Steps 3 and 4 replace that mechanism. Its worked implementation was domain-specific and did not run: the escalation function ended by returning a name that was never assigned.
-- **Authored.** Three rules are this rewrite's rather than the source's: coverage accounting over the input (step 3), the miss rate as the gate's own acceptance measure (steps 5 and 6), and the rule that the model never touches an unflagged record (step 7). The source has the shape of the pipeline but none of these three.
-- **Naming.** "Regex" is one deterministic parser among several this procedure covers, and the name understates it. The skill is named for its decision, not for its narrowest instrument.

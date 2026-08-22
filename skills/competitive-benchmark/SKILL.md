@@ -7,7 +7,7 @@ metadata:
 
 # Competitive benchmark
 
-Provides an ordered procedure that turns one organization's positioning into a defensible benchmark of the rivals contesting it. Each stage produces a named artifact that is the next stage's only input: a positioning brief, then a tiered candidate set, then a profiled set, then one uniform score card per competitor, then a report that resolves three decisions. A set scoped without the client's own positioning makes the client look either unbeatable or doomed, which is why the brief comes first and is not optional.
+Each stage produces a named artifact that is the next stage's only input: a positioning brief, then a tiered candidate set, then a profiled set, then one uniform score card per competitor, then a report that resolves three decisions. A set scoped without the client's own positioning makes the client look either unbeatable or doomed, which is why the brief comes first and is not optional.
 
 ## Use this skill when
 

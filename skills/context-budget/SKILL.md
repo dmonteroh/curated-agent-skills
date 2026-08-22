@@ -130,14 +130,8 @@ Returns a context budget report carrying:
 
 ## Common pitfalls
 
-- Ranking components by body size and calling the result a context audit. Body size is on-demand-cost; the always-cost sits in the descriptions and schemas.
-- Reporting one "tokens" number per component, which hides the distinction the whole audit turns on.
-- Counting a component twice because two routes reach it, or counting one the harness never loads.
 - Shrinking a description past the point where it still routes. A capability that stops being selected costs nothing and delivers nothing, and the failure is silent — it looks like a capability that simply never triggers. *(Authored.)*
 - Removing a component because nothing references it, when the real defect is that nothing routes to it. Unreferenced and useless are different findings with different fixes: add the reference, or remove the component.
-- Quoting percentages without stating the window they are a share of, so the report stops being true the moment the model changes.
-- Re-auditing with a different estimator than the baseline used, and reading the difference as progress.
-- Treating the baseline as the whole story when most of a session's context goes to tool output and file reads.
 
 ## Examples
 
@@ -162,7 +156,4 @@ Ranked: remove three wrapper integrations (~27,000); delete the duplicated revie
 ## Provenance
 
 - **Sourced:** the four-phase ordering, the three-bucket classifier and its referencing test, the always-cost versus on-demand-cost distinction, tool schemas as the dominant term, the wrapper-tool removal criterion, the report's composition, and the forward-looking pre-expansion mode.
-- **Chosen defaults, no derivation:** `words × 1.3`, `characters ÷ 4`, and ~500 tokens per registered tool. The source asserts all three without showing a derivation, and they are carried here only as calibration seeds.
 - **Not carried:** the source's fixed context-window figure (a parameter, not a constant); its worked audit numbers, which are shaped like measurements but were illustrative; and any threshold for "too many" components or a tolerable share of the window, none of which was derived anywhere in the source.
-- **Authored, not sourced, and marked at each site:** verifying per-role loading behavior instead of assuming it; the same-estimator rule for re-audits; the ordering of the removal ladder; the unreferenced-versus-useless distinction; and the too-short-to-route pitfall.
-- **Deliberately unquantified:** the reliability cost of moving an instruction out of the always-loaded surface. The claim is stated as an assertion because the only measurement-shaped figures available for it were unattributed.

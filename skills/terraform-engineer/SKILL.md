@@ -6,8 +6,6 @@ metadata:
 ---
 # Terraform Engineer
 
-Provides production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
-
 ## Use this skill when
 
 - Building or updating Terraform modules and root configurations
@@ -50,15 +48,7 @@ Provides production-grade Terraform infrastructure code with modular design, sec
 6. Add security and cost controls.
    - Output: tagging strategy, IAM least privilege notes, encryption settings.
 7. Verify behavior.
-   - Output: planned commands or tests run with expected results.
-
-## Common pitfalls to avoid
-
-- Using local state for production environments
-- Skipping input validation and relying on provider errors
-- Hardcoding environment-specific values in modules
-- Omitting provider version constraints or required providers
-- Mixing aliases/providers without explicit mapping
+   - Output: `terraform validate` exits 0; `terraform plan` shows no unexpected destroy/replace actions against the stated intent; any required policy or test commands (tflint, terraform test, terratest, OPA) pass, named explicitly, with failing output treated as a blocking failure, not a note.
 
 ## Examples
 
@@ -105,14 +95,5 @@ Use `references/README.md` to load detailed guidance by topic.
 - Hardcode environment-specific values
 - Mix provider versions without constraints
 - Create circular module dependencies
-- Skip input validation
 - Commit .terraform directories
 - Run `terraform apply`, `destroy`, or other state-mutating commands without explicit operator approval
-
-## Reporting format
-
-Use the output contract headings exactly and keep each section concise.
-
-## Knowledge Reference
-
-Terraform 1.5+, HCL syntax, AWS/Azure/GCP/OCI providers, remote backends (S3, Azure Blob, GCS), state locking (DynamoDB, Azure Blob leases), workspaces, modules, dynamic blocks, for_each/count, terraform plan/apply, terratest, tflint, Open Policy Agent, cost estimation

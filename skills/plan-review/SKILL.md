@@ -6,8 +6,6 @@ metadata:
 ---
 # plan-review
 
-Provides a plan-stage review of work that has not started yet. The artifact under review is a plan, design doc, or spec; the product is a posture decision, an approved implementation approach, findings scored for confidence and backed by quoted evidence, and a review report written as the plan's final section.
-
 ## Use this skill when
 
 - An implementation plan, design doc, or spec is about to be handed to implementation.

@@ -1,5 +1,7 @@
 # Terraform Testing: Pre-commit and CI
 
+Hook, action, and tool versions below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Pre-commit Hooks
 
 ```yaml

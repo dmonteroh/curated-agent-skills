@@ -6,7 +6,7 @@ metadata:
 ---
 # Network Segmentation Readiness
 
-Provides the planning gate for restructuring a network someone depends on — splitting a flat LAN into trust zones, moving name resolution to a local resolver, or adding remote access. The failure this prevents is specific and common: the change succeeds, and the operator can no longer reach the device that would let them undo it.
+The failure this prevents is specific and common: the change succeeds, and the operator can no longer reach the device that would let them undo it.
 
 The first output is always read-only — inventory, risks, staged plan, validation, rollback. Configuration comes after the platform, the current topology, the rollback path, console access, and the maintenance window are all known, and not before.
 
@@ -117,14 +117,8 @@ Small, reversible, validated at each step.
 
 ## Common pitfalls
 
-- Segmenting before knowing which switch ports and SSIDs carry which zones
-- Moving the admin workstation off the only reachable management network
-- Pointing every DHCP scope at a new resolver before proving fallback works
 - Leaving DHCP enabled on a consumer router repurposed as an access point, so two servers answer the same broadcast
-- Publishing storage, resolver, router, or hypervisor management to the internet
-- Treating remote access as equivalent to trusted-LAN access
 - Adding an allow-all rule "temporarily" and never removing it
-- Copying commands from another vendor or firmware version without checking the platform's exact syntax
 
 ## Output contract
 

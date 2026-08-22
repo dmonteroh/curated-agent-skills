@@ -1,5 +1,7 @@
 # Terraform Testing: Terratest
 
+Go, module, and package versions below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Requirements
 
 - Go toolchain available in the environment

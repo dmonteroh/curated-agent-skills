@@ -1,6 +1,6 @@
 ---
 name: gdpr-data-handling
-description: "Implement practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
+description: "Implements practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
 metadata:
   category: security
 ---
@@ -93,9 +93,7 @@ Templates and checklists are in `references/README.md` (load as needed).
 - Incomplete DSAR coverage (missing backups, archives, or linked systems).
 - Missing audit trails for consent changes or DSAR actions.
 - Ignoring processor/subprocessor access paths and transfer documentation.
-- Setting breach notification thresholds during the incident instead of agreeing them in the runbook beforehand, which decides them for the incident in hand.
 - Treating authority notification and data-subject notification as one decision, when the second is a deliberately higher bar.
-- Calling data anonymized while a re-identification key is still held somewhere, which leaves it personal data under an anonymized label.
 
 ## Examples
 

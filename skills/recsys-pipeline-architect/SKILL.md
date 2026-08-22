@@ -74,7 +74,6 @@ Provides a design procedure for systems that must choose the top K items for a (
    - Decision: a random tie-break is the one deliberate non-determinism in the pipeline. Either make it stable on a candidate identifier, or state that it is random and why.
 7. **List the side effects and show they cannot block.**
    - Output: side-effect list, each entry naming its trigger point relative to the committed response, its failure behavior (dropped, retried, queued), and what breaks if it never runs.
-8. **Emit the specification and the scaffold**, per the Output contract.
 
 ## Decision points
 
@@ -98,20 +97,9 @@ Three trade-offs are decided in every pipeline of this shape. Each has a default
 2. Filter order is part of the specification, not an implementation detail left to whoever writes the code.
 3. Side effects never block the response, in any stack. The specification names the mechanism that guarantees it.
 4. Every trade-off under Decision points is surfaced with its default and its consequence. A silently applied default is indistinguishable from a decision the requester made.
-5. The scaffold runs. Pseudocode presented as code fails this. When the target stack cannot be exercised in the current environment, the scaffold ships with the exact command that exercises it plus an explicit statement that it has not been run — never an implied green result. *(Authored: the source made "the scaffold must run" a rule but hung its checkability on example projects that do not travel with the skill.)*
-6. A stage never reaches around its neighbours: a filter does not fetch, a scorer does not filter, the selector does not score. A stage that needs data it was not handed is a missing hydration, and the fix belongs in stage 2. *(Authored: implied by the stage table in the source, never stated there as a rule.)*
+5. The scaffold runs. Pseudocode presented as code fails this. When the target stack cannot be exercised in the current environment, the scaffold ships with the exact command that exercises it plus an explicit statement that it has not been run — never an implied green result.
+6. A stage never reaches around its neighbours: a filter does not fetch, a scorer does not filter, the selector does not score. A stage that needs data it was not handed is a missing hydration, and the fix belongs in stage 2.
 7. Name the artifact for what it does — candidate pipeline, feed pipeline, ranking pipeline. Never name it after the product the decomposition is credited to, and keep that product's branding out of identifiers, module names, and documentation. The pattern is free to reuse; a product name is not.
-
-## Common pitfalls
-
-- Scoring before filtering, so the expensive stage spends its budget on candidates that were never eligible.
-- Synchronous side effects: a cache write or impression emit in the response path turns an analytics outage into a user-facing one.
-- One relevance score on a surface that is balancing objectives in tension, which pushes every product decision back into a retraining cycle.
-- Joint scoring adopted as the default, which gives up determinism and cacheability for expressiveness that a later reranking stage would have provided.
-- Policy eligibility expressed as a large negative weight rather than a filter. A weight can be outvoted by another weight; a legal rule cannot be.
-- Hydrating from the item model rather than from what the filters and scorers actually consume, so every candidate pays for fields nothing reads.
-- Shipping pseudocode as the scaffold, or reporting a test run that was never executed.
-- Answering "the results are missing obvious items" with a pipeline design. Missing items are absent from the candidate set, and no reordering recovers them.
 
 ## Output contract
 
@@ -148,7 +136,3 @@ Two artifacts, in this order.
 - Side effects: cache served IDs, emit impressions, increment counters — all after the response is committed, all fire-and-forget
 - Trade-offs surfaced: multi-action, because the team retunes weekly and cannot retrain weekly; isolated scoring; request-time
 - Out of scope: the retrieval source's own recall. If obvious items are missing from the feed, that is a candidate-generation problem and this specification does not address it.
-
-## Provenance
-
-The six-stage decomposition is not original to this skill. The source credits its popularization to a publicly open-sourced large-scale feed-ranking system; that attribution could not be verified from this repository, so treat it as reported rather than confirmed and do not restate it as established fact in output. Every trade-off default above (isolated scoring, request-time execution, cheap-before-expensive filter order) is a chosen default carried from that source, argued from the stated consequence rather than from measurement.

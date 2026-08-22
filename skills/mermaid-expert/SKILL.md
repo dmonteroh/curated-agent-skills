@@ -95,7 +95,6 @@ Because the override produces no diagnostic, confirm the rendered layout rather 
 - **Give an automated pipeline a strict mode.** The same degradation that warns during authoring should be convertible to a non-zero exit status, so a docs pipeline can fail the build on a broken diagram instead of publishing a placeholder.
 
 ## Common pitfalls
-- Overcrowded diagrams that hide the main story.
 - Complex node IDs or labels that break rendering.
 - Unsupported syntax for the target renderer.
 - Missing error paths or alternative flows in sequence diagrams.
@@ -161,11 +160,9 @@ sequenceDiagram
     A-->>U: 401 Unauthorized
   end
 ```
-- **Notes:** Include error paths; validate in your local Mermaid renderer.
+- **Notes:** Include error paths; render with the Mermaid Live Editor or `mmdc -i file.mmd -o out.svg` — a parse failure shows as a red error banner naming the offending line instead of a rendered diagram.
 
 ## References
 
 - `references/README.md`
 - `resources/implementation-playbook.md`
-
-Include `%%` comments to explain complex syntax when it aids readability.

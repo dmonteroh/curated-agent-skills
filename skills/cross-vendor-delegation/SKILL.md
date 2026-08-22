@@ -184,13 +184,6 @@ Returns a delegation report carrying:
 - The caller's disagreements, stated in the caller's voice.
 - Exactly one recommendation line whose reason names a finding and an alternative.
 
-## Provenance
-
-- Sourced from one vendor-specific delegation workflow read in 2026-08, restated here without its host: the fail-closed gate and its ordered checks, content-not-path handoff with reference pre-resolution, the injection-delimited payload, the exclusion list and the post-run validity scan, nested budgets with the inner strictly below the outer, the completion-signal check, reasoning effort chosen by input boundedness, tier-not-identifier, the failure taxonomy keyed on every failure presenting as "no output", and the four adjudication rules including the named boilerplate-reason failures.
-- Not carried: every binary name, flag, sandbox setting, session file, and vendor identifier; the source's timeout durations, which are chosen constants with only their ordering argued; its token-cost multiplier for the maximum reasoning setting, which is asserted rather than measured; its response-stream parser and event names; and its persona framing.
-- Authored, not sourced, and marked at each site: the criterion for delegating at all, and the rule for an unresolved disagreement with no human present. The source is invoked by a user, so it states neither.
-- A second workflow read in 2026-08 — an external-critique pass over a multi-voice deliberation — sourced the egress gate, redaction to the minimum packet, and the three-state provider label. Not carried from it: its harness and command-line mechanisms, its adapter and toggle list, its timeout and packet-size constants, its exact client-version boundary (asserted with no transcript, date, or record of what was tested), and its cited regression test, which is absent from the material it ships with, leaving an isolation claim no reader can check. Authored against it and marked in place: re-asking when an approved packet changes, the unattended-run consent rule, and the minimum-packet reconciliation.
-
 ## References
 
 - `references/adjudication-drills.md`

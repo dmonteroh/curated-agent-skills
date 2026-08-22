@@ -74,11 +74,8 @@ Provides a structured security audit workflow whose findings are gated on eviden
 
 ## Common pitfalls
 
-- Skipping authorization checks or exceeding agreed scope
-- Reporting findings without clear evidence or reproduction steps
 - Treating compliance requirements as a substitute for threat modeling
 - Missing business context when prioritizing remediation
-- Forwarding scanner output as findings, leaving every consumer to re-verify the list
 - Padding a report with low-confidence findings because a longer list reads as more thorough
 - Scoring two attack paths under different aggregation conventions, which produces a confident ordering out of incomparable numbers
 - Submitting a local-only sink to a disclosure program, where nothing remote reaches it and reachability decides acceptance before severity is read
@@ -110,13 +107,12 @@ An ingest pipeline ran a secret scanner over every source file before writing th
 
 ## Example Output
 
-1. Summary: 2 verified findings impacting API authentication (1 high, 1 medium); 2 candidates suppressed as unverifiable.
-2. Scope & Constraints: Production tests excluded; staging-only validation.
-3. Threat Model Highlights & Control-to-Boundary Map: Token theft, privilege escalation, data exfiltration. Egress gated at the API gateway; the per-request payload scan in the internal worker gates nothing crossing a boundary — flagged for demotion to opt-in.
-4. Findings (table):
+1. Scope & Constraints: Production tests excluded; staging-only validation.
+2. Threat Model Highlights & Control-to-Boundary Map: Token theft, privilege escalation, data exfiltration. Egress gated at the API gateway; the per-request payload scan in the internal worker gates nothing crossing a boundary — flagged for demotion to opt-in.
+3. Findings (table):
    - SA-01 | High | `auth/token.py:114` — `TOKEN_TTL = None` with no rotation path | Account takeover | Implement rotation
    - SA-02 | Medium | `auth/scopes.py:27` — client granted `admin:*` | Data exposure | Scope minimization
-5. Filter Stats & Suppressed Candidates: 41 candidates → 33 discarded by rule → 6 discarded on verification → 2 reported. Appendix: SA-A1 (no line quotable for the claimed missing field), SA-A2 (dependency CVE, vulnerable function not called).
-6. Remediation Plan: Address SA-01 short-term, SA-02 medium-term. Path coverage for the account-takeover tree (3 paths enumerated): token rotation closes 3 of 3, scope minimization closes 1 of 3; residual open paths after both, 0 within the enumerated tree.
-7. Verification & Residual Risk: SA-01 pending validation; SA-02 not started.
-8. Open Questions: Confirm token TTL requirements.
+4. Filter Stats & Suppressed Candidates: 41 candidates → 33 discarded by rule → 6 discarded on verification → 2 reported. Appendix: SA-A1 (no line quotable for the claimed missing field), SA-A2 (dependency CVE, vulnerable function not called).
+5. Remediation Plan: Address SA-01 short-term, SA-02 medium-term. Path coverage for the account-takeover tree (3 paths enumerated): token rotation closes 3 of 3, scope minimization closes 1 of 3; residual open paths after both, 0 within the enumerated tree.
+6. Verification & Residual Risk: SA-01 pending validation; SA-02 not started.
+7. Open Questions: Confirm token TTL requirements.

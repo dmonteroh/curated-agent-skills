@@ -47,7 +47,7 @@ Ask: which *category* dominates?
 ### 4) Structural Wins (Long-Term)
 
 - Autoscaling for variable workloads.
-- Commit to capacity only after utilization evidence.
+- Commit to capacity — timing gate: SKILL.md workflow step 5.
 - Data flow redesign to reduce cross-zone/region chatter.
 - Move to managed services where ops overhead is the hidden cost.
 - Introduce unit-cost metrics (cost per request/job/tenant).

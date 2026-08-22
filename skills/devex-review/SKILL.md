@@ -125,15 +125,6 @@ Depth mode changes how far each dimension goes: Triage only flags gaps scoring b
 - The time-to-first-result assessment, its tier, and whether it blocks.
 - Any DX debt explicitly deferred rather than fixed, each with a one-line reason — never silently dropped.
 
-## Common pitfalls
-
-- Producing a score before finishing the investigation in Step 2 — this is the exact failure this skill's staging exists to prevent.
-- Treating a best-effort or unavailable competitive benchmark as if it were measured data.
-- Silently drifting to a different review depth partway through instead of holding the one chosen in step e.
-- Batching several friction points or gaps into one combined decision instead of raising them one at a time.
-- Presenting a chosen time-to-first-result threshold as an industry-wide measured constant instead of what it is: a default set for this review.
-- Letting a strong quality score stand in for the time-to-first-result score, or the reverse — they are independent and both are reported.
-
 ## Examples
 
 **Weak (no cited evidence):** "Getting Started: 4/10. The onboarding could be smoother."

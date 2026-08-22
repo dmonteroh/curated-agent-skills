@@ -6,7 +6,7 @@ Use these references for deeper detail when the core workflow needs expansion.
 
 - `references/sli-definition-patterns.md` — Request/latency SLI patterns.
 - `references/slo-configuration-examples.md` — SLO configuration YAML example.
-- `references/slo-calculations.md` — Error budget math and burn rate basics.
+- `references/slo-calculations.md` — Error budget math.
 - `references/slo-review-targets.md` — Review checklist and target tiers.
 - `references/golden-signals-overview.md` — Golden signals summary.
 

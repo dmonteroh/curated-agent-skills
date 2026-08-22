@@ -18,7 +18,6 @@ Use this reference when license or SBOM evidence is required.
 
 ## Decision points
 
-- If policy constraints are provided, classify conflicts vs allowed licenses.
 - If no license evidence is available, document the gap explicitly.
 
 ## Pitfalls to avoid

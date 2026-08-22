@@ -1,5 +1,7 @@
 # Terraform Module Structure and Basics
 
+The `required_version`/provider version in `versions.tf` below is an illustrative example; confirm current supported versions before pinning in a project.
+
 ## Module Structure
 
 ```

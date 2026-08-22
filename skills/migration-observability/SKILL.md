@@ -1,15 +1,10 @@
 ---
 name: migration-observability
-description: "Make database migrations safe and observable. Define progress + safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic."
+description: "Makes database migrations safe and observable. Defines progress and safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic."
 metadata:
   category: observability
 ---
 # migration-observability
-
-Provides guidance for **running migrations safely** (not for authoring SQL/ORM migration steps). It focuses on:
-- progress visibility (are we moving? how fast? ETA?)
-- safety signals (are we harming prod? are errors rising? is lag growing?)
-- runbook gates (objective go/no-go thresholds and rollback triggers)
 
 ## Use this skill when
 
@@ -41,7 +36,7 @@ Templates:
 - `references/runbook-template.md`
 - `references/metrics-and-gates.md`
 
-## Workflow (step-by-step with outputs)
+## Workflow
 
 1) Classify the migration (controls what must be observed)
 - Decide type, blast radius, and rollback complexity.
@@ -79,7 +74,7 @@ Templates:
 - Correctness checks that rely on assumptions that cannot be measured.
 - Alerting that pages the wrong team or has no escalation path.
 
-## Tooling guidance (agnostic)
+## Tooling guidance
 
 This skill does not require a specific stack. Common setups:
 - Metrics: Prometheus/OpenTelemetry/Cloud metrics
@@ -102,7 +97,7 @@ Example output summary (abbreviated):
 - Alerts spec: docs/runbooks/migrations/2024-09-customer-backfill-alerts.md
 - Gates: proceed/pause/rollback thresholds for canary, ramp, full run
 
-## Output contract (reporting format)
+## Output contract
 
 Return a single summary using labeled bullets with the following fields, in this order:
 

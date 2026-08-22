@@ -79,7 +79,7 @@ The recorded failure is a transcript of an agent narrating its own unilateral cu
 
 ## Question shape
 
-A question answerable in seconds and auditable in a month has a fixed shape: a stable label and one-line title, a grounding line naming the work, a plain-language statement of what is being decided and what breaks if it is decided wrong, real pros *and* cons per option, a recommendation line that is always present, and exactly one marker on the recommended option. That marker is load-bearing rather than cosmetic — the suppression path reads it, so a question with no unambiguous recommendation cannot be auto-decided at all. Two consequences are easy to lose: state effort on **both** scales, human time and agent time, so the compression between them stays visible at decision time; and where there is genuinely no preference, say so **and still mark a default**, since omitting the marker reads to every automatic path as an unparseable question.
+A stable label and one-line title, a grounding line naming the work, a plain-language statement of what is being decided and what breaks if it is decided wrong, real pros *and* cons per option, an always-present recommendation line, and exactly one marker on the recommended option: that fixed shape is what makes a question answerable in seconds and auditable in a month. The marker is load-bearing rather than cosmetic — the suppression path reads it, so a question with no unambiguous recommendation cannot be auto-decided at all. Two consequences are easy to lose: state effort on **both** scales, human time and agent time, so the compression between them stays visible at decision time; and where there is genuinely no preference, say so **and still mark a default**, since omitting the marker reads to every automatic path as an unparseable question.
 
 Full format, the pre-emit self-check, and the source's chosen-default floors for pros and cons: `references/decision-brief-format.md`.
 
@@ -98,11 +98,6 @@ Emit literal characters in every question and option string; never hand-escape t
 
 ## Common pitfalls
 
-- Trimming an option to satisfy a cap and reporting the trimmed set as the decision space
-- Letting a standing "stop asking me this" answer a destructive question, because the question was never declared and defaulted to the reversible class
-- Classifying a mildly-worded irreversible action as reversible by reading its prose
-- Suppressing a question and losing its audit record along with it
-- Hanging on a question in a session with no human attached, instead of declaring blocked
 - Writing a pacing or ordering rule as a preamble sentence when the flow it must override is fixed downstream — the change is sequencing, not wording, so it needs a mechanism and quietly does nothing without one
 
 ## Examples
@@ -123,9 +118,6 @@ Right: no declaration exists, so the destructive-verb test runs first, returns o
 
 ## Output contract
 
-- Every question emitted in the fixed shape: stable label, plain-language stakes, pros and cons, one recommendation marker, and a default even when the posture is neutral
-- Every auto-decided question announced in band and recorded with its identifier, the chosen option, and the fact that a preference decided it — written from the suppression path, not from the answer path
-- For a split chain: one question per option with unique identifiers, and a closing summary that validates dependencies before confirming the assembled set
 - At the end of a run, the split between what the human answered and what was decided for them, itemized enough to audit
 
 ## References

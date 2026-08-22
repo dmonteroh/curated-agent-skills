@@ -20,7 +20,7 @@ metadata:
 - The task is pure execution — writing code, applying a change, running a command — with no findings to report back.
 - The user has already supplied a complete, verified answer and only wants it applied, not re-investigated or re-labeled.
 - The output is a single stable fact with no freshness risk and nothing inferred from it (a definition, a constant) — the classification machinery adds no signal over just stating it.
-- The retrieval is one exact identifier against one known authoritative source — a record number, a named file — with no phrasing to reframe and no competing source to rank. *(Authored: the source material gates its pre-flight on matching a known failure class and proceeds silently otherwise; this states that gate as a stand-down.)*
+- The retrieval is one exact identifier against one known authoritative source — a record number, a named file — with no phrasing to reframe and no competing source to rank.
 
 ## Workflow
 
@@ -74,10 +74,6 @@ Any claim whose truth can change over time — pricing, versions, personnel, the
 
 ## Common pitfalls
 
-- Blending an inference into a list of sourced facts without a label, because the inference feels obvious.
-- Escalating to external search before local documentation or the repository has actually been checked.
-- Reporting a freshness-sensitive claim as if it were evergreen, with no date attached.
-- Presenting a recommendation as a finding — the two answer different questions ("what is true" vs. "what to do").
 - Searching a collision-prone name bare. When the subject's name is also a common word or another public figure, anchor every query to a specific named entity — the organization, product, or role that pins it — not just the first query, and mirror that anchor in whatever criterion ranks the results. A partly anchored search returns a set that looks on topic and is not.
 - Reading a tool's degradation notice as a limit on the agent. A pipeline reporting that it fell back to a default path is often reporting that the step it wanted was skipped upstream, not that the capability is unavailable; check which before recording the gap as a finding.
 

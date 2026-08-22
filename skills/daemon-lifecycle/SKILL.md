@@ -7,7 +7,7 @@ metadata:
 
 # Daemon Lifecycle
 
-Provides a language-agnostic procedure for giving a CLI tool a singleton background daemon that manages its own lifecycle without an external supervisor: state discovery, a spawn-race guard, attach-vs-spawn decisions, identity-verified process signaling, and self-directed idle shutdown. The procedure is implementable in any language with a filesystem, OS process signals, and a way to read another process's command line (Python, Go, Rust, and others all qualify).
+The procedure is implementable in any language with a filesystem, OS process signals, and a way to read another process's command line (Python, Go, Rust, and others all qualify).
 
 ## Use this skill when
 

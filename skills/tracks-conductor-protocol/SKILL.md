@@ -6,8 +6,6 @@ metadata:
 ---
 # Tracks Conductor Protocol
 
-A single, unified work-management protocol for **intake -> planning -> execution** that fits **SDD** (spec-driven development) and **CDD** (context-driven development), and scales to larger teams.
-
 This skill is intentionally optimized for speed:
 - One command to initialize work structure
 - One command to create intake drafts / tasks / tracks
@@ -46,7 +44,7 @@ Environment overrides:
 - Work titles (intake/task/track/future) and relevant IDs (task ID, track slug).
 - Optional environment overrides for file locations.
 
-## Workflow (unified)
+## Workflow
 
 ### 0) Initialize (once per repo)
 
@@ -117,6 +115,12 @@ Decision points:
 
 ### 5) Futures + ADR integration
 
+Record a deferred, architecture-sensitive requirement as a Future:
+
+```sh
+scripts/tcd.sh future "Topic"
+```
+
 - Output: new Future or ADR entry, plus index updates.
 - If a requirement is deferred but architecture-sensitive: record it as a Future (see `references/futures.md`).
 - If a decision is current and architectural: record it as an ADR using the repo's ADR format.
@@ -138,7 +142,7 @@ To validate:
 - required sections exist in intake/tasks/tracks and task statuses are canonical
 - `order.csv` (optional dispatch-order file, `TCD_ORDER_FILE`) parses and references existing tasks
 
-## Common mistakes to avoid
+## Common pitfalls
 
 - Skipping the intake template quality bar before promotion.
 - Creating tracks without linking tasks in `tracks.md` and `work_index.md`.

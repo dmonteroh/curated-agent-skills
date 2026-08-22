@@ -6,7 +6,7 @@ metadata:
 ---
 # Production Audit
 
-Provides a readiness pass over one repository that ends in a verdict, a blocker list, and an explicit statement of what could not be checked. Two things separate it from a general code review: the audit is assembled only from evidence already on the machine or specifically authorized by the user, and a short list of named conditions puts a ceiling on the verdict no matter how good the rest of the evidence looks.
+Two things separate it from a general code review: the audit is assembled only from evidence already on the machine or specifically authorized by the user, and a short list of named conditions puts a ceiling on the verdict no matter how good the rest of the evidence looks.
 
 ## Use this skill when
 
@@ -58,7 +58,7 @@ Anything else worth fixing goes in `High-value fixes`. This skill does not enume
 
 ## Decision points
 
-- **The verdict is a word, not a score.** Worst to best: `Blocked` — do not ship until the top risks are fixed. `Risky` — ship only behind a small rollout or internal beta. `Launchable with caveats` — ship if the owners accept the listed risks. `Strong` — no obvious launch blockers in the available evidence. *(The ladder is carried from the community source this skill generalizes. That source attached numeric bands and two numeric score caps to it; the numbers were chosen with no derivation behind them and are dropped here. The ceiling conditions below are the technique — the bands were decoration.)*
+- **The verdict is a word, not a score.** Worst to best: `Blocked` — do not ship until the top risks are fixed. `Risky` — ship only behind a small rollout or internal beta. `Launchable with caveats` — ship if the owners accept the listed risks. `Strong` — no obvious launch blockers in the available evidence.
 - **Ceiling of `Risky`: the verdict cannot be better than `Risky` if any of these is true.**
   - Authentication or authorization is missing on sensitive data.
   - Payment or fulfillment webhooks are not idempotent.
@@ -67,7 +67,7 @@ Anything else worth fixing goes in `High-value fixes`. This skill does not enume
   - There is no rollback path for a high-impact release.
 - **Ceiling of `Launchable with caveats`: the verdict cannot be better than that if CI is not green, or the launch-critical path was not exercised end to end.**
 - **A ceiling caps the verdict; it does not set it.** The verdict may land lower than the ceiling for other reasons. It may never land higher, however strong the rest of the evidence looks — that is the entire point of the mechanism, and a verdict raised past a ceiling because "everything else is solid" is the failure this skill exists to prevent.
-- **A ceiling condition that could not be checked is not a ceiling condition that passed.** It goes in `Evidence missing`, and the verdict states that it is bounded by unread evidence. *(Authored: the source requires the `Evidence missing` section but never says how an uncheckable ceiling condition resolves, which leaves the highest-consequence case undefined.)*
+- **A ceiling condition that could not be checked is not a ceiling condition that passed.** It goes in `Evidence missing`, and the verdict states that it is bounded by unread evidence.
 
 ## Output contract
 
@@ -122,9 +122,4 @@ Next action: Want me to patch webhook idempotency first?
 
 ## Common pitfalls
 
-- Reaching for a remote scanner or an unpinned remote package as the default audit path
-- Uploading source, secrets, customer data, or private topology to an external service without explicit approval
-- Producing a verdict without naming the evidence it rests on
-- Auditing boundaries the repository does not have, which pads the report and buries the ones it does
 - Treating green CI as production readiness
-- Ending with a generic "let me know what you want to do"

@@ -77,7 +77,7 @@ The specifics worth having here, when the overhead started or what was done abou
 
 **Watch:** additionally, align with, crucial, delve, emphasize, enduring, enhance, foster, garner, highlight (verb), interplay, intricate, key (adjective), landscape (abstract), pivotal, showcase, tapestry (abstract), testament, underscore, valuable, vibrant.
 
-These words appear far more often in post-2023 text than before it, and they cluster: finding one usually means finding three in the same paragraph.
+These words appear far more often in post-2023 text than before it — a time-sensitive comparison that will shift as writing norms move on — and they cluster: finding one usually means finding three in the same paragraph.
 
 - **Before:** Additionally, the framework enhances developer experience by fostering a vibrant plugin ecosystem, showcasing the enduring value of open standards.
 - **After:** The framework also has a plugin ecosystem.
@@ -367,4 +367,4 @@ A question is bolted on after the argument has finished, addressed to nobody in 
 
 ## Provenance
 
-The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Every example above is written for this file rather than reproduced from either source. Patterns 26, 27, 28, 30, 31, 32, and 33 extend the Wikipedia families into software and product prose; every note marked *(Authored)* is not in either source. Patterns 34 and 35 come from neither: they restate two entries of a long-form drafting ban-list held in this library's intake material, and their examples and register notes are written here.
+The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`; a time-sensitive check — verified against the live page on 2026-08-17, and the page may have changed since), and reached this file through an MIT-licensed community adaptation of that page. Every example above is written for this file rather than reproduced from either source. Patterns 26, 27, 28, 30, 31, 32, and 33 extend the Wikipedia families into software and product prose; every note marked *(Authored)* is not in either source. Patterns 34 and 35 come from neither: they restate two entries of a long-form drafting ban-list held in this library's intake material, and their examples and register notes are written here.

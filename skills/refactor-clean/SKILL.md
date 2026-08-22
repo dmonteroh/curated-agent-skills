@@ -6,8 +6,6 @@ metadata:
 ---
 # Refactor Clean
 
-Provides a workflow to refactor code with small diffs, stable behavior, and fast feedback.
-
 ## Use this skill when
 
 - Refactoring tangled or hard-to-maintain code.
@@ -105,15 +103,10 @@ On abort, report what was attempted, what failed, and the current state of the t
 
 - Broad rewrites without a safety net.
 - Mixing formatting changes with structural changes.
-- Skipping a plan for large or risky changes.
 - Letting refactors drift into new feature work.
-- Going from a hotspot straight to an extraction without first asking whether the unit should exist.
-- Applying a bulk rewrite without reading its full match set first.
-- Fixing forward from a red suite instead of reverting the step that turned it red.
 - Deleting or weakening a test to make it pass.
-- Removing a guard at a trust boundary with nothing in place that proves it was redundant.
 
-## Script: `scripts/scan_hotspots.sh`
+## Scripts
 
 - Purpose: quick inventory of large files and TODO/FIXME density.
 - Usage: run from the target repo root, invoking the script by its path inside this skill's folder: `HOTSPOT_LIMIT=20 sh <skill-folder>/scripts/scan_hotspots.sh`
@@ -168,17 +161,6 @@ When this skill runs, report:
 - Plan or changes made (ordered, small slices).
 - Risks or follow-up recommendations, including every `debt:` marker left in code with its ceiling and upgrade trigger.
 - Verification performed or explicitly not run.
-
-## Reporting format
-
-- Scope:
-- Blast radius:
-- Coverage and authorization:
-- Hotspots:
-- Ladder outcome:
-- Changes or Plan:
-- Risks and deferred (`debt:` markers):
-- Verification:
 
 ## References
 

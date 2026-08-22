@@ -95,7 +95,7 @@ A cause may be called confirmed only when **all three** hold:
 2. **The observation reproduces.** A flaky observation means a symptom was isolated, not a cause.
 3. **Toggle proof, in both directions.** Changing the suspected cause makes the bug disappear, *and* reverting brings it back. One direction alone is correlation. The toggle may be a debugger assignment, a configuration override, or a speculative one-line patch — and it is itself a debug artifact, journalled with its revert command before it is applied. *(Authored: implied by the journal-then-modify rule, never stated in the source, and the toggle is the artifact most often left behind.)*
 
-**Compound-cause branch.** If two hypotheses both survive and neither toggles the bug alone, do not discard both — toggle them **jointly**. A joint toggle that works in both directions confirms multiple contributing causes, and the fix must address every one. Without this branch a binary confirmed/not-confirmed gate loops forever on a two-factor bug. *(Sourced from a second candidate in the same drop.)*
+**Compound-cause branch.** If two hypotheses both survive and neither toggles the bug alone, do not discard both — toggle them **jointly**. A joint toggle that works in both directions confirms multiple contributing causes, and the fix must address every one. Without this branch a binary confirmed/not-confirmed gate loops forever on a two-factor bug.
 
 Then write the **mechanism** as one paragraph: the causal chain from cause to observed symptom. Being unable to write that paragraph means the bug is not understood yet — return to Phase 2.
 

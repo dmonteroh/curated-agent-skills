@@ -38,7 +38,7 @@ Provides a unified performance workflow that combines:
 - The correctness gate that must stay green while the system is changed
 - The search budget for the pass: maximum variants, maximum time, maximum spend, maximum data impact
 
-## Quick start (fast path)
+## Quick start
 
 In the target repo (not this skills repo):
 
@@ -49,7 +49,7 @@ scripts/perf.sh report
 
 This writes a deterministic report to `docs/_docgen/performance/REPORT.md`.
 
-## Workflow (orchestration)
+## Workflow
 
 ### Phase 0: Define goals + constraints
 
@@ -146,18 +146,6 @@ Decision:
 Output:
 - before/after comparison table
 - guardrails and owners
-
-## Common pitfalls
-
-- Optimizing before baselining or profiling
-- Changing multiple variables at once and losing causality
-- Reporting improvements without describing the environment
-- Relying on production-only changes without safe rollout plans
-- Starting a variant search with no declared budget, so it ends on attention rather than on evidence
-- Comparing each variant against the previous run instead of against the best accepted one
-- Hiding stale data behind fast cache hits, then reporting the latency win on its own
-- Calling a bounded search's winner "optimal" — it is the best measured safe variant
-- Tuning runtime while the build, test, and lint loop degrades unmeasured
 
 ## Scripts
 

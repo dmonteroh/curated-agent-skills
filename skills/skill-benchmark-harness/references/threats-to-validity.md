@@ -80,7 +80,7 @@ Where the arm variable is the agent, the residual is larger: formatting habits, 
 
 **Effect.** The benchmark measured what the agent said it would do. That is a legitimate, cheap, deterministic thing to measure, and it is not what the spec claimed to measure.
 
-**Guard.** Keep the expected-output sentence describing the artifact that is actually graded, and say "plans" in the report. An execution tier is a separate design with its own assertions and its own cost.
+**Guard.** Keep the expected-output sentence describing the artifact that is actually graded, and name the tier in the report: a plan tier claims stated intent and nothing more. Plan grading is cheap and deterministic; an execution tier is the only one that measures behavior, and it is a separate, more expensive design carrying its own assertions — the trace class in `behavioral-compliance.md`.
 
 ## A delta concentrated in unguessable facts
 
@@ -104,7 +104,7 @@ Where the arm variable is the agent, the residual is larger: formatting habits, 
 
 **Effect.** The artifact set advertised capabilities it did not have: a cost comparison, an automated grading axis, and an iteration history. A reader takes a declared field for an exercised one.
 
-**Guard.** Populate a declared field or delete it. Where one stays empty, record why in the same place — a comparison that was never possible should not look like one that came out even.
+**Guard.** Populate a declared field or delete it. A field that is always null, always the same value, or never read is a claim the artifact does not support. Where one stays empty, record why in the same place — a comparison that was never possible should not look like one that came out even.
 
 ## Spec drift with no snapshot
 

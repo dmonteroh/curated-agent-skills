@@ -26,10 +26,6 @@ metadata:
 - Success criteria or definition of done (if known)
 - Stakeholders/users and any explicit non-goals (if known)
 
-## Overview
-
-Default posture is to clarify and avoid premature implementation.
-
 ## Interview posture
 
 Agreement is not clarification. Take a position on every answer and state what evidence would change that position — that is rigor, not hedging and not false certainty. Challenge the strongest version of the user's claim, never a strawman.
@@ -216,17 +212,6 @@ Does not assume other skills exist; treats any integrations as optional.
 - Asks: "Ready to move from design to execution?"
 - If proceeding, produces a small execution plan (milestones + verification).
 
-## Key Principles
-
-- **YAGNI ruthlessly** - Removes unnecessary features from all designs
-
-## Common pitfalls
-
-- Skipping constraints and non-goals during questioning
-- Listing options without explaining tradeoffs
-- Producing a design brief without asking for confirmation
-- Moving into implementation without explicit user approval
-
 ## Examples
 
 **Input**
@@ -257,43 +242,7 @@ Does not assume other skills exist; treats any integrations as optional.
 - A single next-step question
 - For a spike instead of a brief: one question, one answer with its source, every unreproduced finding marked `UNVERIFIED` with the experiment that would close it
 
-## Reporting format
-
-```md
-## Problem & Success
-- ...
-
-## Context
-- Discovered facts (technical; each with the file or command it came from):
-- Business constraints (supplied by user or product artifact; "none supplied yet" if so):
-- Assumptions to confirm (values seen in code that are not yet stated business rules):
-
-## Premises
-1. <falsifiable claim> — agreed / adjusted to: ... / rejected
-2. ...
-
-## Approaches
-1) Option A (minimal viable) — pros/cons/risks/reuses
-2) Option B (ideal architecture) — pros/cons/risks/reuses
-Recommendation: ...
-Approved approach: <recorded user choice>
-
-## Design Brief
-- Goals:
-- Non-goals:
-- Constraints:
-- Key flows/states:
-- Risks & mitigations:
-- Verification plan:
-- Self-check: every item passing (anything that failed was fixed, not caveated)
-
-## Next Step
-- ...
-```
-
 ## References
-
-- `references/implementation-playbook.md`
 
 ## Scripts
 

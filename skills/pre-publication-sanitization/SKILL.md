@@ -6,8 +6,6 @@ metadata:
 ---
 # Pre-publication sanitization
 
-Provides the pass that runs between a repository being private and being public, and the gate that decides whether the publication proceeds.
-
 Publication is a one-way door. The moment a repository is reachable it can be cloned, forked, mirrored, indexed, and archived by parties who owe nothing to whoever published it, and nothing published can be unpublished: an exposed credential can only be rotated, an exposed internal name only apologised for. Every check here therefore runs *before* the push, and the gate blocks rather than warns — a warning is a control that costs nothing to ignore at the exact moment ignoring it is irreversible.
 
 ## Use this skill when
@@ -106,13 +104,7 @@ Report per category what was scanned and what was not, so a reader can see where
 
 ## Common pitfalls
 
-- Sweeping the default branch only, while tags and other refs travel with the publication
-- Accepting a clean result from the same pass that did the stripping
-- Reporting a leak as fixed on the strength of a history rewrite, when the exposed value was never rotated
-- Waving a blocking finding through in the moment as "unlikely to matter", leaving nothing a later reader can find
-- Removing a name from code while the same name survives in fixtures, lockfiles, snapshot tests, changelogs, or documentation screenshots
 - Reading one tool's empty output as the verdict for a whole category
-- Pushing at the end of a passing sweep, because passing felt like approval
 
 ## Examples
 
@@ -159,9 +151,3 @@ The record handed to whoever authorizes the push contains:
 - `references/README.md` — index
 - `references/sweep-categories.md` — what each of the six categories covers, where each hides, and what each misses
 - `references/history-and-remediation.md` — the history surface in depth, and the rotate-before-rewrite remediation order
-
-## Provenance
-
-- From the rescued source procedure: the six categories and their severities, separating the strip pass from the verify pass, the blocking gate, parameterize-don't-delete with an example configuration generated from what was stripped, the bounded fix-and-re-sweep loop, and never publishing without explicit approval.
-- Authored here, reasoned rather than sourced: the boundary-first step, the override record and its fields, the rotate-before-rewrite ordering and the post-publication incident step, the concrete membership of each category, and every item in the blind-spot list. Weigh these as judgment, not as findings carried from a verified source.
-- Numbers: the source's fix-and-re-sweep bound of three attempts is a chosen constant with no derivation, so the rule here is stated as a bound rather than as that number. The source asserts no detection or coverage rate, and none is asserted here.

@@ -1,5 +1,7 @@
 # Terraform Testing: TFLint
 
+The ruleset plugin version below is an illustrative example; confirm current supported versions before pinning in a project.
+
 ## Configuration
 
 ```hcl

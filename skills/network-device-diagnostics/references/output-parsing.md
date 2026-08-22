@@ -6,7 +6,7 @@ Requires only the Python standard library (`re`, `typing`). Verify a pattern by 
 
 ## Slice blocks header to header
 
-Slice each interface block from one header to the next. Do not use an arbitrary character window; large interface blocks can cause counters to be missed or assigned to the wrong port.
+Do not use an arbitrary character window; large interface blocks can cause counters to be missed or assigned to the wrong port.
 
 This is the rule that matters most in this file. A fixed-size window is correct on the test capture and wrong on the device with a busy uplink, and the symptom is a counter attributed to the neighbouring interface — a wrong answer, not an error.
 

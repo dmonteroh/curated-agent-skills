@@ -6,8 +6,6 @@ metadata:
 ---
 # database-migration-sql
 
-Provides guidance for planning and writing forward-only SQL migrations with zero-downtime patterns, validation, rollback guidance, and production safety checks for PostgreSQL, MySQL, and SQL Server.
-
 ## Use this skill when
 
 - The task involves writing or operating versioned `.sql` migration files.
@@ -27,7 +25,7 @@ Provides guidance for planning and writing forward-only SQL migrations with zero
 - Expected data volume and critical tables.
 - Rollback expectations (forward-only vs reversible).
 
-## Workflow (step-by-step)
+## Workflow
 
 1) **Confirm constraints**
    - Ask for engine/version, locking tolerance, data volume, and migration runner.
@@ -73,14 +71,6 @@ Expand, backfill, and verify are the requested work. Dropping the old column, ta
 
 Failure looks like: a `DROP COLUMN`, `DROP TABLE`, or `DROP TRIGGER` shipped in the same delivery as the expand phase because it was the obvious next step.
 
-## Common pitfalls
-
-- Running blocking DDL without checking lock behavior.
-- Backfilling without batch throttling on large tables.
-- Forgetting pre/post validation queries.
-- Assuming rollback is possible when data is transformed.
-- Missing idempotency guards for repeated runs.
-
 ## Examples
 
 **Example request**
@@ -94,7 +84,7 @@ Failure looks like: a `DROP COLUMN`, `DROP TABLE`, or `DROP TRIGGER` shipped in 
 - Validation Queries: row count, null check for `status`.
 - Rollback Plan: forward-only (data rewrite), keep old column until verified.
 
-## Output format (contract)
+## Output contract
 
 Return responses in this order, using the exact headings:
 1. **Constraints Summary**

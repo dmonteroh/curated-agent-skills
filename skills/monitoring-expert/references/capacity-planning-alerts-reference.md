@@ -45,6 +45,8 @@ groups:
 
 ## Quick Reference
 
+The buffers, horizons, and triggers below are illustrative defaults derived from typical workloads, not universal settings — recalibrate each against the service's own measured behavior.
+
 | Metric | Buffer | Reasoning |
 |--------|--------|-----------|
 | CPU | 30% | Headroom for spikes |

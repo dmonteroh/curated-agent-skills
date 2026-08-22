@@ -136,11 +136,7 @@ The stricter rule wins here, deliberately. Automatic cross-project promotion is 
 
 ## Common pitfalls
 
-- Storing a summary of the deliverable instead of the deliverable.
-- Abstract keys that collide and rot. Prefer a concrete project or feature name over a category label.
-- A strict parser that a crash mid-write can poison for every subsequent read.
 - A read-scoped source selection that silently does not scope writes. Where a user can pin which store is read, state whether that pin governs writes too.
-- Treating compaction as a storage problem. The artifacts survive on disk; what is destroyed is the agent's knowledge that they exist. The fix is a pointer to them at session start, not a bigger store.
 
 ## References
 

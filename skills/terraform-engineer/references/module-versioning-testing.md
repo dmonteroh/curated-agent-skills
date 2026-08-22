@@ -1,5 +1,7 @@
 # Terraform Module Versioning and Testing
 
+Module and provider versions below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Module Versioning
 
 ```hcl

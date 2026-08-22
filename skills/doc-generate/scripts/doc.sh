@@ -4,9 +4,9 @@ set -eu
 # Single entrypoint wrapper for doc-generate scripts.
 #
 # Usage:
-#   ./skills/doc-generate/scripts/doc.sh scan
-#   ./skills/doc-generate/scripts/doc.sh index
-#   ./skills/doc-generate/scripts/doc.sh spec
+#   <skill-folder>/scripts/doc.sh scan
+#   <skill-folder>/scripts/doc.sh index
+#   <skill-folder>/scripts/doc.sh spec
 #
 # Optional env vars:
 #   DOCS_DIR=docs

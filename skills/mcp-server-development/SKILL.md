@@ -42,7 +42,7 @@ Provides guidance for designing and implementing MCP servers that agents can use
 3) Design input/output contracts
 - Inputs: strict validation (types, ranges, enums), helpful field descriptions.
 - Outputs: stable shape; include primary identifiers; provide concise defaults.
-- Normalize the success path the way errors are normalized: a recommended envelope of `status`, a one-line `summary`, `next_actions` (follow-ups that make sense from this result), and `artifacts` (IDs or paths produced). Declare per tool the fields that carry real information rather than mandating all four on every response, and keep the names identical across the tools that declare them (`references/contracts.md`).
+- Normalize the success path the way errors are normalized, with a recommended envelope of fields shared across the tools that declare them (`references/contracts.md`).
 - Add `readOnlyHint`, `idempotentHint`, `destructiveHint` accurately.
 - Output: Schema drafts for each tool.
 
@@ -73,22 +73,6 @@ Provides guidance for designing and implementing MCP servers that agents can use
 - If auth or permissions are unclear, add an explicit “permission_check” tool before destructive actions.
 - If the server can run with a backend provider disabled or unselected, the resolver returns `null` for "no provider" rather than a stub or mock — callers get an explicit, checkable off state, and the server stays fully functional with the provider off (`references/provider-contracts.md`).
 - If a provider can operate non-locally (network egress), gate every capability call on explicit consent inside the contract itself, not left to each call site: installing/enabling the provider and letting it receive content are two separate axes, and neither is ever auto-granted; a provider that runs entirely locally has nothing to consent to on the egress axis (`references/provider-contracts.md`).
-
-## Common pitfalls
-
-- Wrapping endpoints without a workflow goal.
-- Returning unbounded arrays or verbose payloads.
-- Missing stable identifiers in responses.
-- Throwing raw upstream errors with no guidance.
-- Skipping evals until after integration.
-- Letting a missing optional capability silently no-op instead of throwing a typed error.
-
-## Reporting format
-
-- Summary: 3-6 bullets of decisions and rationale
-- Tools: table with name, purpose, inputs, outputs, hints
-- Examples: per-tool request/response blocks
-- Evals: numbered scenarios + run command
 
 ## Examples
 

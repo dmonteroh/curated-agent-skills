@@ -23,7 +23,7 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 - You only need query authoring/tuning
 - You need DB-agnostic modeling guidance
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Capture requirements
 - Ask for entities, invariants, access paths, scale targets, and deployment constraints.
@@ -67,7 +67,6 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 ## Common pitfalls
 
 - Missing indexes on foreign keys (Postgres does not add them automatically); `references/indexing-and-constraints.md` carries a catalog query that lists the unindexed ones.
-- Using JSONB for fields that need frequent filtering or sorting.
 - Adding NOT NULL columns with volatile defaults that rewrite large tables.
 - Relying on UNIQUE with NULLs when single-null enforcement is required.
 
@@ -96,7 +95,7 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 6) Migration plan
 - Expand/contract steps with rollback and verification queries.
 
-## Output Contract (Always)
+## Output contract
 
 Provide a report using this exact structure and ordering:
 
@@ -107,7 +106,7 @@ Provide a report using this exact structure and ordering:
 5) Operational features (partitioning/RLS if applicable)
 6) Migration plan (rollout, rollback, verification)
 
-## References (Optional)
+## References
 
 - Reference index: `references/README.md`
 - Full Postgres playbook (types, indexing, JSONB, migrations): `references/playbook.md`

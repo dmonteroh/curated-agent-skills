@@ -37,8 +37,6 @@ A single resting frame is not evidence for anything that moves.
 - Each scroll or entrance reveal needs a start/mid/end sequence.
 - The source protocol names a specific in-flight millisecond timing. That figure is unmeasured, so the requirement is that the frame catches the motion mid-flight, not that it lands on a particular millisecond.
 
-**Animation is never a reason to wave a region through.** "The pixels differ because it is animating" dismisses a diff instead of resolving it. Compare settled state against settled state for fidelity, and judge the motion separately against the reference's own motion, or against the stated intent when there is no reference.
-
 ## Decision points
 
 - If the enumeration cannot be produced because the surface's own page list is unknown, that is the first finding, and it blocks the review rather than shrinking it.

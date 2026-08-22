@@ -1,6 +1,6 @@
 ---
 name: database-performance
-description: "Diagnose and fix database performance issues (slow queries, locks, pool saturation, caching, partitioning) using evidence from metrics and query plans."
+description: "Diagnoses and fixes database performance issues — slow queries, lock contention, pool saturation, caching, partitioning — using evidence from metrics and query plans. Use when a latency or throughput regression traces to the database layer."
 metadata:
   category: database
 ---
@@ -25,34 +25,27 @@ metadata:
 - Concurrency, timeouts, and current pool size.
 - Constraints (uptime requirements, migration windows, read/write mix).
 
-## Workflow (step-by-step)
+## Workflow
 
-1. **Confirms scope and baseline.**
+1. **Confirm scope and baseline.**
    - Output: concise problem statement + baseline metrics table.
-2. **Collects evidence.**
-   - Gathers query plans (`EXPLAIN`/equivalent), slow query logs, and lock/connection stats.
+2. **Collect evidence.**
+   - Gather query plans (`EXPLAIN`/equivalent), slow query logs, and lock/connection stats.
    - Output: evidence summary and the top 3–5 suspects.
-3. **Classifies the bottleneck (decision points).**
+3. **Classify the bottleneck (decision points).**
    - If plans show sequential/full scans on selective filters → propose index or rewrite.
    - If lock waits dominate → reduce transaction scope, adjust isolation, batch writes.
    - If pool saturation → right-size pool, check DB max connections, add timeouts.
    - If IO/bloat → vacuum/analyze/rebuild strategy and data retention plan.
    - Output: primary bottleneck class + supporting evidence.
-4. **Designs fixes with rollout safety.**
-   - Provides 1–3 ranked options with risks, expected impact, and required changes.
-   - Includes zero/low-downtime rollout guidance (concurrent index builds where supported).
+4. **Design fixes with rollout safety.**
+   - Provide 1–3 ranked options with risks, expected impact, and required changes.
+   - Include zero/low-downtime rollout guidance (concurrent index builds where supported).
    - Output: recommended change set + verification criteria.
-5. **Validates and guards against regressions.**
-   - Specifies before/after metrics, plan diffs, and any test/benchmark additions.
+5. **Validate and guard against regressions.**
+   - Specify before/after metrics, plan diffs, and any test/benchmark additions.
+   - Failure looks like: the before/after comparison shows no improvement in the targeted metric, or the plan diff still shows the scan/lock pattern that motivated the fix — treat either as the change not landing, and use the rollback plan rather than re-measuring.
    - Output: validation checklist + rollback plan.
-
-## Common pitfalls to avoid
-
-- Adding indexes without verifying selectivity or plan changes.
-- Increasing pool size beyond DB capacity, causing worse contention.
-- Caching without a clear invalidation strategy.
-- Optimizing without baseline metrics or measurable success criteria.
-- Large updates in single transactions that amplify lock time.
 
 ## Examples
 
@@ -64,7 +57,7 @@ metadata:
 - Input: “We see elevated lock waits after a bulk backfill.”
 - Output: batch update plan, reduced transaction scope, and rollback steps.
 
-## Output format
+## Output contract
 
 Produces a report with these sections:
 

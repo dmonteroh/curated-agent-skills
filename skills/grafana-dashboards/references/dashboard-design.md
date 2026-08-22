@@ -22,7 +22,7 @@ This guide is focused on making dashboards operationally useful and safe (no noi
 - Common presets: 15m, 1h, 6h, 24h, 7d.
 - Avoid dashboards that only make sense at one time range.
 
-## Standard Layout (Recommended)
+## Standard Layout
 
 1) "Is it broken?"
 - Availability (SLO burn, error rate)

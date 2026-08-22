@@ -130,28 +130,6 @@ The agent reply around the markdown block must include:
 - If multiple unrelated concerns land in one PR: produce a `mixed` body and note that splitting the PR may be cleaner.
 - If the user supplies a non-default base: use it and state the override in the agent reply.
 
-## Common pitfalls
-
-- Drafting a confident *Why* without a brief and without flagging the gap to the user.
-- Listing changed files or walking the diff file by file inside the body.
-- Steps without assertions ("Open the page", "Run the migration") and vague artifacts ("the appropriate row").
-- Acronyms left unexplained; time-stamped language describing the resulting system.
-- Treating a migration-bearing PR as plain `feature` and skipping the baseline-and-post-state recipe.
-
-## Self-check before emitting
-
-Fix any failure before returning output:
-
-1. Exactly three top-level headings, in order.
-2. *What & Why* names the change type, the reason, and affected roles or surfaces.
-3. *How* names components and contains no file paths.
-4. The playbook preamble covers environment, prerequisites, tools, and authentication context.
-5. The playbook follows the classification's recipe; `mixed` has labelled sub-sections and an ordering note.
-6. Every step asserts; every artifact is concrete.
-7. Global writing rules hold across the body.
-8. No section lists changed files.
-9. When no brief was supplied, the agent reply flags the weaker grounding and asks for confirmation.
-
 ## References
 
 - Index: `references/README.md`

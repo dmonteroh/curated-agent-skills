@@ -117,35 +117,6 @@ Every figure here is a chosen default, not a measured one, and the requester's b
 
 Further chosen defaults: viewport 1280x720; the pointer moved in roughly ten increments; subtitle lines under about 60 characters; at most six elements panned on a dense screen. Dense content or an unfamiliar audience raises the pauses; a narrated video where a voice track carries the explanation lowers them.
 
-## Pre-record checklist
-
-- [ ] A field map exists for every page in the flow
-- [ ] Rehearsal ran and every step passed
-- [ ] Video capture is enabled at the agreed viewport
-- [ ] Cursor and subtitle overlays are re-injected after every navigation in the script, not only at the start
-- [ ] Every click goes through move-then-click, with a descriptive label
-- [ ] Every text entry types per character
-- [ ] No silent catch anywhere — every helper reports its own failure
-- [ ] Pauses match the pacing table, or the brief that overrode it
-- [ ] The flow follows the requested story order
-- [ ] The script reflects the interface discovered in phase 1, not the interface as assumed
-- [ ] The output filename is the agreed one
-
-## Common pitfalls
-
-- The cursor disappears partway through: the overlay was injected once and destroyed by the first navigation.
-- The video is unreadable because every pause was sized by what the script needed rather than by what a viewer needs.
-- The cursor is the driver's default marker or absent entirely, so clicks appear to happen by themselves.
-- The cursor teleports between targets, so the viewer never sees what is about to be clicked.
-- A native select is operated by setting its value, so the dropdown never visibly opens and the choice happens off-screen.
-- A modal is confirmed before the viewer has had time to read it.
-- The video is delivered under the driver's generated filename.
-- A selector failure is swallowed by a silent catch and the recording continues over a page that never changed.
-- Field types were assumed rather than discovered: a rich-text region treated as a plain textarea, a custom combobox treated as a native select.
-- A placeholder option was selected because its value looked non-empty, and the form submits with the field unset.
-- A mention or tag autocomplete opens mid-typing and eats the characters that follow.
-- A popup records to its own video file, and the main recording shows the flow stalling for no visible reason.
-
 ## Output contract
 
 - The video file, at the agreed path and viewport

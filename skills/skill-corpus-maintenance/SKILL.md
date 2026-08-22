@@ -7,8 +7,6 @@ metadata:
 
 # Skill Corpus Maintenance
 
-Provides a periodic grooming pass over the instruction corpus an agent carries: the capability items it selects among, and the standing rule text it loads every session. One deterministic inventory feeds two branches — a verdict on whether each item still earns its place, and the promotion of principles recurring across items into the standing rules.
-
 The branches are one pass rather than two procedures because each is unsound without the other's evidence. An item cannot be called redundant without knowing what the standing rules already say, and a principle cannot be promoted without knowing which items carry it. They read the same inventory, batch the same way, and stop at the same approval gate.
 
 The corpus is enumerated by a collector, never from recollection. A model asked what is installed answers from what it remembers loading — the subset that fired recently, which is precisely the wrong sample for a pass whose job includes finding what never fires.
@@ -179,14 +177,6 @@ Returns a maintenance report carrying:
   - `scripts/inventory.sh <root> | jq '.roots, .total'` — every named root appears, with its count.
   - `find <root> -name SKILL.md -type f | wc -l` — must equal `.total` for a default run.
   - `scripts/inventory.sh <root> | jq '[.items[] | select(.mtime == "")] | length'` — must be `0`, or the incremental key is unusable and the next run must be a full pass.
-
-## Provenance
-
-- **Sourced:** the deterministic-collection-then-judgment split; the phase order; both verdict vocabularies; the three-part promotion filter; the no-pre-filtering rule and its justification; the cross-batch merge on combined evidence; the reason-quality contract and its contrast pairs; the what-not-how split with backlinks; the resume-on-partial-record rule; blind evaluation regardless of origin; and approval before any removal.
-- **Chosen, not measured:** the batch size, which the source stated as a constant and which is carried here only as a budget to record. No number in this procedure is a measurement.
-- **Not carried:** the source's mode durations, its item-per-batch constant, its line-count trigger for compacting the standing rules, and its "more than one item" threshold as a fixed number — the rule survives at any threshold above one, so the count is recorded rather than fixed. Its worked end-to-end example is also not carried: it routed the same candidate to three different targets and its saved record disagreed with the run it claimed to record.
-- **Authored, marked at each site:** recording an axis with no available signal as absent rather than defaulting it; the hold-on-silence default for unanswered proposals.
-- **Repaired rather than reproduced:** indexing one entry file per item instead of every file beneath it; treating an absent standing rule surface as the new-file case instead of a fatal error; and keeping the persisted record outside the audited corpus.
 
 ## References
 

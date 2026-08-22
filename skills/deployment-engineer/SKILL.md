@@ -7,7 +7,6 @@ metadata:
 # Deployment Engineer
 
 Provides guidance for shipping changes safely with pipelines, releases, progressive delivery, and operational guardrails.
-Produces deployment workflow recommendations without requiring other skills.
 
 ## Use this skill when
 
@@ -37,7 +36,7 @@ Produces deployment workflow recommendations without requiring other skills.
 - SLOs or error budget constraints
 - Constraints (compliance, approvals, security requirements)
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Capture inputs (repo/tooling, environments, release cadence, constraints, SLOs).
    - Output: input checklist and missing info questions.
@@ -69,7 +68,7 @@ Produces deployment workflow recommendations without requiring other skills.
 - **An artifact a release step transformed is not verified by loading it.** Where the pipeline rewrites what it ships — repackaging, minification, symbol stripping, media re-encoding, model quantization — a malformed result is still a structurally valid artifact that opens without error, so the transform's exit status, a file-existence check, and a successful load all pass while the behavior is broken. Verify by replaying a fixed, version-controlled set of recorded inputs through the artifact in its actual target runtime, using execution settings persisted from the pre-transform run rather than nominally re-entered ones, and choose the comparison from the transform's nature: byte equality is the gate for a lossless transform, while for a lossy one byte equality is unmeetable by design — gate on agreement between the downstream checker's verdicts before and after, and keep the byte diff for triage only. A byte-comparison gate over a lossy transform fails on every run and is duly switched off, which is how such a step ends up verified by nothing. An approval earned by the pre-transform artifact carries no evidence about the transform, so this gate re-runs on every toolchain or runtime version bump. Depth: `references/release-readiness-gates.md`.
 - **Blockers and warnings are different gates.** Only hard failures — chiefly failing tests — should block a release outright. A stale review or an unbumped changelog are warnings: name them explicitly, state why each fired, and require an affirmative, recorded override to proceed past them. Collapsing the two tiers either blocks releases on cosmetic issues or trains people to click through every gate unread; the failure runs both directions, so a warning must never silently pass as clean and must never block like a failure. Detail: `references/release-readiness-gates.md`.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Shipping without explicit rollback triggers or owners
 - Allowing config drift between environments without checks
@@ -91,17 +90,7 @@ Produces deployment workflow recommendations without requiring other skills.
 - Verification: the canary gate polls a `/health/ready` endpoint that checks database, cache and queue and returns 503 when any is down — not the `/ping` used for liveness — with a stated poll interval and attempt ceiling derived from this service's observed startup time
 - Runbook: deploy, pause, rollback, and troubleshooting steps
 
-## Output format
-
-Provide these sections in order:
-1. Summary
-2. Pipeline Stages & Gates
-3. Rollout & Rollback Plan
-4. Config Validation Strategy
-5. Runbook & Observability
-6. Open Questions / Risks
-
-## Output contract (Always)
+## Output contract
 
 - Pipeline stage diagram (or bullet list) with gates and required artifacts
 - Rollout/rollback plan and stop conditions
@@ -109,6 +98,6 @@ Provide these sections in order:
 - Runbook notes (how to deploy, rollback, and troubleshoot)
 - Open questions when required inputs are missing
 
-## References (Optional)
+## References
 
 - `references/README.md`

@@ -125,23 +125,6 @@ for it in items:
 - Wrong: "After a few tries we found the right rows — the first selector matched the nav bar, so we switched to the list container the user confirmed was correct."
 - Right: "Fetches the source's front page and returns one record per list item as JSON on stdout: title, score, permalink. Fixture captured 2026-08-16; the parser is pinned to that snapshot's markup."
 
-## Common pitfalls
-
-- Codifying the wrong thing: a plausible script assembled from failed attempts, unrelated chat, or an earlier session, which never actually ran end to end.
-- A shared dependency drifting under a unit authored months earlier, so it breaks or, worse, quietly returns different data.
-- Contract prose that reads like a chat log, so the next reader cannot tell what the unit returns without running it.
-
-## Output contract
-
-Report to the user after any run of this procedure:
-
-- The unit's path and name, or the refusal and its reason.
-- What was captured as the fixture and on what date.
-- The dependency frozen into the unit and the version stamped in the contract.
-- The test that runs and what its failure would mean.
-- The post-commit comparison against the prototype's output: match, or the discrepancy in full.
-- Limits that apply to this specific unit — above all, whichever part of the flow the fixture does not cover.
-
 ## Limits and unsolved problems
 
 - **The fixture proves the parser, not the world.** A fixture-pinned test shows the parser still parses what it parsed. It never shows the source still looks like the fixture. *Authored, not sourced:* the source defers staleness detection entirely, so the working rule here is to re-capture the fixture whenever the unit fails against live input, and to treat the capture date as an argument for re-checking, never as an expiry that fires on its own.

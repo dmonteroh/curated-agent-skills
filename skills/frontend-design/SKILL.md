@@ -4,8 +4,6 @@ description: "Implement distinctive, production-grade frontend UI code with high
 metadata:
   category: design
 ---
-This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. It focuses on real working code with exceptional attention to aesthetic details and creative choices.
-
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
 ## Use this skill when
@@ -161,64 +159,32 @@ Every figure in that table is a chosen default carried from the source, not a me
 
 ## Workflow
 
-1. **Clarifies inputs and constraints.**
-   - Confirms framework, assets, accessibility requirements, and output format.
+1. **Clarify inputs and constraints.**
+   - Confirm framework, assets, accessibility requirements, and output format.
    - **Output:** A short checklist of confirmed inputs and any open questions.
-2. **Chooses the aesthetic direction.**
-   - Picks one coherent visual language aligned with purpose, audience, and surface type.
+2. **Choose the aesthetic direction.**
+   - Pick one coherent visual language aligned with purpose, audience, and surface type.
    - **Decision point:** Classify the surface first. `app` surfaces take a direction that survives daily repetition; `marketing` surfaces can take an expressive one; `hybrid` applies each to its own sections.
    - **Output:** The surface classification with the observation that decided it, 3–5 design adjectives, and 1–2 standout signature moments.
-3. **Defines the visual system.**
-   - Defines typography pairing, color palette, spacing scale, and component motifs.
+3. **Define the visual system.**
+   - Define typography pairing, color palette, spacing scale, and component motifs.
    - **Decision point:** If fonts/assets are not provided, use locally available fonts and avoid external network fetches.
    - **Output:** Token list (CSS variables) and rationale for each choice.
-4. **Lays out structure and hierarchy.**
-   - Composes layout, grid, and content flow; introduces intentional asymmetry.
+4. **Lay out structure and hierarchy.**
+   - Compose layout, grid, and content flow; introduce intentional asymmetry.
    - **Decision point:** Before writing layout CSS, name scroll ownership per region. If a region ends up with more than one scroll container, state each one's job or remove it.
    - **Output:** A brief layout outline (sections/components and hierarchy), naming the primitive and the scroll owner for each region.
-5. **Implements production-grade code.**
-   - Builds HTML/CSS/JS (or framework code) with accessibility and responsiveness.
+5. **Implement production-grade code.**
+   - Build HTML/CSS/JS (or framework code) with accessibility and responsiveness.
    - **Output:** Working UI code, scoped to the requested format.
-6. **Refines polish and motion.**
-   - Adds purposeful animations, hover states, and micro-interactions; checks optical centring on asymmetric glyphs.
+6. **Refine polish and motion.**
+   - Add purposeful animations, hover states, and micro-interactions; check optical centring on asymmetric glyphs.
    - **Decision point:** Interactive state changes get transitions; staged one-shot entrances and loading sequences get keyframes.
    - **Output:** Motion list with durations/easing and where applied, exits noted as shorter than their entrances.
-7. **Self-reviews against pitfalls.**
-   - Verifies aesthetic cohesion, legibility, and performance.
-   - Drives every layout region through the content-stress list; a region that has only been seen with happy-path mock content is not verified.
+7. **Self-review against pitfalls.**
+   - Verify aesthetic cohesion, legibility, and performance.
+   - Drive every layout region through the content-stress list; a region that has only been seen with happy-path mock content is not verified.
    - **Output:** A quick checklist confirming adherence, the content-stress result per region, and any tradeoffs.
-
-## Common pitfalls
-
-- Reusing generic AI aesthetics (default fonts, bland palettes, predictable layouts)
-- Over-animating everything instead of a few high-impact moments
-- Mixing multiple aesthetic styles that dilute the visual direction
-- Ignoring accessibility, responsive behavior, or content hierarchy
-- Overusing external assets or fonts that require network access
-- Forcing a landing-page composition onto a tool built for repeated daily use, or putting marketing sections in front of the working surface
-- Declaring a layout done against happy-path mock content, before empty, long, and unbroken content have been tried
-- Leaving nested scroll containers with no declared job, so nobody can predict what a scroll gesture will move
-- Answering an overfull slide by shrinking type or letting the slide scroll, instead of splitting it in two
-- Fixed-height content boxes that look right on a large monitor and clip on a laptop or on a phone held in landscape
-
-## Output contract
-
-- Confirmed inputs and constraints
-- Surface classification (`marketing`, `app`, or `hybrid`) and the observation that decided it
-- Chosen aesthetic direction and signature moments
-- Visual system tokens (typography, colors, spacing)
-- Implementation code with brief structure notes
-- Motion/interaction summary
-- Content-stress result per layout region
-- Verification steps or manual checks
-
-## Reporting format
-
-- **Design summary:** surface classification + aesthetic direction + signature moments
-- **System tokens:** typography, color, spacing, effects
-- **Implementation:** code blocks + file layout (if multi-file), with the scroll owner named per region
-- **Interactions:** motion/hover behaviors and intent
-- **Checks:** accessibility, responsiveness, content stress, and performance notes
 
 ## Examples
 

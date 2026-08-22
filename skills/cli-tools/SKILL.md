@@ -59,7 +59,6 @@ Provides guidance for designing and implementing command-line tools that are saf
 
 - If the CLI is used in automation, default to machine-readable output and add `--format`.
 - If the command can be destructive, require confirmation or `--yes` for non-interactive runs.
-- If interactive prompts are needed, always provide flag/env fallbacks.
 
 ## Numeric flag validation
 
@@ -80,13 +79,6 @@ Motivating failure: a lenient parse (`parseInt(val)`) turns non-numeric input in
 
 - Non-deterministic output ordering (breaks tests).
 - Coercing invalid numeric flag input into a default or a truncated value (`parseInt(x) || default`) instead of hard-erroring — see Numeric flag validation.
-
-## Output contract
-
-- A command/flag matrix (what exists and why).
-- Output behavior (stdout/stderr + exit codes).
-- Validation and error-handling approach.
-- Test plan (at least for help and primary commands).
 
 ## Examples
 

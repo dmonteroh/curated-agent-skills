@@ -28,8 +28,6 @@ Two failures this exists to prevent. The first is a synthesis assembled from wha
 - One paper has already been chosen and only needs summarizing or explaining. No screening or inclusion decision is in play.
 - The work is citation formatting, style compliance, or bibliography management.
 
-*[authored: the source candidate carries no stand-down at all; these five cases are this skill's own.]*
-
 ## Workflow
 
 ### 1. Frame the question and set the rigor level
@@ -42,7 +40,7 @@ Rigor: default to a scoping pass for exploratory work and a systematic pass when
 
 Record, and show, before the first query: sources to search, date range, languages, publication types, inclusion criteria, exclusion criteria, and the exact search strings. Criteria written after the results are visible are criteria fitted to the results.
 
-Source coverage: name at least one authoritative index for the domain, one route to preprints and grey literature — or an explicit statement that they are excluded — and one broad cross-publisher index. Which services fill those slots changes over time and varies by field, so choose them per question and record the choice in the protocol; a fixed list of database names ages badly and is not part of the method. *[authored: the source names a fixed minimum database set; the coverage rule generalizes it.]*
+Source coverage: name at least one authoritative index for the domain, one route to preprints and grey literature — or an explicit statement that they are excluded — and one broad cross-publisher index. Which services fill those slots changes over time and varies by field, so choose them per question and record the choice in the protocol; a fixed list of database names ages badly and is not part of the method.
 
 Decision point: if the requester cannot supply inclusion and exclusion criteria, produce a draft protocol and get it agreed before searching. Do not start collecting and infer the criteria later.
 
@@ -68,11 +66,11 @@ Match in this order, stopping at the first that resolves: DOI, then a stable rep
 
 Screen title, then abstract, then full text. Every exclusion records a reason from a closed list: wrong population, wrong intervention or method, wrong outcome, not primary research, duplicate, full text unavailable, outside the date range.
 
-A source dropped without a recorded reason cannot be defended when someone asks why their paper is missing. If a needed reason is not on the list, amend the protocol, add it, and re-screen everything already excluded against the amended list rather than applying it only going forward. *[authored: the source fixes the list and says nothing about extending it.]*
+A source dropped without a recorded reason cannot be defended when someone asks why their paper is missing. If a needed reason is not on the list, amend the protocol, add it, and re-screen everything already excluded against the amended list rather than applying it only going forward.
 
 ### 6. Appraise each surviving study
 
-Screening established relevance. This step establishes whether the study can carry weight. Check every included study against these dimensions:
+Check every included study against these dimensions:
 
 | Dimension | What is checked |
 | --- | --- |
@@ -88,9 +86,9 @@ Each dimension resolves to one of three outcomes, and there is no score:
 - **Flagged** — a specific weakness, named in one line. "Baseline was not tuned" is a flag; "analysis is weak" is not.
 - **Disqualifying for this question** — the study cannot support the claim it was screened in for. Exclude it and record the reason exactly as a screening exclusion is recorded.
 
-**No numeric scale, no aggregate score.** The appraisal dimensions here come from a rubric that scored nine dimensions from 1 to 5 and defined no rule for combining them into the overall figure its own template led with. An aggregate nobody can reconstruct is an aggregate nobody can act on, so this skill keeps the flags themselves and carries them forward instead. *[authored: the dimensions are sourced; the three-outcome resolution replacing the scale is this skill's own.]*
+**No numeric scale, no aggregate score.** The appraisal dimensions here come from a rubric that scored nine dimensions from 1 to 5 and defined no rule for combining them into the overall figure its own template led with. An aggregate nobody can reconstruct is an aggregate nobody can act on, so this skill keeps the flags themselves and carries them forward instead.
 
-Flags travel: *[authored — the source rubric scored studies in isolation and the base workflow tiered claims with no link between the two]*
+Flags travel:
 
 - An unflagged study may support a high-confidence claim once other work replicates it.
 - A flagged study's findings enter the synthesis at medium or low confidence only, and the flag text travels with every claim that study supports.
@@ -160,11 +158,7 @@ The second can be audited and re-run; the first asks the reader to trust a judgm
 
 ## Common pitfalls
 
-- Screening for relevance and calling the corpus appraised.
 - Treating a search snippet or an abstract as evidence for a claim that only the full text could support.
-- Mixing preprints, reviews, and primary studies without labeling which is which.
 - Omitting negative or conflicting findings because they complicate the story.
-- Claiming systematic rigor without a protocol written before collection began.
 - Resting a broad claim on a single database, unless the scope is explicitly limited to that database.
 - Treating citation count, venue, or author reputation as proof of quality.
-- Letting the appraisal exist only in the reviewer's head, so the extraction table and the synthesis carry no trace of it.

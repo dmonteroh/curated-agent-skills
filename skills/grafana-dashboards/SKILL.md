@@ -16,7 +16,6 @@ metadata:
 ## Do not use this skill when
 
 - The request is for end-to-end observability architecture beyond dashboards
-- The task is unrelated to Grafana dashboards
 
 ## Required inputs
 
@@ -51,10 +50,10 @@ metadata:
 
 ## Quality Gates
 
-- The top row answers: "is it broken?"
-- An on-call person can find a likely cause within 2-3 clicks.
-- Queries are performant (recording rules for expensive aggregations).
-- Panels are stable (avoid tiny denominators; avoid misleading averages).
+- Symptom-first check: the top row alone answers "is it broken?" Failure: an operator has to scan more than one row to tell whether the service is healthy.
+- Click-depth check: a likely cause is reachable within 2-3 clicks of the top row. Failure: finding the cause requires opening a query editor or an external tool first.
+- Query-cost check: every expensive aggregation runs behind a recording rule. Failure: a panel aggregates raw high-cardinality series live on every dashboard load.
+- Denominator/average check: rate and latency panels guard against tiny denominators and expose percentiles alongside averages. Failure: a panel spikes to 100% during low traffic, or its average line stays flat while p99 has already breached SLO.
 
 ## Common pitfalls
 
@@ -64,7 +63,7 @@ metadata:
 - Omitting units or thresholds, which hides intent.
 - Building dashboards that only work at one specific time range.
 
-## Resources (Copy/Adapt)
+## Resources
 
 - Dashboard stubs:
   - `assets/dashboard-templates.json`
@@ -76,7 +75,7 @@ metadata:
 - Alert rule patterns (structure only):
   - `assets/alert-templates.json`
 
-## Example (Input → Output)
+## Examples
 
 **Input:** "Create an on-call Grafana dashboard for the payments API using Prometheus and Loki. Focus on latency, errors, and top routes."
 

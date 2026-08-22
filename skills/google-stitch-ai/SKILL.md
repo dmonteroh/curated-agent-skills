@@ -6,10 +6,6 @@ metadata:
 ---
 # Google Stitch AI
 
-Provides two workflows for Stitch tasks:
-- **Design System Synthesis**: Generate `DESIGN.md` from Stitch projects or provided assets.
-- **Prompt Enhancement**: Turn vague UI ideas into structured, Stitch-optimized prompts.
-
 ## Use this skill when
 
 - A `DESIGN.md` is needed to capture a Stitch project’s design language.
@@ -36,7 +32,7 @@ Provides two workflows for Stitch tasks:
 
 ## Mode A: DESIGN.md Synthesis
 
-### Step-by-step
+### Workflow
 
 1. **Choose retrieval path.**
    - If Stitch project data is provided, collect metadata + screen HTML/screenshot.
@@ -74,7 +70,7 @@ Provides two workflows for Stitch tasks:
 
 ## Mode B: Prompt Enhancement
 
-### Step-by-step
+### Workflow
 
 1. **Clarify intent and platform.**
    - Identify page type, user goal, and platform (web/mobile).
@@ -126,8 +122,3 @@ Page Structure
 3. Line chart for revenue trend
 4. Table of top accounts
 ```
-
-## Resources
-
-- UI/UX keyword palette: `references/KEYWORDS.md`
-- Reference index: `references/README.md`

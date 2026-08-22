@@ -12,7 +12,7 @@ Use this as a compact set of guardrails and common high-ROI actions.
 
 - Turn off idle/non-prod resources (scheduled shutdowns).
 - Right-size always-on compute.
-- Commit where stable (RIs / Savings Plans / CUDs) only after utilization evidence.
+- Commit where stable (RIs / Savings Plans / CUDs) — timing gate: SKILL.md workflow step 5.
 - Reduce data transfer (cache, colocate services, avoid cross-AZ/region chatter).
 - Storage lifecycle policies (tiering + retention).
 

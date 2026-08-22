@@ -59,12 +59,11 @@ metadata:
 
 ## Decision points
 
-- If the user only wants implementation, confirm whether a design/spec is still needed before proceeding.
 - If design-system rules already exist, reference them and avoid inventing new tokens.
 - If platform is unclear, ask for the primary target before drafting the brief.
 - If platform standards are missing, request local guidelines instead of assuming defaults.
 - If a proposed combination is internally incoherent, name the mismatch and propose the smallest change that resolves it — then accept the user's answer. Nudge, never block.
-- If a value is a browser mechanic rather than a design intent — `clamp()`, intrinsic sizing, `auto`, `%`, container or viewport units, a `minmax()` track — leave it raw instead of promoting it to a token. `references/design-system-contracts.md` carries the boundary.
+- If a value is a browser mechanic rather than a design intent, leave it raw instead of promoting it to a token. `references/design-system-contracts.md` carries the boundary and the full list.
 
 ## Eliciting a direction that does not exist yet
 
@@ -160,7 +159,6 @@ The rules below are DOM and WAI-ARIA facts, not framework facts, and are stated 
 
 - Skipping empty/error/permission states in the flow
 - Overloading the UI with multiple status colors or competing emphasis
-- Missing keyboard/focus/label requirements in interactive components
 - Providing pixel-perfect visuals when the user asked for structural guidance only
 
 ## Examples

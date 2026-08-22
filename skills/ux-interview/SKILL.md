@@ -7,8 +7,6 @@ metadata:
 
 # UX Interview
 
-Every requirement that leaves this skill names the moment in the transcript it came from.
-
 ## Use this skill when
 
 - A product's interaction design needs grounding in how one or more real people work today.

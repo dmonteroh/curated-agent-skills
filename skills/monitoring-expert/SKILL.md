@@ -6,9 +6,7 @@ metadata:
 ---
 # Monitoring Expert
 
-Provides guidance for implementing monitoring, alerting, tracing, and performance testing systems.
-
-## When to Use This Skill
+## Use this skill when
 
 - Setting up application monitoring
 - Implementing structured logging
@@ -22,14 +20,14 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
 - Application profiling and bottleneck analysis
 - Capacity planning and resource forecasting
 
-## Do Not Use This Skill When
+## Do not use this skill when
 
 - The request is only for a single vendor UI walkthrough with no implementation decisions
 - The system already has a finalized observability plan and only needs routine execution
 - The task is post-deploy smoke or synthetic checking of a deployed URL, not deciding what the service itself measures
 - The user wants unrelated security auditing or code review not tied to monitoring
 
-## Required Inputs
+## Required inputs
 
 - Service overview (architecture, language/runtime, deployment model)
 - Current telemetry stack (if any) and constraints
@@ -37,7 +35,7 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
 - Traffic profile and latency/error targets
 - Compliance or data handling constraints (PII, retention)
 
-## Core Workflow
+## Workflow
 
 1. **Scope goals** - Confirm critical paths, SLIs/SLOs, and stakeholders.
    - Output: Monitoring goals and scope statement.
@@ -57,10 +55,10 @@ Provides guidance for implementing monitoring, alerting, tracing, and performanc
    - Output: Alert policy and routing matrix.
 6. **Performance & capacity** - Plan load tests, profiling, and capacity models.
    - Output: Test plan, profiling targets, and capacity assumptions.
-7. **Verify & roll out** - Validate signals, run smoke checks, and document runbooks.
+7. **Verify & roll out** - Emit a test request and require its correlated log, metric, and trace to all appear; exercise each alert route and treat a failure to page the declared owner as a rollout blocker.
    - Output: Verification checklist and operational handoff notes.
 
-## Reference Guide
+## Resources
 
 Load detailed guidance based on context:
 
@@ -94,25 +92,20 @@ Load detailed guidance based on context:
 - Set up alerts for critical paths
 - Monitor business metrics, not just technical
 - Use appropriate metric types (counter/gauge/histogram)
-- Implement health check endpoints
+- Implement health check endpoints when the architecture does not already expose an equivalent
 
 ### MUST NOT DO
 - Log sensitive data (passwords, tokens, PII)
 - Alert on every error (alert fatigue)
 - Use string interpolation in logs (use structured fields)
-- Skip correlation IDs in distributed systems
 
-## Common Pitfalls
+## Common pitfalls
 
 - High-cardinality labels that explode metric storage
 - Alerts without ownership or runbook links
 - Dashboards without clear users or decision intent
 - Traces sampled too aggressively to diagnose latency spikes
 - Missing retention policies or log redaction
-
-## Knowledge Reference
-
-Prometheus, Grafana, ELK Stack, Loki, Jaeger, OpenTelemetry, DataDog, New Relic, CloudWatch, structured logging, RED metrics, USE method, k6, Artillery, Locust, JMeter, clinic.js, pprof, py-spy, async-profiler, capacity planning
 
 ## Examples
 
@@ -134,7 +127,7 @@ Output:
 - Targets: `/search`, `/checkout`, `/login`
 - Pass criteria: p95 < 500ms, error rate < 0.5%
 
-## Output Contract
+## Output contract
 
 When executing this skill, respond with the following sections:
 

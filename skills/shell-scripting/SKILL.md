@@ -6,7 +6,7 @@ metadata:
 ---
 # Shell Scripting
 
-Provides guidance for writing safe, portable shell scripts for automation, CI helpers, and command-line glue, and for reviewing or hardening existing scripts.
+Provides guidance for reviewing or hardening existing shell scripts.
 
 ## Use this skill when
 
@@ -89,6 +89,7 @@ For POSIX sh, drop `pipefail`/`-E`, use `#!/bin/sh`, and follow `references/posi
 - Small functions with single responsibilities; `local` variables in Bash.
 - Handle the failure path first: check inputs and preconditions, `die` early with actionable messages.
 - Loop over files with globs or `find ... -exec`/`while IFS= read -r`, never `for f in $(ls ...)`.
+- Always guard `cd` with `|| exit` (or a `die` call); an unchecked `cd` that fails leaves the rest of the script running in the wrong directory.
 - Diagnostics and progress to stderr; only machine-consumable output to stdout.
 - Resolve sibling files (libraries, config, fixtures) against the script's own location, never the caller's working directory. In Bash that means deriving the directory from `${BASH_SOURCE[0]}`, not `$0` — full idiom and the reasons in `references/bash-safety.md`.
 - Never rewrite a file in place that another process may be reading. Write the new content to a temp file in the target's own directory, then rename over the target:
@@ -169,16 +170,6 @@ grep -q -- '--fail' "$stub_dir/curl.calls"    # assert how the script called out
 - Only `PATH` lookups are intercepted. A script calling `/usr/bin/curl` by absolute path, or a shell builtin, bypasses the stub entirely — which is a reason for scripts to invoke bare command names.
 - Verify the stub is actually being hit rather than assuming it: check that `command -v <cmd>` resolves inside the stub directory, or that the call log is non-empty. A test that passes because the real command happened to succeed is exactly the failure this guards against.
 
-## Common pitfalls
-
-- Unquoted expansions causing word-splitting and glob surprises.
-- Trusting `set -e` inside `if` conditions, `&&`/`||` chains, or command substitutions where it is disabled by design.
-- Bash-only constructs (`[[`, arrays, `local`, process substitution) in scripts shebanged `#!/bin/sh`.
-- GNU-only flags (`sed -i` without suffix, `readlink -f`, `date -d`) breaking on macOS/BSD.
-- Missing `trap` cleanup, leaving temp files or background jobs behind.
-- `echo` mangling `-n`, backslashes, or dashes in data; use `printf`.
-- `cd` without `|| exit`, continuing in the wrong directory.
-
 ## Examples
 
 **Input**: "Write a POSIX shell script that copies `.env.example` to `.env` if missing."
@@ -188,15 +179,6 @@ grep -q -- '--fail' "$stub_dir/curl.calls"    # assert how the script called out
 **Input**: "Our CI script needs to build, tag, and push an image; make it safe."
 
 **Expected output**: a Bash script with strict mode, `getopts` for tag/registry, early validation of required env vars with clear `die` messages, and a verification list including a dry-run mode.
-
-## Output contract
-
-Report in this order:
-- `Summary`: what the script does and the target shell.
-- `Assumptions`: inferred paths, OS, or tools.
-- `Script`: the full script content or file changes.
-- `Usage`: example command-line invocation.
-- `Verification`: commands run (shellcheck, syntax check, smoke tests) and their results; no network assumptions.
 
 ## References
 

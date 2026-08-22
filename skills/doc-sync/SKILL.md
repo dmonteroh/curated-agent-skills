@@ -86,7 +86,7 @@ Classify the changes into new features, changed behavior, removed functionality,
 
 Read the full current text of a file before editing it — the file's own diff is not enough, because reconciliation is about what the file now claims, not about what this branch touched in it.
 
-**5. Apply the autonomous set,** file by file, and emit a one-line summary per file naming *what specifically* changed. "Updated README" is not reviewable; see Examples.
+**5. Apply the autonomous set,** file by file.
 
 **6. Detect architecture-diagram drift.** Extract the entity names — modules, services, data flows — from any ASCII diagram or diagram-source block in the docs, and cross-reference each against the diff. Flag every entity that was renamed, split, removed, or moved in the code. **This is advisory only: never auto-edit a diagram, in either ASCII or diagram source.** Updating one correctly requires judgment about layout and about which relationships still hold, and an edit that satisfies a rename while destroying the diagram's shape is worse than the stale name. Report the drift as debt and let a human redraw.
 
@@ -128,7 +128,7 @@ This is the case an unprompted pass misses: a bump made for feature A silently a
 
 ## Independent review pass
 
-Run a second pass with fresh context — a separate agent, or a second model where one is available — over the docs this pass touched plus any doc whose claims the diff affects. Do not hand it a fixed filename list, for the same reason step 3 does not use one.
+Run a second pass with fresh context over the docs this pass touched plus any doc whose claims the diff affects — a separate agent, or a second model, where either is available. Do not hand it a fixed filename list, for the same reason step 3 does not use one. Where neither a separate agent nor a second model is reachable, run the second pass in the current agent instead: set aside the first pass's specific findings and re-derive the four items below from the diff and the docs directly, rather than re-confirming what the first pass already concluded. This keeps the pass self-contained rather than dependent on a second agent or model being available.
 
 Ask it for exactly four things:
 
@@ -174,6 +174,6 @@ Right: read the 2.4.0 entry, compare it against the branch's full change set, no
 
 - One line per file changed, naming what specifically changed in it
 - A status line per canonical documentation file: updated (with what), current, wording polished, version not bumped, version already bumped, or absent
-- A debt block in the pull request description covering undocumented new surface, drifted diagrams, and gaps this pass declined to fill — each with one line stating what is missing. Generating those documents is out of scope for this pass and belongs to a separate job.
+- A debt block in the pull request description covering undocumented new surface, drifted diagrams, and gaps this pass declined to fill — each with one line stating what is missing.
 - Every unresolved stop-list item, with the decision each one needs and the evidence for it
 - When nothing needed changing: "All documentation is up to date", and no commit

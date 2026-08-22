@@ -17,9 +17,8 @@ This is a concise execution protocol for implementing tasks created with Tracks 
    - Make the minimal change to satisfy one acceptance criterion at a time
    - Run checks frequently
 5. Record completion:
-   - Update task frontmatter (`status:`)
+   - Set task status via `scripts/tcd.sh set-task-status <task-id> <status>` (updates frontmatter and rebuilds `docs/project/work_index.md` atomically)
    - Record the commit SHA beside the task in the track plan (see "Plan as revert map")
-   - Rebuild `docs/project/work_index.md` via `tcd.sh index`
 
 ## Batch execution (recommended for large tasks)
 

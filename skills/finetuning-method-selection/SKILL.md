@@ -23,7 +23,7 @@ This procedure carries no hyperparameter values. Rank, learning rate, batch size
 ## Do not use this skill when
 
 - There is no way to tell whether a run helped: no graded examples, no scored traces, no automatically checkable criterion. Every branch below ends in a gate that reads a measurement, so without one the routing decision cannot be wrong in any detectable way. Building the measuring stick is the prior task.
-- The method is already chosen and the open question is what a setting should be. That is framework documentation, and this procedure deliberately holds no such values.
+- The method is already chosen and the open question is what a setting should be. That is framework documentation.
 - The work is taking an already-trained model to production — serving contracts, promotion gates, rollback, drift monitoring. Choosing the training recipe is upstream of that pipeline, not part of it.
 - The unit being changed is a prompt, an instruction file, or an agent's configuration rather than model weights. None of the branches below apply when the weights do not move.
 - The conclusion is already "retrieval, not training" and the question is how to build the retrieval system — corpus selection, chunking, indexing, ranking. This procedure can *return* that verdict; it does not design what comes after it.
@@ -69,7 +69,7 @@ Where two shapes are present, the branch is chosen on which one the *gap* is exp
 
 A branch that fails its gate does not open. Each gate below fails in a way that is readable before a run rather than after one.
 
-**Supervised training** has no routing gate beyond the data shape itself — its failure modes live in how the rows are built, not in the routing. Recording that explicitly keeps a missing gate from reading as an unchecked one. (authored)
+**Supervised training** has no routing gate beyond the data shape itself — its failure modes live in how the rows are built, not in the routing. Recording that explicitly keeps a missing gate from reading as an unchecked one.
 
 **Preference optimization** — the pair gate. A pair is two attempts at the *same* task. A set assembled from the best output of one task and the worst of another encodes a preference between tasks rather than between responses, and it is not preference data yet. Also: this pass runs at a learning rate *below* the one that produced the supervised checkpoint it aligns. Carrying the supervised-stage rate forward is the ordinary failure on this branch, not an edge case.
 
@@ -115,7 +115,7 @@ Total footprint is weights plus optimizer state plus gradients plus activations,
 
 ## Output contract
 
-A routing record, not a recommendation paragraph. The shape below is authored for this procedure; the sources it draws on define no reporting format. (authored)
+A routing record, not a recommendation paragraph. The shape below is authored for this procedure; the sources it draws on define no reporting format.
 
 - The off-ramp record from step 1, including any verdict that ended the routing.
 - The named branch and the rows that selected it.
@@ -130,17 +130,6 @@ A routing record, not a recommendation paragraph. The shape below is authored fo
 - *"Reviewers click approve or reject on individual responses; nothing is matched."* Unpaired signal → the unpaired-feedback method. Not synthesized pairs: pairing an approved response with a rejected one from a different request encodes a preference between requests.
 - *"The model already solves some of these problems and we can check answers automatically."* Verifiable signal → reinforcement from verifiable rewards, and only after the base success rate is confirmed nonzero and the checker has been read against real outputs.
 - *"We want the model to know this week's pricing page."* Volatile facts → routing verdict: retrieval, no training run at all. The record says so and stops.
-
-## Common pitfalls
-
-- Picking the method first, then reshaping the data until it fits.
-- Synthesizing preference pairs out of unpaired approve/reject signal.
-- Opening a reinforcement run against a model that never succeeds at the task, and reading the flat reward curve as a hyperparameter problem.
-- Comparing loss-function variants before checking whether data quality or size class is the actual constraint.
-- Carrying the supervised-stage learning rate into the preference pass.
-- Treating continued pretraining as the standing answer to "the model does not know our domain".
-- Reading a reward function's aggregate score without ever reading its verdicts beside the outputs that produced them.
-- Reusing a weight-memory number computed for one dtype when sizing a method that loads weights at another.
 
 ## References
 

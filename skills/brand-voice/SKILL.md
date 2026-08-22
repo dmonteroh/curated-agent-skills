@@ -124,12 +124,3 @@ Rules for the block:
 **A source set that does not support a profile.**
 
 - The requester supplies three sentences from a bio page and asks for a full profile. Report that the set supports capitalization and little else, and ask for posts, memos, or sent emails. A profile filled out past its evidence is invention wearing the shape of a finding.
-
-## Common pitfalls
-
-- Deriving from what the author *should* sound like — their category, their role, their platform — instead of from what they wrote.
-- Averaging a split source set into a single blurred description.
-- Writing fields that restate the samples' subject matter rather than their construction.
-- Filling a thin field to make the block look complete.
-- Re-deriving the profile on the next task instead of loading the one already produced.
-- Carrying an inherited list of banned phrases the author's own writing never demonstrates.

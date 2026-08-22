@@ -36,12 +36,7 @@ High-signal visual verification that is intentionally tool-agnostic and works fr
 
 ## Evidence admissibility
 
-Four gates decide whether an evidence set can be judged at all. They run at step 1, before any criterion. Failing one is never a reason to `pass` the parts that happen to be present. What each gate rejects, and why: `references/evidence-admissibility.md`.
-
-- **Complete coverage, never a sample.** Enumerate every page, route, slide, tab, modal state, breakpoint and scroll position in scope, record the count, and require one capture per item. The verdict is per page and one failing page fails the surface, so "most pages look fine" is not a `pass`.
-- **Freshness.** A capture is admissible only if it postdates the last change to the source it claims to verify. When capture time or source-change time cannot be established, that is `needs-evidence`, not the benefit of the doubt.
-- **Capture hygiene.** Inspect the artifact before judging the product — real format matches extension, frame fully composited, dimensions match the claimed viewport. A defective capture is a tooling defect, never a product issue.
-- **Motion frames.** A single resting frame is not evidence for anything that moves: each transition needs rest, in-flight and settled; each scroll or entrance reveal needs start/mid/end.
+Four gates decide whether an evidence set can be judged at all: **complete coverage** (one capture per enumerated in-scope item — page, route, slide, tab, modal state, breakpoint, scroll position — never a sample), **freshness** (the capture postdates the last change to the source it claims to verify; when either time cannot be established, `needs-evidence`), **capture hygiene** (the artifact is intact and matches its label; a defective capture is a tooling defect, never a product issue), and **motion frames** (rest, in-flight and settled per transition, start/mid/end per scroll or entrance reveal). They run at step 1, before any criterion, and failing one is never a reason to `pass` the parts that happen to be present. What each gate rejects, why skipping it produces a verdict nobody should trust, and the decision points for a mixed or broken capture set: `references/evidence-admissibility.md`.
 
 **Animation is never a reason to wave a region through.** "The pixels differ because it is animating" dismisses a diff instead of resolving it. Compare settled state against settled state for fidelity, and judge the motion separately against the reference's own motion, or against the stated intent when there is no reference.
 
@@ -103,7 +98,7 @@ Provenance, binding on how these are used: the WCAG ratios come from the standar
 - **Spacing scale**: spacing values come from a scale, not arbitrary numbers (chosen default base: 4px or 8px).
 - **Border-radius hierarchy**: radius varies by element role. One uniform large radius on buttons, cards, inputs and avatars alike is a finding, not a style.
 - **Breakpoint ladder**: verify at the project's breakpoints; when none are stated, the chosen default ladder is 375 / 768 / 1024 / 1440.
-- **CJK line breaking**: when the rendering carries Korean, Japanese or Chinese body or display text, walk the defect classes in `references/cjk-line-breaking.md` on every page's rendering. The Latin-script orphan rule below does not detect them — it asks whether one stray word sits alone, while these defects are a phrase cut where the grammar does not allow it — and a near-identical automated diff score never clears one.
+- **CJK line breaking**: when the rendering carries Korean, Japanese or Chinese body or display text, walk the defect classes in `references/cjk-line-breaking.md` on every page's rendering. The Latin-script orphan rule in `references/micro-rules.md` does not detect them — it asks whether one stray word sits alone, while these defects are a phrase cut where the grammar does not allow it — and a near-identical automated diff score never clears one.
 - **Never** ship body text that is both small and low-contrast; **never** use a placeholder as an element's only label (it disappears once the field has content); **never** drop the visited/unvisited link distinction; **never** float a heading equidistant between two sections — it must sit closer to the section it introduces.
 
 ### Landing criteria — `marketing` surfaces
@@ -128,25 +123,11 @@ Provenance, binding on how these are used: the WCAG ratios come from the standar
 
 ### Micro-rules
 
-These are the checks a reviewer will not volunteer unprompted. Each is observable in the rendering, or in computed styles when the app can be run.
-
-- `font-variant-numeric: tabular-nums` on any column of numbers. The tell is a numeric column whose digits do not align vertically between rows.
-- `color-scheme` declared on the root element whenever the page has a dark theme. Without it the browser keeps form controls, scrollbars and the text caret in their light-theme rendering — a white scrollbar or checkbox against a dark surface is the visible symptom.
-- The accent colour is desaturated for dark surfaces rather than reused unchanged from the light theme. (The source rubric names a 10-20% reduction; that range is unexplained there, so the rule is stated without it — check that the accent was adjusted, not by how much.)
-- Dark-mode body text is off-white rather than pure white.
-- `text-wrap: balance` or `text-pretty` on headings; the tell is a heading whose last line holds one orphan word.
-- Real typographic characters: the ellipsis character, not three periods; curly quotes, not straight ones.
-- No added letterspacing on lowercase body text.
-- `env(safe-area-inset-*)` respected, so content clears notches and home indicators.
-- Motion animates `transform` and `opacity` only, with properties listed explicitly rather than `transition: all`.
-- `will-change` appears only where a first-frame stutter was actually observed, and only on compositor-friendly properties (`transform`, `opacity`, `filter`). `will-change: all` is a finding: it asks the browser to promote everything and gives back the cost the hint exists to avoid.
-- Images carry a hairline neutral inset outline — an `outline` pulled inside the box with a negative `outline-offset`, black at low alpha on light surfaces and white at low alpha on dark — so an image edge does not dissolve into the surface behind it. The tell is a pale photograph on a white card with no discernible edge. Image outlines are never tinted with the brand palette. (The source rubric's 1px width and 10% alpha are chosen defaults; what is checkable is that the edge is defined and neutral.)
+Eleven checks a reviewer will not volunteer unprompted — tabular numerals, `color-scheme` on the root, the dark-theme accent and body text, heading balance, real typographic characters, letterspacing, safe-area insets, which properties motion may animate, `will-change` discipline, and the neutral inset outline on images. Each is observable in the rendering, or in computed styles when the app can be run. Walk them at step 7: `references/micro-rules.md`.
 
 ## Trunk test
 
 Named for the test in Steve Krug's *Don't Make Me Think*, and used here as a check, not reproduced from it. Take one screen with no prior context and ask whether the page itself answers, unaided: what site this is, which page you are on, what the major sections are, what the options are at this level, where this page sits in the hierarchy, and how to search. Score each question answered or not.
-
-A failure here outranks visual polish: an unanswered trunk-test question is a high-impact finding on a beautiful page.
 
 ## AI-slop screen
 
@@ -188,12 +169,6 @@ Confirming a fake outright means reading the DOM or the component tree, which si
 
 - Calling a change "correct" without listing visible evidence.
 - Skipping focus/contrast checks because the change seems minor.
-- Ignoring states that are in scope (loading/error/empty) for the component.
-- Mixing subjective language with objective observations.
-- Averaging the AI-slop result into the design verdict, which conceals a page that is technically correct and entirely generic.
-- Applying landing criteria to an application surface, or the reverse, because the classifier step was skipped.
-- Quoting a chosen default back as a requirement when the project's own design system states a different value.
-- Reporting a criterion as met when the evidence cannot show it; `not observable` plus a retest note is the honest result.
 
 ## Completion gate
 
@@ -227,17 +202,12 @@ Use this exact section order:
 
 ## Examples
 
-**Output snippet**
+**Output snippet** — six of the sixteen sections; the full filled report is in `references/report-template.md`.
 
 - Verdict: partial
 - AI-Slop Screen: flagged (2) — three-column feature grid in "Why us"; uniform 16px radius on buttons, cards and inputs alike
 - Faked-Surface Check: hero "dashboard preview" — suspect (identical internal layout at 375 and 1280 while everything around it reflowed); settles with a 768px capture of that region
-- Surface Classification: hybrid — marketing hero above the fold, settings table below
-- Evidence Inventory: 14 states enumerated, 12 captured; `settings-desktop-before.png` (1280x800, light, default, captured after the last source change)
-- Goals: [ ] Updated button padding (needs-evidence at 768px)
-- Regressions / Unintended Changes: Hover state missing from evidence
 - Design Criteria Findings: measure — not met (body copy at 104 characters per line, chosen default is 45-75); palette — met (9 non-gray colours); nested radii — not met (12px card holds a 12px thumbnail inside 8px padding, expected 4px)
-- Trunk Test: "where am I in the scheme of things" unanswered — no breadcrumb or active-nav marker (high impact)
 - Issues: (blocker) `[evidence]` `settings-mobile-after.png` is a JPEG named `.png` and its lower third is black — re-shoot before this page can be judged; (major) `[product]` focus ring clipped by the card's overflow
 - Completion Gate: not satisfied — no review by anyone other than the change's author, and two states still uncaptured
 

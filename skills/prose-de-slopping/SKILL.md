@@ -53,7 +53,6 @@ The dash gate is an editorial default for this pass, not a claim that dashes ind
 - If a rewrite would be stronger with a specific detail the source lacks, ask for the detail or write the plain version without it. Trading a vague claim for a specific one is allowed only when the specific comes from the source or the requester.
 - If the material is fiction, the fabrication gate does not apply, since invented detail is the work; the catalogue still does. *(Authored: the source states this exception for its no-invention rule only.)*
 - If a pattern's legitimacy depends on house style, which covers heading case, boldface, emoji, quotation marks, and hyphenation, follow the document's own convention and leave conforming text alone. *(Authored: the source states these four rules absolutely.)*
-- If a tell sits inside a quotation, a title, a proper name, or an example where the phrase is being discussed rather than used, leave it. This holds even in a text that is being rewritten around it.
 
 ## Scan list
 
@@ -163,10 +162,6 @@ Three delivery modes. All three run the full loop and all three gates; they diff
 
 ## Common pitfalls
 
-- Rewriting to the shape of the original instead of to its claims, which keeps the paragraph count and loses the point.
-- Replacing a vague sentence with a specific one by supplying the specifics, which is the highest-frequency failure of this pass and the reason the fabrication gate exists.
-- Editing a protected hit because it appears in the catalogue, without checking whether the guard or the document's style guide covers it.
-- Scrubbing every tell and adding no voice, in text whose register calls for one.
 - Treating the scan list as the deliverable and reporting pattern numbers instead of rewritten prose.
 
 ## References
@@ -175,6 +170,6 @@ Three delivery modes. All three run the full loop and all three gates; they diff
 
 ## Provenance
 
-The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`, verified against the live page 2026-08-17), and reached this file through an MIT-licensed community adaptation of that page. Examples here are written for this file rather than reproduced. Patterns 34 and 35 do not come from that page: they restate two entries from a long-form drafting ban-list in this library's intake material, in this file's own words.
+The taxonomy is adapted from Wikipedia's advice page "Signs of AI writing", maintained under WikiProject AI Cleanup (`en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing`; a time-sensitive check — verified against the live page on 2026-08-17, and the page may have changed since), and reached this file through an MIT-licensed community adaptation of that page. Examples here are written for this file rather than reproduced. Patterns 34 and 35 do not come from that page: they restate two entries from a long-form drafting ban-list in this library's intake material, in this file's own words.
 
 No efficacy figure is carried, because the source states none: nothing here quantifies how much of a text this pass changes, and nothing claims a particular result from any detection tool. Rules marked *(Authored)* are this skill's, not the source's.

@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Master Git workflows for teams: clean PRs, rebasing/merging, conflict resolution, cherry-picks, safe force-push, bisect, worktrees, and recovery via reflog. Includes playbooks + safe scripts for diagnosing and fixing common Git problems."
+description: "Provides safe Git workflows for teams: clean PRs, rebasing/merging, conflict resolution, cherry-picks, safe force-push, bisect, worktrees, and recovery via reflog. Includes playbooks + safe scripts for diagnosing and fixing common Git problems."
 metadata:
   category: workflow
 ---
@@ -39,7 +39,7 @@ This skill is intentionally practical: it optimizes for **clean history**, **low
 - No Git repository is available.
 - The request is purely about product/code design (no Git workflow concerns).
 
-## Safety defaults (non-negotiable)
+## Safety defaults
 
 - Prefer `git push --force-with-lease` over `--force`.
 - Before history surgery (rebase/reset): create a backup ref:
@@ -67,7 +67,7 @@ Before any write (`COMMIT` or `REBASE`), all five must hold:
 
 If any of the five is unresolved, stop and resolve it before writing. An unknown here is a reason to ask, not to proceed on the more likely reading.
 
-## Step-by-step workflow
+## Workflow
 
 1. **Identify repo state (read-only).**
    - Run `git status -sb`, `git branch -vv`, `git remote -v`.
@@ -118,8 +118,6 @@ Cite the evidence in the answer: commit hash, subject, file path, and the line o
 
 ## Common pitfalls
 
-- Rebasing a shared branch without agreement.
-- Using `git push --force` instead of `--force-with-lease`.
 - Losing uncommitted changes before a reset (stash or commit first).
 - Forgetting to set or verify the upstream branch before pushing.
 - Reaching for `git rebase -i` where no interactive editor can be attached (CI job, hook, headless agent session). The interactive rebase opens a sequence editor and waits; with none available it stalls or aborts rather than rewriting anything, and the failure looks like a git problem instead of an environment one. Use the editor-free autosquash form in `references/rebase-and-conflicts.md`.
@@ -178,14 +176,7 @@ When this skill runs, report in this format:
 - **Verification:** final `git status -sb` + `git log --oneline -n 5`.
 - **Next steps:** push/PR guidance or follow-up questions.
 
-## Quickstart
+## References
 
-```sh
-./scripts/git_doctor.sh
-./scripts/git_prune_local_branches.sh
-```
-
-## Core playbooks (load as needed)
-
-- Start with `references/README.md` for the index and summaries.
+- Start with `references/README.md` for the index and summaries; load a playbook only when a step calls for it.
 - External references are optional; use only if network access is permitted.

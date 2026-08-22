@@ -98,20 +98,9 @@ That single rule defeats two threats at once, which is what makes it the most va
 
 The complete 30-item checklist is in `references/pathological-inputs.md`: binary and NULL bytes, ANSI floods, interleaved streams, unicode truncation, rule collisions, recursive re-application, concurrency, regex backtracking, secrets, injection, hallucination. Work it before the good cases — these are what turn a nice feature into a catastrophic regression, and each is cheap to test now and expensive to discover in production.
 
-Gate merges on the subset that is both likely and catastrophic; keep the remainder as a written backlog that becomes a regression suite as real bugs arrive. The source gates nine of its thirty. The specific nine are a judgment call; the explicit, recorded backlog is the part worth copying.
-
 ### 6. Gate the ship on your own real logged output
 
-Build the gate from real captured sessions rather than hand-picked fixtures:
-
-- Scan a local corpus of real tool invocations paired with their results.
-- Rank by token cost and cluster by tool and command shape to find the heavy tail — which small fraction of calls produced most of the tokens.
-- Emit one fixture per high-leverage cluster.
-- Replay the transformer over each; measure the reduction and diff exactly which lines were dropped.
-- **Plant the hazards into those real scenarios**, not into synthetic samples, and confirm the planted critical lines survive. This is the stage most implementations skip and the one that makes the result evidence rather than a demo.
-- Report per-scenario before and after.
-
-**The gate is a shape, not a number.** Set and record three floors *before* measuring: a total reduction floor, a zero-loss criterion on planted critical lines, and a per-scenario floor so a good average cannot hide a scenario that got worse. Choose the values yourself, and write down that you chose them. The source's figures for all three are chosen targets that were never measured against any corpus, because the benchmark that would have produced them was never built — a second, different figure appears elsewhere in the same document, which is the tell. Do not carry them as thresholds.
+Build the gate from real captured sessions rather than hand-picked fixtures.
 
 A corpus of real session transcripts makes privacy rules non-negotiable. Those rules, the benchmark's construction, and test tiering are in `references/validation-and-rollout.md`.
 

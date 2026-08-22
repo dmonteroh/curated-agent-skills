@@ -28,8 +28,6 @@ The roles matter; the filenames do not. Nothing here requires a new file, a fixe
 - The work is a throwaway script or a repository nobody will return to. Governance is overhead on something with no future sessions.
 - The repository already has a documentation system that works. Never erect a second one next to it; adopt it, or report why it cannot hold the four roles.
 
-*[authored: the source states only the last two exclusions here. The first three are this skill's own, drawn to keep its trigger separable from neighbouring documentation work.]*
-
 ## Workflow
 
 ### 1. Inventory before creating anything
@@ -118,18 +116,7 @@ History is append-oriented for traceability but is not immutable at the expense 
 
 **A log entry containing a secret or a stale claim.** Redact the sensitive content at the source, append a dated correction rather than rewriting the original line, and check the replacement statement against the code before publishing it.
 
-## Common pitfalls
-
-- Creating the four roles as four new root files while the repository's real documentation keeps drifting beside them.
-- Copying the map's or status's content into the instruction surface, which produces two owners for every fact it touches and guarantees one of them goes stale.
-- A status page that grows into a narrative history, or a history log that becomes a second changelog for every commit.
-- Claiming a document is loaded automatically when nothing in the project makes that true.
-- Deleting a delete-zone row because the removal "is obviously settled by now" — the row exists precisely for the person who does not know that.
-- Treating a document's claim as authority for an action instead of as evidence to be checked.
-
 ## Output contract
-
-*[authored: the source ships no such section; this states what a first run hands back.]*
 
 - The role map: each of the four roles, the canonical source assigned to it, and whether that source exists today.
 - Files and sections created or modified, with anything that required a new top-level artifact called out as having been asked about first.

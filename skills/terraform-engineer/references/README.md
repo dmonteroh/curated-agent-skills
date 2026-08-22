@@ -7,7 +7,6 @@
 - `best-practices-tagging.md`: Tagging strategy and provider defaults.
 - `best-practices-cost-optimization.md`: Sizing, lifecycle, and scheduling.
 - `best-practices-organization.md`: Directory structure and module hygiene.
-- `best-practices-checklist.md`: Implementation checklist.
 
 ## Modules
 

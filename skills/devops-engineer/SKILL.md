@@ -6,8 +6,6 @@ metadata:
 ---
 # DevOps Engineer
 
-Provides operational guidance for runtime platforms and day-2 reliability.
-
 ## Use this skill when
 
 - Containerizing applications (Dockerfile/image/runtime constraints)
@@ -42,7 +40,7 @@ Provides operational guidance for runtime platforms and day-2 reliability.
 - Always define resource requests/limits for production workloads.
 - Avoid interactive steps in automated environments.
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Confirm scope and required inputs.
    - Decision: If the request is mainly CI/CD pipeline architecture or app feature work, state this skill is not applicable and ask for runtime-specific needs.
@@ -68,13 +66,6 @@ Provides operational guidance for runtime platforms and day-2 reliability.
 - **A tool that mutates a project gets a disposable copy, never the checkout.** Exercising an installer, scaffolder, or migration runner against the real working tree makes the test's blast radius the repository, and a partial run leaves the damage in place. Run it in a container configured so that mutation outside a scratch area is structurally impossible rather than merely discouraged: source mounted read-only and copied into a writable scratch workspace, no network and no host credentials by default, dropped capabilities over a read-only root filesystem, and a dry run as the default mode. Then assert the refusals, not just the successes — a harness that has never been shown to reject a write outside its workspace has not demonstrated the confinement. Full contract: `references/container-isolation-contract.md`.
 - **A Linux container does not validate macOS or Windows behavior.** Containers share the host's Linux kernel: macOS cannot run as a container at all, and Windows containers require a Windows engine. Platform-independent logic can be proven in a container, but host-specific paths, command shims, argument quoting, and filesystem semantics require a native runner per operating system. This is a claim-discipline rule — it constrains what a passing run may be reported as proving. State the platform the evidence covers instead of letting one green Linux job stand in for a matrix. Detail: `references/container-isolation-contract.md`.
 
-## Common pitfalls
-
-- Changing runtime settings without updating runbooks or alerts
-- Missing probes or resource limits in production
-- Assuming rollback exists without testing or documenting it
-- Editing runtime state manually instead of updating declarative configs
-
 ## Examples
 
 **Example 1: Containerization hardening**
@@ -82,7 +73,7 @@ Input: "Make the API container slimmer and safer for prod."
 Output:
 - Summary: tighten base image, non-root user, pinned tag.
 - Proposed changes: multi-stage build, drop dev deps, add USER.
-- Verification: run image scan, validate startup and health checks.
+- Verification: run image scan and fail on any critical/high CVE; confirm the container passes its liveness and readiness probes before marking the rollout healthy.
 - Rollback: revert image tag, redeploy previous digest.
 - Follow-ups: document image build constraints in runbook.
 
@@ -92,11 +83,11 @@ Output:
 - Summary: align readiness probes with startup behavior.
 - Proposed changes: adjust probe path/timeouts, add startup probe.
 - Probe budget: size the startup allowance as `failureThreshold × periodSeconds` against the workload's measured cold start; point readiness at a dependency-checking endpoint and liveness at one that does not check dependencies.
-- Verification: watch rollout status, monitor readiness success rate.
+- Verification: `kubectl rollout status` must report success within the deploy's timeout; treat a readiness success rate below the pre-deploy baseline as a failing check.
 - Rollback: rollback deployment revision and restore probe config.
 - Follow-ups: update runbook with probe guidance.
 
-## Output Contract (Always)
+## Output contract
 
 Report in this format:
 

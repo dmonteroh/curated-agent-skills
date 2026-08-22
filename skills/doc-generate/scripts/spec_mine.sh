@@ -78,4 +78,4 @@ else
   echo "OK: exists $spec_file"
 fi
 
-echo "Next: run ./doc-generate/scripts/doc.sh index to ensure docs/README.md indexes docs/specs/* (optional)."
+echo "Next: run <skill-folder>/scripts/doc.sh index to ensure docs/README.md indexes docs/specs/* (optional)."

@@ -100,10 +100,6 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 - Create any credential file the tool persists with owner-only permissions at creation time, rather than writing under the ambient umask and tightening afterward. The chmod-after-write window leaves the file briefly group- or world-readable (CWE-377, CWE-367); a test that sets a permissive umask, saves a key, and asserts the resulting mode fails against the tighten-afterward implementation.
 - Output: documented resolution order, the disambiguation warning text, and the permission mode applied at file creation. Detail and worked cases: `references/ambient-credential-resolution.md`.
 
-## Common pitfalls
-
-- Reusing the same secret across environments or teams
-
 ## Examples
 
 **Example request**
@@ -133,8 +129,5 @@ Provides guidance to prevent secret leakage and make access auditable and mainta
 ## Resources
 
 - References index: `references/README.md`
-- Implementation playbook (patterns + examples): `resources/implementation-playbook.md`
-- Vault setup notes: `references/vault-setup.md`
-- GitHub secrets hygiene: `references/github-secrets.md`
 - Egress control and audit receipts for data leaving the machine: `references/agent-state-egress.md`
 - Ambient credential resolution on a developer machine: `references/ambient-credential-resolution.md`

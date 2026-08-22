@@ -1,6 +1,6 @@
 ---
 name: database-migration-orm
-description: "Plan and execute ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
+description: "Plans and executes ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
 metadata:
   category: database
 ---
@@ -55,19 +55,8 @@ metadata:
 
 ## Common pitfalls
 
-- Running large backfills inside a single migration transaction
 - Dropping columns before all services stop using them
-- Missing backward compatibility during rollout (reads/writes)
 - Adding default values that rewrite large tables without planning
-- Skipping rollback clarity for forward-only operations
-
-## Output contract
-
-- Migration context summary (ORM, DB, constraints)
-- Rollout strategy (expand/backfill/contract with gates)
-- Artifact list (migrations, backfill job, app toggle steps)
-- Rollback matrix (reversible vs forward-only)
-- Verification checklist (tests, rehearsal, monitoring)
 
 ## Examples
 

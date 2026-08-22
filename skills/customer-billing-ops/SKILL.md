@@ -111,7 +111,7 @@ Where the missing surface is a control the billing provider already offers as a 
 
 ### Step 5 — Emit the handoff
 
-Produce the record below, then stop. Any action still held for approval is listed as held, with who has to approve it.
+Produce the record below, then stop.
 
 ## Output contract
 
@@ -137,14 +137,6 @@ FOLLOW-UP
 PRODUCT GAP
 - the missing surface as a backlog item, or the explicit no-gap claim
 ```
-
-## Common pitfalls
-
-- Taking the customer's framing as the classification. "I was double-charged" is the ticket, not the observable; a team that bought seats one at a time reports it in exactly those words.
-- Refunding first because it is the fastest way to end the conversation, leaving the customer able to reproduce the problem and no record of why they could not resolve it themselves.
-- Refunding the whole relationship rather than the affected charge.
-- Closing the case with the ticket resolved and no product-gap item, so the same ticket arrives again next week from a different customer.
-- Acting on an identity that resolved to two accounts, or to none.
 
 ## Examples
 

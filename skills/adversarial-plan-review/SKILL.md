@@ -37,9 +37,9 @@ The failure this addresses is unfounded confidence, not ambiguity. A single revi
 
 ## The panel
 
-- **One attack vector per reviewer, and no two vectors overlap.** A vector is what the reviewer is hostile to, not a topic it covers. Two reviewers holding the same vector do not check the plan twice; they file the same finding twice, and it then survives the filter twice and reads as independent corroboration. (authored)
+- **One attack vector per reviewer, and no two vectors overlap.** A vector is what the reviewer is hostile to, not a topic it covers. Two reviewers holding the same vector do not check the plan twice; they file the same finding twice, and it then survives the filter twice and reads as independent corroboration.
 - **Roles are roles, not models.** The panel can be concurrent subagents, sequential prompts to one model, or repeated passes by one model under different briefs. No vector requires a particular model, vendor, or reasoning tier: the source protocol mapped each role onto a named model tier and offered no evidence for the fit, so that mapping is not carried here.
-- **Expansion-biased vectors carry a limiting clause.** Structure and reframing both argue for adding something, and unbounded they generate plausible noise that then consumes a full round of attack. Their clauses below are part of the role, not decoration. A vector added later without one should not be added. (the general rule is authored; the two clauses are from the source)
+- **Expansion-biased vectors carry a limiting clause.** Structure and reframing both argue for adding something, and unbounded they generate plausible noise that then consumes a full round of attack. Their clauses below are part of the role, not decoration. A vector added later without one should not be added.
 - **Panel size is chosen.** The five vectors below are the set the source ran; nothing measures five as correct. Add a vector only with a distinct hostility and its own bound; run without one only by stating the degraded roster in the output.
 
 | Reviewer | Attacks | Bound |
@@ -87,7 +87,7 @@ Survivorship runs as its own step, before anything is written into the output:
 - **Keep** findings that were uncontested, that were `DEFEND`ed with concrete evidence, or that were `REFINE`d — in their refined wording, not the original.
 - **Drop** everything conceded, in full, including the parts that still read well. Drop any `DEFEND` that produced no evidence the attack had not already answered.
 - **Count** what was dropped. The count is part of the deliverable, not bookkeeping.
-- **Reconcile.** Every Round 1 finding ends in exactly one place: a bucket in the distillate, or the dropped count. Survivors plus drops must equal the number of findings the bundle carried, per vector. A mismatch is a finding lost or double-counted, not a rounding error — find it before writing the output. (authored)
+- **Reconcile.** Every Round 1 finding ends in exactly one place: a bucket in the distillate, or the dropped count. Survivors plus drops must equal the number of findings the bundle carried, per vector. A mismatch is a finding lost or double-counted, not a rounding error — find it before writing the output.
 
 Synthesizing before Round 3 returns preserves exactly the findings that round was about to kill.
 
@@ -109,9 +109,9 @@ The product of this step is a distillate, not a plan:
 ## Decision points
 
 - A vector cannot be staffed → run without it and **state the degraded roster in the output**. A silently short panel produces the same-shaped report with a hole in it.
-- The bundle outgrows what a reviewer can hold → summarize finding by finding, preserving each claim and its evidence, and record in the output that reviewers saw a summarized bundle. Never truncate to fit: the tail is then silently unreviewed. (the no-truncation rule is authored)
-- A reviewer returns no findings → record zero for that vector. Do not send it back to try harder; a manufactured finding survives Round 2 as easily as a real one, because nobody bothers to attack it. (authored)
-- Two vectors independently produce the same finding → keep it once and record the independent arrival. It is the signal a panel produces that one reviewer cannot. (authored)
+- The bundle outgrows what a reviewer can hold → summarize finding by finding, preserving each claim and its evidence, and record in the output that reviewers saw a summarized bundle. Never truncate to fit: the tail is then silently unreviewed.
+- A reviewer returns no findings → record zero for that vector. Do not send it back to try harder; a manufactured finding survives Round 2 as easily as a real one, because nobody bothers to attack it.
+- Two vectors independently produce the same finding → keep it once and record the independent arrival. It is the signal a panel produces that one reviewer cannot.
 - Every finding in a bucket was conceded → leave the bucket empty and say so. Back-filling it from pre-filter material re-admits what the protocol just discarded.
 - The panel converges on "the proposal holds" → that is a result. Report it with the provenance block; a run that changes nothing ran correctly.
 
@@ -160,18 +160,6 @@ Round 1 shape, wrong beside right:
 
 - Weak — "There may be idempotency concerns around retries." Survives nothing: nothing to attack, nothing to defend, and it distills into a risk with no mitigation.
 - Strong — the finding above: one claim, a named call site, and an explicit statement of what was checked and what was not.
-
-## Common pitfalls
-
-| Pitfall | Why it defeats the protocol |
-| --- | --- |
-| One reviewer holding two vectors | Its findings stop being separable, and the louder vector quietly absorbs the other. |
-
-## Provenance
-
-Rewritten from one host-bound implementation of this protocol, with its dispatch layer, session mechanics, and product identities removed. Read off that source: the five vectors and their bounds, the three-round structure with its deliberate input asymmetry, the three-valued per-finding verdict, the survivorship rule, the four-bucket distillation, the provenance block, and the critic/author separation with its named failure mode.
-
-Its numbers are asserted, never measured — panel size, findings per reviewer, sentence caps, and a byte ceiling on the forwarded bundle — and appear here only as qualitative rules or as figures labelled chosen. Its table assigning each role to a named model tier is deliberately not carried: no evidence was offered for the fit, and the vectors stand on their own. Rules tagged **(authored)** are not from the source.
 
 ## References
 

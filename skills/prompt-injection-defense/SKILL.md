@@ -112,14 +112,9 @@ Three of the nine existed when the source was written, and all three were determ
 
 ## Common pitfalls
 
-- Scanning tool output while leaving the ingestion path unscanned, so content the harness auto-loads never meets a detector
-- Classifying the wire form of the input, so a base64 wrapper defeats the entire detection stack
 - Blocking on pattern matches, then loosening the patterns until they stop firing — ending with neither detection nor enforcement
 - Reading a quiet canary as evidence of a clean session
-- Treating a command allowlist as a semantic boundary when it only constrains verbs
 - Naming a specific classifier or vendor as the defense; the source named three different classifiers for the same product across three documents
-- Reporting aggregate detection while one evasion family passes at 100%
-- Moving the gate instead of fixing the system, then recording the run as passed
 - Fetching the eval corpus from a third-party host at test time, making an outside service a build dependency
 
 ## Examples
@@ -139,6 +134,9 @@ Three of the nine existed when the source was written, and all three were determ
 - Layer → action → threshold table, each threshold marked measured or chosen, with its tuning corpus
 - Degradation ladder with the surviving layers per rung
 - Validation results per attack type and per evasion strategy, against a gate declared before the run
+- Canary status: whether it tripped, and if so, that the session was terminated and the event logged
+- Incident log entries: timestamp, source domain, salted payload hash, confidence, layer that fired, verdict
+- Persisted-content revalidation status: quarantine state and load count for agent-authored content re-screened at load time
 - Residual list: what this composite does not defend against, stated plainly rather than left to be inferred from what the report omits
 
 ## References

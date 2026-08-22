@@ -173,8 +173,6 @@ Five failure shapes the workflow above does not catch on its own, each with the 
 
 ## Output contract
 
-Returns concrete artifacts, not a narrative: the prediction contract; the data contract with its snapshot identifier and leakage findings; the pipeline's run record; the gate definition and its result; the serving contract with its equivalence test; the monitored signal set; and the rollback plan with the date it was last exercised.
-
 Every unknown from `Required inputs` is listed as an open item that blocks production readiness. State it rather than filling it with an assumption — an assumption recorded as a finding can be challenged, and one recorded as a fact cannot.
 
 ## References
@@ -182,10 +180,3 @@ Every unknown from `Required inputs` is listed as an open item that blocks produ
 - `references/README.md` — index.
 - `references/framing-and-metrics.md` — framing an ambiguous model decision, choosing metrics from failure costs, and the feature and label hypothesis families.
 - `references/iteration-artifacts.md` — the iteration compact and the observation ledger, as field templates.
-
-## Provenance
-
-- **Sourced:** the six-phase delivery workflow and its contents; the promotion-gate mechanism, including the fail-on-missing-metric ordering; the train-serve equivalence requirement; the error-analysis loop and its four-move routing; the review checklist; the failure shapes behind the pitfalls; the operating signal set; and the rollback-plan contents. The step 0 gate — state the non-learned rule first, and in a greenfield codebase merge the inference boundary before the training loop — comes from a companion document in the same source set, which named this procedure as its own continuation.
-- **Authored — every `Check:` line is one, and so is each pitfall's tell.** The source states its rules and leaves verification implicit, so a step could be satisfied by asserting it was done. The reproduction on a clean machine, the deletion test against the promotion gate, the single equivalence test, and the exercised-rollback drill are checks that can fail. The `Required inputs` section is authored too; the source has no equivalent.
-- **Not carried:** the source's tables mapping this workflow onto a catalog of other tools, its install instructions, and its pairing with a named reviewer agent — all specific to a toolchain that is not this one. Also dropped: a decision-scoring formula that multiplied a two-element tuple by a four-element tuple and defined no operation, so it could not be computed; and an artifact-naming snippet whose only content beyond "record a configuration hash" was an unexplained truncation length.
-- **Numbers:** the three promotion-gate values in the code block are illustrative placeholders, labelled as such in the block itself. No figure anywhere in this procedure is measured, and the source presented none as measured either.

@@ -11,9 +11,7 @@ Use this checklist to keep explanations accurate and focused.
 
 ## Clarity risks
 
-- Avoids mixing explanation with implementation changes.
 - Avoids ambiguous pronouns (“it”, “this”) without clear referents.
-- Avoids overloading with diagrams when a short narrative is clearer.
 
 ## Accuracy checks
 

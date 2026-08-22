@@ -107,3 +107,19 @@ If you can run the app:
 
 - Use browser devtools to inspect computed values for padding/font-size/line-height.
 - Use responsive mode to capture standardized viewports.
+
+## Worked example — one filled report, abridged to one line per section
+
+The same example appears in abridged form under `Examples` in `SKILL.md`; this is the complete set of lines.
+
+- Verdict: partial
+- AI-Slop Screen: flagged (2) — three-column feature grid in "Why us"; uniform 16px radius on buttons, cards and inputs alike
+- Faked-Surface Check: hero "dashboard preview" — suspect (identical internal layout at 375 and 1280 while everything around it reflowed); settles with a 768px capture of that region
+- Surface Classification: hybrid — marketing hero above the fold, settings table below
+- Evidence Inventory: 14 states enumerated, 12 captured; `settings-desktop-before.png` (1280x800, light, default, captured after the last source change)
+- Goals: [ ] Updated button padding (needs-evidence at 768px)
+- Regressions / Unintended Changes: Hover state missing from evidence
+- Design Criteria Findings: measure — not met (body copy at 104 characters per line, chosen default is 45-75); palette — met (9 non-gray colours); nested radii — not met (12px card holds a 12px thumbnail inside 8px padding, expected 4px)
+- Trunk Test: "where am I in the scheme of things" unanswered — no breadcrumb or active-nav marker (high impact)
+- Issues: (blocker) `[evidence]` `settings-mobile-after.png` is a JPEG named `.png` and its lower third is black — re-shoot before this page can be judged; (major) `[product]` focus ring clipped by the card's overflow
+- Completion Gate: not satisfied — no review by anyone other than the change's author, and two states still uncaptured

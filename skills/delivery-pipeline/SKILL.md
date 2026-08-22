@@ -34,7 +34,7 @@ Score the request on three independent signals, then take the **highest** tier a
 | standard | a handful of files, one module | a new internal module or interface | one real choice with live alternatives |
 | large | many files, or cross-cutting | a new external dependency, a public API, or a spec document to satisfy | several open questions |
 
-**Highest wins; never average.** The three signals measure different kinds of exposure, and a change can be extreme on one and null on the other two. Averaging or eyeballing a blended impression is what produces the characteristic failure — a one-line edit to an authorization check classified as trivial because two of three signals said so.
+The three signals measure different kinds of exposure, and a change can be extreme on one and null on the other two. Averaging or eyeballing a blended impression is what produces the characteristic failure — a one-line edit to an authorization check classified as trivial because two of three signals said so.
 
 **Tie-breaker.** Anything touching a security trigger (below) or a public API or contract is **at least** standard, regardless of file count.
 
@@ -59,7 +59,7 @@ The file counts in the table are chosen defaults carried from the source pipelin
 | 5. Review — read the diff as a reviewer; add a security pass when triggered | run | run | run | run |
 | 6. Commit — one commit per logical change → **Gate 2** | run | run | run | run |
 
-**A phase either runs or is skipped.** There is no light research, no informal plan, no quick review. A smaller tier gets fewer phases, never degraded versions of them: an unapproved plan is not a cheaper plan, it is an ungated one. Intake, Implement, Review, and Commit are never skipped at any tier. *(Authored: the source pipeline permitted "light" variants of Research and Plan; this rewrite replaces them with the binary rule.)*
+**A phase either runs or is skipped.** There is no light research, no informal plan, no quick review. A smaller tier gets fewer phases, never degraded versions of them: an unapproved plan is not a cheaper plan, it is an ungated one. Intake, Implement, Review, and Commit are never skipped at any tier.
 
 Research order, when the phase runs: the repository's own code first, then the documentation of the dependencies already in use, then published packages, then the open web. Adopting a proven implementation beats writing a new one; the phase exists to make that search happen before the code does, not after.
 
@@ -69,7 +69,7 @@ A channel that could not be checked is reported as unchecked, never as nothing f
 
 Scaffold runs only when no end-to-end path exists yet — bootstrapping from a spec document. Everywhere else the first slice already runs and there is nothing to stand up.
 
-If the work turns out to be larger than its stated tier mid-flight, re-state the tier upward and run the phases the new tier adds. **The tier moves up, never down** — a plan skipped on a trivial reading is owed once the reading is corrected. *(Authored: the source pipeline stated floors but not the direction rule.)*
+If the work turns out to be larger than its stated tier mid-flight, re-state the tier upward and run the phases the new tier adds. **The tier moves up, never down** — a plan skipped on a trivial reading is owed once the reading is corrected.
 
 ## The two gates
 
@@ -80,7 +80,7 @@ This pipeline is gated, not autonomous. Two stops, both hard:
 
 **Everything between the gates flows without stopping.** Asking for approval task by task is not extra safety; it teaches the user to wave through every prompt, including the two that matter.
 
-**When Plan is skipped there is no Gate 1.** Do not simulate one by asking permission to start, and do not treat its absence as license to soften Gate 2 — at trivial and small tiers the commit gate is the only stop the work gets, which is exactly why it is unconditional. *(Authored: sharpened from a parenthetical in the source family.)*
+**When Plan is skipped there is no Gate 1.** Do not simulate one by asking permission to start, and do not treat its absence as license to soften Gate 2 — at trivial and small tiers the commit gate is the only stop the work gets, which is exactly why it is unconditional.
 
 ## Operations and first moves
 
@@ -151,9 +151,3 @@ Each check names what its failure means and where to return.
 3. Gate 1 was honored if Plan ran, and Gate 2 was honored unconditionally. An implementation edit or a commit with no preceding approval is a failed run, not a fast one.
 4. The security pass ran whenever the diff touched a trigger, and never when it did not. Either mismatch means the trigger list was read wrong — check which category applies, and run the pass before Gate 2 if it is still missing.
 5. Commits are conventional and each is scoped to one logical change, and changed behavior has tests, per the repository's own testing policy. A commit mixing unrelated changes, or shipping behavior with no test, has not met the check — split the commit or add the test before Gate 2.
-
-## Provenance
-
-- **Numbers.** The only figures here are the sizing bands and the tier floors, both labeled chosen defaults where they are stated. Neither is a measured threshold, and nothing else in the procedure turns on a constant.
-- **Dropped.** The source pipeline's closing checklist carried a numeric test-coverage gate imported from a host rule file with no stated basis. It is gone. What survives is the requirement: changed behavior has tests, to whatever standard the repository already sets.
-- **Authored.** Three rules are this rewrite's rather than the source's, marked inline where they appear: the run-or-skip rule replacing "light" phase variants, the direction rule for mid-flight re-sizing, and the treatment of a skipped Plan as the absence of Gate 1 rather than an implicit one.

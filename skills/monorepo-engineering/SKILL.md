@@ -27,16 +27,7 @@ Provides guidance to build monorepos that scale across teams without becoming a 
 - Pain points (slow builds, flaky cache, dependency chaos).
 - Publishing needs (private only vs public packages).
 
-## Outputs
-
-- Proposed repo layout (`apps/`, `packages/`, optional `tools/`).
-- Boundary rules (allowed dependency directions, shared package criteria).
-- Task graph + caching strategy (local + optional remote).
-- Affected detection strategy (what runs on PRs, what runs on main).
-- Versioning/publishing plan (private vs publishable packages).
-- CI plan (PR vs main vs nightly).
-
-## Workflow (fast, deterministic)
+## Workflow
 
 1) Inventory reality
 - Capture package manager(s), languages, build tools, CI runner, and pain points.
@@ -89,14 +80,14 @@ Enforce mechanically with whatever the repo already runs: a lint rule over impor
 - nightly: heavy suites (full e2e, dependency checks)
 - Output: CI job matrix + trigger rules.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Mixing multiple package managers in the same workspace.
 - Defining "shared" packages so broadly that every app depends on them.
 - Cache keys that include timestamps or non-deterministic inputs.
 - CI running full builds on every PR when affected detection exists.
 
-## Output contract (report format)
+## Output contract
 
 Report in this format:
 
@@ -118,6 +109,6 @@ Report in this format:
 - Layout: `apps/` for deployables, `packages/` for shared libs, `tools/` for CI scripts.
 - Boundaries: two tags per package — layer, ordered `app` > `feature` > `data-access` > `util`, and domain, one of `checkout`, `billing`, `shared`. Derived matrix: `packages/checkout-data-access` may import `data-access` and `util` packages tagged `checkout` or `shared`, and nothing else; `packages/shared-utils` may import `util` packages tagged `shared`. Enforced by an import lint rule run in CI, not by review.
 
-## References (load as needed)
+## References
 
 - `references/README.md`

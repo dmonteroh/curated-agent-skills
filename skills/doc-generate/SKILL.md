@@ -197,9 +197,6 @@ Per-quadrant writing templates and the rules that govern each: `references/quadr
 
 ## Common pitfalls
 
-- Drafting docs without evidence (prefer code/config/tests as truth).
-- Letting the docs index drift (run index update after edits).
-- Mixing observed behavior with assumptions (label assumptions explicitly).
 - Overwriting existing docs without preserving structure or ownership.
 
 ## Scripts

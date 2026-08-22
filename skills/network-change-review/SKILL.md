@@ -74,18 +74,8 @@ Before an ACL is bound to an interface, each of these has an answer or the bindi
 
 ## Constraints
 
-- Regex checks are a pre-flight warning layer. They will miss constructs a real parser catches and flag strings that are fine in context. Never report their output as a validation pass.
 - Collect only the config sections under review. A full running config pasted into a ticket or an external tool carries secrets, customer names, and private topology.
 - Findings carry a line number and a type. A finding without a location is not actionable inside a change window.
-
-## Common pitfalls
-
-- Applying generated config without a device-specific diff
-- Saving configuration before post-change checks pass
-- Using a subnet mask where a wildcard mask is expected
-- Binding an ACL to the wrong interface direction
-- Treating a template as the baseline instead of the running config
-- Recommending SNMPv2 community strings as a monitoring requirement
 
 ## Output contract
 

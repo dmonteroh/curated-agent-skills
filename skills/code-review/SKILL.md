@@ -36,7 +36,7 @@ It replaces overlapping code-review skills by providing explicit review modes:
 - Change intent and constraints (risk tolerance, compatibility needs).
 - Runtime context (production vs internal, threat model, scale).
 
-## Quick start (fast path)
+## Quick start
 
 1) Run the scan (optional but recommended):
 
@@ -197,7 +197,6 @@ This three-class split is this skill's own cut for code review, chosen so each c
 ## Common pitfalls
 
 - Treating lint/style nits as blockers.
-- Assuming intent instead of asking for clarification.
 - Missing security boundaries at request or data layer edges.
 - Skipping tests or observability impacts for behavior changes.
 
@@ -205,7 +204,7 @@ This three-class split is this skill's own cut for code review, chosen so each c
 
 Provide the report sections and finding format in `references/output-format.md`.
 
-## Scripts (optional)
+## Scripts
 
 Commands:
 - `scripts/review.sh scan`

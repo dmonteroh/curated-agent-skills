@@ -6,8 +6,6 @@ metadata:
 ---
 # Backend Architect
 
-Provides backend architecture guidance focused on design quality and operability, not framework-specific implementation.
-
 ## Use this skill when
 
 - Designing a new service/API or changing service boundaries
@@ -53,7 +51,7 @@ Provides backend architecture guidance focused on design quality and operability
 - Decision: If sync vs async is unclear, select based on latency, consistency, and failure isolation tradeoffs.
 - Decision: If the workflow spans services and no single transaction can cover them, design the compensating path with the happy path, not after it: one compensation per step, the handling rule for each failure situation, a deadline per step, and the test that fails the workflow at each step index in turn. See "Compensating workflows across services" in `references/architecture-patterns.md`.
 
-5) Rollout plan
+5) Plan rollout
 - Output: rollout sequence with migration steps, rollback strategy, and verification gates.
 - Decision: If rollout risk is high, require canary or feature-flagged release.
 
@@ -136,13 +134,6 @@ Delete handwritten copies once generated or derived versions exist; a surviving 
 7. Merge only when every affected side agrees on the new contract.
 
 Never change an implementation first and update the contract afterward: a contract written after the fact records what happened, it does not coordinate parallel work or prevent drift. Renaming a field in one implementation without changing and reviewing the artifact is a breaking change even when that implementation's own tests stay green. For an additive change, verify that existing consumers still work; for a breaking one, apply the versioning or migration policy rather than silently repurposing an existing field.
-
-## Common pitfalls
-
-- Treating contracts as implementation details instead of stable interfaces
-- Skipping backward compatibility and migration sequencing
-- Leaving observability requirements implicit or unowned
-- Ignoring failure modes for downstream dependencies
 
 ## Examples
 

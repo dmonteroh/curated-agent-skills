@@ -30,14 +30,15 @@ Provides controlled failure injection with explicit hypotheses, safety gates, an
 
 If any required inputs are missing, the agent requests them before proceeding.
 
-## Safety Rules (Non-Negotiable)
+## Safety Rules
 
+- Start in non-prod. Earn the right to run in prod.
 - Define steady state metrics before injecting failure.
 - Start small and isolate blast radius.
 - Have a kill switch + rollback triggers.
 - Run one variable at a time until maturity is proven.
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Map critical paths and dependencies.
    - Output: scoped system map + dependency list.
@@ -62,7 +63,7 @@ If any required inputs are missing, the agent requests them before proceeding.
 - Missing rollback automation or unclear ownership during execution.
 - Treating a chaos experiment as a load test without hypotheses.
 
-## Output Contract (Always)
+## Output contract
 
 - Experiment spec (hypothesis, steady state, blast radius, safety/rollback, success criteria)
 - Execution plan (steps + stop conditions)
@@ -109,7 +110,7 @@ Reporting format (use this in the final response):
 - Remediation Actions: Add circuit breaker metrics dashboard
 ```
 
-## Resources (Optional)
+## Resources
 
 - End-to-end playbook + templates: `resources/implementation-playbook.md`
 - Reference index: `references/README.md`

@@ -17,7 +17,7 @@ Defines the process for filling PDFs without fillable fields by placing text ann
 - Run steps in order to keep image and PDF coordinate systems aligned.
 - Bounding boxes must not overlap text labels.
 
-## Steps
+## Workflow
 
 ### 1) Render pages to images
 
