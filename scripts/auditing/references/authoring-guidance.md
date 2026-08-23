@@ -20,10 +20,12 @@ Named so a review can point at one rather than argue taste. Source pattern: `mat
 
 The test is not "is this a real topic". It is: *does this skill change what a frontier model would do unprompted?*
 
-Worked contrast, from this library:
+Worked contrast, from this library, both verdicts measured by with/without counterfactuals (2026-08-22) rather than argued from the text:
 
-- **WEAK — `backend-architect`.** Its six steps are capture constraints → define boundaries → design contracts → plan failure modes → rollout plan → assemble report. A frontier model asked to design a backend service produces that sequence unprompted. No house convention, no correction, no gate. The skill is a restatement of baseline competence.
+- **WEAK — `database-architect` (measured, then removed 2026-08-22).** Its storage-selection → schema → migration workflow read as substantial, and two vendor arms plus a synthesis unanimously argued it WEAK from the text — but the with/without runs are what settled it: both vendors produced schema-enforced invariants, safe concurrent-write handling, and full checksum-gated expand/contract migrations without the skill. The skill contributed an idiom and an output shape, no correction. A restatement of baseline competence can look like expertise; only the counterfactual shows the model already had it.
 - **STRONG — `testing`.** Carries embedded scripts that produce a deterministic report, a stated mocking default that overrides the model's own instinct, and decision points that branch on repo state. Remove it and behavior changes.
+
+Text-only differentiation verdicts ran near coin-flip against measurement on the six-skill advisory cluster (both false-STRONGs and a false-WEAK — `cloud-architect`'s arms argued WEAK and measurement reversed it). Where a verdict will drive a consolidation or removal decision, measure; a text verdict is a hypothesis.
 
 Report the verdict with its evidence. Do not act on it: see `../OPEN_ITEMS.md`, "Settled calls".
 
