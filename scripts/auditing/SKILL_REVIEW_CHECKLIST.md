@@ -4,7 +4,7 @@ Binding quality bar for every skill under `skills/`. `scripts/audit_skills.py` e
 
 **North star: predictability of process.** A skill's job is to make the process an agent follows repeatable — not to make its output identical, and not to be complete. Judge every sentence against that.
 
-Depth and worked examples live in `references/authoring-guidance.md`. Calls already settled — which a review must not re-open — live in `OPEN_ITEMS.md`. Read both before ruling on a judgment call.
+Depth and worked examples live in `references/authoring-guidance.md`; read it before ruling on a judgment call. Executed and declined removal rulings live in the gitignored `logs/removal-rulings.md` — a review must not re-propose anything ruled there.
 
 ## Provenance of this bar
 
@@ -132,7 +132,7 @@ Every check name `scripts/audit_skills.py` can emit, and the section above that 
 
 ## Verdicts
 
-This checklist outranks background and vendored guidance (everything under `references/`, `authoring-guidance.md` included) on conflict — line 3 above. A settled call in `OPEN_ITEMS.md` is not "other guidance": it is a recorded operator decision on a judgment call this checklist leaves open, and arguing against one is wrong, not thorough (`OPEN_ITEMS.md:9`). Where this checklist's text and a settled call genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
+This checklist outranks background and vendored guidance (everything under `references/`, `authoring-guidance.md` included) on conflict — line 3 above. A ruling recorded in `logs/removal-rulings.md` is not "other guidance": it is a recorded operator decision, and arguing against one is wrong, not thorough. Where this checklist's text and a recorded ruling genuinely contradict, that is a defect in the bar, not a judgment call: apply neither, report the conflict naming both `file:line` anchors, and let the operator rule. File that report as `QUESTIONS`: a bar conflict is the ambiguity that status exists to block on.
 
 <!-- parity:verdict-enum:start -->
 A verdict is recorded by running `review-result.sh` with `--status no-change|changed|questions`, once, when the review is finished. A status written as prose is commentary for the reader, not the record: it records nothing, and a review that only writes prose leaves no result on record.

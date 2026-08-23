@@ -4,7 +4,6 @@ Dispatch context: this run is a dispatched subagent of the repository's review p
 
 Read first, in this order:
 - CHECKLIST_PATH - the binding bar. It outranks every other input.
-- OPEN_ITEMS_PATH - calls already settled. Arguing against one of these is wrong, not thorough.
 - GUIDANCE_PATH - depth behind the bar. Read the section you need when a judgment call is not obvious.
 - SKILL_DIRECTORY/SKILL.md and everything else under SKILL_DIRECTORY/.
 

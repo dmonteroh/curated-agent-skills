@@ -27,7 +27,7 @@ Worked contrast, from this library, both verdicts measured by with/without count
 
 Text-only differentiation verdicts ran near coin-flip against measurement on the six-skill advisory cluster (both false-STRONGs and a false-WEAK — `cloud-architect`'s arms argued WEAK and measurement reversed it). Where a verdict will drive a consolidation or removal decision, measure; a text verdict is a hypothesis.
 
-Report the verdict with its evidence. Do not act on it: see `../OPEN_ITEMS.md`, "Settled calls".
+Report the verdict with its evidence. Do not act on it: differentiation is a flag with evidence, acted on by nobody but the operator — it is not a removal trigger.
 
 ## Over-constraint
 
@@ -72,7 +72,7 @@ Within a single file, each rule has exactly one owning section. Every other ment
 
 Checklists and self-checks may name the fields they verify; they never restate a rule's full definition. They point at the owning section.
 
-Deliberate duplication across files is different: it is declared in the parity register in `../OPEN_ITEMS.md`, updated in one change, and verified by diffing the members. Undeclared duplication is a defect.
+Deliberate duplication across files is different: it is declared as a parity family in `scripts/check_parity.py`, updated in one change, and verified by diffing the members. Undeclared duplication is a defect.
 
 ## How a skill is invoked
 
@@ -95,5 +95,5 @@ Recorded so a future author does not import them from a source library that uses
 | Shared setup skill writing a config other skills read | `setup-matt-pocock-skills` | Introduces install order and shared state across skills. |
 | Declared hard/soft dependency tiers | `mattpocock/skills` ADR 0001 | Manages coupling rather than avoiding it. This library avoids it. |
 | Plugin-only distribution | Claude Code plugin packaging | Single-vendor lock-in; these skills must install for Codex, Claude, and Copilot alike. |
-| Description-embedded activation triggers | Model-invoked skills generally | Frontmatter must load identically across three tools; cues stay in `trigger-cases/`. Not re-opened — see `../OPEN_ITEMS.md`. |
+| Description-embedded activation triggers | Model-invoked skills generally | Frontmatter must load identically across three tools; cues stay in `trigger-cases/`. Settled; not re-opened. |
 | Hard-wrapped prose | `dot-agent` skills, `ai-workflows` | Deliberate divergence: soft-wrap diffs better and edits better under an agent. Not drift. |

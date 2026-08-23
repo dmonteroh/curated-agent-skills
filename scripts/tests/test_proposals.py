@@ -15,13 +15,6 @@ sys.path.insert(0, str(AUDITING_DIR))
 
 import proposals  # noqa: E402
 
-OPEN_ITEMS_SCAFFOLD = """# Open items and settled calls
-
-## Parity register
-
-Unrelated section.
-"""
-
 REMOVALS_TWO_ITEMS = """REMOVAL PROPOSALS (none executed):
 
 1. `SKILL.md`, `## Alpha` section (whole section) - restates `references/extra.md`. Loss: the inline copy.
@@ -60,7 +53,6 @@ def make_scaffold(tmp: Path) -> Path:
     )
     (root / "skills" / "demo-skill" / "references" / "extra.md").write_text("extra\n", encoding="utf-8")
     (root / "skills" / "other-skill" / "SKILL.md").write_text("# other-skill\n", encoding="utf-8")
-    (root / "scripts" / "auditing" / "OPEN_ITEMS.md").write_text(OPEN_ITEMS_SCAFFOLD, encoding="utf-8")
     shutil.copy(AUDITING_DIR / "apply-prompt.md", root / "scripts" / "auditing" / "apply-prompt.md")
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "add", "-A"], cwd=root, check=True)

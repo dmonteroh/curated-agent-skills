@@ -2,14 +2,16 @@
 from __future__ import annotations
 
 """
-Mechanical parity checker for the two register families that are
-mechanically checkable today (Families 3 and 4 in
-scripts/auditing/OPEN_ITEMS.md's parity register):
+Mechanical parity checker for the parity register: blocks that exist in
+more than one file on purpose, declared in this script. Edit every member
+of a family in the same change; wording drift between members is a defect.
 
 - canonical-headings: SKILL_REVIEW_CHECKLIST.md section 5's canonical-heading
   paragraph vs CANONICAL_HEADINGS in audit_skills.py.
 - check-names: SKILL_REVIEW_CHECKLIST.md section 12's table vs the check
   names audit_skills.list_check_names() reports.
+- removal-authority and verdict-enum: prose families checked over the
+  marker-anchored regions PROSE_FAMILIES declares below.
 
 Exit codes:
   0 - both families in parity.

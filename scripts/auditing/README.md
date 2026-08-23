@@ -113,9 +113,6 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 - `references/authoring-guidance.md`
   - Depth behind the bar, read on demand: the pruning taxonomy, a worked differentiation contrast, over-constraint, leading words, teach-by-contrast, behavioral gates, and the patterns this library rejects on purpose.
 
-- `OPEN_ITEMS.md`
-  - Settled calls a reviewer must not re-open, the parity register for deliberately duplicated blocks, deferred lints, and trial-gated removal candidates.
-
 - `run_parallel_skill_reviews.sh`
   - Spawns parallel subagent reviews (10 per batch by default).
   - Dispatches one read-only reviewer arm per entry in `REVIEWER_ARMS` (`--arms` selects the set), then one synthesis call that is the run's only writer; applied changes, subtraction included, land under the skill folder at that synthesis step.
@@ -151,14 +148,14 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 
 - `reviewer-prompt.md`
   - Read at each reviewer arm's dispatch: the discovery contract, mandatory subtraction, differentiation, rules, and the Output verdict block.
-  - Placeholders (`SKILL_DIRECTORY`, `CHECKLIST_PATH`, `GUIDANCE_PATH`, `OPEN_ITEMS_PATH`, `VENV_PYTHON_PATH`, `AUTHORITY_TASK`, `AUTHORITY_RULE`, `CHALLENGE_LINE`) are interpolated by the runner before dispatch.
+  - Placeholders (`SKILL_DIRECTORY`, `CHECKLIST_PATH`, `GUIDANCE_PATH`, `VENV_PYTHON_PATH`, `AUTHORITY_TASK`, `AUTHORITY_RULE`, `CHALLENGE_LINE`) are interpolated by the runner before dispatch.
 
 - `synthesis-prompt.md`
   - Read at the synthesis call: the tie-break chain that resolves disagreement between reviewer arms, the vendor-agnostic framing block, and the sole per-skill write authority in a multi-arm run.
-  - Placeholders (`SKILL_DIRECTORY`, `SKILL_NAME`, `CHECKLIST_PATH`, `OPEN_ITEMS_PATH`, `REVIEW_ARTIFACTS`) are interpolated by the runner before dispatch.
+  - Placeholders (`SKILL_DIRECTORY`, `SKILL_NAME`, `CHECKLIST_PATH`, `REVIEW_ARTIFACTS`) are interpolated by the runner before dispatch.
 
 - `references/agent_skills_pdf.txt`
-  - Extracted text from the reference PDF, kept for provenance. Not given to dispatched reviewers (`OPEN_ITEMS.md`, settled 2026-08-16).
+  - Extracted text from the reference PDF, kept for provenance. Not given to dispatched reviewers (settled 2026-08-16).
 
 - `logs/`
   - Subagent execution logs per skill.

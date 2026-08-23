@@ -49,8 +49,8 @@ RULING_WORDS = ("pending", "approved", "declined")
 
 # Same exemption the runner appends to its claude calls: a dispatch from the
 # repo root auto-loads CLAUDE.md, whose bootstrap gate can otherwise consume
-# the run (see OPEN_ITEMS.md, settled call "Dispatched calls skip the
-# repository session-bootstrap").
+# the run (dispatched calls skip the repository session-bootstrap; both the
+# prompt assets and the bootstrap contract carve this out).
 DISPATCH_BOOTSTRAP_EXEMPTION = (
     "This dispatched call's session-bootstrap is already handled by the orchestrator: "
     "skip every CLAUDE.md/AGENTS.md bootstrap step (no .agent/scripts/status.sh, no .agent/ reads) "
@@ -83,8 +83,7 @@ one row per resolved ruling. Not operator-editable; nothing else reads it as
 a contract.
 
 This file lives in the gitignored logs/ directory by operator ruling
-(2026-08-22): rulings are an append-only execution record, not open items,
-and they were burying the ~10 lines of OPEN_ITEMS.md that are actually open.
+(2026-08-22): rulings are an append-only execution record, not open items.
 Known consequence, accepted: the record is untracked, so on a fresh clone or
 a wiped logs/ directory `proposals.py record` no longer sees these ids and
 can re-file an already-ruled proposal, and reviewer arms lose the

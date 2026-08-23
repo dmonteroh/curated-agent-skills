@@ -12,7 +12,6 @@ Task: synthesize every review of one skill into the single change that actually 
 
 Read first, in this order:
 - scripts/auditing/SKILL_REVIEW_CHECKLIST.md, the placeholder CHECKLIST_PATH below - the binding bar. It outranks every review's characterization of it.
-- scripts/auditing/OPEN_ITEMS.md, the placeholder OPEN_ITEMS_PATH below - calls already settled, plus the parity register naming this prompt's Output section a member.
 - SKILL_DIRECTORY and everything under it - the one skill this run is synthesizing for.
 - REVIEW_ARTIFACTS - every reviewer arm's finished review of SKILL_DIRECTORY for this run, in supply order. Refer to them only by position: Review 1, Review 2, and on through Review N. The set may hold any number of reviews; nothing here fixes the count at any particular number, and none of them is treated as identity-stripped - a review may well read as the work of a particular arm, and that readability is never itself evidence for or against its findings.
 - SKILL_NAME - SKILL_DIRECTORY with the leading skills/ and the trailing slash removed. Needed only to name this skill's own trigger-case file, scripts/auditing/trigger-cases/SKILL_NAME.md.
@@ -41,7 +40,7 @@ The chain ranks positions by how well each is grounded in the checklist, and by 
 
 ## Read the bar yourself
 
-Do not take a review's account of what the checklist or the settled calls in OPEN_ITEMS_PATH say as the bar itself. Open CHECKLIST_PATH and OPEN_ITEMS_PATH and check the cited section directly before applying or rejecting a finding. A review that mis-cites the bar is caught here, not carried forward into the output.
+Do not take a review's account of what the checklist says as the bar itself. Open CHECKLIST_PATH and check the cited section directly before applying or rejecting a finding. A review that mis-cites the bar is caught here, not carried forward into the output.
 
 ## Output
 

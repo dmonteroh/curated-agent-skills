@@ -28,8 +28,8 @@ Warnings (reported, do not fail):
 - Activation cues or trigger phrases inside SKILL.md; they belong in
   scripts/auditing/trigger-cases/<skill>.md.
 
-Heading families here and section 5 of the checklist are a parity pair; see
-scripts/auditing/OPEN_ITEMS.md.
+Heading families here and section 5 of the checklist are a parity pair,
+machine-checked by scripts/check_parity.py.
 """
 
 import argparse

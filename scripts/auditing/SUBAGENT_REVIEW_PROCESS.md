@@ -12,7 +12,6 @@ This document describes the repeatable workflow for running **parallelized subag
 
 - `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` — the binding bar
 - `scripts/auditing/references/authoring-guidance.md` — depth behind the bar, read on demand
-- `scripts/auditing/OPEN_ITEMS.md` — settled calls a reviewer must not re-open, plus the parity register
 - One or more skill entry points: `<skill>/SKILL.md`
 
 ## Workflow Overview
@@ -20,7 +19,7 @@ This document describes the repeatable workflow for running **parallelized subag
 1. **Select a batch** of skills to review (default batch size is 10).
 2. **Spawn subagents in parallel** (one per skill). Reviewer arms are read-only by prompt instruction, not by sandbox: bubblewrap cannot create a user namespace in this container, so every codex sandbox mode is a silent no-op (devcontainer ruling, operator, 2026-08-16), and the codex reviewer arm is dispatched with `--sandbox danger-full-access`, pinned literally with no separate sandbox knob.
 3. Each subagent:
-   - reads `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` and `scripts/auditing/OPEN_ITEMS.md`
+   - reads `scripts/auditing/SKILL_REVIEW_CHECKLIST.md`
    - reads the target `<skill>/SKILL.md`
    - applies changes under that skill directory only, subtraction included
    - writes results to `scripts/auditing/logs/<skill>.log`, ending in one status line
@@ -107,7 +106,7 @@ Reviews may subtract. This reverses the previous rule, which forbade removal out
 - Propose, never execute: removing a whole section, a file under `references/` or `scripts/`, the skill itself, or activation cues found in `SKILL.md`. A proposal carries the evidence and what would be lost; the operator rules on it. For activation cues, the reviewer writes the cue content directly into `trigger-cases/<skill>.md` - the one scoped exception to dispatch scope - and files a removal proposal for the `SKILL.md`-side text. Filing that proposal discharges the §1 obligation for that skill; the review proceeds to a normal verdict.
 <!-- parity:removal-authority:end -->
 
-Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and `scripts/auditing/reviewer-prompt.md` — see the parity register in `OPEN_ITEMS.md`.
+Kept in sync with `SKILL_REVIEW_CHECKLIST.md` §4 and `scripts/auditing/reviewer-prompt.md` — machine-checked by `scripts/check_parity.py`.
 
 ## Quality Gates
 
@@ -119,7 +118,7 @@ A review is acceptable when all seven hold. Gate 1 can only be satisfied by a su
 4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`. A skill whose in-`SKILL.md` cues were surfaced as a removal proposal and written into `trigger-cases/<skill>.md` does not fail this gate.
 5. **Steps are executable.** Every step yields an artifact, a decision, or a command run — not an instruction to report. Decision points are explicit.
 6. **Budgets held.** Frontmatter and `SKILL.md` token limits respected; `references/` one level deep with an index at two or more files.
-7. **Nothing settled was re-opened.** No change argues against a call recorded in `OPEN_ITEMS.md`, or against a ruling recorded in `scripts/auditing/logs/removal-rulings.md` when that file is present.
+7. **Nothing settled was re-opened.** No change argues against a ruling recorded in `scripts/auditing/logs/removal-rulings.md` when that file is present.
 
 ## Verdicts
 

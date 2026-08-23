@@ -347,7 +347,7 @@ select_challenge_line() {
 # Renders scripts/auditing/reviewer-prompt.md (read from disk and
 # interpolated - never inlined, paraphrased, or converted to a heredoc) with
 # its named placeholders: SKILL_DIRECTORY, CHECKLIST_PATH, GUIDANCE_PATH,
-# OPEN_ITEMS_PATH, VENV_PYTHON_PATH, AUTHORITY_TASK, AUTHORITY_RULE,
+# VENV_PYTHON_PATH, AUTHORITY_TASK, AUTHORITY_RULE,
 # CHALLENGE_LINE. One reviewer prompt, never a second variant: every
 # reviewer arm is read-only, so AUTHORITY_TASK/AUTHORITY_RULE resolve to
 # the same read-only pair unconditionally. Marker lines
@@ -362,7 +362,6 @@ render_reviewer_prompt() {
   local skill_dir="skills/$skill"
   local checklist_rel="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
   local guidance_rel="scripts/auditing/references/authoring-guidance.md"
-  local open_items_rel="scripts/auditing/OPEN_ITEMS.md"
   local venv_python_rel=".venv/bin/python"
   local result_tool_path="$ROOT/scripts/auditing/review-result.sh"
   local authority_task="You are a read-only reviewer. Report what must change; do not create, edit, delete, or move any file."
@@ -393,7 +392,6 @@ render_reviewer_prompt() {
   asset="${asset//SKILL_DIRECTORY/$skill_dir}"
   asset="${asset//CHECKLIST_PATH/$checklist_rel}"
   asset="${asset//GUIDANCE_PATH/$guidance_rel}"
-  asset="${asset//OPEN_ITEMS_PATH/$open_items_rel}"
   asset="${asset//VENV_PYTHON_PATH/$venv_python_rel}"
   asset="${asset//AUTHORITY_TASK/$authority_task}"
   asset="${asset//AUTHORITY_RULE/$authority_rule}"
@@ -406,7 +404,7 @@ render_reviewer_prompt() {
 # Renders scripts/auditing/synthesis-prompt.md (read from disk and
 # interpolated - never inlined, paraphrased, or converted to a heredoc)
 # with its named placeholders: SKILL_DIRECTORY, SKILL_NAME, CHECKLIST_PATH,
-# OPEN_ITEMS_PATH, REVIEW_ARTIFACTS. Reviews are supplied in full and
+# REVIEW_ARTIFACTS. Reviews are supplied in full and
 # unmodified, in the order REVIEWER_ARMS declares them, referred to only by
 # position (Review 1 ... Review N) plus the arm that produced each one.
 SYNTHESIS_PROMPT=""
@@ -415,7 +413,6 @@ render_synthesis_prompt() {
   local skill="$1"
   local skill_dir="skills/$1"
   local checklist_path="scripts/auditing/SKILL_REVIEW_CHECKLIST.md"
-  local open_items_path="scripts/auditing/OPEN_ITEMS.md"
   local result_tool_path="$ROOT/scripts/auditing/review-result.sh"
   local asset arm n msg artifacts last_msg
 
@@ -436,7 +433,6 @@ ${msg}
   asset="${asset//SKILL_DIRECTORY/$skill_dir}"
   asset="${asset//SKILL_NAME/$skill}"
   asset="${asset//CHECKLIST_PATH/$checklist_path}"
-  asset="${asset//OPEN_ITEMS_PATH/$open_items_path}"
   asset="${asset//REVIEW_ARTIFACTS/$artifacts}"
   asset="${asset//RESULT_TOOL_PATH/$result_tool_path}"
   SYNTHESIS_PROMPT="$asset"
@@ -843,7 +839,7 @@ run_skill_dual() {
     for arm in "${REVIEWER_ARMS[@]}"; do
       printf ' %s' "$(arm_last_message_path "$skill" "$arm")"
     done
-    printf '; skill_dir=skills/%s; checklist=scripts/auditing/SKILL_REVIEW_CHECKLIST.md; open_items=scripts/auditing/OPEN_ITEMS.md>\n' "$skill"
+    printf '; skill_dir=skills/%s; checklist=scripts/auditing/SKILL_REVIEW_CHECKLIST.md>\n' "$skill"
     return 0
   fi
 
