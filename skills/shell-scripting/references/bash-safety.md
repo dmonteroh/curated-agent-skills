@@ -48,6 +48,21 @@ tool "${args[@]}"
 
 Read lines into an array safely: `mapfile -t lines < <(cmd)`.
 
+## Locating the script's own directory
+
+A script that sources a sibling library or reads a bundled config must resolve those paths from its own location, not from whatever directory the caller happened to be in:
+
+```bash
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+script_name=$(basename -- "${BASH_SOURCE[0]}")
+. "$script_dir/lib/common.sh"
+```
+
+- `${BASH_SOURCE[0]}` is the path of the file currently being executed *or sourced*. `$0` is the invoking shell's name, so a `$0`-based lookup silently resolves to the caller's script the moment this file is sourced rather than executed.
+- `--` after `dirname` and `cd` stops a path beginning with `-` from being read as an option.
+- `pwd -P` returns the physical path, resolving symlinked directories in the chain, so the answer is stable when the script is reached through a symlinked `bin` directory. It resolves the *directory* only: if the script file itself is a symlink pointing elsewhere, follow it with `readlink` first (`readlink -f` is GNU-only — see `references/posix-portability.md`).
+- POSIX sh has no `BASH_SOURCE`. Under `#!/bin/sh` the closest form is `dirname -- "$0"`, which is correct for an executed script but not for a sourced one.
+
 ## Temp files and cleanup
 
 ```bash

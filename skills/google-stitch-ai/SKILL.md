@@ -6,10 +6,6 @@ metadata:
 ---
 # Google Stitch AI
 
-Provides two workflows for Stitch tasks:
-- **Design System Synthesis**: Generate `DESIGN.md` from Stitch projects or provided assets.
-- **Prompt Enhancement**: Turn vague UI ideas into structured, Stitch-optimized prompts.
-
 ## Use this skill when
 
 - A `DESIGN.md` is needed to capture a Stitch project’s design language.
@@ -21,13 +17,6 @@ Provides two workflows for Stitch tasks:
 - The request needs user research, product strategy, or a full UX design brief.
 - The request requires inventing a brand identity without assets or inputs.
 - The request depends on cross-skill dependencies or multi-agent orchestration.
-
-## Activation cues (trigger phrases)
-
-- "Create a DESIGN.md from this Stitch project"
-- "Summarize the Stitch design system"
-- "Polish this Stitch prompt"
-- "Turn this UI idea into a Stitch-ready prompt"
 
 ## Required inputs
 
@@ -43,7 +32,7 @@ Provides two workflows for Stitch tasks:
 
 ## Mode A: DESIGN.md Synthesis
 
-### Step-by-step
+### Workflow
 
 1. **Choose retrieval path.**
    - If Stitch project data is provided, collect metadata + screen HTML/screenshot.
@@ -81,7 +70,7 @@ Provides two workflows for Stitch tasks:
 
 ## Mode B: Prompt Enhancement
 
-### Step-by-step
+### Workflow
 
 1. **Clarify intent and platform.**
    - Identify page type, user goal, and platform (web/mobile).
@@ -104,9 +93,8 @@ Provides two workflows for Stitch tasks:
 - **Mode A:** Provide `DESIGN.md`, plus any open questions for missing tokens.
 - **Mode B:** Provide enhanced prompt in Markdown and state whether `DESIGN.md` was used.
 - If `DESIGN.md` is missing, recommend creating it via Mode A.
-- End with the reporting format described below.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Inventing brand colors or typography without evidence
 - Mixing web and mobile patterns in one prompt
@@ -134,20 +122,3 @@ Page Structure
 3. Line chart for revenue trend
 4. Table of top accounts
 ```
-
-## Reporting format
-
-Provide results in this structure:
-
-```
-## Output
-- Mode: DESIGN.md | Prompt
-- Inputs used: Project data | Offline assets (list assets)
-- Files created/updated: <paths or none>
-- Open questions: <list or none>
-```
-
-## Resources (Optional)
-
-- UI/UX keyword palette: `references/KEYWORDS.md`
-- Reference index: `references/README.md`

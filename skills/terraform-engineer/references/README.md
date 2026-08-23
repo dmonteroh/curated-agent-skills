@@ -7,7 +7,6 @@
 - `best-practices-tagging.md`: Tagging strategy and provider defaults.
 - `best-practices-cost-optimization.md`: Sizing, lifecycle, and scheduling.
 - `best-practices-organization.md`: Directory structure and module hygiene.
-- `best-practices-checklist.md`: Implementation checklist.
 
 ## Modules
 
@@ -20,6 +19,7 @@
 - `providers-aws.md`: AWS provider configuration, auth, and aliases.
 - `providers-azure.md`: Azure provider configuration and auth.
 - `providers-gcp.md`: GCP provider configuration and auth.
+- `providers-oci.md`: OCI provider configuration plus module components (VCN, OKE, Autonomous DB, Object Storage, load balancer).
 - `providers-kubernetes-helm.md`: Kubernetes and Helm providers.
 - `providers-versioning-best-practices.md`: Provider version constraints and guidance.
 

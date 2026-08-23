@@ -6,8 +6,6 @@ metadata:
 ---
 # Authentication & Authorization Implementation Patterns
 
-Provides guidance to build secure, scalable authentication and authorization systems using industry-standard patterns and modern best practices.
-
 ## Use this skill when
 
 - Implementing user authentication systems
@@ -15,6 +13,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Adding OAuth2/social login or SSO
 - Designing session management or RBAC
 - Debugging authentication or authorization issues
+- Exposing a local, already-trusted capability (an agent daemon, dev tool, or CLI) to a remote or third-party caller
 
 ## Do not use this skill when
 
@@ -36,27 +35,31 @@ Provides guidance to build secure, scalable authentication and authorization sys
 
 ## Workflow
 
-1. The skill scopes identities, tenants, and flows, then summarizes assumptions and constraints.
+1. Scope identities, tenants, and flows; summarize assumptions and constraints.
    - Output: Auth scope summary (actors, assets, trust boundaries, constraints).
-2. The skill selects an authentication strategy with explicit decision points.
+2. Select an authentication strategy with explicit decision points.
    - If the system is browser-first with server-rendered pages, prioritize session-based auth with secure cookies.
    - If the system is API-first or multi-service, prioritize JWT access tokens with refresh or OAuth2/OIDC.
+   - If a local, already-trusted process is being exposed to a remote or third-party caller (the caller may act on untrusted instructions), treat it as a distinct threat model from client-server web auth: separate the surfaces by socket rather than by an authorization check (a private listener with the full command set, a second listener with a locked path allowlist), put a command allowlist on the exposed listener that denies management commands outright, issue a token ladder with descending power and TTL and reject the top of the ladder if it ever arrives on the exposed surface, and grant capability through a small set of named tiers with the highest tier(s) gated behind an explicit action rather than auto-escalated — see `references/remote-capability-exposure.md` for the full pattern.
    - Output: Strategy decision and chosen flow.
-3. The skill designs the token/session lifecycle and validation rules.
+3. Design the token/session lifecycle and validation rules.
    - If using tokens, define issuer/audience, expiry, refresh, revocation, and rotation.
    - If using sessions, define session store, idle/absolute timeouts, CSRF defenses, and logout invalidation.
    - Output: Lifecycle and validation checklist.
-4. The skill defines the authorization model and enforcement points.
+4. Define the authorization model and enforcement points.
    - If access is role-based, define RBAC roles and permissions matrix.
    - If access is resource- or attribute-based, define ABAC rules and ownership checks.
    - Output: Authorization model and enforcement map.
-5. The skill plans credential, secrets, and key management.
+5. Plan credential, secrets, and key management.
    - If keys are used, define rotation, storage, and auditing requirements.
    - Output: Secrets and key management plan.
-6. The skill produces a hardening and risk checklist, including pitfalls to avoid.
+6. Produce a hardening and risk checklist, including pitfalls to avoid.
    - Output: Risk and mitigation checklist.
-7. The skill provides an implementation checklist and validation plan.
-   - Output: Step-by-step implementation checklist and verification steps.
+7. Verify the implementation against named checks, each with its expected failure symptom.
+   - Token/session validation test: an expired or tampered token or session ID is accepted → fail.
+   - Authorization boundary test: a lower-privilege role reaches a higher-privilege route or resource → fail.
+   - Secret-exposure scan: a token, session secret, or signing key appears in logs, error output, or version control → fail.
+   - Output: Verification checklist naming each check, its method, and its expected failure symptom.
 
 ## Common pitfalls
 
@@ -65,6 +68,7 @@ Provides guidance to build secure, scalable authentication and authorization sys
 - Missing rotation or revocation strategy for refresh tokens.
 - Ignoring CSRF protection for cookie-based sessions.
 - Conflating authentication with authorization checks at boundaries.
+- Gating a powerful local surface with a single authorization check instead of separating it by transport — a routing bug can bypass a check, but cannot make a caller reach a path that does not exist on the listener it connected to.
 
 ## Output contract
 
@@ -78,17 +82,6 @@ The skill produces a concise report with the following sections:
 - Hardening checklist and top risks
 - Implementation checklist and verification steps
 - Open questions or dependencies
-
-## Reporting format
-
-- Auth scope summary: actors, assets, trust boundaries, constraints.
-- Strategy decision: session or token-based flow + rationale.
-- Token/session lifecycle: validation rules, expiry, refresh, revocation.
-- Authorization model: RBAC/ABAC rules and enforcement points.
-- Secrets/key management: rotation, storage, audit logging.
-- Hardening checklist: top risks and mitigations.
-- Implementation plan: checklist + verification steps.
-- Open questions: unresolved dependencies or decisions.
 
 ## Examples
 
@@ -112,5 +105,4 @@ Example output summary:
 
 ## Resources
 
-- `resources/implementation-playbook.md` for detailed patterns and examples.
 - `references/README.md` for deeper, topic-specific reference material.

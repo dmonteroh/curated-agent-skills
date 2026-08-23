@@ -2,46 +2,6 @@
 
 Use this playbook to run safe, repeatable chaos experiments with clear hypotheses and controlled blast radius.
 
-## Golden Rules
-
-- Start in non-prod. Earn the right to run in prod.
-- One variable at a time (until the system and team are mature).
-- Define a steady state metric set before injecting failure.
-- Have a kill switch and rollback plan before starting.
-
-## Inputs (Collect First)
-
-- System overview + critical user journeys.
-- Dependencies (DB/cache/queues/external APIs) and known failure modes.
-- Observability readiness: dashboards/alerts/log correlation.
-- Environment: staging/canary/prod, traffic level, time window.
-- Safety controls: feature flags, rate limiting, circuit breakers, deploy rollback.
-
-## Experiment Workflow (Deterministic)
-
-1) Define hypothesis
-- "Given <steady state>, when <failure>, then <expected behavior>, measured by <signals>."
-
-2) Define steady state
-- Latency (p95/p99), error rate, saturation, throughput.
-- Business KPI if relevant (successful checkouts, sign-ins).
-
-3) Define blast radius
-- Environment, service scope, % of traffic/pods, duration.
-
-4) Define safety & rollback
-- Kill switch.
-- Automatic rollback triggers (SLO burn, error spikes, saturation).
-- Rollback time limit target (e.g., 30s-2m depending on system).
-
-5) Execute
-- Start small (1 pod, 1 instance, 1% traffic).
-- Observe and record; stop if rollback triggers fire.
-
-6) Learn & remediate
-- Write findings: what failed, why, and what to fix.
-- Turn remediations into trackable tasks.
-
 ## Experiment Types (Pick One)
 
 - Latency injection (dependency/network)
@@ -98,7 +58,6 @@ results:
 Use these references when concrete manifests/tools/examples are needed:
 
 - `references/README.md`
-- `references/experiment-quick-reference.md`
 - `references/experiment-template.md`
 - `references/game-day-runbook.md`
 - `references/infra-quick-reference.md`

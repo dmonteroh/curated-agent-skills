@@ -5,7 +5,8 @@ set -eu
 #
 # Commands:
 #   scaffold  - create a prompt file under prompts/ (safe-by-default)
-#   lint      - lightweight prompt lint (checks for basic structure)
+#   lint      - lightweight prompt lint (required headings, a fenced prompt
+#               block, and a scope-boundary section inside that block)
 #   assets    - list bundled assets/references
 #   optimize  - run optimize-prompt.py (stdlib-only; demo flow by default)
 #
@@ -68,6 +69,10 @@ You are <role>.
 
 ## Output format
 <omit if enforced by a schema / structured outputs>
+
+## Do not
+- <out-of-scope behavior the model must not attempt>
+- <topic, action, or claim the model must never produce>
 \`\`\`
 
 ## Evaluation
@@ -96,6 +101,18 @@ lint() {
 
   # Require at least one fenced code block.
   grep -qE '^[`]{3}' "$file" || { echo "missing fenced code block for prompt text" >&2; missing=1; }
+
+  # Require a scope-boundary section *inside* the prompt block. A prompt that
+  # never states what is out of scope leaves that to the model's discretion,
+  # and the omission only shows up in production.
+  if ! awk '
+    index($0, "```") == 1 { inblock = 1 - inblock; next }
+    inblock && tolower($0) ~ /^#+[ \t]*(do not|do-not|scope boundar|out of scope)/ { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$file"; then
+    echo "missing scope-boundary section in the prompt block: add a '## Do not' list inside the fenced prompt" >&2
+    missing=1
+  fi
 
   # Non-fatal: emphasis inflation (MUST/NEVER/CRITICAL/ALWAYS on routine guidance
   # overtriggers on current literal-following models; reserve for true invariants).

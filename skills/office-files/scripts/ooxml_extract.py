@@ -3,7 +3,7 @@
 
 Supports best-effort text extraction from:
 - DOCX: word/document.xml
-- PPTX: ppt/slides/slide*.xml
+- PPTX: slide parts resolved from ppt/presentation.xml relationships
 - XLSX: xl/worksheets/sheet*.xml (+ sharedStrings)
 
 Design goal: deterministic, dependency-free extraction for agent workflows.
@@ -14,6 +14,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import posixpath
 import re
 import zipfile
 from dataclasses import dataclass
@@ -27,6 +28,9 @@ _NS_WORD = {
 
 _NS_PPT = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+    "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
+    "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    "pkg": "http://schemas.openxmlformats.org/package/2006/relationships",
 }
 
 _NS_XLSX = {
@@ -80,13 +84,59 @@ def extract_docx(zf: zipfile.ZipFile) -> Dict:
     return {"type": "docx", "paragraphs": paragraphs}
 
 
-def extract_pptx(zf: zipfile.ZipFile) -> Dict:
-    slide_paths = sorted(
-        [n for n in zf.namelist() if n.startswith("ppt/slides/slide") and n.endswith(".xml")],
+def _pptx_slide_paths(zf: zipfile.ZipFile) -> Tuple[List[str], str]:
+    """Slide parts in presentation order, resolved through the relationship graph.
+
+    Filenames carry no order: `ppt/slides/slide7.xml` can be the second slide, and a
+    slide part the presentation no longer lists still sits in the package. Order is
+    read from `ppt/presentation.xml` and `ppt/_rels/presentation.xml.rels`.
+
+    Returns the ordered parts and how they were obtained (`relationships` or
+    `filenames`). The filename fallback runs only when the presentation part or its
+    relationships are missing or unreadable, and its order is a guess.
+    """
+    names = set(zf.namelist())
+    presentation = _read_zip_text(zf, "ppt/presentation.xml")
+    rels_xml = _read_zip_text(zf, "ppt/_rels/presentation.xml.rels")
+
+    if presentation and rels_xml:
+        try:
+            pres_root = _safe_xml(presentation)
+            rels_root = _safe_xml(rels_xml)
+        except ET.ParseError:
+            pres_root = rels_root = None
+        if pres_root is not None and rels_root is not None:
+            relmap: Dict[str, str] = {}
+            for rel in rels_root.findall(f".//{{{_NS_PPT['pkg']}}}Relationship"):
+                rid = rel.attrib.get("Id")
+                target = rel.attrib.get("Target")
+                if not rid or not target or rel.attrib.get("TargetMode") == "External":
+                    continue
+                if target.startswith("/"):
+                    resolved = posixpath.normpath(target.lstrip("/"))
+                else:
+                    resolved = posixpath.normpath(posixpath.join("ppt", target))
+                relmap[rid] = resolved
+
+            ordered = []
+            for node in pres_root.findall(f".//{{{_NS_PPT['p']}}}sldId"):
+                target = relmap.get(node.attrib.get(f"{{{_NS_PPT['r']}}}id", ""), "")
+                if target in names:
+                    ordered.append(target)
+            if ordered:
+                return ordered, "relationships"
+
+    fallback = sorted(
+        [n for n in names if n.startswith("ppt/slides/slide") and n.endswith(".xml")],
         key=lambda s: [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s)],
     )
+    return fallback, "filenames"
+
+
+def extract_pptx(zf: zipfile.ZipFile) -> Dict:
+    slide_paths, order_source = _pptx_slide_paths(zf)
     if not slide_paths:
-        return {"type": "pptx", "error": "no ppt/slides/slide*.xml found"}
+        return {"type": "pptx", "error": "no slide parts found"}
 
     slides: List[Dict] = []
     for sp in slide_paths:
@@ -100,7 +150,7 @@ def extract_pptx(zf: zipfile.ZipFile) -> Dict:
         text = " ".join(t.strip() for t in text_runs if t.strip()).strip()
         slides.append({"path": sp, "text": text})
 
-    return {"type": "pptx", "slides": slides}
+    return {"type": "pptx", "slides": slides, "slide_order_source": order_source}
 
 
 @dataclass

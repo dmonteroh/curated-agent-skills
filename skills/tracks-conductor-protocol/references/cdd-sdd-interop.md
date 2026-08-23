@@ -22,7 +22,7 @@ Create/update a track spec when:
 
 ## When to create/update an ADR
 
-Use `adr-madr-system` when:
+Create or update an ADR when:
 - the decision affects architecture boundaries, data model, auth, reliability, scaling, vendor/tooling choices
 - you need "supersedes" semantics for decision history
 

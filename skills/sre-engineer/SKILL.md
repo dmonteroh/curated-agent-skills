@@ -6,8 +6,6 @@ metadata:
 ---
 # SRE Engineer
 
-This skill delivers *reliability management*: turning availability/latency goals into measurable SLIs/SLOs, actionable alerting, runbooks, and a sustainable improvement loop.
-
 ## Use this skill when
 
 - Defining SLIs/SLOs and error budgets
@@ -16,21 +14,13 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Improving incident response (triage, stabilization, postmortems)
 - Planning reliability work that balances feature velocity
 
-**Activation cues**
-
-- "Define SLOs/error budgets for this service"
-- "We need paging rules tied to reliability targets"
-- "Reduce on-call toil and automate mitigation"
-- "Build an incident response + postmortem loop"
-- "Turn reliability goals into concrete backlog items"
-
 ## Do not use this skill when
 
 - You only need a dashboard or visualization without SLOs or alerting design
 - You only need chaos experiment manifests without reliability targets
 - You only need cloud platform architecture without operational practices
 
-## Inputs to request
+## Required inputs
 
 - Service/system name, environment, and owners
 - Critical user journeys and traffic mix
@@ -45,7 +35,7 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Keep the workflow self-contained; do not require other skills or tools.
 - Avoid time-sensitive assumptions and external network dependencies.
 
-## Workflow (Deterministic)
+## Workflow
 
 1. **Scope critical paths.**
    - Decision: if critical paths are unclear, ask for the top 3 journeys and traffic mix.
@@ -64,6 +54,7 @@ This skill delivers *reliability management*: turning availability/latency goals
    - Output: toil inventory + automation candidates with ROI.
 6. **Strengthen incident response loop.**
    - Decision: if postmortems are ad hoc, propose a lightweight template and follow-up tracker.
+   - Decision: apply the root-cause disqualifier list and the action-item verification-vs-validation standard from `references/postmortem-template.md` when reviewing postmortems and closing action items.
    - Output: incident response improvements and follow-up cadence.
 7. **Deliver reliability backlog.**
    - Output: prioritized backlog with owners, effort, and impact.
@@ -76,7 +67,7 @@ This skill delivers *reliability management*: turning availability/latency goals
 - Alerting without clear runbook mitigations
 - Automating responses without safe rollback
 
-## Output Contract (Always)
+## Output contract
 
 Provide a response with the following sections in order:
 

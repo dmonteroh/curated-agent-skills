@@ -7,7 +7,7 @@
 - Rotate session identifiers after login or privilege change.
 - Set idle and absolute timeouts.
 
-## Example (Pseudocode)
+## Examples
 
 ```ts
 app.use(session({

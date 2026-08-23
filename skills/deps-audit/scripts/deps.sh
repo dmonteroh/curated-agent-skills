@@ -64,41 +64,62 @@ detect() {
   cat "$detected"
 }
 
+# Record a scan's real exit code to "$raw_dir/$1.exit" so report() can tell
+# "tool missing" (no .exit file) apart from "ran, exit 0" and "ran, exit N"
+# instead of absorbing every outcome into the same "no output captured" line.
+record_exit() {
+  echo "$1" >"$raw_dir/$2.exit"
+}
+
 run_node() {
   # Prefer lockfile-aware tools if present.
   if have npm && [ -f "$repo_root/package.json" ]; then
-    (cd "$repo_root" && npm audit --json) >"$raw_dir/npm-audit.json" 2>"$raw_dir/npm-audit.stderr" || true
+    ec=0
+    (cd "$repo_root" && npm audit --json) >"$raw_dir/npm-audit.json" 2>"$raw_dir/npm-audit.stderr" || ec=$?
+    record_exit "$ec" npm-audit
     (cd "$repo_root" && npm ls --all) >"$raw_dir/npm-ls.txt" 2>"$raw_dir/npm-ls.stderr" || true
   fi
 
   if have pnpm && [ -f "$repo_root/pnpm-lock.yaml" ]; then
-    (cd "$repo_root" && pnpm audit --json) >"$raw_dir/pnpm-audit.json" 2>"$raw_dir/pnpm-audit.stderr" || true
+    ec=0
+    (cd "$repo_root" && pnpm audit --json) >"$raw_dir/pnpm-audit.json" 2>"$raw_dir/pnpm-audit.stderr" || ec=$?
+    record_exit "$ec" pnpm-audit
   fi
 
   if have yarn && [ -f "$repo_root/yarn.lock" ]; then
     # yarn classic supports "yarn audit --json"; berry has "yarn npm audit".
-    (cd "$repo_root" && yarn audit --json) >"$raw_dir/yarn-audit.json" 2>"$raw_dir/yarn-audit.stderr" || true
-    (cd "$repo_root" && yarn npm audit --all --json) >"$raw_dir/yarn-npm-audit.json" 2>"$raw_dir/yarn-npm-audit.stderr" || true
+    ec=0
+    (cd "$repo_root" && yarn audit --json) >"$raw_dir/yarn-audit.json" 2>"$raw_dir/yarn-audit.stderr" || ec=$?
+    record_exit "$ec" yarn-audit
+    ec=0
+    (cd "$repo_root" && yarn npm audit --all --json) >"$raw_dir/yarn-npm-audit.json" 2>"$raw_dir/yarn-npm-audit.stderr" || ec=$?
+    record_exit "$ec" yarn-npm-audit
   fi
 }
 
 run_python() {
   # Best-effort only: pip-audit may not be installed.
   if have pip-audit; then
-    (cd "$repo_root" && pip-audit -f json) >"$raw_dir/pip-audit.json" 2>"$raw_dir/pip-audit.stderr" || true
+    ec=0
+    (cd "$repo_root" && pip-audit -f json) >"$raw_dir/pip-audit.json" 2>"$raw_dir/pip-audit.stderr" || ec=$?
+    record_exit "$ec" pip-audit
   fi
 }
 
 run_go() {
   if have govulncheck && [ -f "$repo_root/go.mod" ]; then
-    (cd "$repo_root" && govulncheck ./...) >"$raw_dir/govulncheck.txt" 2>"$raw_dir/govulncheck.stderr" || true
+    ec=0
+    (cd "$repo_root" && govulncheck ./...) >"$raw_dir/govulncheck.txt" 2>"$raw_dir/govulncheck.stderr" || ec=$?
+    record_exit "$ec" govulncheck
   fi
 }
 
 run_rust() {
   # cargo-audit is a separate tool; run only if available.
   if have cargo-audit && [ -f "$repo_root/Cargo.toml" ]; then
-    (cd "$repo_root" && cargo audit -q --json) >"$raw_dir/cargo-audit.json" 2>"$raw_dir/cargo-audit.stderr" || true
+    ec=0
+    (cd "$repo_root" && cargo audit -q --json) >"$raw_dir/cargo-audit.json" 2>"$raw_dir/cargo-audit.stderr" || ec=$?
+    record_exit "$ec" cargo-audit
   fi
 }
 
@@ -116,6 +137,27 @@ scan() {
   echo "$detected" | grep -q "^rust$" && run_rust || true
 
   echo "OK: wrote raw outputs under $raw_dir"
+}
+
+# Emit one status line for a captured scan: ran (exit 0), ran (exit N -
+# nonzero can mean findings were reported or the scan failed; the raw
+# output and stderr file are the falsifiable check), or not run at all.
+scan_status_line() {
+  scan_name="$1"
+  out_ext="$2"
+  suggested="$3"
+  exit_file="$raw_dir/$scan_name.exit"
+  if [ -f "$exit_file" ]; then
+    scan_ec="$(cat "$exit_file")"
+    if [ "$scan_ec" = "0" ]; then
+      echo "- \`$scan_name\`: ran, exit 0. Raw output: \`docs/_docgen/deps-audit/raw/$scan_name.$out_ext\`"
+    else
+      echo "- \`$scan_name\`: ran, exit $scan_ec (nonzero can mean findings were reported or the scan failed) - inspect \`docs/_docgen/deps-audit/raw/$scan_name.$out_ext\` and \`$scan_name.stderr\`"
+    fi
+  else
+    echo "- \`$scan_name\` not run (tool missing or no matching lockfile)."
+    echo "  - Suggested: \`$suggested\`"
+  fi
 }
 
 report() {
@@ -144,45 +186,42 @@ report() {
 
     if grep -q "^node$" "$detected_file" 2>/dev/null; then
       echo "### Node"
-      if [ -s "$raw_dir/npm-audit.json" ] || [ -s "$raw_dir/pnpm-audit.json" ] || [ -s "$raw_dir/yarn-audit.json" ] || [ -s "$raw_dir/yarn-npm-audit.json" ]; then
-        echo "- Raw outputs: \`docs/_docgen/deps-audit/raw/*audit*.json\`"
-      else
-        echo "- No audit output captured. Ensure a package manager is installed and lockfiles exist."
-        echo "  - Suggested: \`npm audit --json\` or \`pnpm audit --json\`"
-      fi
+      scan_status_line npm-audit json "npm audit --json"
+      scan_status_line pnpm-audit json "pnpm audit --json"
+      scan_status_line yarn-audit json "yarn audit --json"
+      scan_status_line yarn-npm-audit json "yarn npm audit --all --json"
       echo
     fi
 
     if grep -q "^python$" "$detected_file" 2>/dev/null; then
       echo "### Python"
-      if [ -s "$raw_dir/pip-audit.json" ]; then
-        echo "- Raw outputs: \`docs/_docgen/deps-audit/raw/pip-audit.json\`"
-      else
-        echo "- pip-audit not run (tool may be missing)."
-        echo "  - Suggested: install \`pip-audit\`, then run \`pip-audit -f json\`."
-      fi
+      scan_status_line pip-audit json "pip-audit -f json"
       echo
     fi
 
     if grep -q "^go$" "$detected_file" 2>/dev/null; then
       echo "### Go"
-      if [ -s "$raw_dir/govulncheck.txt" ]; then
-        echo "- Raw outputs: \`docs/_docgen/deps-audit/raw/govulncheck.txt\`"
-      else
-        echo "- govulncheck not run (tool may be missing)."
-        echo "  - Suggested: install \`govulncheck\`, then run \`govulncheck ./...\`."
-      fi
+      scan_status_line govulncheck txt "govulncheck ./..."
       echo
     fi
 
     if grep -q "^rust$" "$detected_file" 2>/dev/null; then
       echo "### Rust"
-      if [ -s "$raw_dir/cargo-audit.json" ]; then
-        echo "- Raw outputs: \`docs/_docgen/deps-audit/raw/cargo-audit.json\`"
-      else
-        echo "- cargo-audit not run (tool may be missing)."
-        echo "  - Suggested: install \`cargo-audit\`, then run \`cargo audit --json\`."
-      fi
+      scan_status_line cargo-audit json "cargo audit --json"
+      echo
+    fi
+
+    if grep -q "^java$" "$detected_file" 2>/dev/null; then
+      echo "### Java"
+      echo "- Detected via manifest; no local scanner is wired up for this ecosystem in this skill."
+      echo "  - Inspect \`pom.xml\`/\`build.gradle\` manually, or run vendor tooling (for example OWASP Dependency-Check) yourself."
+      echo
+    fi
+
+    if grep -q "^ruby$" "$detected_file" 2>/dev/null; then
+      echo "### Ruby"
+      echo "- Detected via manifest; no local scanner is wired up for this ecosystem in this skill."
+      echo "  - Inspect \`Gemfile.lock\` manually, or run vendor tooling (for example \`bundler-audit\`) yourself."
       echo
     fi
 

@@ -28,8 +28,8 @@ if [ "$have_rg" -eq 1 ]; then
     printf "%10s %s\n" "$lc" "$f"
   done | sort -nr | head -n "$limit"
 else
-  find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' -print0 \
-    | while IFS= read -r -d '' f; do
+  find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' \
+    | while read -r f; do
         lc="$(wc -l <"$f" 2>/dev/null || echo 0)"
         printf "%10s %s\n" "$lc" "$f"
       done | sort -nr | head -n "$limit"

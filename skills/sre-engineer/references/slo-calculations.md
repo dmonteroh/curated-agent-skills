@@ -40,11 +40,4 @@ class MultiWindowSLO:
 
     def check_compliance(self, sli_values: dict[str, float]) -> dict[str, bool]:
         return {window: sli >= self.target for window, sli in sli_values.items()}
-
-    def get_burn_rate(self, current_sli: float) -> float:
-        error_budget = 1 - self.target
-        current_error_rate = 1 - current_sli
-        if error_budget == 0:
-            return float('inf')
-        return current_error_rate / error_budget
 ```

@@ -1,14 +1,12 @@
 ---
 name: gdpr-data-handling
-description: "Implement practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
+description: "Implements practical GDPR-compliant data handling (privacy by design, lawful basis, DSARs, retention, vendor/transfer controls, breach readiness). Use when building or reviewing systems that process EU personal data."
 metadata:
   category: security
 ---
 # GDPR Data Handling
 
-Provides an implementation-focused guide for GDPR-compliant data processing, privacy controls, and operational workflows.
-
-Focuses on engineering/operator execution and does not replace legal counsel. Produces concrete artifacts and verifiable behaviors from privacy requirements.
+Produces concrete artifacts and verifiable behaviors from privacy requirements.
 
 ## Use this skill when
 
@@ -27,7 +25,7 @@ Focuses on engineering/operator execution and does not replace legal counsel. Pr
 - Legal interpretation or formal legal advice is required
 - A different domain or tool outside this scope is needed
 
-## Inputs required
+## Required inputs
 
 - Systems and datasets in scope (or a repo/architecture available for inspection)
 - Processing purposes and audiences
@@ -52,7 +50,7 @@ Minimum artifacts (paths are suggestions; use existing repo conventions):
 
 Templates and checklists are in `references/README.md` (load as needed).
 
-## Workflow (fast, high-signal)
+## Workflow
 
 1) Scope the processing
 - Output: scope summary, data types, environments, and assumptions.
@@ -74,6 +72,7 @@ Templates and checklists are in `references/README.md` (load as needed).
 
 6) Set retention + deletion
 - Decision: if legal holds apply, document exceptions and approval gate.
+- Decision: if a downstream use survives losing the identifiers, irreversible anonymization is an alternative end-of-retention outcome to deletion — but only where no re-identification key is retained anywhere; otherwise the record stays personal data and the retention rule still applies. See `references/pattern-retention.md`.
 - Output: retention schedule + deletion mechanism notes.
 
 7) Capture processor/transfer requirements
@@ -81,18 +80,20 @@ Templates and checklists are in `references/README.md` (load as needed).
 - Output: processor/subprocessor register and transfer notes.
 
 8) Prepare breach readiness
-- Output: breach readiness runbook with triage, notification, evidence capture.
+- Decision: fix the notification gate in the runbook before any incident — which severity band triggers supervisory-authority notification, which triggers data-subject notification, and which data categories escalate regardless of band. GDPR states a qualitative risk test rather than tiers, so any tiering is a chosen house rule to agree with counsel, not a legal requirement. Tier table and the record field that traces each decision to it: `references/pattern-breach-notification.md`.
+- Output: breach readiness runbook with triage, the notification gate with its bands defined, evidence capture.
 
 9) Validate gaps
 - Output: compliance checklist with open gaps + owners.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Treating consent as the default lawful basis without justification.
 - Relying on policy-only retention with no technical enforcement.
 - Incomplete DSAR coverage (missing backups, archives, or linked systems).
 - Missing audit trails for consent changes or DSAR actions.
 - Ignoring processor/subprocessor access paths and transfer documentation.
+- Treating authority notification and data-subject notification as one decision, when the second is a deliberately higher bar.
 
 ## Examples
 
@@ -111,24 +112,6 @@ Report the following sections:
 - Artifacts produced (with paths)
 - Gaps/risks and recommended next actions
 - Decisions made (lawful basis, retention exceptions, transfers)
-
-## Reporting format
-
-Use this structure in your final response:
-
-```
-## Summary
-- ...
-
-## Artifacts
-- ...
-
-## Decisions & Assumptions
-- ...
-
-## Gaps & Next Actions
-- ...
-```
 
 ## References
 

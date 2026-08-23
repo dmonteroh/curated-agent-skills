@@ -1,12 +1,10 @@
 ---
 name: changelog-automation
-description: "Automate changelog and release note generation from commits or PR metadata using Keep a Changelog and semantic versioning. Use when designing release workflows or standardizing commit conventions."
+description: "Automates changelog and release note generation from commits or PR metadata using Keep a Changelog and semantic versioning. Use when designing release workflows or standardizing commit conventions."
 metadata:
   category: workflow
 ---
 # Changelog Automation
-
-Provides patterns and tools for automating changelog generation, release notes, and version management.
 
 ## Use this skill when
 
@@ -47,8 +45,9 @@ Provides patterns and tools for automating changelog generation, release notes, 
 4. Pick an automation approach and list required files.
    - Output: tool choice, config files to add/update, and required tools or plugins.
    - Decision: if CI is unavailable, document a local release script instead.
-5. Generate a preview and validate contents.
+5. Generate a preview and compare it against the selected commit/PR source.
    - Output: preview summary with missing items or sensitive data to redact.
+   - Decision: if the preview omits a commit/PR in scope or misclassifies its section, fix the classification rules and regenerate before publishing.
 6. Publish the changelog/release notes plan.
    - Output: ordered steps to update `CHANGELOG.md`, tag releases, and publish notes.
 
@@ -58,10 +57,6 @@ Provides patterns and tools for automating changelog generation, release notes, 
 - Missing breaking-change markers leads to incorrect version bumps.
 - Editing generated changelogs manually causes drift from automation.
 - Exposing internal ticket IDs or secrets in release notes.
-
-## Safety
-
-- Avoid exposing secrets or internal-only details in release notes.
 
 ## Examples
 
@@ -82,16 +77,6 @@ Provides patterns and tools for automating changelog generation, release notes, 
 - Automation approach with files and commands to add/update.
 - Verification steps for previewing the changelog.
 - Risks, gaps, or follow-up decisions needed.
-- Reporting format populated as specified below.
-
-## Reporting format
-
-- Summary: ...
-- Decisions: ...
-- Files/Configs: ...
-- Commands: ...
-- Verification: ...
-- Risks/Follow-ups: ...
 
 ## References
 

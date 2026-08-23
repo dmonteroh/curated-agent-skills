@@ -28,7 +28,21 @@ Scope: <pages/components>
 
 <pass|fail|partial|needs-evidence>
 
+## AI-Slop Screen
+
+<clean|flagged (<n>)> - <pattern name>: <where it appears>
+
+## Faked-Surface Check
+
+- <region>: <live|suspect|not observable> - tell: <what raised it> - settles with: <capture>
+
+## Surface Classification
+
+<marketing|app|hybrid> - decided by: <observation>
+
 ## Evidence Inventory
+
+Enumerated in scope: <n>; captured: <n>.
 
 - <artifact> (<viewport>, <theme>, <state>, <environment>)
 
@@ -39,15 +53,28 @@ Scope: <pages/components>
 
 ## Observations (Objective)
 
-- 
+-
 
 ## Intended Diffs Observed
 
-- 
+-
 
 ## Regressions / Unintended Changes
 
-- 
+-
+
+## Design Criteria Findings
+
+- <criterion>: <met|not met|not observable> - measured: <value>
+
+## Trunk Test
+
+- What site is this: <answered|not answered>
+- What page am I on: <answered|not answered>
+- Major sections: <answered|not answered>
+- Options at this level: <answered|not answered>
+- Position in the hierarchy: <answered|not answered>
+- How to search: <answered|not answered>
 
 ## Accessibility (Visual)
 
@@ -63,12 +90,18 @@ Scope: <pages/components>
 
 ## Issues (With Severity)
 
-- [ ] (<blocker|major|minor|nit>) <issue> - evidence: <where>
+- [ ] (<blocker|major|minor|nit>) [product|evidence] <issue> - evidence: <where>
 
 ## Retest Plan
 
 - Needed evidence: <state/viewport/theme>
 - Steps to capture: <how>
+
+## Completion Gate
+
+- Independent (non-authoring) review returned: <pass|blocking findings>
+- Evidence set judged: <complete and current|gaps>
+- <Satisfied|Remaining gaps and who accepted them>
 EOF2
 
 echo "Wrote: $OUT" >&2

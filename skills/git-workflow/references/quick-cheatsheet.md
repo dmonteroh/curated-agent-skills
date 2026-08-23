@@ -25,6 +25,13 @@ git rebase -i origin/main
 git push --force-with-lease
 ```
 
+No editor available (CI, hook, headless session):
+
+```sh
+git commit --fixup=<target-sha>
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/main
+```
+
 ## Conflict resolution
 
 ```sh

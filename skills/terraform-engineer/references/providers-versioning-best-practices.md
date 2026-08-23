@@ -1,5 +1,7 @@
 # Terraform Provider Versioning and Best Practices
 
+Versions and constraints below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Provider Version Constraints
 
 ```hcl

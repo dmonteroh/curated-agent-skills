@@ -158,8 +158,8 @@ report_cmd() {
     echo
     echo "## Next steps"
     echo
-    echo "- Do a manual review using the mode checklists in code-review/references/checklists.md."
-    echo "- Write findings using code-review/references/output-format.md."
+    echo "- Do a manual review using the mode checklists in references/checklists.md."
+    echo "- Write findings using references/output-format.md."
   } >"$report"
 
   echo "OK: wrote $report"

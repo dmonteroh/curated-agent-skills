@@ -29,7 +29,6 @@ Use this reference to identify dependency manifests and produce a minimal invent
 
 ## Decision points
 
-- If no manifests are found, stop and report "no dependency evidence found".
 - If only manifests are found without lockfiles, note reduced precision.
 
 ## Pitfalls to avoid

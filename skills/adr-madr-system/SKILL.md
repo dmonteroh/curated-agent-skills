@@ -6,14 +6,14 @@ metadata:
 ---
 # ADR MADR System
 
-Provides guidance to create high-quality ADRs (MADR style) as separate files and maintain a lightweight index for discoverability.
-
 Defines explicit outputs for each step, reduces merge conflicts, and preserves decision history via **superseding** instead of rewriting accepted ADRs.
 
 ## Use this skill when
 
 - Making a decision that affects architecture boundaries, persistence, auth/security posture, API style, reliability/SLOs, scaling, or major vendor/tool choices.
 - Changing a previously accepted architectural decision (create a new ADR that supersedes the old one).
+- Shelving a decision that is sound and reviewed but blocked by something outside the team's control (table it instead of rejecting it or leaving it proposed).
+- Noticing mid-task that one of the decisions above has just been settled in passing, without anyone asking for a record (Step A).
 
 ## Do not use this skill when
 
@@ -24,7 +24,7 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 - ADR directory: docs/adr/
 - ADR index: docs/adr/README.md
 - File naming: `ADR-XXXX-short-title.md` (XXXX is zero-padded)
-- Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded
+- Status lifecycle: Proposed -> Accepted -> Rejected/Deprecated/Superseded; Tabled is a distinct, reversible status (Step F)
 
 ## Required inputs
 
@@ -36,7 +36,6 @@ Defines explicit outputs for each step, reduces merge conflicts, and preserves d
 ## Constraints and conventions
 
 - Follow any existing ADR templates, numbering, or status policies in the repo.
-- Keep ADRs as append-only history; use superseding instead of edits.
 - Keep ADR and index paths consistent within the same change.
 - Prefer repo-local paths or already-provided URLs; do not assume network access.
 
@@ -52,6 +51,17 @@ Output: 3-5 bullets answering:
 Decision point:
 - If the decision is cross-cutting or long-lived, proceed with an ADR.
 - If it is a local implementation detail, stop and capture a brief note elsewhere.
+
+**Explicit and implicit decision moments carry different obligations.** A decision reaches Step A in one of two ways, and conflating them is how decisions go unrecorded:
+
+- *Explicit* — recording the decision was requested, or someone asked why a past choice was made. Proceed with the workflow as asked.
+- *Implicit* — a decision in one of the categories under "Use this skill when" got settled as a by-product of other work: options were weighed, one was concluded on with a rationale stated in passing, and nobody asked for an ADR. This is the common shape and the one that gets lost.
+
+Decision point for an implicit moment:
+- Name the decision that appears to have been settled, the alternatives that were on the table, and propose recording it.
+- Do **not** create the ADR file unprompted. An unrequested ADR spends reviewer attention and freezes a choice that may still have been exploratory.
+- Do not stay silent either. An unsurfaced decision is one nobody records, which is the failure this skill exists to prevent.
+- If confirmation does not come, stop and leave no partial file behind.
 
 ### Step B: Pull inputs from the spec
 
@@ -70,8 +80,9 @@ If there is only 1 realistic option, explicitly justify why.
 ### Step D: Record the decision
 
 Output: a MADR document that includes:
+- Title stated as the question and its answer, not a bare topic label, so the outcome is scannable without opening the body
 - Decision and rationale tied to drivers
-- Consequences (positive and negative)
+- Consequences (positive and negative), tagged to the review pass that surfaced a point when that source is known
 - Risks and mitigations
 - Follow-ups (implementation notes or tasks)
 
@@ -85,33 +96,48 @@ Rule: **Do not edit accepted ADRs to change the rationale/decision.**
 - If changing direction: create a new ADR and mark it as superseding the old one.
 - The old ADR remains as historical context.
 
-### Step F: Update the ADR index in the same change
+### Step F: Table a decision instead of leaving it vague, when it is blocked
+
+Output: an ADR with status `Tabled` — sound and reviewed, but blocked by something outside the team's control. Distinct from `Rejected` (permanent, no path back) and from staying `Proposed` (nothing was settled yet). Tabling turns a blocked-but-sound decision into a resumable artifact instead of either a deleted investigation or a vague "someday" note.
+
+Required in the ADR body:
+- **The blocker, cited concretely.** Point at falsifiable, external, re-checkable evidence, not an internal assertion that "this turned out to be hard" — a documented capability/API gap quoted from its source, a tracked upstream issue (numbered, with its current state), and, where a workaround might exist, a specific check that it was verified and does not clear the bar.
+- **The cost of tabling.** State explicitly what was and wasn't spent (code written or not, research time, artifacts produced). That cost is what justifies keeping the tabled artifact intact instead of deleting it.
+- **The settled sub-decisions, preserved, not just the pitch.** Keep the decisions that took real review effort to reach, not only the summary, so a future resumer does not re-litigate settled ground from scratch.
+- **The un-tabling trigger, tied to something external and independently checkable.** Name the specific event that clears the blocker — an issue closing, a changelog entry, a released capability — not an open-ended "revisit later".
+- **An ordered un-tabling checklist**, run only when the trigger fires, in exactly this sequence:
+  1. Re-confirm the blocking assumption's real current shape. Read whatever changed (an updated API doc, a shipped capability, a closed issue's resolution), capture a concrete example of the new reality, and record it.
+  2. Re-check that the original premise still holds under that reality — does what made the decision worth pursuing still apply in full, or only a narrower slice of it? If narrower, the pitch needs revisiting before implementation, not just the plan.
+  3. Re-run the review that originally vetted the decision, against the *revised* plan, not the frozen one. Most prior findings should carry forward; adjust only what depended on the blocked capability's exact shape.
+  4. If a second, independent review also vetted the original decision, re-run that one too, the same way: concerns tied purely to the now-resolved blocker should disappear, while concerns independent of it still apply and still need addressing.
+  5. Only then execute the original plan.
+
+  This order is load-bearing: re-verifying the blocker before the premise before the review(s) before execution prevents resuming work on top of an assumption that quietly changed shape while shelved.
+- **Tabling is distinct from rejection**, even within the same document: alternatives considered and permanently declined carry no re-trigger and are not resumable; a tabled main path is. File the two under different statuses.
+
+Template and worked structure: `references/tabling.md`.
+
+### Step G: Update the ADR index in the same change
 
 Output: update docs/adr/README.md to include the new/updated ADR metadata and links.
 Use `references/index-format.md` for the index table format and update rules.
 
-### Step G: Self-check pitfalls
+### Step H: Self-check pitfalls
 
 Output: a short checklist of “done” confirmations.
 - Every section in the template is present (no missing headings).
 - Decision drivers are ranked and referenced in the rationale.
 - Consequences include at least one tradeoff.
 - Supersedes section present when replacing an accepted ADR.
+- If tabled: blocker cited concretely, cost of tabling recorded, and an ordered un-tabling checklist present.
 
-## Output contract (always report)
+## Output contract
 
 - New or updated ADR file path(s)
 - Updated ADR index path
 - Link(s) between ADR(s) and spec/track/task artifacts
 - If superseding: old ADR ID and new ADR ID
 - Verification commands/results when scripts are used
-
-Reporting format:
-- ADRs: <list of ADR file paths>
-- Index: <ADR index path>
-- Links: <spec/track/task references>
-- Supersedes: <old ADR ID -> new ADR ID or "none">
-- Verification: <commands/results or "none">
 
 ## Quality gates
 
@@ -120,11 +146,6 @@ Before finalizing, check `references/quality-gates.md` and `references/README.md
 ## SDD integration notes
 
 When the ADR is accepted, update the relevant spec/track/task artifact to link to it (and ensure the ADR links back). See `references/sdd-integration.md`.
-
-## Verification
-
-- If any script from `scripts/` is run, report the command(s) and result(s).
-- Do not claim completion without verification output when scripts are used.
 
 ## Optional scripts
 
@@ -148,16 +169,9 @@ Script verification:
 - Capture script output and include it in the final report when used.
 - If a script fails, stop and report the error output instead of continuing.
 
-## Common pitfalls
-
-- Editing accepted ADRs instead of superseding them.
-- Missing links back to the motivating spec/track/task.
-- Skipping decision drivers and ending up with untraceable rationale.
-- Forgetting to update the ADR index in the same change.
-
 ## Examples
 
-Example output (reporting format):
+Example output:
 - ADRs: docs/adr/ADR-0007-event-delivery.md
 - Index: docs/adr/README.md
 - Links: `docs/specs/eventing.md#L40`

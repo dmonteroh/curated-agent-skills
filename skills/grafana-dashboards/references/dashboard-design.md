@@ -22,11 +22,34 @@ This guide is focused on making dashboards operationally useful and safe (no noi
 - Common presets: 15m, 1h, 6h, 24h, 7d.
 - Avoid dashboards that only make sense at one time range.
 
+## Standard Layout
+
+1) "Is it broken?"
+- Availability (SLO burn, error rate)
+- Latency (p95/p99)
+- Traffic (RPS)
+
+2) "Where is it broken?"
+- By route/operation
+- By status code / error type
+- By dependency (DB, cache, external service)
+
+3) "Why is it broken?"
+- Saturation: CPU/mem, queue depth, DB connections
+- Error logs (Loki) and trace exemplars (Tempo)
+
+## Panel Patterns
+
+- Big number: current error rate / current p95 latency.
+- Time series: rates and percentiles over time.
+- Heatmap: latency distribution.
+- Table: top-N routes/errors.
+
 ## Aggregation Pitfalls
 
-- Averages hide tail latency; show p95/p99.
 - Percentiles are not aggregatable across dimensions unless computed properly.
-- Always label the aggregation dimension (service, route, instance, tenant).
+
+See `SKILL.md` Common pitfalls for other pitfalls to avoid.
 
 ## Drilldowns
 
@@ -44,7 +67,4 @@ Every overview dashboard should link to:
 
 ## Review Checklist
 
-- Does the top row tell an operator if they should page someone?
-- Can an on-call person find the likely cause within 2-3 clicks?
-- Are panels stable (no constant flapping due to tiny denominators)?
-- Are queries bounded and performant?
+See `SKILL.md` Quality Gates for the checklist used to review a dashboard before shipping it.

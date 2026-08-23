@@ -1,0 +1,25 @@
+Files changed: skills/auth-flows/SKILL.md
+
+Summary of edits: added a sequence diagram illustrating the failure path (+14 lines).
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as API
+    participant DB as Database
+    U->>A: POST /login
+    A->>DB: verify credentials
+    alt valid
+      DB-->>A: OK
+      A-->>U: 200 Success
+    else invalid
+      DB-->>A: Reject
+      A-->>U: 401 Unauthorized
+    end
+```
+
+REMOVAL PROPOSALS: none
+
+DIFFERENTIATION: STRONG - the sequence diagram makes the auth failure path explicit and deterministic.
+
+REVIEW_STATUS: CHANGED

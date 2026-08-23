@@ -30,6 +30,23 @@ Push rewritten history safely:
 git push --force-with-lease
 ```
 
+## Fold a fix into an earlier commit without an editor
+
+`git rebase -i` opens a sequence editor and waits for it. Where no editor can be attached — a CI job, a git hook, a headless agent session — the command stalls or aborts instead of rewriting. Autosquash covers the common case with no editor at all:
+
+```sh
+git commit --fixup=<target-sha>
+GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <base>
+```
+
+- `git commit --fixup=<target-sha>` writes a commit whose subject is `fixup! <target subject>`.
+- `--autosquash` reorders each `fixup!` commit directly under its target in the generated todo list.
+- `GIT_SEQUENCE_EDITOR=:` replaces the sequence editor with a no-op, so that generated list is accepted exactly as written. This is what makes the operation available in a non-interactive environment.
+
+Verify before pushing: `git log --oneline <base>..HEAD` should show no `fixup!` subjects left and the target commits rewritten.
+
+An autosquash can still hit conflicts. Resolve them with the checklist below, then `git rebase --continue` — the no-op sequence editor does not change how conflicts are handled.
+
 ## Conflict resolution checklist
 
 1) Identify conflicts
@@ -52,6 +69,8 @@ git rebase --continue
 ```sh
 git rebase --abort
 ```
+
+Abort first, while the rebase is still in progress: it restores the pre-rebase branch tip and needs no reasoning about which SHA was correct. Reach for the reflog only once abort is unavailable because the rebase already finished — and state the intended recovery path, including the target SHA, before running anything that moves a ref (`references/recovery.md`).
 
 ## Common conflict footguns
 

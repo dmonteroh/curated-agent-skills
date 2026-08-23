@@ -82,6 +82,38 @@ These are minimal, safe defaults. If the repo already has conventions, prefer th
 - ...
 ```
 
+## docs/context/product-guidelines.md (optional)
+
+Add this only when the repo produces user-facing text. It answers "how should this product sound", which none of the three core files owns.
+
+```markdown
+# Product Guidelines
+
+## Voice and tone
+
+- <how the product addresses its user, in a few concrete adjectives>
+- <what it never does — jargon, exclamation marks, blame, apology loops>
+
+## Terminology
+
+| Preferred term | Avoid | Why |
+| --- | --- | --- |
+| <term the product uses> | <synonyms that must not appear in user-facing text> | <what the distinction protects> |
+
+## Error messages
+
+Format: <the required shape, e.g. what happened, then what the user can do next>
+Example: <one message in that exact shape>
+
+## User-facing copy standards
+
+- <capitalization, punctuation, person, and length rules that apply to labels and buttons>
+
+## Open questions
+
+- ...
+```
+
 ## docs/context/README.md (index file)
 
 ```markdown

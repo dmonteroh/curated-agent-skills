@@ -7,6 +7,7 @@
 - Network access if downloading binaries during the job.
 - `curl` and `tar` available in the runner image for download/install steps.
 - Release credentials stored as CI secrets if publishing notes.
+- Action/image versions below (`actions/checkout@v4`, `alpine:3.20`) are illustrative pins; confirm current versions before use.
 
 ## Example: GitHub Actions with git-cliff
 

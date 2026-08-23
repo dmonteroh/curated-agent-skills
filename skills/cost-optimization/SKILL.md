@@ -22,7 +22,7 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 - The request is for CI/CD or deployment mechanics
 - The request is for database-specific tuning and cost/performance tradeoffs
 
-## Inputs to collect
+## Required inputs
 
 - Billing scope (accounts/subscriptions/projects, envs, owners)
 - Time window (last 7/30/90 days)
@@ -30,7 +30,7 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 - Constraints (SLOs, compliance, procurement limits)
 - Current tagging/labeling coverage and budget/alert setup
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Confirm scope, owners, and constraints.
    - Output: scoped summary with success criteria and missing inputs.
@@ -46,33 +46,22 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 5. Build structural wins plan (autoscaling, commitment strategy, data flow changes).
    - Decision: only recommend commitments after stable utilization evidence.
    - Output: structural initiatives with prerequisites and timelines.
-6. Define verification gates (performance, reliability, cost attribution).
+6. Define verification gates: name the specific check and failure threshold per category (e.g., p95 latency regression beyond baseline, error-rate increase, cost-attribution/budget variance) and the rollback trigger for each.
    - Output: verification checklist and rollback steps.
 7. Compile the final savings plan and reporting format.
    - Output: consolidated plan with owners, timelines, and verification gates.
 
 ## Common pitfalls
 
-- Recommending commitments before usage stabilizes.
-- Ignoring tag/label gaps that prevent attribution.
 - Chasing small wins while top drivers stay untouched.
 - Cutting observability without measuring impact on incident response.
-- Skipping verification gates and rollback plans.
 
-## Output Contract (Always)
+## Output contract
 
 - Top cost drivers with owners and root causes
 - A prioritized plan (quick wins + structural wins) with estimated savings ranges
 - Risks and verification gates (performance/reliability)
 - Tagging/governance recommendations
-
-## Reporting format
-
-- Summary (scope, targets, constraints)
-- Top cost drivers (category, owner, root cause)
-- Savings plan (quick wins + structural wins with estimates)
-- Risks + verification gates (SLOs, rollback)
-- Tagging/governance actions
 
 ## Examples
 
@@ -88,7 +77,7 @@ Provides a deterministic workflow to reduce cloud spend safely while maintaining
 - Structural wins: autoscaling for batch workers, Savings Plan after 30 days stable usage
 - Verification: latency/error budgets, rollback plan for scaling changes
 
-## Resources (Optional)
+## Resources
 
 - References index: `references/README.md`
 - End-to-end playbook: `resources/implementation-playbook.md`

@@ -23,6 +23,17 @@ A contract defines:
 4) Keep status colors for meaning, not decoration.
 5) Add a QA checklist to the contract (light/dark readability, focus visibility, table legibility).
 
+## Token boundary: intent versus mechanics
+
+Tokenize design *intent*. Keep browser *mechanics* raw.
+
+- **Intent — tokenize it.** Spacing steps, content width, gutters, section gaps, density steps, radius steps, type scale, surface levels, semantic colour. These encode a decision someone made, and the token is what makes the decision reusable and reviewable.
+- **Mechanics — leave them raw.** `auto`, `%`, `min-content`, `max-content`, `fit-content`, `clamp()`, viewport and container units, intrinsic sizing, `minmax()` tracks. These encode how the layout responds, not what it should look like. A `clamp(1rem, 4vw, 2rem)` gap or a `minmax(min(16rem, 100%), 1fr)` track is a mechanic, not a magic number — do not force it into a token.
+
+The failure this prevents is token bloat: every fluid value promoted to a named token produces a system full of one-use tokens that carry no intent and cannot be reasoned about as a set. The inverse failure is the more familiar one — an intent value hardcoded at the call site, which makes the decision invisible and unchangeable in one place.
+
+Applying the boundary to the usual "no hardcoded values" rule: a raw value is a defect when it stands in for an intent token that exists or should exist, and is correct when it is a browser mechanic doing a job no token can do.
+
 ## Minimal contract skeleton (copy/paste)
 
 ```md

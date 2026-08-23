@@ -1,12 +1,10 @@
 ---
 name: database-migration-orm
-description: "Plan and execute ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
+description: "Plans and executes ORM-managed database migrations (Prisma/TypeORM/Sequelize/EF) with zero-downtime patterns, safe backfills, and rollback discipline. Use only for ORM migration tooling (not raw SQL-file migration workflows)."
 metadata:
   category: database
 ---
 # Database Migration (ORM)
-
-Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separate raw SQL migration process.
 
 ## Use this skill when
 
@@ -28,7 +26,7 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 - Deployment model (single app, multi-service, version skew tolerance)
 - Rollback tolerance and irreversible operations (if any)
 
-## Workflow (Deterministic)
+## Workflow
 
 1) Confirm context and constraints
 - Capture ORM tool, DB engine/version, change type, and downtime limits.
@@ -57,27 +55,8 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 
 ## Common pitfalls
 
-- Running large backfills inside a single migration transaction
 - Dropping columns before all services stop using them
-- Missing backward compatibility during rollout (reads/writes)
 - Adding default values that rewrite large tables without planning
-- Skipping rollback clarity for forward-only operations
-
-## Output Contract (Always)
-
-- Migration context summary (ORM, DB, constraints)
-- Rollout strategy (expand/backfill/contract with gates)
-- Artifact list (migrations, backfill job, app toggle steps)
-- Rollback matrix (reversible vs forward-only)
-- Verification checklist (tests, rehearsal, monitoring)
-
-## Reporting Format (Use This)
-
-1. **Migration Context**
-2. **Strategy & Decision Points**
-3. **Artifacts & Execution Steps**
-4. **Rollback Matrix**
-5. **Verification & Monitoring**
 
 ## Examples
 
@@ -91,6 +70,6 @@ Scope: ORM-driven migrations only. For raw SQL migration workflows, use a separa
 4. Rollback Matrix: revert schema changes, pause backfill, restore old code paths.
 5. Verification & Monitoring: staging rehearsal, backfill progress metrics, post-cutover checks.
 
-## Resources (Optional)
+## Resources
 
 - References index: `references/README.md`

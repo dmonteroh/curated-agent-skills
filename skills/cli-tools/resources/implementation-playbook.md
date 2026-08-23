@@ -10,46 +10,6 @@ Provides a playbook to produce a usable CLI design + implementation plan (and to
 - Configuration needs: flags only vs env vars vs config file.
 - Stability requirements: are command signatures already public?
 
-## Deterministic Workflow
-
-1) Define the command surface
-- Root command name
-- Subcommands and verbs
-- Flags and positional args
-- Examples (copy-pasteable)
-
-2) Define the output contract
-- Default: stdout is the primary output.
-- stderr is for logs/errors.
-- Decide JSON mode:
-  - `--json` or `--format json` for programmatic usage.
-
-3) Define configuration precedence
-- Flags > env vars > project config > user config > defaults.
-
-4) Define exit codes
-- `0` success
-- `2` misuse/invalid args
-- `1` general error
-- `130` SIGINT (Ctrl+C)
-
-5) Implement
-- Parse args
-- Validate early
-- Execute
-- Print output
-
-6) Polish
-- `--help`, `--version`
-- Consistent error messages
-- Completions (optional)
-- TTY-aware colors and progress
-
-7) Test
-- Golden tests for `--help` and key commands
-- Snapshot tests for JSON output
-- Cross-platform smoke test
-
 ## CLI Spec Template
 
 ```md

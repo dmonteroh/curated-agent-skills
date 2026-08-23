@@ -7,4 +7,3 @@
 - `cli-tools.md`: Command-line utilities for extraction, conversion, and repair.
 - `workflows-and-performance.md`: Complex workflows, batch processing, and performance tips.
 - `troubleshooting.md`: Common failure modes and recovery steps.
-- `licenses.md`: License summaries for referenced tools.

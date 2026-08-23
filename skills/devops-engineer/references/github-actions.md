@@ -2,7 +2,7 @@
 
 This file is intentionally **not** a full CI/CD pipeline design guide.
 
-Use it when DevOps work requires GitHub Actions as a *runtime integration surface* (building/publishing images, running smoke checks, triggering deploy tooling), but keep pipeline architecture/rollout strategy in `deployment-engineer`.
+Use it when DevOps work requires GitHub Actions as a *runtime integration surface* (building/publishing images, running smoke checks, triggering deploy tooling); pipeline architecture and rollout-strategy design are out of scope here.
 
 ## Safe Defaults
 
@@ -68,4 +68,4 @@ If the question is about:
 - release promotion (dev -> staging -> prod)
 - config validation gates
 
-…use `deployment-engineer`.
+…this falls outside this skill's scope (see `Do not use this skill when` in `SKILL.md`).

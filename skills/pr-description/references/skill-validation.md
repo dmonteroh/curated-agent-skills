@@ -1,6 +1,6 @@
 # Confirming the Skill Works
 
-These scenarios validate the skill itself, not a single draft body. An operator runs them when material changes land in the skill or when output quality is in doubt. They are distinct from the per-output self-check in `SKILL.md`: that checklist validates one PR body; these scenarios validate that the skill reliably produces bar-passing bodies across representative input shapes.
+These scenarios validate the skill itself, not a single draft body. An operator runs them when material changes land in the skill or when output quality is in doubt. They are distinct from the workflow and output contract in `SKILL.md`: those validate one PR body; these scenarios validate that the skill reliably produces bar-passing bodies across representative input shapes.
 
 1. **Two recent merged PRs with briefs.** Pick two recently merged pull requests from the target repository that shipped with task briefs. Run the skill against each branch state with the briefs supplied. Acceptance: each generated body matches the established PR quality bar without manual rewrites, the three required sections are present in order, and the verification playbook is appropriate to each PR's change type.
 

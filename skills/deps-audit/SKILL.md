@@ -6,8 +6,6 @@ metadata:
 ---
 # deps-audit
 
-Provides a fast, low-noise dependency audit that relies on locally available tooling and produces an actionable remediation plan.
-
 ## Use this skill when
 
 - A repo includes dependency manifests or lockfiles that need a security or license review.
@@ -28,7 +26,7 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 
 ## Constraints
 
-- Uses local tooling only; no network access assumptions.
+- Uses only locally available tooling; the scanners it invokes (for example `npm audit`, `pip-audit`, `govulncheck`, `cargo audit`) may still contact external advisory databases when they run.
 - Does not install or modify dependencies.
 - Writes outputs only under the specified repo path.
 
@@ -39,7 +37,7 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 - Output: list of detected ecosystems and evidence paths.
 
 2) Collect local scan evidence
-- Run best-effort local tools per ecosystem; do not install tools.
+- Run best-effort local tools per ecosystem.
 - If a tool is missing, record the recommended command and continue.
 - Output: raw tool outputs under `docs/_docgen/deps-audit/raw/`.
 
@@ -56,7 +54,6 @@ Provides a fast, low-noise dependency audit that relies on locally available too
 ## Decision points
 
 - If no manifests are detected, stop and report "no dependency evidence found".
-- If scan tooling is missing, document the missing tool and skip that scan.
 - If license policy is provided, classify conflicts; otherwise list notable licenses only.
 - If only transitive vulnerabilities exist with no direct fix, recommend pinning or replacement options.
 
@@ -84,9 +81,11 @@ Report a concise summary with the following sections:
 `scripts/deps.sh` provides `scan` and `report` commands.
 
 - Usage:
-  - `./skills/deps-audit/scripts/deps.sh scan`
-  - `./skills/deps-audit/scripts/deps.sh report`
+  - `scripts/deps.sh scan`
+  - `scripts/deps.sh report`
   - Optional: set `DEPS_REPO_ROOT=/path/to/repo` to target another repo.
+- `report` writes the detected-ecosystems and scan-status sections of `REPORT.md` (Workflow steps 1-2); it does not parse tool output into findings. Complete the vulnerabilities, license/SBOM, remediation, and limitations sections yourself from the raw evidence (Workflow steps 3-4).
+- Node, Python, Go, and Rust have wired-up scanners. Java and Ruby manifests are detected but not scanned; inspect them manually.
 - Required tools (best-effort only): `npm`, `pnpm`, `yarn`, `pip-audit`, `govulncheck`, `cargo-audit`.
 - Verification:
   - Confirm docs/_docgen/deps-audit/REPORT.md exists.

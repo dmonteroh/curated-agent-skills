@@ -1,12 +1,10 @@
 ---
 name: tech-debt
-description: "Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with ROI estimates, risk tiers, and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading."
+description: "Identify, quantify, and prioritize technical debt, then turn it into an executable remediation plan with risk tiers and verification steps. Use for debt audits, cleanup planning, or when velocity and quality are degrading."
 metadata:
   category: workflow
 ---
 # Tech Debt
-
-Provides a high-signal technical debt assessment and converts it into an actionable, staged remediation plan.
 
 ## Use this skill when
 
@@ -43,7 +41,7 @@ Output:
 Collect quick signals using repo scans, issue trackers, incident notes, and build/test logs.
 
 Optional script:
-- Run the skill's `scripts/debt_scan.sh` from the target repo root (invoke it by its path inside this skill's folder, or copy it into the target repo first) to generate a quick signal report.
+- Run `scripts/debt_scan.sh` to generate a quick signal report — see Scripts section for usage.
 
 Decision:
 - If scripts cannot run, document manual scan findings instead.
@@ -75,7 +73,7 @@ For each item, estimate:
 - Effort: S/M/L (or hours)
 - Risk: low/med/high (blast radius)
 
-Rank by **Impact / Effort**, with risk as a multiplier.
+Rank by **Impact / Effort**, with risk as a multiplier on that score: low = 1×, medium = 1.5×, high = 2× — higher risk ranks higher.
 
 Output:
 - prioritized list with scores and rationale
@@ -96,9 +94,9 @@ Output:
 Define how to prove outcomes improved.
 
 Output:
-- tests, benchmarks, and monitoring checks tied to success metrics
+- verification plan: named checks (tests, benchmarks, monitors) mapped to the success metrics from step 1, each with a pass/fail threshold.
 
-## Script usage (optional)
+## Scripts
 
 `scripts/debt_scan.sh` (path relative to this skill's folder) runs a quick, read-only scan in the target repo.
 
@@ -122,11 +120,9 @@ Verification:
 ## Common pitfalls
 
 - Jumping to refactors without evidence or measurable impact.
-- Treating speculative issues as facts (mark them as hypotheses).
 - Over-scoping into a full rewrite without phased milestones.
-- Ignoring verification; every fix needs a measurable success check.
 
-## Example
+## Examples
 
 Input:
 - “We have frequent production incidents and long deploy times. Can you audit tech debt and propose a remediation plan?”

@@ -1,0 +1,12 @@
+Files changed: skills/rate-limited-fallback/SKILL.md
+
+Summary of edits: documented the retry banner emitted by the CLI when the provider throttles requests, so operators can tell a transport hiccup from a real finding (+4 lines).
+
+The new section reproduces the CLI's own retry banner verbatim as evidence:
+
+stream error: unexpected status 429 Too Many Requests: {"detail":"rate limited"}; retrying 1/5 in 200ms…
+
+Before finishing, the reviewer flags an open question about the change's scope:
+
+QUESTIONS
+Should the banner text be quoted verbatim (brittle to CLI wording changes), or paraphrased as "on a transport error, retry"?

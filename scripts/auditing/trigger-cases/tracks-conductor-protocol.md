@@ -7,6 +7,12 @@
 - prompt: "I need help with this: Requiring an indexing/registry system (like ADR indexes) that stays deterministic across contributors. Can you guide me?"
   expect_activate: yes
 
+- prompt: "We finished the whole track but the plan doesn't record which commits actually implemented which task. How do I make that auditable after the fact?"
+  expect_activate: yes
+
+- prompt: "Halfway through we changed approach and nobody wrote it down. Which artifact is supposed to absorb a deviation like that?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The request is a single small code change with no need for tracking or planning artifacts. No planning, just implementation."
   expect_activate: no

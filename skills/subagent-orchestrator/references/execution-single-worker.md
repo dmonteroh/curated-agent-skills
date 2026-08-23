@@ -16,6 +16,7 @@ Include:
 - Allowed paths
 - Forbidden paths
 - Claim set
+- Execution surface: working directory, authority tier, tool grant, command/skill layer (Hard Invariant 1; field shapes in `packet-templates.md`)
 - Inputs/evidence
 - Acceptance criteria
 - Controller-run verification commands
@@ -39,15 +40,17 @@ Output: worker report for `T1`.
 ### 4) Barrier + Verification
 
 - Confirm worker session has exited.
+- Confirm any process the worker started has stopped or been waited on, with its outcome recorded.
 - Run controller verification commands.
 - If verification fails, re-dispatch `T1` with narrowed scope and failure evidence.
 
 Output: verified `T1` or narrowed follow-up `T1`.
 
+If `T1` wrote code, run review convergence (`SKILL.md` step 6) before finalizing.
+
 ### 5) Finalize
 
 - Produce final report.
-- If dot-agent files exist, run maintenance updates.
 
 Output: final controller summary.
 

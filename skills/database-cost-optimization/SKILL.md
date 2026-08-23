@@ -6,8 +6,6 @@ metadata:
 ---
 # database-cost-optimization
 
-Provides guidance to reduce database spend while protecting performance and reliability.
-
 ## Use this skill when
 
 - Right-sizing database instances, storage, or connection pools.
@@ -50,9 +48,6 @@ If required inputs are missing, the skill requests them before proceeding.
 
 6) Define rollout and verification gates.
    - Output: staged rollout plan, metrics to watch, rollback criteria.
-
-7) Deliver the final report.
-   - Output: recommendations with savings, risks, and verification steps.
 
 ## Common pitfalls
 

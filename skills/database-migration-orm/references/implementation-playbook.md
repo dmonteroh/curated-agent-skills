@@ -8,7 +8,6 @@ Goal: keep production safe while still using ORM tooling.
 
 - Prefer **expand/contract** even when using an ORM.
 - Avoid long locks and table rewrites in peak hours.
-- Large backfills should be **batched and throttled** (often outside the migration runner).
 
 ## Safe pattern: expand/contract
 
@@ -23,7 +22,7 @@ Goal: keep production safe while still using ORM tooling.
 3) Contract (cleanup)
 - Remove old column/paths only after verifying all clients are migrated.
 
-## Backfills (don’t do them in a single transaction)
+## Backfills
 
 - Prefer an application job/CLI that:
   - processes batches by primary key

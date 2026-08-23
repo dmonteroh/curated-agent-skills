@@ -19,6 +19,9 @@
 - prompt: "Write a system prompt for our GPT-based support bot that must return strict JSON and never leak internal data."
   expect_activate: yes
 
+- prompt: "One call gets this classification wrong maybe 15% of the time. Could we run it several times and take the most common answer, and report how much they agreed?"
+  expect_activate: yes
+
 ## Negative (should not activate)
 - prompt: "Please do this exactly now: The user only wants an ad-hoc explanation of prompting concepts. No planning, just implementation."
   expect_activate: no

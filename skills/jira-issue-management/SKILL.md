@@ -59,7 +59,7 @@ Read the project map file. Missing → offer bootstrap per `references/project-m
 
 ### 4) Verify
 
-Read the issue back with a narrow `fields` list and confirm status, parent, and assignee match the intent. Silent-success responses exist in this toolset — never report success from a bare 200.
+Read the issue back with a narrow `fields` list and confirm status, parent, and assignee match the intent. Silent-success responses exist in this toolset — never report success from a bare 200. If the read-back contradicts the write, stop, report the mismatch, and do not retry blindly.
 
 ### 5) Transition
 
@@ -69,46 +69,21 @@ Select the transition by its **target status name** using the map (fall back to 
 
 Always pass a narrow `fields` list; never `*all` on a multi-issue search (it overflows tool-result limits). Paginate with `nextPageToken`. Native JQL only — `issueFunction(...)` is a ScriptRunner extension and errors on vanilla Cloud.
 
-### 7) Report
-
-Per the output contract below.
-
 Tool-level parameter shapes, field-format rules, and rate-limit handling are in `references/mcp-tool-notes.md`.
 
 ## Issue authoring rules
 
-- Descriptions are Markdown; the server converts to ADF.
 - Never write branch names or branch status into descriptions. Source-control linking is the job of Jira's development-panel integration (branches named with the issue key auto-link).
 - Work-breakdown rule of thumb: one branch of work ⇒ one Task, with internal steps as short description bullets; a multi-phase plan with a branch per phase ⇒ one Epic plus one Task per phase. The Jira tracking grain can be coarser than the agent execution grain — child briefs of one branch's work stay inside one Task's description.
 - Use Sub-task issue types only when the project map lists them and its conventions call for them; sub-tasks are not separate cards on team-managed boards.
 - Task summary ≈ the work/phase title; description = one line of intent plus scope bullets.
 - Project-specific conventions in the map file override these defaults.
 
-## Decision points
-
-- Map file missing → offer bootstrap before any write.
-- Assignment unstated by the user → ask; never default to any account.
-- Dedup search returns a plausible match → show it, ask before creating.
-- Needed transition or field absent from the map → discover via MCP, update the map, proceed.
-- Read-back contradicts the write → stop, report the mismatch, do not retry blindly.
-- 429 or 5xx → honor `Retry-After` and rate-limit headers; back off, then retry once.
-- Request requires board/rank/sprint operations → state the limitation and the supported alternative; do not perform status transitions as a fake "move".
-
 ## Output contract
 
 - After any write: issue key and URL, type, summary, status (as verified by read-back), parent, assignee, plus any assumption made.
 - After bootstrap or refresh: the map file path and what was added or corrected.
 - When an operation is impossible through the MCP (board placement, re-ranking, sprints): a plain statement of the limitation and the supported alternative.
-
-## Common pitfalls
-
-- Selecting a transition by its label instead of its target status, or passing a status ID where a transition ID is required.
-- Trusting an HTTP 200 without read-back (rank writes demonstrably no-op silently).
-- Linking a Task to an Epic via an Epic Link custom field in a team-managed project — team-managed uses the top-level `parent`.
-- Requesting `*all` fields on a multi-issue search.
-- Creating an issue in the project's default initial status when that status is unmapped on the board — the issue becomes invisible in the board view.
-- Asking the user questions that are not real choices (backlog vs board on create), or the inverse: silently assigning an assignee.
-- Re-running MCP discovery for facts already cached in the map.
 
 ## Examples
 

@@ -1,5 +1,7 @@
 # Terraform Kubernetes and Helm Providers
 
+Chart and provider versions below are illustrative examples; confirm current supported versions before pinning in a project.
+
 ## Kubernetes Provider with EKS
 
 ```hcl

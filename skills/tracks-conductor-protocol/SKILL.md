@@ -1,12 +1,10 @@
 ---
 name: tracks-conductor-protocol
-description: "Run a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. Use for structured work management aligned to SDD/CDD."
+description: "Runs a unified protocol for intake, task briefs, tracks (spec/plan), and execution with deterministic indexing, promotion (intake -> task -> track), and validation scripts. For structured work management aligned to SDD/CDD."
 metadata:
   category: workflow
 ---
 # Tracks Conductor Protocol
-
-A single, unified work-management protocol for **intake -> planning -> execution** that fits **SDD** (spec-driven development) and **CDD** (context-driven development), and scales to larger teams.
 
 This skill is intentionally optimized for speed:
 - One command to initialize work structure
@@ -19,6 +17,7 @@ This skill is intentionally optimized for speed:
 - Needing to intake work, formalize it into task briefs, group it into tracks, plan it, and execute it.
 - Requiring an indexing/registry system (like ADR indexes) that stays deterministic across contributors.
 - Ensuring specs/context are created and updated as required (SDD + CDD hygiene).
+- Keeping a plan auditable after execution: commit SHAs recorded per completed task and phase, deviations routed to the artifact they change.
 
 ## Do not use this skill when
 
@@ -37,10 +36,7 @@ This skill is intentionally optimized for speed:
 
 Environment overrides:
 - `TCD_PROJECT_DIR`, `TCD_TODO_DIR`, `TCD_TASKS_DIR`, `TCD_TRACKS_DIR`, `TCD_FUTURES_DIR`
-- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`, `TCD_ARCHIVE_TODO_DIR`, `TCD_ORDER_FILE`, `TCD_NEW_ADR`
-
-## Core principles
-See `references/README.md` for core principles, traceability rules, and escalation guidance.
+- `TCD_WORK_INDEX`, `TCD_TRACKS_REGISTRY`, `TCD_CONTEXT_DIR`, `TCD_ARCHIVE_TODO_DIR`, `TCD_ORDER_FILE`
 
 ## Required inputs
 
@@ -48,7 +44,7 @@ See `references/README.md` for core principles, traceability rules, and escalati
 - Work titles (intake/task/track/future) and relevant IDs (task ID, track slug).
 - Optional environment overrides for file locations.
 
-## Workflow (unified)
+## Workflow
 
 ### 0) Initialize (once per repo)
 
@@ -112,18 +108,23 @@ Execution is performed per task (TDD/workflow checkpoints, verification, commit 
 - Output: implementation updates plus task status transitions.
 - Follow `references/execution-playbook.md` as the default execution protocol.
 
-Decision point:
+Decision points:
 - If execution needs new context or spec updates, update the track files before coding.
+- If execution departs from the plan, classify the deviation (scope addition, scope reduction, technical deviation, requirement change) and update the artifact that classification obliges — routing table in `references/execution-playbook.md`.
+- When a task or a phase completes, record its commit SHA in the track plan so the plan stays a revert map.
 
 ### 5) Futures + ADR integration
+
+Record a deferred, architecture-sensitive requirement as a Future:
+
+```sh
+scripts/tcd.sh future "Topic"
+```
 
 - Output: new Future or ADR entry, plus index updates.
 - If a requirement is deferred but architecture-sensitive: record it as a Future (see `references/futures.md`).
 - If a decision is current and architectural: record it as an ADR using the repo's ADR format.
 - If scripts are unavailable, add Future entries by following `references/futures.md` and update the Futures block in `work_index.md`.
-
-## Indexing + decision points
-See `references/README.md` for managed index blocks, decision points, and common mistakes.
 
 ## Validation
 
@@ -141,7 +142,7 @@ To validate:
 - required sections exist in intake/tasks/tracks and task statuses are canonical
 - `order.csv` (optional dispatch-order file, `TCD_ORDER_FILE`) parses and references existing tasks
 
-## Common mistakes to avoid
+## Common pitfalls
 
 - Skipping the intake template quality bar before promotion.
 - Creating tracks without linking tasks in `tracks.md` and `work_index.md`.
@@ -193,6 +194,3 @@ Assistant output (summary format):
 ## References
 
 - `references/README.md` for the full index of templates and playbooks
-
-## Escalation rules
-See `references/README.md` for escalation and cross-linking guidance.

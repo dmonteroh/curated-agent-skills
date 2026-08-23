@@ -6,8 +6,6 @@ metadata:
 ---
 # API Documenter
 
-Provides API documentation guidance focused on accurate, developer-friendly docs that reduce integration time.
-
 ## Use this skill when
 
 - The task requires creating or updating API documentation for public or internal users
@@ -21,7 +19,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - The request is only an informal note or meeting summary
 - There is no API surface or interface to document
 
-## Inputs to collect
+## Required inputs
 
 - API surface: endpoints/events, request/response shapes, error formats
 - Auth and security: schemes, scopes, rate limits, headers
@@ -29,7 +27,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 - Audience: primary personas and their success criteria
 - Tooling constraints: doc site, templates, CI requirements
 
-## Constraints and assumptions
+## Constraints
 
 - Use only the provided API details; flag missing or conflicting inputs
 - Label synthetic examples as representative if real payloads are unavailable
@@ -44,7 +42,8 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 2. **Validate or author the spec**
    - If a spec exists, review for accuracy, examples, and auth coverage.
    - If no spec exists, draft a minimal spec aligned to the API surface.
-   - Output: updated or draft spec outline and gaps list.
+   - Lint the spec against a ruleset before calling it validated: a base ruleset for structural conformance plus house rules for the conventions the base ruleset cannot know (naming, required `operationId`, declared security, a documented success response). A spec that has only been read is not validated. Rule-authoring pattern, severity choices, and the rules worth having first: `references/spec-linting.md`.
+   - Output: updated or draft spec outline, the gaps list, and the lint result — ruleset used, violations by severity, or an explicit note that no linter was available.
 3. **Write documentation content**
    - Document auth, endpoints, errors, pagination, and versioning.
    - Include at least one working request/response example per endpoint.
@@ -55,6 +54,7 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
    - Output: code examples and integration steps.
 5. **Quality check and maintenance**
    - Verify consistency between spec and docs.
+   - Wire the lint gate into CI so a spec that violates an error-severity rule cannot merge; a ruleset that only ever runs by hand stops running.
    - Document update ownership and review triggers.
    - Output: QA checklist and maintenance notes.
 
@@ -62,7 +62,6 @@ Provides API documentation guidance focused on accurate, developer-friendly docs
 
 - If documentation targets external users, include onboarding and auth setup guides.
 - If multiple APIs exist, add a navigation map and versioning policy.
-- If examples are missing, request or synthesize representative payloads and label them.
 - If auth requirements are unclear, request required scopes, token types, and headers.
 
 ## Common pitfalls
@@ -90,7 +89,7 @@ Report results in this format and order (use "None" when not applicable):
 - Spec updates: Added new OpenAPI paths, schemas, and example payloads.
 - Docs output: Wrote onboarding and endpoint pages with one example per endpoint.
 - Open questions: Confirm required scopes for refund endpoints.
-- Verification: Spec/doc consistency check not run (inputs missing).
+- Verification: Lint run against the base ruleset plus house rules — 0 errors, 3 property-casing warnings; spec/doc consistency check not run (inputs missing).
 
 ## References
 

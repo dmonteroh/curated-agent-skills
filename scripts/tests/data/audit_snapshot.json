@@ -1,0 +1,496 @@
+[
+  {
+    "issues": [],
+    "name": "adr-madr-system",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "adversarial-plan-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-architecture-audit",
+    "warnings": [
+      "entry_over_200_lines:205"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "agent-feedback-ui",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-harness-portability",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-memory-governance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "agent-transaction-authority-security",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "api-documenter",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "architect-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "auth-implementation-patterns",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "backend-architect",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "brainstorming",
+    "warnings": [
+      "entry_over_200_lines:249"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "brand-discovery",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "brand-voice",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "cdd-context",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "changelog-automation",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "chaos-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "cli-tools",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "cloud-architect",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "code-explain",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "code-review",
+    "warnings": [
+      "entry_over_200_lines:242"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "codify-exploration",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "competitive-benchmark",
+    "warnings": [
+      "entry_over_200_lines:210"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "context-budget",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "cost-optimization",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "cross-vendor-delegation",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "customer-billing-ops",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "daemon-lifecycle",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "database-cost-optimization",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "database-migration-orm",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "database-migration-sql",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "database-performance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "delivery-pipeline",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "deployment-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "deps-audit",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "deterministic-extraction-gate",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "devex-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "devops-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "doc-generate",
+    "warnings": [
+      "entry_over_200_lines:260"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "doc-sync",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "finetuning-method-selection",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "frontend-design",
+    "warnings": [
+      "entry_over_200_lines:209"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "gdpr-data-handling",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "git-workflow",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "google-stitch-ai",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "grafana-dashboards",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "interruption-budget",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "jira-issue-management",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "literature-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "living-docs-governance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "loop-design-check",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "mcp-server-development",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "mermaid-expert",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "migration-observability",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "mle-workflow",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "monitoring-expert",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "monorepo-engineering",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "network-change-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "network-device-diagnostics",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "network-segmentation-readiness",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "office-files",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "pdf-files",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "performance",
+    "warnings": [
+      "entry_over_200_lines:211"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "plan-review",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "postgresql-engineering",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "pr-description",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "pre-publication-sanitization",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "production-audit",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "prompt-engineering",
+    "warnings": [
+      "entry_over_200_lines:208"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "prompt-injection-defense",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "prose-de-slopping",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "recsys-pipeline-architect",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "refactor-clean",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "research-discipline",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "root-cause-debugging",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "secrets-management",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "security-auditor",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "shell-scripting",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "skill-benchmark-harness",
+    "warnings": [
+      "entry_over_200_lines:204"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "skill-corpus-maintenance",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "smart-conventional-commits",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "sre-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "subagent-orchestrator",
+    "warnings": [
+      "entry_over_200_lines:245"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "tech-debt",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "terraform-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "testing",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "tool-output-middleware",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "tracks-conductor-protocol",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "training-data-curation",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "tutorial-engineer",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "ui-demo",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "ui-design",
+    "warnings": [
+      "entry_over_200_lines:231"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "ui-visual-validator",
+    "warnings": [
+      "entry_over_200_lines:229"
+    ]
+  },
+  {
+    "issues": [],
+    "name": "ux-interview",
+    "warnings": []
+  }
+]

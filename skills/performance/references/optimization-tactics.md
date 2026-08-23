@@ -14,6 +14,9 @@ Use this reference to propose measurable fixes after profiling.
 - Reduce algorithmic complexity on hot paths.
 - Batch or debounce expensive operations.
 - Add caching with explicit invalidation rules.
+- Attach freshness metadata to cached values, so the age of a served value is readable at the point of use rather than inferred from the TTL. Invalidation rules say when a value *becomes* wrong; freshness metadata says how old the value a caller just received actually is.
+- Split hot and cold paths, so the latency-critical path carries only the work it needs and everything else moves off it.
+- Apply backpressure at the ingress before a queue grows unbounded, rather than scaling the consumer after it already has. Scaling the consumer treats the symptom and raises the cost ceiling; backpressure bounds the failure.
 - Remove synchronous I/O or excessive serialization.
 
 ## Frontend
@@ -34,6 +37,8 @@ Use this reference to propose measurable fixes after profiling.
 
 - If a change impacts user-visible behavior, require a rollout plan and rollback strategy.
 - If a fix adds operational complexity, document ownership and monitoring needs.
+- If a fix improves latency by serving older data, treat it as a freshness regression until someone accepts the trade explicitly. It is the same family of error as buying latency by dropping required validation: the cost is real, it has just moved to a metric the dashboard is not showing.
+- If a cached or streamed path is optimized, add canaries for stale data, degraded upstream providers, and bad cache state. Without them the first signal of a staleness failure is a user reporting wrong numbers on a dashboard that reports healthy latency.
 
 ## Outputs
 

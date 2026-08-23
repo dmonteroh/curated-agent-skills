@@ -4,7 +4,9 @@ Short, scoped reference material for runtime operations and reliability work.
 
 - `implementation-playbook.md` - Deterministic sequence for operational changes and safety checks.
 - `docker-patterns.md` - Dockerfile and image hygiene patterns for runtime safety.
+- `container-isolation-contract.md` - Confining a mutating tool to a disposable copy, the refusals that prove it, and the platform-boundary claim rule.
 - `kubernetes.md` - Kubernetes workload and configuration patterns.
+- `kubernetes-workload-safety.md` - Probe selection by remediation with failure budgets, least-privilege API access, disruption budgets, and the pod safety checklist.
 - `deployment-strategies.md` - Index for deployment strategy references.
 - `deployment-strategy-options.md` - Rolling, blue-green, canary, and recreate options.
 - `deployment-rollbacks-verification.md` - Rollback commands and pre/post checks.
@@ -20,11 +22,4 @@ Short, scoped reference material for runtime operations and reliability work.
 - `incident-response-automation.md` - Auto-remediation and escalation configs.
 - `incident-response-resilience-forensics.md` - Resilience drills and evidence capture.
 - `terraform-iac.md` - IaC guidelines for runtime-facing infrastructure changes.
-- `release-automation.md` - Index for release automation references.
-- `release-artifact-management.md` - Registry lifecycle, promotion, and scanning.
-- `release-feature-flags-progressive.md` - Feature flags and progressive delivery.
-- `release-ci-cd-examples.md` - CI/CD pipeline examples for releases.
-- `release-build-optimization.md` - Build, cache, and multi-arch optimizations.
-- `release-orchestration-migrations.md` - Coordinated releases and migrations.
-- `release-metrics.md` - Release metrics dashboard and best practices.
 - `github-actions.md` - Workflow guidance when runtime concerns intersect CI.

@@ -11,7 +11,7 @@ Provides a deterministic process for identifying fillable fields in a PDF and wr
 - Values to populate in `field_values.json`
 - Commands assume the working directory is the skill root (`pdf-files/`).
 
-## Steps
+## Workflow
 
 ### 1) Detect fillable fields
 

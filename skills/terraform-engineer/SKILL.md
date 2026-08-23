@@ -1,18 +1,16 @@
 ---
 name: terraform-engineer
-description: "Use when implementing infrastructure as code with Terraform across AWS, Azure, or GCP. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing."
+description: "Use when implementing infrastructure as code with Terraform across AWS, Azure, GCP, or OCI. Invoke for module development, state management, provider configuration, multi-environment workflows, infrastructure testing."
 metadata:
   category: devops
 ---
 # Terraform Engineer
 
-Provides production-grade Terraform infrastructure code with modular design, secure state management, and multi-environment workflows.
-
 ## Use this skill when
 
 - Building or updating Terraform modules and root configurations
 - Setting up remote state, locking, and workspace strategies
-- Configuring AWS, Azure, or GCP providers safely
+- Configuring AWS, Azure, GCP, or OCI providers safely
 - Refactoring existing IaC for reuse, security, or compliance
 - Adding infrastructure testing or policy checks
 
@@ -50,15 +48,7 @@ Provides production-grade Terraform infrastructure code with modular design, sec
 6. Add security and cost controls.
    - Output: tagging strategy, IAM least privilege notes, encryption settings.
 7. Verify behavior.
-   - Output: planned commands or tests run with expected results.
-
-## Common pitfalls to avoid
-
-- Using local state for production environments
-- Skipping input validation and relying on provider errors
-- Hardcoding environment-specific values in modules
-- Omitting provider version constraints or required providers
-- Mixing aliases/providers without explicit mapping
+   - Output: `terraform validate` exits 0; `terraform plan` shows no unexpected destroy/replace actions against the stated intent; any required policy or test commands (tflint, terraform test, terratest, OPA) pass, named explicitly, with failing output treated as a blocking failure, not a note.
 
 ## Examples
 
@@ -105,13 +95,5 @@ Use `references/README.md` to load detailed guidance by topic.
 - Hardcode environment-specific values
 - Mix provider versions without constraints
 - Create circular module dependencies
-- Skip input validation
 - Commit .terraform directories
-
-## Reporting format
-
-Use the output contract headings exactly and keep each section concise.
-
-## Knowledge Reference
-
-Terraform 1.5+, HCL syntax, AWS/Azure/GCP providers, remote backends (S3, Azure Blob, GCS), state locking (DynamoDB, Azure Blob leases), workspaces, modules, dynamic blocks, for_each/count, terraform plan/apply, terratest, tflint, Open Policy Agent, cost estimation
+- Run `terraform apply`, `destroy`, or other state-mutating commands without explicit operator approval

@@ -3,10 +3,10 @@
 Use this index to load the detailed playbook you need.
 
 - `references/structured-logging.md`: Structured logging guidance, field conventions, and correlation IDs.
-- `references/prometheus-metrics.md`: Metric types, naming, labels, and Prometheus patterns.
+- `references/prometheus-metrics.md`: Metric types, naming, labels, Prometheus patterns, and exemplars for metric-to-trace correlation.
 - `references/opentelemetry.md`: Tracing concepts, spans, context propagation, and OpenTelemetry setup.
-- `references/alerting-rules.md`: Alert rule strategy, thresholds, and paging considerations.
-- `references/dashboards.md`: Dashboard design using RED/USE methods and KPI selection.
+- `references/alerting-rules.md`: Alert rule strategy, thresholds, paging considerations, baseline-relative regression alerts, and expiry alerts.
+- `references/dashboards.md`: Dashboard design using RED/USE methods, KPI selection, and service-topology panels.
 - `references/performance-testing-k6.md`: k6 workflows and test type templates.
 - `references/performance-testing-tools.md`: Artillery, Locust, and JMeter examples.
 - `references/performance-testing-scenarios-metrics.md`: Scenario design and metrics guidance.

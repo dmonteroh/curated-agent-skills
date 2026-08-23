@@ -37,10 +37,10 @@ Install the recommended architecture bundle (system + backend + cloud; no DB-arc
 ./scripts/codex_skills_sync.py --select "architect-review,backend-architect,cloud-architect,sre-engineer,code-review,code-explain,auth-implementation-patterns,tech-debt,deps-audit,refactor-clean"
 ```
 
-Install the recommended database bundle (DB-agnostic architecture + migrations + performance):
+Install the recommended database bundle (schema engineering + migrations + performance):
 
 ```sh
-./scripts/codex_skills_sync.py --select "database-architect,sql-querying,database-performance,migration-observability"
+./scripts/codex_skills_sync.py --select "postgresql-engineering,database-migration-sql,database-performance,migration-observability"
 ```
 
 Install the recommended testing bundle:
@@ -108,25 +108,25 @@ Install everything (not recommended):
 Install to a custom directory:
 
 ```sh
-./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "react,typescript"
+./scripts/codex_skills_sync.py --dest "~/somewhere/skills" --select "prompt-engineering,shell-scripting"
 ```
 
 Install into a project‑level folder (repo‑local):
 
 ```sh
-./scripts/codex_skills_sync.py --dest "./.codex/skills" --select "react,typescript"
+./scripts/codex_skills_sync.py --dest "./.codex/skills" --select "prompt-engineering,shell-scripting"
 ```
 
 Install into a user‑level folder (home‑level):
 
 ```sh
-./scripts/codex_skills_sync.py --dest "~/.codex/skills" --select "react,typescript"
+./scripts/codex_skills_sync.py --dest "~/.codex/skills" --select "prompt-engineering,shell-scripting"
 ```
 
 Install into Claude's default user-level folder:
 
 ```sh
-./scripts/codex_skills_sync.py --dest "~/.claude/skills" --select "react,typescript"
+./scripts/codex_skills_sync.py --dest "~/.claude/skills" --select "prompt-engineering,shell-scripting"
 ```
 
 Overwrite existing installed skills:
@@ -166,8 +166,8 @@ Show version:
 - `all` or `*`
 - indices: `1,4,8`
 - ranges: `1-5`
-- names: `react,typescript`
-- mixed: `1-5,react`
+- names: `prompt-engineering,shell-scripting`
+- mixed: `1-5,shell-scripting`
 
 ## Output
 

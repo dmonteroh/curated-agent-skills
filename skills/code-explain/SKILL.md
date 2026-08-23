@@ -6,8 +6,6 @@ metadata:
 ---
 # code-explain
 
-Provides code explanations through clear narratives, diagrams, and step-by-step breakdowns.
-
 This skill is intentionally different from `doc-generate`:
 - `code-explain` = explain one subsystem/module/flow extremely well
 - `doc-generate` = generate/maintain a documentation set (indexes, runbooks, onboarding, reverse-specs)
@@ -63,22 +61,17 @@ This skill is intentionally different from `doc-generate`:
 - If the user asks for changes or refactors, switch to guidance-only and ask for confirmation before implementation.
 - If there is no runnable code, provide a design-level explanation and state assumptions.
 
-### Common pitfalls to avoid
+### Common pitfalls
 
 - Mixing explanation with implementation changes.
 - Skipping inputs/outputs or invariants.
 - Overusing diagrams when a short narrative is clearer.
 
-### Templates (optional)
-
-- `references/explainer-template.md`
-- `references/diagram-patterns.md`
-
-## Output Format
-
-### Output contract (deterministic)
+## Output contract
 
 Produce a single explainer in this structure:
+- Scope: `<files/modules>`
+- Assumptions: `<if any>`
 1) **What it is** (1–3 sentences)
 2) **Key inputs/outputs** (APIs, types, DB tables, messages)
 3) **Control flow** (step-by-step)
@@ -90,13 +83,6 @@ Produce a single explainer in this structure:
 
 When useful, include a Mermaid diagram (sequence or flowchart).
 
-### Reporting format
-
-- Scope: `<files/modules>`
-- Assumptions: `<if any>`
-- Explainer: `<sections 1-8>`
-- Diagram: `<mermaid or omitted>`
-
 ## Examples
 
 ### Example request
@@ -107,15 +93,14 @@ When useful, include a Mermaid diagram (sequence or flowchart).
 
 - Scope: `src/auth`, `src/session`
 - Assumptions: None
-- Explainer:
-  1) What it is: ...
-  2) Key inputs/outputs: ...
-  3) Control flow: ...
-  4) Data flow: ...
-  5) Edge cases and failure modes: ...
-  6) Where to change it safely: ...
-  7) Suggested tests: ...
-  8) Next steps: ...
+1) What it is: ...
+2) Key inputs/outputs: ...
+3) Control flow: ...
+4) Data flow: ...
+5) Edge cases and failure modes: ...
+6) Where to change it safely: ...
+7) Suggested tests: ...
+8) Next steps: ...
 - Diagram: Omitted (linear flow)
 
 ## Resources

@@ -6,18 +6,16 @@ metadata:
 ---
 # Grafana Dashboards
 
-Provides production-ready Grafana dashboards with consistent layout, safe queries, and operator-focused usability.
-
 ## Use this skill when
 
 - A request asks to create or improve Grafana dashboards
 - A request asks to standardize dashboard layout for on-call usability
 - A request asks for dashboard JSON templates or snippets
+- A request asks for a dashboard covering a specific infrastructure system (message broker, search cluster, database)
 
 ## Do not use this skill when
 
 - The request is for end-to-end observability architecture beyond dashboards
-- The task is unrelated to Grafana dashboards
 
 ## Required inputs
 
@@ -28,7 +26,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Existing dashboard JSON or screenshots (if refactoring)
 - Constraints (time range defaults, label cardinality limits, naming standards)
 
-## Workflow (Deterministic)
+## Workflow
 
 1. Confirm scope and data sources.
    - Output: a 2-4 sentence scope summary + list of data sources.
@@ -38,6 +36,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
    - Decision: if KPI-focused, add a KPI row before symptom signals.
 3. Specify panels for each row.
    - Output: panel list with question, viz type, unit, threshold, and query stub.
+   - Decision: if the target is a named infrastructure system (message broker, search cluster, database), seed the system-specific row from `references/operator-panel-sets.md` instead of the generic templates, which carry no system-specific signal.
    - Decision: if a panel depends on a missing metric, propose a fallback panel or mark it as "needs metric".
 4. Draft queries and variables safely.
    - Output: query list + variable list with label constraints.
@@ -51,12 +50,12 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 
 ## Quality Gates
 
-- The top row answers: "is it broken?"
-- An on-call person can find a likely cause within 2-3 clicks.
-- Queries are performant (recording rules for expensive aggregations).
-- Panels are stable (avoid tiny denominators; avoid misleading averages).
+- Symptom-first check: the top row alone answers "is it broken?" Failure: an operator has to scan more than one row to tell whether the service is healthy.
+- Click-depth check: a likely cause is reachable within 2-3 clicks of the top row. Failure: finding the cause requires opening a query editor or an external tool first.
+- Query-cost check: every expensive aggregation runs behind a recording rule. Failure: a panel aggregates raw high-cardinality series live on every dashboard load.
+- Denominator/average check: rate and latency panels guard against tiny denominators and expose percentiles alongside averages. Failure: a panel spikes to 100% during low traffic, or its average line stays flat while p99 has already breached SLO.
 
-## Common pitfalls to avoid
+## Common pitfalls
 
 - Using unbounded labels (wildcards or regex on high-cardinality labels).
 - Relying on averages for latency or error rates without percentiles.
@@ -64,7 +63,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Omitting units or thresholds, which hides intent.
 - Building dashboards that only work at one specific time range.
 
-## Assets (Copy/Adapt)
+## Resources
 
 - Dashboard stubs:
   - `assets/dashboard-templates.json`
@@ -76,20 +75,7 @@ Provides production-ready Grafana dashboards with consistent layout, safe querie
 - Alert rule patterns (structure only):
   - `assets/alert-templates.json`
 
-## Output contract
-
-Return a report using this format and keep the section order:
-
-1. Summary
-2. Inputs & Assumptions
-3. Layout Sketch (rows + intent)
-4. Panel Specs (question, viz, unit, threshold, query stub)
-5. Queries & Variables (safe label bounds)
-6. Drilldowns & Links
-7. JSON Snippets or Template References
-8. Quality Gates (pass/fail + fixes)
-
-## Example (Input → Output)
+## Examples
 
 **Input:** "Create an on-call Grafana dashboard for the payments API using Prometheus and Loki. Focus on latency, errors, and top routes."
 
@@ -104,8 +90,8 @@ Return a report using this format and keep the section order:
 7. JSON Snippets: `assets/dashboard-templates.json` skeleton + panel JSON blocks.
 8. Quality Gates: Pass; add recording rule for p99 latency if needed.
 
-## References (Optional)
+## References
 
 - Index: `references/README.md`
 - Design guide: `references/dashboard-design.md`
-- Implementation playbook: `references/implementation-playbook.md`
+- Per-system panel sets: `references/operator-panel-sets.md`

@@ -6,8 +6,6 @@ metadata:
 ---
 # PDF Files
 
-Provides deterministic, verifiable workflows for extracting text or tables, converting pages to images, and filling PDF forms. Produces traceable artifacts and explicit verification notes.
-
 ## Use this skill when
 
 - Extracting text or tables from PDFs
@@ -51,7 +49,6 @@ Commands assume the working directory is the skill root (`pdf-files/`). Adjust p
 
 ### 3) Extract or render
 
-- Actions: extract text/tables with available local tools, or render pages to images.
 - Command: `python3 ./scripts/convert_pdf_to_images.py input.pdf output_dir/`
 - Output: extracted text/tables or `page_*.png` images with recorded paths.
 
@@ -62,10 +59,11 @@ Commands assume the working directory is the skill root (`pdf-files/`). Adjust p
 
 ### 5) Verify outputs
 
-- Actions: open rendered images or filled PDF and confirm expected content/placement.
+- Actions: open rendered images or the filled PDF.
 - Output: verification notes (viewer used, pages checked, pass/fail).
+- Fails if: a page image is blank or unreadable, a filled field's value does not match `field_values.json`, or annotation text falls outside its bounding box or overlaps a label.
 
-## Scripts and dependencies
+## Scripts
 
 Dependencies: Python 3, `pypdf`, `pdf2image`, `Pillow`. `pdf2image` requires Poppler binaries available on `PATH`.
 
@@ -104,12 +102,10 @@ Dependencies: Python 3, `pypdf`, `pdf2image`, `Pillow`. `pdf2image` requires Pop
   - Output: filled `output.pdf` with annotations.
   - Verification: open the output PDF and confirm placement.
 
-## Common pitfalls
-
-- Empty text extraction indicates a scanned PDF; switch to image conversion or OCR.
-- Field IDs or page numbers mismatch; regenerate `fields.json` and recheck.
-- Bounding boxes intersect or misalign; regenerate validation images and rerun checks.
-- Filled values appear blank in some viewers; verify in another viewer.
+- `scripts/check_bounding_boxes_test.py`
+  - Usage: `python3 -m unittest check_bounding_boxes_test` (run from `scripts/`)
+  - Output: unit test results for `check_bounding_boxes.py`'s intersection and height checks.
+  - Verification: all tests report `OK`.
 
 ## Examples
 
@@ -125,20 +121,6 @@ Input: `form.pdf`
 Output artifacts: `fields.json`, `field_values.json`, `filled-form.pdf`
 Verification: open `filled-form.pdf` and confirm values render.
 
-## Output contract
-
-Provide results using this format:
-
-```
-Summary:
-Inputs:
-Decisions:
-Outputs:
-Verification:
-Notes:
-```
-
 ## Resources
 
-- Playbook: `resources/implementation-playbook.md`
 - References index: `references/README.md`

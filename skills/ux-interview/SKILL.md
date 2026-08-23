@@ -1,168 +1,112 @@
 ---
 name: ux-interview
-description: Runs a structured UX user interview to capture current tasks, workflows, pain points, positives, and desired improvements. Use when the user asks to be interviewed about how they use a product, system, or process.
+description: "Interviews a user about how they work today and produces an interaction spec: required product behaviors traced to observed usage, saved with the transcript that evidences them. Use when a product spec or an interaction design needs grounding in real usage rather than assumption."
 metadata:
   category: research
 ---
 
 # UX Interview
 
-Provides a repeatable interview workflow for gathering grounded user research data through one-question-at-a-time conversation and producing a saved transcript with findings.
+## Use this skill when
 
-## Use This Skill When
+- A product's interaction design needs grounding in how one or more real people work today.
+- The deliverable is a spec of required behavior backed by a transcript, not by assertion.
+- Current-state behavior is the unknown, and solution design comes after it.
 
-- The user wants a UX-style interview about real usage of a product, system, or workflow.
-- The goal is discovery of current-state behavior, not immediate solution design.
-- The interview should produce a reusable written artifact (transcript + findings).
+## Do not use this skill when
 
-## Do Not Use This Skill When
+- Brand, positioning, identity, or voice is what is undecided. That work sits upstream of interaction design and outside this skill: the interview here assumes what the product stands for is already settled and asks only how a person needs to work with it. Discovering what a product should stand for is a different interview with a different question set and a different artifact.
+- The request is brainstorming, feature ideation, or roadmap prioritization with no discovery pass behind it.
+- A prototype exists and the request is a scripted task run against it. That measures a design; this describes current behavior.
+- Only a short Q&A is wanted, with no written record.
 
-- The user asks for brainstorming, feature ideation, or roadmap prioritization without a discovery interview.
-- The user requests usability testing of a prototype/scripted task flow instead of open interview discovery.
-- The user only wants a brief Q&A and not a structured interview record.
+## Required inputs
 
-## Required Inputs
+Confirm all four before deep questioning, and ask for any that is missing before continuing.
 
-Collect or confirm before deep questioning:
-
-- Topic/system under discussion.
-- Interviewee role relative to that system.
-- Interview objective (what decision or understanding this interview should support).
-- Optional supporting documents (PRD, notes, process docs) if provided by the user.
-
-If any required input is missing, ask for it before continuing.
+- The product, system, or workflow under discussion.
+- The interviewee's role relative to it.
+- The decision this spec has to support.
+- Supporting documents the user supplies (PRD, notes, process docs).
 
 ## Workflow
 
-### Step 1: Initialize Scope
+### Step 1: Frame the interview
 
-Actions:
-
-1. Confirm topic/system.
-2. Confirm interviewee role.
-3. Confirm interview objective.
-4. If documents are provided, read them before proceeding.
-
-Output: a short scope recap with topic, role, and objective.
+Read any supplied documents, then state the scope back in one recap: product, role, decision.
 
 Decision points:
 
-- If scope is broad, narrow to one workflow or job-to-be-done first.
-- If documents conflict with interviewee statements, prioritize interviewee lived experience and note the discrepancy.
+- If the scope spans more than one workflow, narrow to a single job-to-be-done and take that one to saturation before opening another.
+- If a document conflicts with what the interviewee says, lived experience wins; carry the discrepancy into the output rather than resolving it silently.
 
-### Step 2: Gather Background Context
+### Step 2: Background and usage context
 
-Actions:
+Ask about goals, frequency, and the conditions the work happens under. Capture a concrete instance whenever an answer is abstract.
 
-1. Ask one question at a time about goals, frequency, and usage context.
-2. Use neutral wording.
-3. Capture concrete examples when answers are abstract.
+Output: notes on who this person is relative to the product, and when they reach for it.
 
-Output: 3-6 bullet notes summarizing user context and usage patterns.
+### Step 3: Map the task flow
 
-### Step 3: Map Tasks and Workflow
+Elicit the end-to-end flow in chronological order, probing transitions, inputs, outputs, and dependencies, then the variants and exceptions.
 
-Actions:
-
-1. Elicit end-to-end flow in chronological order.
-2. Probe transitions between steps, inputs, outputs, and dependencies.
-3. Capture common variants and exceptions.
-
-Output: step-by-step task map with notable branches and workarounds.
+Output: a step-by-step task map with its branches and workarounds.
 
 Decision points:
 
-- If steps remain vague, ask for a recent real example.
-- If multiple workflows emerge, finish one complete flow before branching.
+- If a step stays vague after one probe, ask for the most recent real occurrence instead of a general description.
 
-### Step 4: Identify Friction and Recovery
+### Step 4: Friction and recovery
 
-Actions:
+Ask where time, effort, confusion, or error occurs. Probe severity, frequency, and impact, then capture what the person does to recover.
 
-1. Ask where time, effort, confusion, or errors occur.
-2. Probe severity, frequency, and impact.
-3. Capture recovery behavior after failure or mistakes.
+Output: pain points ordered by observed impact.
 
-Output: prioritized pain points with observed impact.
+### Step 5: Positives and desired change
 
-### Step 5: Capture Positives and Desired Improvements
+Ask what works and must survive a redesign, then what they would change. Keep both tied to concrete use.
 
-Actions:
+Output: the behaviors to preserve, and the changes asked for.
 
-1. Ask what currently works well and should be preserved.
-2. Ask for desired changes or automation wishes.
-3. Keep questions non-leading and tied to concrete use.
+### Step 6: Draft the spec and validate it
 
-Output: list of valued strengths and desired changes.
+Turn the findings into interaction requirements: one line each, stated as a behavior the product must support, each carrying the transcript moment behind it. Read the list back, ask what is missing or wrong, and apply the corrections.
 
-### Step 6: Close and Validate
+Output: the confirmed requirement list.
 
-Actions:
+## Stop criterion
 
-1. Ask if anything important is missing or incorrect.
-2. Provide a concise reflection summary for confirmation.
-3. End only after coverage of tasks, pain points, positives, and wishes.
+A section closes when two consecutive probes into it return nothing the notes do not already hold — a restatement, a shrug, or a generality where a concrete instance was asked for. Saturation ends a section; running out of prepared questions does not. Two is a chosen default, not a measured one: raise it for an interviewee who is warming up slowly, lower it for one who is visibly done.
 
-Output: final validation note indicating what the interviewee confirmed or corrected.
+The interview closes when every section has either saturated or been explicitly deferred by the interviewee, and the Step 6 requirement list has been read back and confirmed. A deferred section is named in the output as a gap, never dropped quietly.
 
-## Interview Rules
+Close early, and say why, when the interviewee asks to stop, when answers turn speculative rather than experiential ("I guess I'd probably…"), or when the same friction keeps resurfacing in every remaining section — the last means the spec already holds that requirement and the interview is circling.
+
+## Interview rules
 
 - Ask exactly one question per turn.
-- Follow high-value threads before advancing phases.
-- Avoid leading language or implied judgments.
-- Prefer specific behavioral evidence over opinions.
-- Reflect understanding periodically (about every 3-5 exchanges, or when details are nuanced).
+- Follow a high-value thread to its end before advancing.
+- Use neutral wording, with no leading language or implied judgment.
+- Prefer what the person did over what they think.
+- Reflect understanding back periodically, and always before closing a section.
 
-## Common Pitfalls
+## Common pitfalls
 
-- Pitfall: Jumping to solution ideas too early.
-  - Prevention: Complete current-state discovery first.
-- Pitfall: Multi-part questions that reduce answer quality.
-  - Prevention: Split into single focused questions.
-- Pitfall: Accepting vague statements.
-  - Prevention: Ask for a recent concrete example.
-- Pitfall: Over-indexing on negatives.
-  - Prevention: Always capture positives and must-keep behaviors.
+- Writing a requirement from a stated preference rather than an observed action. Only described behavior becomes a requirement; a preference is recorded as a wish and marked as one.
+- Recording a solution the interviewee proposed as if it were the need. Ask what that solution would fix and record *that*; the proposal rides along as a candidate.
+- Advancing past a "usually" or a "mostly". Those words name an unmapped branch, and branches are where an interaction spec breaks.
 
-## Reference Usage
+## Output contract
 
-Use [references/interview-guide.md](references/interview-guide.md) when:
+Save a markdown file in the working directory unless another path is requested, named `YYYY-MM-DD_<short-title>.md`, carrying these sections in this order:
 
-- A phase needs deeper prompts.
-- The interview stalls.
-- Additional probing examples are needed.
+1. `# UX Interview - <product or system>`, followed by `**Date:**`, `**Role:**`, and `**System:**` lines.
+2. `## Interaction Requirements` — the spec. One line per required behavior, each tagged `observed` or `wish` and each naming the transcript moment behind it.
+3. `## Key Findings`, holding `### Tasks & Workflows`, `### Pain Points`, and `### Positives`.
+4. `## Open Questions` — sections the interviewee deferred, and every conflict left unresolved.
+5. `## Transcript`, alternating clearly between interviewer and interviewee turns.
 
-Do not copy the reference verbatim into output; use it to guide questioning.
-
-## Output Contract
-
-When the interview completes (or the user explicitly stops), the agent must:
-
-1. Save a markdown transcript file in the current working directory unless another path is requested.
-2. Use filename format: `YYYY-MM-DD_[short-title-max-50-chars].md`.
-3. Include all required sections in this exact order:
-   - `# UX Interview - [Topic/System Name]`
-   - `**Date:** YYYY-MM-DD`
-   - `**Role:** [interviewee role]`
-   - `**System:** [system discussed]`
-   - `## Transcript`
-   - `## Key Findings`
-   - `### Tasks & Workflows`
-   - `### Pain Points`
-   - `### Positives`
-   - `### Wishes & Ideas`
-4. Ensure transcript alternates clearly between interviewer and interviewee turns.
-
-## Reporting Format During Skill Run
-
-Use this consistent status format when reporting progress:
-
-- `Interview status: setup complete` (after Step 1)
-- `Interview status: discovery in progress` (Steps 2-5)
-- `Interview status: validation complete` (Step 6)
-- `Interview status: transcript saved at <path>` (final)
-
-## Example Output Skeleton
+## Examples
 
 ```markdown
 # UX Interview - Expense Reimbursement Portal
@@ -171,15 +115,16 @@ Use this consistent status format when reporting progress:
 **Role:** Operations manager
 **System:** Expense reimbursement portal
 
-## Transcript
+## Interaction Requirements
 
-**Interviewer:** Walk me through the last reimbursement you submitted.
-**Interviewee:** I started by downloading receipts from email, then uploaded them one by one.
+- `observed` Accept several receipts in one upload; today they are attached one at a time after being collected from email. (Transcript: "I uploaded them one by one.")
+- `observed` Show why a category was rejected at the point of selection, not after submission. (Transcript: "I find out it was the wrong category a week later.")
+- `wish` Suggest a category from the receipt contents. (Transcript: "it would be nice if it just knew.")
 
 ## Key Findings
 
 ### Tasks & Workflows
-- Users collect receipts from multiple sources before starting submission.
+- Receipts are gathered from multiple sources before submission starts.
 
 ### Pain Points
 - Category selection is unclear and causes rework.
@@ -187,6 +132,16 @@ Use this consistent status format when reporting progress:
 ### Positives
 - Approval status visibility reduces follow-up messages.
 
-### Wishes & Ideas
-- Users want automatic receipt parsing and category suggestions.
+## Open Questions
+
+- Month-end batch submission deferred by the interviewee; unmapped branch.
+
+## Transcript
+
+**Interviewer:** Walk me through the last reimbursement you submitted.
+**Interviewee:** I started by downloading receipts from email, then uploaded them one by one.
 ```
+
+## References
+
+- `references/interview-guide.md`: deeper prompts per phase, for a thread that stalls before it saturates. Draw on it to shape a question; never read it out verbatim.

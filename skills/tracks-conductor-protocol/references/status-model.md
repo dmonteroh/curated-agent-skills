@@ -60,4 +60,4 @@ Suggested statuses:
 - Promoted (to ADR)
 
 Promotion rule:
-- When a Future is Triggered, promote the topic to an ADR via `adr-madr-system` (do not rewrite history).
+- When a Future is Triggered, promote the topic to an ADR using the repo's ADR format (do not rewrite history).

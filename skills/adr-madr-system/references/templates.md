@@ -9,7 +9,7 @@ This skill uses **MADR-style** ADRs stored as individual files (recommended for 
 
 ## Status
 
-Proposed | Accepted | Rejected | Deprecated | Superseded
+Proposed | Accepted | Rejected | Deprecated | Superseded | Tabled
 
 ## Date
 
@@ -65,7 +65,7 @@ Why this option best satisfies the decision drivers (explicitly reference driver
 - Positive:
   - ...
 - Negative:
-  - ...
+  - ... (attribute to the review pass that surfaced it, if known — e.g. "(security review)")
 - Risks:
   - ...
 - Mitigations:
@@ -114,6 +114,18 @@ Bad:
 - Spec/track/task: <link or path>
 ```
 
+## Dating a backfilled ADR
+
+When the ADR records a decision that was already made — a convention found in the codebase, a choice settled in a thread months ago — the `Date` field carries the date the decision was **made**, not the date the ADR was written. Say so in the field, and give the authoring date alongside it:
+
+```markdown
+## Date
+
+2025-11-04 (decision made; backfilled 2026-02-19)
+```
+
+The index row carries the same decision date, so the ADR log stays chronological by decision rather than by transcription. An ADR dated the day it was typed reads as a decision taken that day and silently misrepresents when the project actually committed.
+
 ## Supersedes Block
 
 When replacing an accepted ADR, add this to the new ADR (and update the index):
@@ -123,3 +135,7 @@ When replacing an accepted ADR, add this to the new ADR (and update the index):
 
 - ADR-XXXX: <Title>
 ```
+
+## Tabled Block
+
+When shelving a decision that is sound and reviewed but blocked by something outside the team's control — not rejected, not still-undecided — use the dedicated template in `references/tabling.md` instead of the blocks above. A plain `Tabled` status line on its own does not carry the blocker citation, the cost of tabling, the preserved sub-decisions, or the un-tabling checklist that make the shelved decision resumable.

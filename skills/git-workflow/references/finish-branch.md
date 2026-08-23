@@ -7,7 +7,7 @@ This playbook is a pragmatic end-of-work routine: verify, then choose how to int
 - Implementation is believed complete.
 - A test command (or other verification command) is available.
 
-## Step 1: Verify (non-negotiable)
+## Step 1: Verify
 
 Run the repo’s verification command(s) *fresh* and record the result.
 

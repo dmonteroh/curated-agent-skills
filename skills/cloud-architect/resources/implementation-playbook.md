@@ -2,15 +2,9 @@
 
 This playbook is an optional deep-dive used when the task needs concrete deliverables (diagrams, IaC skeletons, checklists, runbooks). Keep the skill standalone: do not assume other skills exist.
 
-## Default Deliverables
+## IaC Approach
 
-Pick the smallest set that satisfies the task.
-
-- Architecture diagram(s): at least one logical view; add network / data flow views as needed.
-- A short decision summary: what is being built, why, and the main tradeoffs.
-- A risk register: top 3-7 risks + mitigations.
-- An implementation plan: phases + verification steps.
-- IaC approach: Terraform/OpenTofu modules (preferred) or cloud-native IaC.
+Prefer Terraform/OpenTofu modules over cloud-native IaC (CloudFormation, Bicep, Deployment Manager); use a cloud-native tool only when the team's existing tooling or an org mandate requires it.
 
 ## Discovery Checklist (Ask These First)
 
@@ -20,68 +14,15 @@ Pick the smallest set that satisfies the task.
 - Deployment model: single cloud vs multi-cloud, regions, envs (dev/stage/prod), tenants.
 - Operational constraints: team skillset, on-call maturity, budget targets, timeline.
 
-## Architecture Workflow (Use As A Deterministic Loop)
+## Additional Deep-Dive Steps
 
-### 1) Define The Boundaries
-
-- Identify the system boundary, external dependencies, and trust boundaries.
-- Choose interaction style: sync HTTP, async events/queues, batch, streaming.
-
-### 2) Pick The Platform Pattern
-
-Choose one dominant pattern; avoid mixing unless justified.
-
-- Serverless-first (Functions + managed eventing)
-- Containers (Kubernetes / managed container services)
-- VM-based (for legacy or strict requirements)
-
-### 3) Landing Zone / Account & Subscription Layout
-
-- Separate environments (at least prod vs non-prod).
-- Use least-privilege identity boundaries.
-- Define naming conventions and tagging strategy early.
-
-### 4) Networking (Start Simple, Scale Correctly)
-
-- VPC/VNet design: CIDR plan, subnets, NAT/egress strategy.
-- Private connectivity: private endpoints, service endpoints, or PSC.
-- Ingress: WAF + L7 load balancer / gateway.
-
-### 5) Identity & Access
-
-- Human access: SSO + MFA; break-glass accounts.
-- Workload identity: short-lived credentials; avoid static access keys.
-- RBAC model aligned to team structure (platform vs app vs read-only).
-
-### 6) Data & State
-
-- Database choice: managed DB first unless a requirement forbids it.
-- Backups and PITR: define retention and restore testing schedule.
-- Data lifecycle: retention, archival, deletion, legal hold requirements.
-
-### 7) Reliability, DR, And Failure Mode Design
-
-- Multi-AZ by default for stateful services.
-- Define RPO/RTO and pick DR strategy (backup-restore, pilot light, warm standby, active-active).
-- Run game days or failure injection for the most critical path.
-
-### 8) Observability
-
-- Define the golden signals: latency, traffic, errors, saturation.
-- Metrics + logs + traces: make correlation IDs standard.
-- Alerting: page on symptoms; ticket on causes.
+For steps 1-8 (boundaries, platform pattern, landing zone, networking, identity, data, reliability/DR, observability), follow SKILL.md's Workflow. This playbook adds:
 
 ### 9) Cost & Capacity
 
 - Establish budget guardrails and cost allocation.
 - Right-size; prefer autoscaling where possible.
 - Separate cost experiments from production changes.
-
-### 10) IaC + Change Management
-
-- Make IaC the source of truth (Terraform/OpenTofu or cloud-native).
-- Use plans/previews in CI.
-- Avoid manual drift; document approved emergency procedures.
 
 ## Review Checklist (Pre-Implementation)
 
@@ -121,4 +62,4 @@ Choose one dominant pattern; avoid mixing unless justified.
 
 ## Reference Notes
 
-See the files in `cloud-architect/references/` for provider-specific checklists and multi-cloud notes.
+See the files in `references/` for provider-specific checklists and multi-cloud notes.

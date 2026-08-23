@@ -27,7 +27,7 @@ The Work Index (`docs/project/work_index.md`) is the discoverability layer.
 If a repo already uses a ledger (e.g. `docs/architecture/futures_ledger.md`), this protocol can coexist:
 - Continue using the ledger as source of truth
 - Add a link to it in the Work Index
-- When a trigger fires, promote to an ADR via `adr-madr-system`
+- When a trigger fires, promote to an ADR using the repo's ADR format
 
 ## Promotion rule
 

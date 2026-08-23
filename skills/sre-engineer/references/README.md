@@ -6,7 +6,7 @@ Use these references for deeper detail when the core workflow needs expansion.
 
 - `references/sli-definition-patterns.md` — Request/latency SLI patterns.
 - `references/slo-configuration-examples.md` — SLO configuration YAML example.
-- `references/slo-calculations.md` — Error budget math and burn rate basics.
+- `references/slo-calculations.md` — Error budget math.
 - `references/slo-review-targets.md` — Review checklist and target tiers.
 - `references/golden-signals-overview.md` — Golden signals summary.
 
@@ -41,7 +41,7 @@ Use these references for deeper detail when the core workflow needs expansion.
 
 - `references/incident-response-framework.md` — Incident tracking framework.
 - `references/incident-response-runbook.md` — Incident response playbook.
-- `references/postmortem-template.md` — Blameless postmortem template.
+- `references/postmortem-template.md` — Blameless postmortem template, root-cause disqualifiers, and the verification-vs-validation closure rule for action items.
 - `references/chaos-experiment-design.md` — Experiment definition template.
 - `references/chaos-testing-patterns.md` — Chaos injection patterns.
 - `references/chaos-experiment-runner.md` — Safe execution runner.

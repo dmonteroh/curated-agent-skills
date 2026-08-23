@@ -97,6 +97,26 @@ topk(10,
 )
 ```
 
+### Node Graph (Service Dependency Topology)
+
+Every panel above shows one service in isolation, which cannot answer "the checkout path is slow - which hop is it?". A node-graph panel draws services as nodes and calls as edges, weighted by request rate and coloured by error rate, so the failing hop is visible without opening one dashboard per service.
+
+```promql
+# Edges: request rate per caller -> callee pair
+sum by (source_service, destination_service) (
+  rate(http_requests_total[5m])
+)
+
+# Edge health: error rate for the same pairs
+sum by (source_service, destination_service) (rate(http_requests_total{status=~"5.."}[5m]))
+  /
+sum by (source_service, destination_service) (rate(http_requests_total[5m]))
+```
+
+This panel is only buildable if the metric carries *both* ends of the call. Instrumentation that labels requests with the destination only (the common default) produces a list, not a graph. Two ways to get the caller label: record it server-side from a propagated caller identity header, or derive the edges from trace data instead, where parent/child spans already encode the topology.
+
+Bound it before shipping it. A caller/callee pair label multiplies series count by the number of distinct callers, and it is a prime candidate for the cardinality problem this file's own queries avoid elsewhere - keep the pair label on a small set of coarse service identifiers (never per instance, per route, or per tenant), or drive the panel from a recording rule that pre-aggregates the pairs.
+
 ## Business Metrics Dashboard
 
 ```promql
@@ -124,3 +144,4 @@ active_users_total
 | Heatmap | Latency distribution |
 | Table | Top N, details |
 | Gauge | Current vs threshold |
+| Node graph | Service dependency topology |
