@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-23
+
+### Changed
+
+- `scripts/auditing/SKILL_REVIEW_CHECKLIST.md` (preamble, Verdicts) and `scripts/auditing/SUBAGENT_REVIEW_PROCESS.md` (Quality Gate 7): ruled ground cites `scripts/auditing/logs/removal-rulings.md`; parity-register pointers in `scripts/auditing/SUBAGENT_REVIEW_PROCESS.md`, `scripts/auditing/references/authoring-guidance.md`, `scripts/audit_skills.py`, and `scripts/check_parity.py` cite the families declared in `scripts/check_parity.py`.
+
+### Removed
+
+- `scripts/auditing/OPEN_ITEMS.md`, and every reference to it: the `OPEN_ITEMS_PATH` plumbing in `scripts/auditing/run_parallel_skill_reviews.sh`, its read-first bullets in `scripts/auditing/reviewer-prompt.md` and `scripts/auditing/synthesis-prompt.md`, its `scripts/auditing/README.md` entry and placeholder-list mentions, comment/docstring citations in `scripts/auditing/proposals.py`, and its fixtures in `scripts/tests/test_proposals.py` and `scripts/tests/test_reviewer_prompt_asset.py`.
+- `scripts/auditing/PROPOSALS.md`: entry `bc26a53d3a02`, ruling recorded in `scripts/auditing/logs/removal-rulings.md`.
+
 ## 2026-08-22
 
 ### Changed
