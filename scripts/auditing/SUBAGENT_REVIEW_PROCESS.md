@@ -119,7 +119,7 @@ A review is acceptable when all seven hold. Gate 1 can only be satisfied by a su
 4. **Independence preserved.** No skill requires or checks for another skill; activation cues stay out of `SKILL.md`. A skill whose in-`SKILL.md` cues were surfaced as a removal proposal and written into `trigger-cases/<skill>.md` does not fail this gate.
 5. **Steps are executable.** Every step yields an artifact, a decision, or a command run — not an instruction to report. Decision points are explicit.
 6. **Budgets held.** Frontmatter and `SKILL.md` token limits respected; `references/` one level deep with an index at two or more files.
-7. **Nothing settled was re-opened.** No change argues against a call recorded in `OPEN_ITEMS.md`.
+7. **Nothing settled was re-opened.** No change argues against a call recorded in `OPEN_ITEMS.md`, or against a ruling recorded in `scripts/auditing/logs/removal-rulings.md` when that file is present.
 
 ## Verdicts
 
@@ -135,7 +135,7 @@ Alongside `--status no-change` or `--status changed`, the call always carries `-
 
 `READ_PROOF` travels as `review-result.sh`'s `--read-proof` argument, not as a prose line. The runner selects one challenge line per skill from `SKILL.md` before dispatching any arm, writes it to `$LOGDIR/<skill>.readproof`, and requires each reviewer arm's call to carry that line verbatim as the `--read-proof` value, proving the file was actually read rather than assumed. An arm whose verdict file carries no `READ_PROOF` key, or whose value does not match, is recorded as a failed arm (`read-proof absent` / `read-proof mismatch`) and blocks the skill before synthesis, regardless of what outcome its verdict file or prose says. The synthesis call passes no `--read-proof`; it reads reviewer artifacts, not `SKILL.md`.
 
-The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling. Proposal text is captured verbatim from the synthesis call's `--removals` (via `REVIEW_REMOVALS_FILE`) and recorded into `PROPOSALS.md` by `proposals.py record`; the operator rules by setting each ledger entry's `ruling:` line, and `proposals.py apply` executes the rulings and appends the permanent record to `OPEN_ITEMS.md` "Removal rulings".
+The runner collects the `DIFFERENTIATION:` lines and any non-empty `REMOVAL PROPOSALS:` blocks into an operator-decisions summary at the end of the run. Neither fails the run; both require a ruling. Proposal text is captured verbatim from the synthesis call's `--removals` (via `REVIEW_REMOVALS_FILE`) and recorded into `PROPOSALS.md` by `proposals.py record`; the operator rules by setting each ledger entry's `ruling:` line, and `proposals.py apply` executes the rulings and appends the permanent record to `scripts/auditing/logs/removal-rulings.md` (gitignored; see the README entry for what that costs).
 
 In a multi-arm run, the synthesis call's execution of `review-result.sh` is the sole source of the skill's verdict; each reviewer arm's own tool call and status line are part of its artifact and are read as input, not tallied or averaged into the run's verdict.
 

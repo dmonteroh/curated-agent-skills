@@ -17,13 +17,6 @@ import proposals  # noqa: E402
 
 OPEN_ITEMS_SCAFFOLD = """# Open items and settled calls
 
-## Removal rulings
-
-Operator rulings.
-
-| Date | Skill | Proposal | Ruling |
-| --- | --- | --- | --- |
-
 ## Parity register
 
 Unrelated section.
@@ -44,6 +37,15 @@ def _run_cli(args, cwd=None):
         check=False,
         cwd=cwd,
     )
+
+
+def rulings_path(root: Path) -> Path:
+    return root / "scripts" / "auditing" / "logs" / "removal-rulings.md"
+
+
+def read_rulings(root: Path) -> str:
+    path = rulings_path(root)
+    return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
 def make_scaffold(tmp: Path) -> Path:
@@ -160,17 +162,16 @@ class RecordTest(unittest.TestCase):
             self.assertIn("other-skill", proc.stderr)
             self.assertIn("sidecar", proc.stderr)
 
-    def test_record_skips_ids_already_ruled_in_open_items(self):
+    def test_record_skips_ids_already_ruled_in_the_rulings_record(self):
         with tempfile.TemporaryDirectory() as d:
             root = make_scaffold(Path(d))
             items = proposals.split_items(REMOVALS_TWO_ITEMS)
             ruled = proposals.normalized_hash("demo-skill", items[0])
-            open_items = root / "scripts" / "auditing" / "OPEN_ITEMS.md"
-            text = open_items.read_text(encoding="utf-8").replace(
-                "| --- | --- | --- | --- |",
-                f"| --- | --- | --- | --- |\n| 2026-01-01 | `demo-skill` | old `id:{ruled}` | **Declined.** |",
+            rulings_path(root).write_text(
+                proposals.RULINGS_HEADER
+                + f"| 2026-01-01 | `demo-skill` | old `id:{ruled}` | **Declined.** |\n",
+                encoding="utf-8",
             )
-            open_items.write_text(text, encoding="utf-8")
             write_run_artifacts(root, "demo-skill", REMOVALS_TWO_ITEMS)
             proc = record(root)
             self.assertEqual(proc.returncode, 0, proc.stderr)
@@ -241,10 +242,10 @@ class ApplyTest(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, proc.stderr + proc.stdout)
             remaining = proposals.parse_ledger(ledger_path(root))
             self.assertEqual([e.entry_id for e in remaining], [e.entry_id for e in entries if e is not target])
-            open_items = (root / "scripts" / "auditing" / "OPEN_ITEMS.md").read_text(encoding="utf-8")
-            self.assertIn(f"`id:{target.entry_id}`", open_items)
-            self.assertIn("**Approved, executed", open_items)
-            self.assertIn("cut it", open_items)
+            rulings = read_rulings(root)
+            self.assertIn(f"`id:{target.entry_id}`", rulings)
+            self.assertIn("**Approved, executed", rulings)
+            self.assertIn("cut it", rulings)
             # run twice: the ruled entry is gone, so a rerun has nothing to do
             again = _run_cli(["--repo-root", str(root), "apply", "--no-audit"])
             self.assertEqual(again.returncode, 0)
@@ -273,8 +274,22 @@ class ApplyTest(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, proc.stderr + proc.stdout)
             remaining_ids = [e.entry_id for e in proposals.parse_ledger(ledger_path(root))]
             self.assertNotIn(target.entry_id, remaining_ids)
-            open_items = (root / "scripts" / "auditing" / "OPEN_ITEMS.md").read_text(encoding="utf-8")
-            self.assertIn(f"`id:{target.entry_id}`", open_items)
+            rulings = read_rulings(root)
+            self.assertIn(f"`id:{target.entry_id}`", rulings)
+
+    def test_rulings_record_is_created_when_missing(self):
+        # It is gitignored, so a fresh clone has no record: the first ruling
+        # must scaffold it rather than fail.
+        with tempfile.TemporaryDirectory() as d:
+            root = self._recorded_root(d)
+            self.assertFalse(rulings_path(root).exists())
+            entries = proposals.parse_ledger(ledger_path(root))
+            set_ruling(root, entries[0].entry_id, "declined")
+            proc = self._apply(root, 'echo "APPLIED: nothing"\n')
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            rulings = read_rulings(root)
+            self.assertIn("| Date | Skill | Proposal | Ruling |", rulings)
+            self.assertIn(f"`id:{entries[0].entry_id}`", rulings)
 
     def test_declined_entry_records_without_dispatch(self):
         with tempfile.TemporaryDirectory() as d:
@@ -285,8 +300,8 @@ class ApplyTest(unittest.TestCase):
             proc = self._apply(root, f'touch "{marker}"\necho "APPLIED: nothing"\n')
             self.assertEqual(proc.returncode, 0, proc.stderr)
             self.assertFalse(marker.exists())
-            open_items = (root / "scripts" / "auditing" / "OPEN_ITEMS.md").read_text(encoding="utf-8")
-            self.assertIn("**Declined.** still needed", open_items)
+            rulings = read_rulings(root)
+            self.assertIn("**Declined.** still needed", rulings)
             self.assertEqual(len(proposals.parse_ledger(ledger_path(root))), 1)
 
     def test_any_lint_error_blocks_every_action(self):

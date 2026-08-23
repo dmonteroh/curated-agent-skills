@@ -3,9 +3,9 @@
 <!-- Machine-managed by scripts/auditing/proposals.py. `record` (run by
 run_parallel_skill_reviews.sh after a review pass) appends one entry per
 proposal from the synthesis .removals artifacts; `apply` executes rulings and
-moves resolved entries to OPEN_ITEMS.md "Removal rulings", so this file holds
-only proposals still awaiting a ruling and ends after this comment when
-nothing awaits one.
+moves resolved entries to the rulings record at logs/removal-rulings.md, so
+this file holds only proposals still awaiting a ruling and ends after this
+comment when nothing awaits one.
 
 Operator: edit ONLY an entry's `ruling:` line — pending | approved |
 declined, optionally followed by " — <note>". Then run:

@@ -5,7 +5,7 @@ from __future__ import annotations
 Removal-proposal ledger: the operator's accept/decline loop for the parallel
 review pipeline.
 
-The pipeline's authority split (OPEN_ITEMS.md "Removal rulings") makes whole
+The pipeline's authority split (SKILL_REVIEW_CHECKLIST.md section 4) makes whole
 sections, files under references/ or scripts/, and whole skills
 propose-never-execute. This tool closes the loop on those proposals:
 
@@ -13,13 +13,15 @@ propose-never-execute. This tool closes the loop on those proposals:
             <skill>.synthesis.removals sidecar (written by review-result.sh
             from the --removals flag) and appends one PROPOSALS.md entry per
             numbered proposal, deduplicated by content hash against the
-            ledger and against ids already ruled in OPEN_ITEMS.md.
+            ledger and against ids already ruled in the rulings record
+            (logs/removal-rulings.md).
   lint    - validates the ledger: every ruling is pending|approved|declined,
             every entry's text matches its recorded checksum. All problems
             are reported at once.
   apply   - lints first and refuses to act on ANY problem. Then, per entry:
-            declined -> a Declined row appended to OPEN_ITEMS.md "Removal
-            rulings", entry removed from the ledger; approved -> a writer
+            declined -> a Declined row appended to the rulings record at
+            logs/removal-rulings.md, entry removed from the ledger;
+            approved -> a writer
             agent is dispatched scoped to that one proposal, the resulting
             diff is verified (something changed, nothing outside the skill's
             own surface), then an executed row is appended and the entry
@@ -47,8 +49,8 @@ RULING_WORDS = ("pending", "approved", "declined")
 
 # Same exemption the runner appends to its claude calls: a dispatch from the
 # repo root auto-loads CLAUDE.md, whose bootstrap gate can otherwise consume
-# the run (see OPEN_ITEMS.md "Dispatched calls skip the repository
-# session-bootstrap").
+# the run (see OPEN_ITEMS.md, settled call "Dispatched calls skip the
+# repository session-bootstrap").
 DISPATCH_BOOTSTRAP_EXEMPTION = (
     "This dispatched call's session-bootstrap is already handled by the orchestrator: "
     "skip every CLAUDE.md/AGENTS.md bootstrap step (no .agent/scripts/status.sh, no .agent/ reads) "
@@ -60,9 +62,9 @@ LEDGER_HEADER = """# Removal proposals — pending rulings
 <!-- Machine-managed by scripts/auditing/proposals.py. `record` (run by
 run_parallel_skill_reviews.sh after a review pass) appends one entry per
 proposal from the synthesis .removals artifacts; `apply` executes rulings and
-moves resolved entries to OPEN_ITEMS.md "Removal rulings", so this file holds
-only proposals still awaiting a ruling and ends after this comment when
-nothing awaits one.
+moves resolved entries to the rulings record at logs/removal-rulings.md, so
+this file holds only proposals still awaiting a ruling and ends after this
+comment when nothing awaits one.
 
 Operator: edit ONLY an entry's `ruling:` line — pending | approved |
 declined, optionally followed by " — <note>". Then run:
@@ -74,13 +76,30 @@ duplicate of an already-ruled proposal can reappear here; under Quality
 Gate 7 that is a review defect — decline it and the ruling is permanent. -->
 """
 
+RULINGS_HEADER = """# Removal rulings — permanent record
+
+<!-- Machine-managed by scripts/auditing/proposals.py `apply`, which appends
+one row per resolved ruling. Not operator-editable; nothing else reads it as
+a contract.
+
+This file lives in the gitignored logs/ directory by operator ruling
+(2026-08-22): rulings are an append-only execution record, not open items,
+and they were burying the ~10 lines of OPEN_ITEMS.md that are actually open.
+Known consequence, accepted: the record is untracked, so on a fresh clone or
+a wiped logs/ directory `proposals.py record` no longer sees these ids and
+can re-file an already-ruled proposal, and reviewer arms lose the
+don't-re-propose memory. Decline the repeat; the ruling below still stands. -->
+
+| Date | Skill | Proposal | Ruling |
+| --- | --- | --- | --- |
+"""
+
 ENTRY_HEADING_RE = re.compile(r"^## proposal ([0-9a-f]{12}) — (\S+)$")
 RECORDED_RE = re.compile(r"^- recorded: (\d{4}-\d{2}-\d{2})$")
 RULING_RE = re.compile(r"^- ruling: (.+)$")
 CHECKSUM_RE = re.compile(r"^- checksum: ([0-9a-f]{16})$")
 FENCE_RE = re.compile(r"^(`{3,})text$")
-OPEN_ITEMS_ID_RE = re.compile(r"`id:([0-9a-f]{12})`")
-RULINGS_SECTION_HEADING = "## Removal rulings"
+RULED_ID_RE = re.compile(r"`id:([0-9a-f]{12})`")
 # Numbered proposals are split only on a flush-left, consecutively numbered
 # list: an indented or out-of-sequence number is body text, not a new item.
 ITEM_START_RE = re.compile(r"^(\d+)[.)]\s+", re.M)
@@ -265,42 +284,42 @@ def write_ledger(path: Path, entries: list[Entry]) -> None:
     tmp.replace(path)
 
 
-def ruled_ids(open_items_path: Path) -> set[str]:
-    if not open_items_path.exists():
+def rulings_record_path(auditing: Path) -> Path:
+    return auditing / "logs" / "removal-rulings.md"
+
+
+def ruled_ids(rulings_path: Path) -> set[str]:
+    """Ids already ruled. The record is gitignored (operator ruling
+    2026-08-22), so a fresh clone legitimately has none: a missing file is an
+    empty set, not an error. The accepted cost is that an already-ruled
+    proposal can be re-recorded there; decline it."""
+    if not rulings_path.exists():
         return set()
-    return set(OPEN_ITEMS_ID_RE.findall(open_items_path.read_text(encoding="utf-8")))
+    return set(RULED_ID_RE.findall(rulings_path.read_text(encoding="utf-8")))
 
 
-def append_ruling_row(open_items_path: Path, entry: Entry, ruling_text: str, today: str) -> None:
-    """Appends one row to the "Removal rulings" table, keeping it the single
-    permanent record Quality Gate 7 reads."""
-    text = open_items_path.read_text(encoding="utf-8")
-    lines = text.splitlines(keepends=True)
-    section_start = None
-    for i, line in enumerate(lines):
-        if line.rstrip("\n") == RULINGS_SECTION_HEADING:
-            section_start = i
-            break
-    if section_start is None:
-        raise LedgerError(f"{open_items_path.name}: section {RULINGS_SECTION_HEADING!r} not found")
+def append_ruling_row(rulings_path: Path, entry: Entry, ruling_text: str, today: str) -> None:
+    """Appends one row to the rulings record, creating it if this is the first
+    ruling in a fresh checkout."""
+    if not rulings_path.exists():
+        rulings_path.parent.mkdir(parents=True, exist_ok=True)
+        rulings_path.write_text(RULINGS_HEADER, encoding="utf-8")
+    lines = rulings_path.read_text(encoding="utf-8").splitlines(keepends=True)
     last_row = None
-    for i in range(section_start + 1, len(lines)):
-        stripped = lines[i].rstrip("\n")
-        if stripped.startswith("## "):
-            break
-        if stripped.startswith("|"):
+    for i, line in enumerate(lines):
+        if line.startswith("|"):
             last_row = i
     if last_row is None:
-        raise LedgerError(f"{open_items_path.name}: no table under {RULINGS_SECTION_HEADING!r}")
+        raise LedgerError(f"{rulings_path.name}: no rulings table found")
     summary = entry.text.strip().splitlines()[0]
     if len(summary) > 120:
         summary = summary[:117] + "..."
     summary = summary.replace("|", "\\|")
     row = f"| {today} | `{entry.skill}` | {summary} `id:{entry.entry_id}` | {ruling_text} |\n"
     lines.insert(last_row + 1, row)
-    tmp = open_items_path.with_name(open_items_path.name + ".tmp")
+    tmp = rulings_path.with_name(rulings_path.name + ".tmp")
     tmp.write_text("".join(lines), encoding="utf-8")
-    tmp.replace(open_items_path)
+    tmp.replace(rulings_path)
 
 
 # --- record -----------------------------------------------------------------
@@ -309,14 +328,14 @@ def append_ruling_row(open_items_path: Path, entry: Entry, ruling_text: str, tod
 def cmd_record(args: argparse.Namespace) -> int:
     root = Path(args.repo_root).resolve()
     ledger_path = root / "scripts" / "auditing" / "PROPOSALS.md"
-    open_items_path = root / "scripts" / "auditing" / "OPEN_ITEMS.md"
+    rulings_path = rulings_record_path(root / "scripts" / "auditing")
     logs_dir = Path(args.logs_dir).resolve()
     try:
         entries = parse_ledger(ledger_path)
     except LedgerError as exc:
         print(f"proposals.py record: refusing to append to a damaged ledger: {exc}", file=sys.stderr)
         return 1
-    known = {e.entry_id for e in entries} | ruled_ids(open_items_path)
+    known = {e.entry_id for e in entries} | ruled_ids(rulings_path)
     today = _dt.date.today().isoformat()
     recorded = skipped = 0
     warnings = []
@@ -459,7 +478,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
     root = Path(args.repo_root).resolve()
     auditing = root / "scripts" / "auditing"
     ledger_path = auditing / "PROPOSALS.md"
-    open_items_path = auditing / "OPEN_ITEMS.md"
+    rulings_path = rulings_record_path(auditing)
     prompt_path = auditing / "apply-prompt.md"
     logs_dir = auditing / "logs"
 
@@ -469,10 +488,6 @@ def cmd_apply(args: argparse.Namespace) -> int:
             print(f"proposals.py apply: {error}", file=sys.stderr)
         print("proposals.py apply: refusing to act while the ledger has problems; nothing was applied", file=sys.stderr)
         return 1
-    if not open_items_path.exists():
-        print(f"proposals.py apply: {open_items_path} not found", file=sys.stderr)
-        return 1
-
     declined = [e for e in entries if e.ruling_word == "declined"]
     approved = [e for e in entries if e.ruling_word == "approved"]
     pending = [e for e in entries if e.ruling_word == "pending"]
@@ -489,10 +504,10 @@ def cmd_apply(args: argparse.Namespace) -> int:
 
     for entry in declined:
         note = f" {entry.ruling_note}" if entry.ruling_note else ""
-        append_ruling_row(open_items_path, entry, f"**Declined.**{note}", today)
+        append_ruling_row(rulings_path, entry, f"**Declined.**{note}", today)
         entries = [e for e in entries if e.entry_id != entry.entry_id]
         write_ledger(ledger_path, entries)
-        print(f"[declined] {entry.entry_id} ({entry.skill}) -> recorded in OPEN_ITEMS.md")
+        print(f"[declined] {entry.entry_id} ({entry.skill}) -> recorded in logs/removal-rulings.md")
 
     dispatch_argv: list[str] | None = None
     if approved:
@@ -557,7 +572,7 @@ def cmd_apply(args: argparse.Namespace) -> int:
             )
             continue
         note = f" {entry.ruling_note}" if entry.ruling_note else ""
-        append_ruling_row(open_items_path, entry, f"**Approved, executed {today}.**{note}", today)
+        append_ruling_row(rulings_path, entry, f"**Approved, executed {today}.**{note}", today)
         entries = [e for e in entries if e.entry_id != entry.entry_id]
         write_ledger(ledger_path, entries)
         executed += 1
