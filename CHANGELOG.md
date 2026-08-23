@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-08-22
+
+### Changed
+
+- `scripts/auditing/proposals.py`: `apply` writes executed and declined removal rulings to `scripts/auditing/logs/removal-rulings.md`, creating it when absent, and `record` dedupes ruled ids against that file; the 236 existing rulings moved there out of `scripts/auditing/OPEN_ITEMS.md`. `scripts/auditing/README.md` and `scripts/auditing/SUBAGENT_REVIEW_PROCESS.md` updated.
+
+- `subagent-orchestrator`: activation gate split into entry and dispatch checks; task-board rows added for the human gate and the runtime probe result; `QUESTIONS` handling added to step 4; unbounded review-loop trigger added to the use boundary; never-parallel summary aligned with `references/claim-sets.md`.
+- `subagent-orchestrator`: worker packet gains execution-surface and controller-run verification fields, a validator-task carve-out on the no-verification constraint, and an untrusted-context end terminator; reviewer packet no longer carries the round number; fix packet gains a controller-read gate on forwarded findings.
+- `subagent-orchestrator`: both runtime adapters switch dispatch examples to stdin/file packet delivery and document worker skill-layer controls (`--disallowedTools "Skill"`, `CLAUDE_CONFIG_DIR`, `CODEX_HOME`), `claude --json-schema`, native-subagent model/effort overrides and the continuation hazard, and `codex exec --approve-for-me`.
+- `subagent-orchestrator`: mode guides gain execution-surface fields, worker-started-process barrier checks, and review-convergence pointers; `references/README.md` load rule and adapter descriptions refreshed.
+- `subagent-orchestrator`: Hard Invariant 3 restated as surface-based — with per-task worktrees and disjoint claims a finished task may be verified while siblings run; without that isolation, verification waits for the global barrier. Step 5, `references/execution-true-parallel.md`, and `references/runtime-claude.md` carry the same rule.
+- `subagent-orchestrator`: workers may self-check inside their granted surfaces and report outcomes as evidence; the controller's post-barrier verification stays the gate. Worker and fix packets in `references/packet-templates.md` carry the rule and a `Self-checks run` deliverable line.
+- `subagent-orchestrator`: symmetric effort policy — worker effort defaults to `medium` on every vendor, above-`medium` only under stated operator authorization, never by interrupting a run. Stated in `SKILL.md` Required inputs; both runtime adapters pin `medium` in their examples, and the Claude adapter notes the flag must be passed explicitly since its vendor default is `high`.
+- `postgresql-engineering`: schema-enforced optimistic-concurrency pattern (`UNIQUE (entity_id, version)`, with SQL example and two-writer verification) in `references/indexing-and-constraints.md`, a Workflow step-2 decision line, and its `references/README.md` index line.
+- `monitoring-expert`: Workflow steps 2, 4, and 5 carry the correlation-ID, sensitive-field-redaction, health-check, trace-sampling, dashboard-audience, business-KPI, alert-fatigue, and runbook-link rules; Example 1 carries exemplar, baseline-delta, and end-to-end verification lines.
+- `devops-engineer`: `## Decision points` bullets 1-3 condensed to their decision cue plus the `references/kubernetes-workload-safety.md` pointer.
+- `scripts/auditing/references/authoring-guidance.md`: the worked differentiation contrast cites measured with/without verdicts.
+- `CODEX_SKILLS_SYNC.md`: database bundle example updated.
+- `CONTENT_TABLE.md` regenerated; `scripts/auditing/skills_list.txt` and `scripts/tests/data/audit_snapshot.json` updated.
+
+### Removed
+
+- `database-architect`: the whole skill (`SKILL.md`, `references/README.md`, `references/migration-safety.md`, `references/modeling-checklist.md`, `references/tech-selection.md`) and `scripts/auditing/trigger-cases/database-architect.md`.
+- `cloud-architect`: the `## Common pitfalls` section of `SKILL.md`.
+- `monitoring-expert`: the `## Constraints` and `## Common pitfalls` sections of `SKILL.md`.
+- `subagent-orchestrator`: `references/execution-modes.md`, with its pointers in `SKILL.md` and `references/README.md`.
+- `subagent-orchestrator`: `references/execution-prompt-parallel.md`; the `prompt-parallel` mode is collapsed into `queued-serial`, which absorbs its two decision points; mode lists in `SKILL.md`, `references/README.md`, `references/runtime-claude.md`, and `references/runtime-codex.md` updated.
+- `subagent-orchestrator`: the `## Common pitfalls` section of `SKILL.md`.
+- `subagent-orchestrator`: all dot-agent content — the step-1 load-order list, the `### 8) Optional dot-agent Maintenance` section, the Output-contract line, the Final Report Template block in `references/packet-templates.md`, and the step-5 line in `references/execution-single-worker.md`.
+
 ## 2026-08-17
 
 ### Removed
