@@ -26,7 +26,6 @@ cost-optimization
 cross-vendor-delegation
 customer-billing-ops
 daemon-lifecycle
-database-architect
 database-cost-optimization
 database-migration-orm
 database-migration-sql

@@ -37,10 +37,10 @@ Install the recommended architecture bundle (system + backend + cloud; no DB-arc
 ./scripts/codex_skills_sync.py --select "architect-review,backend-architect,cloud-architect,sre-engineer,code-review,code-explain,auth-implementation-patterns,tech-debt,deps-audit,refactor-clean"
 ```
 
-Install the recommended database bundle (DB-agnostic architecture + migrations + performance):
+Install the recommended database bundle (schema engineering + migrations + performance):
 
 ```sh
-./scripts/codex_skills_sync.py --select "database-architect,database-migration-sql,database-performance,migration-observability"
+./scripts/codex_skills_sync.py --select "postgresql-engineering,database-migration-sql,database-performance,migration-observability"
 ```
 
 Install the recommended testing bundle:

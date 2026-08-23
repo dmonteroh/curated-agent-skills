@@ -35,6 +35,7 @@ Use this skill for Postgres-specific schema/data-layer decisions (not just SQL q
 - If an invariant cannot be enforced by constraints, call it out explicitly.
 - If the invariant is "these ranges must not overlap" (rooms, shifts, price periods), enforce it with an `EXCLUDE USING gist (key WITH =, period WITH &&)` constraint rather than an application-level check.
 - If two tables reference each other, make one FK `DEFERRABLE INITIALLY DEFERRED` so both rows can be written inside a single transaction.
+- If two writers can modify the same entity concurrently, put the control in the schema — a per-entity `version` with `UNIQUE (entity_id, version)` makes the database the arbiter, so the losing writer fails on the constraint instead of overwriting silently: `references/indexing-and-constraints.md`.
 - Output: Table/column list with constraints tied to each invariant.
 
 3) Choose data types and storage
