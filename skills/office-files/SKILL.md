@@ -132,7 +132,7 @@ Part maps and the full graph-resolution procedure: `references/pptx-notes.md`. T
   - Output: the resolved slide order, then the findings — for example one error, a slide whose layout relationship is missing, and one warning, a slide part the presentation no longer lists. The error explains the repair prompt; the warning is residue from a deleted slide.
   - Contrast: reading the same deck as `slide1, slide2, slide3` off the archive listing reports three slides in the wrong order and misses both findings entirely.
 
-## Output format
+## Output contract
 
 Report using this template:
 
@@ -141,13 +141,6 @@ Report using this template:
 - Findings: key structure/content/diff highlights
 - Gaps/limits: missing visuals, unsupported elements, or uncertainties
 - Next steps: verification or follow-up requests
-
-## Output contract
-
-When asked to work with an office file:
-
-- Use the Output format template above.
-- Ensure Gaps/limits captures missing visuals or unsupported elements.
 
 ## References
 

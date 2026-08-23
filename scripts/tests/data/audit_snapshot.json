@@ -60,7 +60,7 @@
     "issues": [],
     "name": "brainstorming",
     "warnings": [
-      "entry_over_200_lines:300"
+      "entry_over_200_lines:249"
     ]
   },
   {
@@ -76,9 +76,7 @@
   {
     "issues": [],
     "name": "cdd-context",
-    "warnings": [
-      "heading_qualifier:Scripts (optional automation)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -88,10 +86,7 @@
   {
     "issues": [],
     "name": "chaos-engineer",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -112,8 +107,7 @@
     "issues": [],
     "name": "code-review",
     "warnings": [
-      "entry_over_200_lines:243",
-      "heading_qualifier:Scripts (optional)"
+      "entry_over_200_lines:242"
     ]
   },
   {
@@ -136,10 +130,7 @@
   {
     "issues": [],
     "name": "cost-optimization",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),Resources (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -158,15 +149,6 @@
   },
   {
     "issues": [],
-    "name": "database-architect",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract,Example->Examples",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)",
-      "heading_restated:Use this skill when"
-    ]
-  },
-  {
-    "issues": [],
     "name": "database-cost-optimization",
     "warnings": []
   },
@@ -178,17 +160,12 @@
   {
     "issues": [],
     "name": "database-migration-sql",
-    "warnings": [
-      "heading_qualifier:Workflow (step-by-step)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "database-performance",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (step-by-step)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -198,10 +175,7 @@
   {
     "issues": [],
     "name": "deployment-engineer",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (Deterministic),Output contract (Always),References (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -221,16 +195,13 @@
   {
     "issues": [],
     "name": "devops-engineer",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "doc-generate",
     "warnings": [
-      "entry_over_200_lines:263"
+      "entry_over_200_lines:260"
     ]
   },
   {
@@ -247,7 +218,7 @@
     "issues": [],
     "name": "frontend-design",
     "warnings": [
-      "entry_over_200_lines:243"
+      "entry_over_200_lines:209"
     ]
   },
   {
@@ -268,17 +239,12 @@
   {
     "issues": [],
     "name": "grafana-dashboards",
-    "warnings": [
-      "heading_variant:Example->Examples",
-      "heading_qualifier:Resources (Copy/Adapt),Example (Input \u2192 Output)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "interruption-budget",
-    "warnings": [
-      "heading_restated:Question shape"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -313,9 +279,7 @@
   {
     "issues": [],
     "name": "migration-observability",
-    "warnings": [
-      "heading_qualifier:Workflow (step-by-step with outputs),Output contract (reporting format)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -325,17 +289,12 @@
   {
     "issues": [],
     "name": "monitoring-expert",
-    "warnings": [
-      "heading_variant:Required Inputs->Required inputs,Common Pitfalls->Common pitfalls,Output Contract->Output contract"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "monorepo-engineering",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls",
-      "heading_qualifier:Workflow (fast, deterministic),Output contract (report format),References (load as needed)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -355,24 +314,18 @@
   {
     "issues": [],
     "name": "office-files",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:References (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "pdf-files",
-    "warnings": [
-      "heading_restated:3) Extract or render"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "performance",
     "warnings": [
-      "entry_over_200_lines:223",
-      "heading_qualifier:Workflow (orchestration)"
+      "entry_over_200_lines:211"
     ]
   },
   {
@@ -383,10 +336,7 @@
   {
     "issues": [],
     "name": "postgresql-engineering",
-    "warnings": [
-      "heading_variant:Output Contract->Output contract",
-      "heading_qualifier:Workflow (Deterministic),Output Contract (Always),References (Optional)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -407,8 +357,7 @@
     "issues": [],
     "name": "prompt-engineering",
     "warnings": [
-      "entry_over_200_lines:247",
-      "heading_qualifier:Workflow (step-by-step)"
+      "entry_over_200_lines:208"
     ]
   },
   {
@@ -454,15 +403,13 @@
   {
     "issues": [],
     "name": "shell-scripting",
-    "warnings": [
-      "entry_over_200_lines:205"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
     "name": "skill-benchmark-harness",
     "warnings": [
-      "entry_over_200_lines:210"
+      "entry_over_200_lines:204"
     ]
   },
   {
@@ -484,7 +431,7 @@
     "issues": [],
     "name": "subagent-orchestrator",
     "warnings": [
-      "entry_over_200_lines:264"
+      "entry_over_200_lines:245"
     ]
   },
   {
@@ -495,9 +442,7 @@
   {
     "issues": [],
     "name": "terraform-engineer",
-    "warnings": [
-      "heading_variant:Common pitfalls to avoid->Common pitfalls"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -512,9 +457,7 @@
   {
     "issues": [],
     "name": "tracks-conductor-protocol",
-    "warnings": [
-      "heading_qualifier:Workflow (unified)"
-    ]
+    "warnings": []
   },
   {
     "issues": [],
@@ -535,14 +478,14 @@
     "issues": [],
     "name": "ui-design",
     "warnings": [
-      "entry_over_200_lines:233"
+      "entry_over_200_lines:231"
     ]
   },
   {
     "issues": [],
     "name": "ui-visual-validator",
     "warnings": [
-      "entry_over_200_lines:259"
+      "entry_over_200_lines:229"
     ]
   },
   {

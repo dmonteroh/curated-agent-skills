@@ -127,49 +127,16 @@ For any prompt, agent, or tool call that ships to production. Depth, a result-re
 
 Shipping one authored corpus — system prompts, agent instruction files, a template library — to a second agent runtime is a portability problem distinct from adapting prompt *content* to a different model, and the two usually arrive together. The organizing rule (per-target differences expressed as declarative data, never as branches in the generator), the four rewrite classes, the per-target cross-model boundary warning, the registry collision check, and the test suite parameterized over the registry: `references/harness-porting.md`.
 
-## Common pitfalls
-
-- Missing full prompt block (violates the Output contract's Prompt block rule).
-- "Think step by step" scaffolding on reasoning models — redundant at best, quality-reducing at worst.
-- Emphasis inflation (`CRITICAL`, `ALWAYS`, `NEVER` on routine guidance) causing overtriggering.
-- Begging for JSON in prose when the platform enforces schemas (or relying on assistant prefills, which current Claude models reject).
-- Volatile tokens (timestamps, IDs, unsorted serialization) early in the prompt, silently defeating prefix caching.
-- Porting a prompt to a new model generation without re-running evals or removing legacy scaffolding.
-- Overstuffed prompts that bury key constraints.
-- Ambiguous output format or missing schema.
-- Unclosed or mixed section delimiters (XML tags opened but never closed, markdown and XML interleaved).
-- Untrusted content (retrieved docs, tool output) pasted inline with no data/instruction boundary.
-- Changing multiple variables at once during iteration.
-- Adding examples that contradict the rules.
-- Optimizing an under-specified request instead of auditing what it left unsaid — the missing constraint then surfaces in production.
-- Shipping a prompt with no "Do not:" section, leaving the out-of-scope behavior to the model's discretion.
-- A one-sided eval gate — a false-positive ceiling with no detection floor, or the reverse — passing a build that collapsed in the direction nobody measured.
-- Reporting one headline metric, or a bare percent change, where a two-direction percentage-point delta would have shown the trade.
-- Numbers recorded without the knobs that produced them (model version, prompt version, thresholds), leaving runs incomparable.
-- Carrying an older model's hedge and style directives into a new model unaudited, where a more literal follower applies them at face value.
-- Rewriting prompt text to fix a post-migration quality drop that was a reasoning-budget setting.
-- Per-target `if` branches inside a generator that emits one instruction set for several harnesses.
-
 ## Output contract
 
-When this skill runs, it always provides:
+When this skill runs, it always provides the following in order:
 
-- **Prompt block**: a single copy/paste block with the full prompt text, including its scope-boundary section.
-- **Assumptions**: any assumptions made due to missing inputs, including the assumed target model/generation and the calibration choices that follow from it.
-- **Open questions**: specific questions needed to finalize or improve the prompt, bounded by the Context intake gate.
-- **Evaluation plan**: test cases or metrics to validate quality; for a production unit, the gate/periodic pair and where each is registered.
-- **Next actions**: suggested iterations or deployment steps.
-
-## Reporting format
-
-Use this exact structure in the response:
-
-1) Summary
-2) Prompt (copy/paste)
-3) Assumptions
-4) Open questions
-5) Evaluation plan
-6) Next actions
+1) **Summary**: a one-line summary of what was produced.
+2) **Prompt block**: a single copy/paste block with the full prompt text, including its scope-boundary section.
+3) **Assumptions**: any assumptions made due to missing inputs, including the assumed target model/generation and the calibration choices that follow from it.
+4) **Open questions**: specific questions needed to finalize or improve the prompt, bounded by the Context intake gate.
+5) **Evaluation plan**: test cases or metrics to validate quality; for a production unit, the gate/periodic pair and where each is registered.
+6) **Next actions**: suggested iterations or deployment steps.
 
 ## Examples
 

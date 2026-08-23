@@ -40,4 +40,3 @@ Select the smallest format that fits.
 - Every step has a verification.
 - The tutorial has a clean stopping point.
 - Errors are anticipated (at least 5 common failures for non-trivial tutorials).
-- Commands are safe-by-default (no destructive operations without warning).

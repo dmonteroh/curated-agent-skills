@@ -169,15 +169,6 @@ Script verification:
 - Capture script output and include it in the final report when used.
 - If a script fails, stop and report the error output instead of continuing.
 
-## Common pitfalls
-
-- Editing accepted ADRs instead of superseding them.
-- Missing links back to the motivating spec/track/task.
-- Skipping decision drivers and ending up with untraceable rationale.
-- Forgetting to update the ADR index in the same change.
-- Filing a blocked-but-sound decision as `Rejected` (loses the resumable path) or leaving it `Proposed` indefinitely (loses the fact it was already decided) instead of tabling it.
-- Tabling a decision without a concrete, external, re-checkable blocker — "this turned out to be hard" is not a citation.
-
 ## Examples
 
 Example output:

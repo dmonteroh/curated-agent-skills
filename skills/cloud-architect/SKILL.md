@@ -63,13 +63,6 @@ metadata:
 10. Produce a phased implementation plan + verification gates.
    - Output: phased plan with verification criteria.
 
-## Common pitfalls
-
-- Mixing multiple platform patterns without a clear reason
-- Ignoring IAM boundary design until late in the plan
-- Selecting services before confirming data residency or compliance constraints
-- Under-specifying RPO/RTO and restore validation
-
 ## Output contract
 
 - Architecture summary (1-2 paragraphs) with explicit tradeoffs
