@@ -34,9 +34,11 @@
 
 - prompt: "Just answer me directly: does the retry budget include the initial attempt or not?"
   expect_activate: no
-  # Measured, not assumed: no description tested makes a skill load for an
-  # interactive reply, 0 of 24 traced runs. The skill's `conversation` profile
-  # still governs a reply the moment the skill is loaded for some other reason.
+  # Vendor-split, measured: claude never loads a skill on an interactive reply
+  # (0 of 48 traced runs, any description); codex loads this one on every plain
+  # question (24 of 24) and the reply rules in SKILL.md govern it there. "No"
+  # here records the claude behaviour and the design intent that a reply needs
+  # no activation: the always-on block is the chat mechanism on both vendors.
 
 - prompt: "Add more comments to this file, there aren't enough."
   expect_activate: no
