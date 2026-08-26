@@ -8,6 +8,7 @@
 - `writing-style`: `## Replying in this conversation` in `SKILL.md`, four reply rules; the same rules in `references/always-on-block.md`.
 - `writing-style`: `L20` unevidenced verdict in `scripts/writing_lint.py`.
 - `writing-style`: `assigned_string_lines` in `scripts/writing_lint.py` — a triple-quoted string assigned to a name is data, excluded from docstring extraction and suppression collection; two fixtures and one mutant.
+- `writing-style`: `references/linter-guide.md` (the caps, the glossary shape, suppression with a written reason) and `references/provenance.md` (licence facts and rule-source credits).
 - `writing-style`: 14 linter rules in `scripts/writing_lint.py` — `L15` negation pivot, `L16` signposting, `L17` unevidenced superlative, `L18` emoji, `A11` rhetorical-question opener, `A12` over-formatted reply, `A13` bold-label bullet cluster, `A14` copula avoidance, `A15` noun stack, `A16` pseudo-analytic participle tail, `A17` false range, `A18` engagement-farming close, `A19` generic positive conclusion, `A20` abstract-register cluster; 25 fixtures in `scripts/tests/test_writing_lint.py` and 16 mutants in `scripts/tests/mutation_check.py`.
 
 ### Changed
@@ -16,6 +17,7 @@
 - `writing-style`: `A12` disabled in the `instruction`, `documentation` and `report` profiles; `A18` disabled in `conversation`.
 - `writing-style`: `HYPE_ADVISORY` in `scripts/writing_lint.py` extended with the post-2023 abstract register, and a `LITERAL_SENSE` table exempts the construction sense of `load-bearing` and the orientation sense of `landscape`. `STACK_NOUNS` and `POSITIVE_CLOSE` rebuilt so `A15` and `A19` detect the patterns they name. `SKILL.md` Provenance names `conorbronsdon/avoid-ai-writing` (MIT) and records that no frequency claim is carried from it.
 - `writing-style`: `## Replying in this conversation` sits below `## Output contract` in `SKILL.md` and opens with the artifact-decides boundary rule; `Kept as-is:` trailer lines are exempt from `L01`/`A01` in `scripts/writing_lint.py`.
+- `writing-style`: `references/writing-guide.md` carries the register only — the ASD-STE100 rule tables, the report habits, and the worked pairs; gate mechanics moved to `references/linter-guide.md`, licence and credits to `references/provenance.md`; the internal brand skill is cited as `company-copywriter`.
 
 ### Removed
 
