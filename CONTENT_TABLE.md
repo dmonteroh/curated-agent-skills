@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 94
+Total skills: 95
 
 ## Ai
 
@@ -41,6 +41,12 @@ Total skills: 94
 | Skill | Summary |
 | --- | --- |
 | `customer-billing-ops` | Resolves one named customer's billing problem: fixes identity to a single account, classifies the case into one of five buckets against stated observables, acts in reversibility order so money moves last, and hands off a fixed record naming the product gap behind the ticket. Use for live customer billing operations — duplicate charges, failed renewals, refund requests, cancellations with no self-serve path. |
+
+## Communication
+
+| Skill | Summary |
+| --- | --- |
+| `writing-style` | Always use this skill whenever you are going to write or rewrite text, for a person or another agent. A reply to a question, a commit or PR body, a design brief, any type of report, summary, documentation, code comment, messages for chat or email, composing error strings, tool descriptions. Read it BEFORE the first sentence, not as a cleanup pass afterwards. |
 
 ## Database
 
