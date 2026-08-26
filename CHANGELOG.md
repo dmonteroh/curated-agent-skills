@@ -21,6 +21,7 @@
 - `writing-style`: the `--config` flag and its `dash_policy`, `profiles`, `extra_banned` and `allow` keys from `scripts/writing_lint.py`, with the matching sections of `SKILL.md`, `references/writing-guide.md` and `references/README.md`, and four fixtures. `DASH_POLICY` remains as a module constant.
 - `writing-style`: the machine-written stand-down bullet from `SKILL.md`, `## Do not use this skill when`.
 - `writing-style`: `A12` and the `conversation` profile from `scripts/writing_lint.py`.
+- `writing-style`: the `## Provenance` section from `SKILL.md`; the licence terms, the conformance disclaimer, and the absorbed-rule sources live in the Sources section of `references/writing-guide.md`.
 - `writing-style`: the `instruction`, `documentation`, `report` and `correspondence` profiles and `L11` from `scripts/writing_lint.py`; the profile tables in `references/writing-guide.md`; the pick-the-profile workflow step in `SKILL.md`. One cap set remains (sentence 35/25, paragraph 8/6); `--profile` is accepted, ignored, and answered with a deprecation notice; JSON output is `version` 2 without `summary.profile`.
 
 
