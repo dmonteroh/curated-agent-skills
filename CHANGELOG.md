@@ -14,6 +14,7 @@
 - `writing-style`: `SKILL.md` carries 12 numbered rules, adding the negation pivot, signposting, and emoji; the deliverable-only carve-out reads "apply rules 1 to 10". The same three rules are in `references/always-on-block.md`.
 - `writing-style`: `A12` disabled in the `instruction`, `documentation` and `report` profiles; `A18` disabled in `conversation`.
 - `writing-style`: `HYPE_ADVISORY` in `scripts/writing_lint.py` extended with the post-2023 abstract register, and a `LITERAL_SENSE` table exempts the construction sense of `load-bearing` and the orientation sense of `landscape`. `STACK_NOUNS` and `POSITIVE_CLOSE` rebuilt so `A15` and `A19` detect the patterns they name. `SKILL.md` Provenance names `conorbronsdon/avoid-ai-writing` (MIT) and records that no frequency claim is carried from it.
+- `writing-style`: `## Replying in this conversation` sits below `## Output contract` in `SKILL.md` and opens with the artifact-decides boundary rule; `Kept as-is:` trailer lines are exempt from `L01`/`A01` in `scripts/writing_lint.py`.
 
 ### Removed
 
