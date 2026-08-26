@@ -109,7 +109,9 @@ The standard was written for aircraft manuals, where flat is correct. This skill
 - TechScribe's ASD-STE100 summary.
 - SKYbrary's Simplified Technical English entry.
 
-Rule numbers cited above (3.7, 8.1, 9.3) come from those public descriptions of Issue 9, January 2025. Verify them against the standard itself before quoting them anywhere that matters. This file paraphrases rule categories and reproduces no part of the standard's text.
+Rule numbers cited above (3.7, 8.1, 9.3) come from those public descriptions of Issue 9, January 2025. Verify them against the standard itself before quoting them anywhere that matters. This file paraphrases rule categories and reproduces no part of the standard's text. The register is the standard's rule *categories* only: the approximately 900-word approved dictionary is not reproduced, because ASD grants free reproduction only to a listed set of organisations this library does not belong to. This skill therefore cannot certify conformance, and rule L13 blocks any sentence claiming otherwise. The sentence and paragraph caps are a chosen default measured from eight documents this library treats as good writing. The measurement lives in `scripts/writing_lint.py`.
+
+**Absorbed rule sources**, 2026-08-26. The negation-pivot and emoji bans follow `reaktor-copywriter`, an internal brand skill. Most structural tells follow this library's `prose-de-slopping` catalogue, adapted from Wikipedia's "Signs of AI writing". The tiered vocabulary of rules A08 and A20 — band one fires per hit, band two only in clusters — follows `conorbronsdon/avoid-ai-writing` (MIT). No frequency claim is carried from any of them: that third source states plainly that its own "5 to 20 times more common in machine text" figure is inherited and unmeasured. The word lists here are authored judgements, and severity was set by measuring each rule against prose this library already accepts.
 
 ## Worked pairs
 
