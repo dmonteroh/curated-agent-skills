@@ -37,17 +37,6 @@ Leave untouched, always: quoted material, code, identifiers, legal text.
 - The text is quoted or fixed: transcripts, log excerpts, user complaints, legal text.
 - The text has nothing to say. The register fixes form, never substance.
 
-## Replying in this conversation
-
-Nothing lints a reply. It reaches the reader exactly as written, so these are the whole gate.
-
-Rules 1 to 10 apply. Four more apply only here:
-
-- **Match the shape of the question.** A question asked in a sentence is answered in sentences. Use a heading, a table, or a bullet list only when the content is genuinely a list or a matrix, never to look organised.
-- **No bold-label bullets.** A run of `- **Thing:** explanation` is a form to decode, not prose. Write the sentences.
-- **Answer in the first sentence.** Then the reasoning. Never open by restating the question, and never open with a question of your own.
-- **Stop when the answer is complete.** No summary of what was just said. No offer of further help. No closing question added to invite a reply.
-
 ## Workflow
 
 A reply or a one-line deliverable runs none of this: apply the rules and answer.
@@ -73,6 +62,19 @@ Each one can fail, and a failure is a defect rather than a note.
 ## Output contract
 
 Return the text alone, plus any `Kept as-is:` lines. Nothing about the process reaches the reader: not the lint output, not the glossary, not a note about which tools were available. Never announce that the register was applied. Where the text must mention a banned term to discuss it, put the term in backticks.
+
+## Replying in this conversation
+
+The artifact decides, never the channel. Anything the requester will keep, ship, paste, or hand on — a brief, a report, error strings, a commit body — is a deliverable, even typed into this conversation. A deliverable takes the workflow and its gate. The rules here govern the turns that only answer the person.
+
+Nothing lints a reply. It reaches the reader exactly as written, so these are the whole gate.
+
+Rules 1 to 10 apply. Four more apply only here:
+
+- **Match the shape of the question.** A question asked in a sentence is answered in sentences. Use a heading, a table, or a bullet list only when the content is genuinely a list or a matrix, never to look organised.
+- **No bold-label bullets.** A run of `- **Thing:** explanation` is a form to decode, not prose. Write the sentences.
+- **Answer in the first sentence.** Then the reasoning. Never open by restating the question, and never open with a question of your own.
+- **Stop when the answer is complete.** No summary of what was just said. No offer of further help. No closing question added to invite a reply.
 
 ## Scripts
 
