@@ -1,25 +1,14 @@
 # Writing guide
 
-Everything `SKILL.md` compresses. Four parts: the caps and their provenance, the glossary shape, which ASD-STE100 rules the linter enforces against which it only prefers, and worked before-and-after pairs.
+The register itself: what ASD-STE100 asks for and why, the habits the linter cannot check, and worked before-and-after pairs. Open this to write better. The gate's operating knowledge — caps, glossary, suppression — is in `linter-guide.md`.
 
-## The caps
-
-One register, one set of caps. The linter had four profiles once. A 97-run trace audit removed them: agents invented profile names in 15% of invocations, each a failed gate, and split two byte-identical options by coin flip.
-
-| Cap | Hard (blocking) | Soft (advisory) |
-| --- | --- | --- |
-| Sentence, words | 35 (L01) | 25 (A01) |
-| Paragraph, sentences | 8 (L10) | 6 |
-
-The values are measured, not chosen by feel. Across eight documents this library treats as good writing, p90 sentence length ran 17-29 words and p95 ran 21-38. The soft cap sits at the p90 band and the hard cap above the p95, so accepted prose passes and an outlier fires.
-
-### The tighter target the linter cannot hold
+## The tighter target the linter cannot hold
 
 ASD-STE100 caps a procedure sentence at 20 words with one instruction in it, and that limit is rule 12 in `SKILL.md`, not a linter rule. The linter reads the text alone and cannot know that a sentence is an error string, a runbook step, or a message another agent will parse. The writer knows. Apply the 20-word, one-instruction form to anything read once, under pressure, or by a machine: error messages, log lines, tool descriptions, procedure steps, instructions handed to another agent. The linted caps govern everything else.
 
 One question decides the tight form: **who acts on this, and can they ask a follow-up?** No back-channel and a real cost of misreading means the tight form.
 
-### What a report adds
+## What a report adds
 
 Reports and briefs share the caps. The habits are their own, and the linter cannot check them:
 
@@ -27,26 +16,7 @@ Reports and briefs share the caps. The habits are their own, and the linter cann
 - **Say what changed and what is next.** A report that ends without a next step makes the reader write back to ask.
 - **Name the uncertainty where it exists.** A hedge in a report is content, and the modality gate protects it.
 
-### The glossary
-
-One concept, one name. Pass it with `--glossary`, as JSON mapping the canonical term to the alternates that must not appear:
-
-```json
-{
-  "worker": ["agent", "runner", "executor"],
-  "run": ["execution", "invocation"],
-  "customer": ["client", "user", "account holder"]
-}
-```
-
-Rule L12 fires on any alternate and names the canonical term in its message. Two rules of thumb decide what belongs here:
-
-- Add a concept once the same thing has been called two things in one repository. Not before.
-- Never add a pair that is a real distinction. If `user` and `customer` mean different things in this system, they are two entries, not one entry with an alternate.
-
-Without a glossary L12 cannot fire, and term drift falls to the term gate as a human check.
-
-### Keeping this file honest
+## Keeping this file honest
 
 Three failure modes, all seen in the material this skill was built from:
 
@@ -58,13 +28,7 @@ Three failure modes, all seen in the material this skill was built from:
 
 ASD-STE100 is a controlled natural language, first released in 1986 by the aerospace and defence industry. European airlines asked for it: their maintenance staff mostly read English as a second language, and a technician on a tarmac has no author to call. The Simplified Technical English Maintenance Group maintains it, and it has been free to obtain since Issue 6 in 2013.
 
-The standard has two halves: writing rules that describe sentence shape, and a dictionary of approved words. **This skill carries the first half and cannot carry the second.**
-
-### What the licence prevents
-
-The dictionary holds roughly 900 approved words, each restricted to one meaning and one part of speech, plus roughly 1,200 words to avoid with suggested replacements. It is free to obtain and **not** free to redistribute: reproduction requires written authority from ASD, granted freely only to a listed set of organisations that this library does not belong to. The dictionary therefore stays out of this repository.
-
-The consequence is specific rather than cosmetic. Every rule defined by "use an **approved** word" degrades from a checkable standard into a preference for the plainer word. Rule L13 in the linter exists to stop any output claiming otherwise. For documentation that must actually conform, obtain the standard and check word by word against the real dictionary.
+The standard has two halves: writing rules that describe sentence shape, and a dictionary of approved words. **This skill carries the first half and cannot carry the second** — the licence detail is in `provenance.md`.
 
 ### Structural rules — the linter decides these
 
@@ -100,18 +64,6 @@ One rule from the standard is deliberately absent from the linter. Noun clusters
 ### Why the register does not flatten prose
 
 The standard was written for aircraft manuals, where flat is correct. This skill applies it to briefs, reports, and documentation, where flat is a different failure: even sentence length with no variation is one of the marks of generated text. Rule A06 exists for that reason and fires when a document's sentence-length spread falls below anything measured in accepted writing. The register removes ambiguity, filler, and unearned claims. It does not remove rhythm.
-
-### Sources
-
-- ASD-STE100 official site: `asd-ste100.org`, including its About page and its downloads request form.
-- ASD Europe's Simplified Technical English page.
-- The Wikipedia article "Simplified Technical English".
-- TechScribe's ASD-STE100 summary.
-- SKYbrary's Simplified Technical English entry.
-
-Rule numbers cited above (3.7, 8.1, 9.3) come from those public descriptions of Issue 9, January 2025. Verify them against the standard itself before quoting them anywhere that matters. This file paraphrases rule categories and reproduces no part of the standard's text. The register is the standard's rule *categories* only: the approximately 900-word approved dictionary is not reproduced, because ASD grants free reproduction only to a listed set of organisations this library does not belong to. This skill therefore cannot certify conformance, and rule L13 blocks any sentence claiming otherwise. The sentence and paragraph caps are a chosen default measured from eight documents this library treats as good writing. The measurement lives in `scripts/writing_lint.py`.
-
-**Absorbed rule sources**, 2026-08-26. The negation-pivot and emoji bans follow `reaktor-copywriter`, an internal brand skill. Most structural tells follow this library's `prose-de-slopping` catalogue, adapted from Wikipedia's "Signs of AI writing". The tiered vocabulary of rules A08 and A20 — band one fires per hit, band two only in clusters — follows `conorbronsdon/avoid-ai-writing` (MIT). No frequency claim is carried from any of them: that third source states plainly that its own "5 to 20 times more common in machine text" figure is inherited and unmeasured. The word lists here are authored judgements, and severity was set by measuring each rule against prose this library already accepts.
 
 ## Worked pairs
 
@@ -207,20 +159,4 @@ Nothing fires. One short emphatic sentence, one specific unglamorous detail, no 
 
 > The on-call engineer wrote: "honestly it was a total mess, we basically just guessed at the threshold and it seemed to work."
 
-The quotation carries a verbal tic, a filler word, and two hedges. All of them stay. The linter skips blockquotes for exactly this reason, and a rewrite that "cleans up" a quotation has falsified a record.
-
-### Breaking a rule on purpose
-
-**Input**
-
-> Delete the row only after the export finishes and the checksum matches, unless the run is a dry run, in which case delete nothing, report the intended deletion, and keep the export file for the audit trail.
-
-At 37 words this fires L01. Every clause is load-bearing: two conditions, one exception, and three different actions inside the exception. Splitting it into four sentences separates the exception from the actions it governs, which is the ambiguity the cap exists to prevent.
-
-The correct handling is a suppression carrying the reason, and a `Kept as-is:` line in the delivery:
-
-```markdown
-<!-- writing-lint: allow L01 the dry-run exception must stay attached to the action it governs -->
-```
-
-A cap that cannot be broken with a written reason is not a cap. It is a rule that produces worse text in the case its author did not consider.
+The quotation carries a verbal tic, a filler word, and two hedges. All of them stay. The linter skips blockquotes for exactly this reason, and a rewrite that "cleans up" a quotation has falsified a record. When a cap genuinely harms a sentence, the escape hatch is a suppression with a written reason — the worked example is in `linter-guide.md`.

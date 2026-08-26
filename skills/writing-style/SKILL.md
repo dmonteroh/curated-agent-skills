@@ -44,7 +44,7 @@ A reply or a one-line deliverable runs none of this: apply the rules and answer.
 For a document, a set of strings, or anything a reviewer will act on:
 
 1. Read the source once for meaning. Name what it must still say afterwards.
-2. **Build the glossary when the request names required terms.** A request saying "use these terms and no synonyms", a repository glossary, or a term list in the brief each become a JSON file. It maps every canonical term to the alternates that must not appear, in the shape given in `references/writing-guide.md`. Without that file rule L12 cannot fire, and term drift ships.
+2. **Build the glossary when the request names required terms.** A request saying "use these terms and no synonyms", a repository glossary, or a term list in the brief each become a JSON file. It maps every canonical term to the alternates that must not appear, in the shape given in `references/linter-guide.md`. Without that file rule L12 cannot fire, and term drift ships.
 3. For a rewrite, lint the source first. If it reports no blocking violation, say so, return it unchanged, and stop.
 4. Write in the register.
 5. Run `python3 scripts/writing_lint.py [--glossary <path>] <file>`.
@@ -83,5 +83,6 @@ Rules 1 to 10 apply. Four more apply only here:
 ## References
 
 - `references/README.md`: index.
-- `references/writing-guide.md`: everything the rules above compress — the caps and their provenance, the glossary shape, which ASD-STE100 rules the linter enforces against which it only prefers, and the worked before-and-after pairs.
+- `references/writing-guide.md`: the register itself — which ASD-STE100 rules the linter enforces against which it only prefers, the habits a report adds, and the worked before-and-after pairs. Open it to write better.
+- `references/linter-guide.md`: the gate's operating knowledge — the caps and their provenance, the glossary shape, and suppression with a written reason. Open it to run the gate.
 - `references/always-on-block.md`: the compact block for a project's own instruction file, for the turns where this skill does not load.

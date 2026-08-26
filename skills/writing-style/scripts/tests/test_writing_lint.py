@@ -181,7 +181,7 @@ class TestAdvisoryRules(unittest.TestCase):
 
 
 class TestAbsorbedStructuralRules(unittest.TestCase):
-    """The 2026-08-26 import from reaktor-copywriter and prose-de-slopping."""
+    """The 2026-08-26 import from company-copywriter and prose-de-slopping."""
 
     def test_L15_comma_joined_pivot(self):
         self.assertIn("L15", rules_fired("This isn't about speed, it's about correctness."))

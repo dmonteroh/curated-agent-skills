@@ -39,7 +39,7 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "L13": ("for regex in (CONFORMANCE_CLAIM_RE, CONFORMANCE_CLAIM_RE2):", "for regex in ():"),
     "L14": ("VAGUE_ATTRIBUTION = [", "VAGUE_ATTRIBUTION = [] and ["),
     "E01": ('errors.append(Violation("", lineno, m.start() + 1, "E01", m.group(0)))', "pass"),
-    # Absorbed 2026-08-26 from reaktor-copywriter and prose-de-slopping.
+    # Absorbed 2026-08-26 from company-copywriter and prose-de-slopping.
     "L15/frames": ("for regex in CONTRASTIVE_RES:", "for regex in ():"),
     "L15/pair": ("            if same_frame or pronoun_subject:", "            if False:"),
     "L16/phrases": ("SIGNPOSTING = [", "SIGNPOSTING = [] and ["),

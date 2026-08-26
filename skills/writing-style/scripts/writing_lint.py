@@ -217,7 +217,7 @@ VAGUE_ATTRIBUTION = [
     "industry reports", "observers note", "critics say", "sources say",
 ]
 
-# Structural tells. Absorbed 2026-08-26 from reaktor-copywriter (hard rules and
+# Structural tells. Absorbed 2026-08-26 from company-copywriter (hard rules and
 # "What to Avoid") and prose-de-slopping's 35-pattern catalogue. De-slopping's
 # guard says the evidence is the cluster and never the item, so the rules that
 # cannot be stated as a fixed phrase fire once per document, not once per hit.
