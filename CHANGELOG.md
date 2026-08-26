@@ -5,6 +5,8 @@
 ### Added
 
 - `writing-style`: skill, `references/README.md`, `references/writing-guide.md`, `references/always-on-block.md`, `scripts/writing_lint.py`, `scripts/tests/test_writing_lint.py`, `scripts/tests/mutation_check.py`, and `scripts/auditing/trigger-cases/writing-style.md`.
+- `writing-style`: `## Replying in this conversation` in `SKILL.md`, four reply rules; the same rules in `references/always-on-block.md`.
+- `writing-style`: `L20` unevidenced verdict in `scripts/writing_lint.py`.
 - `writing-style`: 14 linter rules in `scripts/writing_lint.py` — `L15` negation pivot, `L16` signposting, `L17` unevidenced superlative, `L18` emoji, `A11` rhetorical-question opener, `A12` over-formatted reply, `A13` bold-label bullet cluster, `A14` copula avoidance, `A15` noun stack, `A16` pseudo-analytic participle tail, `A17` false range, `A18` engagement-farming close, `A19` generic positive conclusion, `A20` abstract-register cluster; 25 fixtures in `scripts/tests/test_writing_lint.py` and 16 mutants in `scripts/tests/mutation_check.py`.
 
 ### Changed
@@ -17,6 +19,8 @@
 
 - `writing-style`: the `--config` flag and its `dash_policy`, `profiles`, `extra_banned` and `allow` keys from `scripts/writing_lint.py`, with the matching sections of `SKILL.md`, `references/writing-guide.md` and `references/README.md`, and four fixtures. `DASH_POLICY` remains as a module constant.
 - `writing-style`: the machine-written stand-down bullet from `SKILL.md`, `## Do not use this skill when`.
+- `writing-style`: `A12` and the `conversation` profile from `scripts/writing_lint.py`.
+- `writing-style`: the `instruction`, `documentation`, `report` and `correspondence` profiles and `L11` from `scripts/writing_lint.py`; the profile tables in `references/writing-guide.md`; the pick-the-profile workflow step in `SKILL.md`. One cap set remains (sentence 35/25, paragraph 8/6); `--profile` is accepted, ignored, and answered with a deprecation notice; JSON output is `version` 2 without `summary.profile`.
 
 
 ## 2026-08-23
