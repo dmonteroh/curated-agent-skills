@@ -12,7 +12,6 @@ A profile is an input to the linter, not a mood. It sets the caps and decides wh
 | `documentation` | 35 / 25 | 8 / 6 | off |
 | `report` | 35 / 25 | 8 / 6 | off |
 | `correspondence` | 30 / 22 | 8 / 6 | off |
-| `conversation` | rule off | rule off | off |
 
 ### Which deliverable takes which
 
@@ -27,7 +26,6 @@ A profile is an input to the linter, not a mood. It sets the caps and decides wh
 | Design brief, findings, status report | `report` | Same shape as documentation, plus the lead-with-the-outcome habit below |
 | Pull-request body, commit body, changelog entry | `report` | Read by a reviewer deciding something |
 | Email, chat message, stakeholder note | `correspondence` | A person reads it, and contractions and first person are correct here |
-| An interactive reply in the conversation itself | `conversation` | The harness already governs its shape. Only the claim-hygiene rules apply |
 
 ### Choosing when the requester does not say
 
@@ -42,68 +40,6 @@ The caps are the same as `documentation`. The habits are not, and the linter can
 - **Lead with the outcome.** The first sentence answers what happened or what was found. Supporting detail comes after, for the reader who wants it.
 - **Say what changed and what is next.** A report that ends without a next step makes the reader write back to ask.
 - **Name the uncertainty where it exists.** A hedge in a report is content, and the modality gate protects it.
-
-### What the conversation profile drops, and why
-
-`conversation` turns off every compression rule. That is the sentence caps, the paragraph cap, the semicolon ban, the dash notice, and the one-instruction rule. It keeps every claim-hygiene rule: hype, filler, verbal tics, compliance announcements, stacked hedges, vague attribution, and term drift.
-
-The split is not a compromise. An agent harness already instructs the model on the shape of an interactive reply. The published system prompts for current frontier models instruct *against* the fragments, invented abbreviations, and clipped chains that a 25-word cap produces in conversation. Applying the caps there fights guidance that is already correct. Those same prompts say nothing that protects a hedge, and they cannot know a project's canonical terms. That is the half worth adding.
-
-Practical consequence: `conversation` runs no linter and no gates. Nobody lints a chat message. The rules are applied while writing, and the profile exists so the boundary is written down rather than left to judgment.
-
-### What the correspondence profile relaxes
-
-Contractions, first person, and a direct address to the reader are all correct here and are not violations anywhere else either. The register still applies: no hype, no filler, no stacked hedges, no verbal tics. A friendly message and a padded one are different things.
-
-## House style
-
-The conventions in this file are arbitrary. No first principle settles whether a heading takes sentence case, and a model that re-decides it every session produces a repository that reads as several. That is what this file is for: it holds the decisions, and the linter holds the machine-checkable half of them.
-
-**Everything here is a chosen default.** Replace it with the repository's own answers. The skill works the same either way.
-
-Precedence, highest first. A conflict between two levels is reported, never resolved in silence:
-
-1. The repository's own style guide, where one exists.
-2. This file.
-3. The structural rules the linter enforces.
-4. The lexical preferences, which are a direction of travel rather than a checkable standard.
-
-### The conventions the linter cannot check
-
-| Element | Shipped default |
-| --- | --- |
-| Spelling | American English |
-| Headings | Sentence case, no trailing period |
-| Serial comma | Yes |
-| Contractions | In `correspondence` only |
-| Numbers one to ten | Spell out in prose, use numerals in tables, measurements, and version strings |
-| Numbers above ten | Numerals, comma-grouped above 999 |
-| Dates | `2026-08-26`, never a bare numeric form that reads two ways |
-| Times | `07:30`, 24-hour |
-| Units | A space between number and unit, except for `%` |
-| Code and identifiers | Backticked, never reworded, never pluralised with an apostrophe |
-| A banned word under discussion | Backticked. The linter skips code spans, so backticks are what separate mentioning a word from using it |
-| Lists | A list at three or more items. Two items stay in prose |
-| Emphasis | Bold for a term being defined. Never for a whole sentence |
-
-### The conventions the linter does check
-
-Every rule id and its fix: `python3 scripts/writing_lint.py --list-rules`.
-
-**There is no configuration file.** The linter takes no house-style config, and no repository has to carry one to use this skill. The shipped rules are the rules. Where a project needs different ones, it forks the skill and edits `scripts/writing_lint.py`, where every term list and threshold is a named module constant at the top of the file.
-
-Two of those constants are worth knowing about:
-
-- `DASH_POLICY` ships as `"warn"`, which reports an em dash, en dash, or spaced double hyphen as advisory rule A10 and blocks nothing. ASD-STE100 bans the semicolon and permits the em dash, so forbidding one is a house preference rather than a rule of the standard, and rule 9 wants the asides a dash carries. Set it to `"forbid"` to make it blocking, or `"allow"` to silence it.
-- `SHORT_DOC_WORDS`, `BOLD_LABEL_MIN` and `STACK_RUN_MIN` are the thresholds for the three cluster rules, A12, A13 and A15.
-
-Suppress a single violation in place instead, where the text is right and the rule is wrong:
-
-```
-<!-- writing-lint: allow L05 the vendor's own product name -->
-```
-
-A suppression with no written reason is itself a violation, rule E01.
 
 ### The glossary
 

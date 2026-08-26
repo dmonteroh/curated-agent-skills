@@ -204,6 +204,15 @@ class TestAbsorbedStructuralRules(unittest.TestCase):
         fired = [v for v in lint("Let me break this down.")[0] if v.rule == "L16"]
         self.assertEqual(1, len(fired))
 
+    def test_L20_unevidenced_verdict(self):
+        for text in ("That's the carve-out working as designed.",
+                     "The fix is working as intended.",
+                     "It behaves as expected under load."):
+            self.assertIn("L20", rules_fired(text), text)
+
+    def test_L20_spares_a_factual_report(self):
+        self.assertNotIn("L20", rules_fired("The migration finished and the table was dropped."))
+
     def test_L17_unevidenced_superlative(self):
         self.assertIn("L17", rules_fired("The premier option is the read replica."))
 
@@ -497,44 +506,6 @@ CHAT_LONG = ("The migration is going to take a while, and the reason is that the
              "to run through every partition one at a time because the index rebuild locks the "
              "table, which means we cannot parallelise it the way we did last quarter; the "
              "estimate is about six hours.")
-
-
-class TestConversationProfile(unittest.TestCase):
-    def test_profile_exists(self):
-        self.assertIn("conversation", writing_lint.PROFILES)
-
-    def test_compression_rules_are_off(self):
-        fired = rules_fired(CHAT_LONG, profile="conversation")
-        self.assertEqual(set(), fired)
-        doc = rules_fired(CHAT_LONG, profile="documentation")
-        self.assertIn("L01", doc)
-        self.assertIn("L02", doc)
-
-    def test_claim_hygiene_rules_stay_on(self):
-        fired = rules_fired(CHAT_HYGIENE, profile="conversation")
-        for rule in ("L05", "L06", "L08"):
-            self.assertIn(rule, fired)
-
-    def test_every_disabled_rule_is_a_real_rule(self):
-        for profile, rules in writing_lint.PROFILE_DISABLED.items():
-            self.assertIn(profile, writing_lint.PROFILES)
-            for rule in rules:
-                self.assertIn(rule, writing_lint.RULES)
-
-    def test_a12_off_where_the_deliverable_is_a_document(self):
-        """Over-formatting is a reply shaped like a document, so it is off in document profiles."""
-        for profile in ("instruction", "documentation", "report"):
-            self.assertEqual({"A12"}, writing_lint.Linter(profile, {}).disabled)
-        self.assertEqual(set(), writing_lint.Linter("correspondence", {}).disabled)
-        self.assertNotIn("A12", writing_lint.Linter("conversation", {}).disabled)
-
-    def test_a12_fires_on_a_short_over_formatted_reply(self):
-        text = "# Answer\n\nThe cache is cold.\n"
-        self.assertIn("A12", rules_fired(text, profile="conversation"))
-        self.assertNotIn("A12", rules_fired(text, profile="documentation"))
-
-    def test_l11_off_in_conversation(self):
-        self.assertNotIn("L11", rules_fired("Open the file and read line three.", profile="conversation"))
 
 
 PY_SUPPRESSED = """# writing-lint: allow L05 the vendor's own wording, quoted

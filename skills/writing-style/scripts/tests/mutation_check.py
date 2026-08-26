@@ -24,7 +24,7 @@ SCRIPTS = HERE.parent
 
 # rule -> (find, replace). Each removes exactly one rule's ability to fire.
 MUTATIONS: dict[str, tuple[str, str]] = {
-    "L01": ('if count > self.caps["sentence_hard"]:', 'if count > 10**9:'),
+    "L01": ('if count > self.caps["sentence_hard"]:', "if False:"),
     "A01": ('elif count > self.caps["sentence_soft"]:', 'elif count > 10**9:'),
     "L02": ('for m in re.finditer(r";", text):', 'for m in re.finditer(r"(?!x)x", text):'),
     "L03/A10": ('if self.dash_policy != "allow":', 'if False:'),
@@ -48,10 +48,9 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "L16/frame": ("                if SIGNPOST_FRAME_RE.match(sentence.strip().lstrip(\"*_-# \")):",
                   "                if False:"),
     "L17": ("UNEVIDENCED_SUPERLATIVE = [", "UNEVIDENCED_SUPERLATIVE = [] and ["),
+    "L20": ("UNEVIDENCED_VERDICT = [", "UNEVIDENCED_VERDICT = [] and ["),
     "L18": ("for m in EMOJI_RE.finditer(text):", "for m in ():"),
     "A11": ('if unit.kind == "paragraph" and len(sentences) >= 2 and sentences[0][1].rstrip().endswith("?"):',
-            "if False:"),
-    "A12": ("if total_words and total_words < SHORT_DOC_WORDS and (headings or len(bullets) >= 3):",
             "if False:"),
     "A13": ("if len(labelled) >= BOLD_LABEL_MIN:", "if False:"),
     "A14": ("COPULA_AVOIDANCE = [", "COPULA_AVOIDANCE = [] and ["),
@@ -82,7 +81,6 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "source_comments": ("    style = EXT_STYLE.get(Path(path).suffix.lower())", "    style = None"),
     "fenced_comments": ("        if code_comments:", "        if False:"),
     "string_masking": ("        masked = STRING_RE.sub(lambda m: \" \" * len(m.group(0)), raw)", "        masked = raw"),
-    "profile_disable": ("        if rule in self.disabled:\n            return", "        if False:\n            return"),
     "shebang_guard": ("            if style == \"hash\" and raw[idx:idx + 2] == \"#!\":", "            if False:"),
 }
 

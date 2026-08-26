@@ -6,9 +6,8 @@ Usage:
     python3 scripts/writing_lint.py --profile instruction -          # read stdin
 
 Options:
-    --profile NAME     instruction | documentation | report | correspondence |
-                       conversation (default: documentation). conversation drops
-                       every compression rule and keeps the claim-hygiene rules.
+    --profile NAME     instruction | documentation | report | correspondence
+                       (default: documentation)
     --glossary FILE    JSON {"canonical term": ["forbidden", "alternates"]}
     --format text|json (default: text)
     --stats            print sentence-length statistics and exit 0
@@ -56,25 +55,6 @@ PROFILES: dict[str, dict[str, int]] = {
     "documentation": {"sentence_hard": 35, "sentence_soft": 25, "paragraph_hard": 8, "paragraph_soft": 6},
     "report": {"sentence_hard": 35, "sentence_soft": 25, "paragraph_hard": 8, "paragraph_soft": 6},
     "correspondence": {"sentence_hard": 30, "sentence_soft": 22, "paragraph_hard": 8, "paragraph_soft": 6},
-    "conversation": {"sentence_hard": 60, "sentence_soft": 45, "paragraph_hard": 20, "paragraph_soft": 12},
-}
-
-# The conversation profile drops every compression rule and keeps the claim-hygiene
-# rules. The split is not arbitrary: an agent harness already governs the shape of an
-# interactive reply, and the reference system prompts instruct against exactly the
-# fragments, abbreviations and clipped structure a sentence cap produces there. They
-# do not instruct against hype, filler, sycophancy, stacked hedges, or a hedge promoted
-# to a fact, which is what stays on.
-# A12 is off wherever the deliverable is a document. Measured against this
-# library's own accepted prose it fired on 64.9% of shipped reference files and
-# 0% of shipped skills: headings and bullets are correct in a document, and the
-# tell it targets is a short *reply* shaped like one.
-PROFILE_DISABLED: dict[str, set[str]] = {
-    "instruction": {"A12"},
-    "documentation": {"A12"},
-    "report": {"A12"},
-    # A18 is off here: a reply that ends by asking what to do next is doing its job.
-    "conversation": {"L01", "A01", "L02", "L03", "A10", "L10", "L11", "A18"},
 }
 
 # Document-level rhythm floor. Measured standard deviation of sentence length
@@ -216,6 +196,15 @@ COMPLIANCE_ANNOUNCEMENTS = [
     "keeping this short", "to summarize briefly", "in plain english",
 ]
 
+# A verdict announced instead of shown. Distinct from hype: the claim is about
+# correctness rather than quality, so no adjective list catches it.
+UNEVIDENCED_VERDICT = [
+    "working as designed", "working as intended", "working as expected",
+    "exactly as expected", "exactly as designed", "just as we hoped",
+    "does exactly what it says", "behaves as expected", "performing as expected",
+    "as intended", "as designed",
+]
+
 VAGUE_ATTRIBUTION = [
     "experts say", "experts agree", "studies show", "research shows",
     "it is widely known", "it is well known", "many believe", "some argue",
@@ -337,7 +326,6 @@ POSITIVE_CLOSE = [
 ]
 
 # Chosen defaults, unmeasured until the corpus pass ranks them.
-SHORT_DOC_WORDS = 150        # below this a heading or three bullets is over-formatting
 BOLD_LABEL_MIN = 3           # bold-label bullets before the shape counts as a cluster
 STACK_RUN_MIN = 3            # consecutive stack nouns before it counts as a stack
 
@@ -405,6 +393,7 @@ RULES: dict[str, tuple[str, str, str]] = {
     "L15": ("blocking", "contrastive_parallelism", "Rewrite without the negation pivot. State what it is; do not set up what it is not."),
     "L16": ("blocking", "signposting", "Delete. Announcing the content is not the content."),
     "L17": ("blocking", "unevidenced_superlative", "Name the measurement that earns the claim, or delete it."),
+    "L20": ("blocking", "unevidenced_verdict", "Say what happened and what was checked. A verdict is not evidence for itself."),
     "L18": ("blocking", "emoji", "Delete the emoji. Say it in words."),
     "E01": ("blocking", "suppression_without_reason", "Write the reason after the rule id: <!-- writing-lint: allow L01 the condition does not survive a split -->"),
     "A01": ("advisory", "sentence_over_soft_cap", "Consider splitting. Above the measured p90 for accepted prose."),
@@ -417,7 +406,6 @@ RULES: dict[str, tuple[str, str, str]] = {
     "A09": ("advisory", "soft_filler", "Usually deletable without loss."),
     "A10": ("advisory", "dash_notice", "A dash here is a house preference, not a rule of the standard. Advisory on purpose."),
     "A11": ("advisory", "rhetorical_question_opener", "Open with the answer. A question you immediately answer asks nothing."),
-    "A12": ("advisory", "over_formatting", "A short answer wants sentences, not a heading and bullets."),
     "A13": ("advisory", "bold_label_list", "Bullets shaped '- **Label:** sentence' throughout. Write prose, or drop the labels."),
     "A14": ("advisory", "copula_avoidance", "Use 'is' or 'has'."),
     "A15": ("advisory", "noun_stack", "Break the noun run with a verb or a preposition."),
@@ -812,7 +800,6 @@ class Linter:
     def __init__(self, profile: str, glossary: dict[str, list[str]]) -> None:
         self.profile = profile
         self.caps = dict(PROFILES[profile])
-        self.disabled = set(PROFILE_DISABLED.get(profile, set()))
         self.dash_policy = DASH_POLICY
         self.glossary = glossary
 
@@ -833,6 +820,7 @@ class Linter:
         self.copula = build("A14", COPULA_AVOIDANCE)
         self.positive_close = build("A19", POSITIVE_CLOSE)
         self.tier2 = build("A20", TIER2_CLUSTER)
+        self.verdict = build("L20", UNEVIDENCED_VERDICT)
 
     # -- helpers ----------------------------------------------------------
 
@@ -854,8 +842,6 @@ class Linter:
         return sorted(hits)
 
     def _emit(self, out: list[Violation], unit: Unit, offset: int, rule: str, span: str, detail: str = "") -> None:
-        if rule in self.disabled:
-            return
         line, col = unit.at(offset)
         out.append(Violation("", line, col, rule, re.sub(r"\s+", " ", span).strip(), detail))
 
@@ -924,6 +910,8 @@ class Linter:
             self._emit(out, unit, offset, "L16", span)
         for offset, span in self._find_terms(text, self.superlative):
             self._emit(out, unit, offset, "L17", span)
+        for offset, span in self._find_terms(text, self.verdict):
+            self._emit(out, unit, offset, "L20", span)
         for offset, span in self._find_terms(text, self.copula):
             self._emit(out, unit, offset, "A14", span)
 
@@ -1055,12 +1043,7 @@ class Linter:
 
         # Cluster rules. De-slopping's guard is that the evidence is never the
         # item, so these fire once per document rather than once per hit.
-        headings = [u for u in units if u.kind == "heading"]
         bullets = [u for u in units if u.kind == "list_item"]
-        if total_words and total_words < SHORT_DOC_WORDS and (headings or len(bullets) >= 3):
-            shape = "a heading" if headings else f"{len(bullets)} bullets"
-            self._emit(out, first, 0, "A12", shape, f"{total_words} words, under {SHORT_DOC_WORDS}")
-
         labelled = [u for u in bullets if BOLD_LABEL_RE.match(u.text.strip())]
         if len(labelled) >= BOLD_LABEL_MIN:
             self._emit(out, labelled[0], 0, "A13", labelled[0].text[:60],
