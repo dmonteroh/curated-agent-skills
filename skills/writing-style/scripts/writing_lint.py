@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Controlled-English linter: decides the register violations a rule can decide.
 
+One register, no profiles. The linter reads the text alone and cannot know what
+the text is for, so every rule that needed that knowledge lives in SKILL.md as
+prose instead: the 20-word procedure cap, one-instruction-per-sentence, and the
+reply carve-out are the LLM's to apply. The linter returns violations; the LLM
+decides the edit.
+
 Usage:
     python3 scripts/writing_lint.py [OPTIONS] PATH [PATH...]
-    python3 scripts/writing_lint.py --profile instruction -          # read stdin
+    python3 scripts/writing_lint.py --glossary terms.json -          # read stdin
 
 Options:
-    --profile NAME     instruction | documentation | report | correspondence
-                       (default: documentation)
     --glossary FILE    JSON {"canonical term": ["forbidden", "alternates"]}
     --format text|json (default: text)
     --stats            print sentence-length statistics and exit 0
@@ -39,22 +43,24 @@ from typing import Callable
 from pathlib import Path
 
 # --------------------------------------------------------------------------
-# Profiles. Caps are a chosen default with measured provenance: sentence and
-# paragraph lengths were measured over eight documents this library treats as
-# good writing (six shipped SKILL.md files, the review checklist, and an
+# Caps. A chosen default with measured provenance: sentence and paragraph
+# lengths were measured over eight documents this library treats as good
+# writing (six shipped SKILL.md files, the review checklist, and an
 # operator-approved brief). Those measured p90 sentence lengths ran 17-29
 # words, p95 21-38, and paragraph p95 3-6 sentences. The soft cap sits at the
 # measured p90 band and the hard cap above the measured p95, so accepted prose
-# passes and an outlier is what fires. The instruction profile is the one
-# exception: its 20-word cap is ASD-STE100's own procedural limit, kept
-# because that is the register where a misread has a cost.
+# passes and an outlier is what fires.
+#
+# There used to be four profiles. A 97-run trace audit removed them: agents
+# passed a nonexistent profile name in 15% of invocations (each one a failed
+# gate and a retry), chose between two byte-identical options by coin flip,
+# and never once picked the fourth. ASD-STE100's tighter 20-word procedural
+# cap survives as SKILL.md rule 12, because knowing a sentence is a procedure
+# step takes knowledge of the deliverable that the text alone does not carry.
 # --------------------------------------------------------------------------
 
-PROFILES: dict[str, dict[str, int]] = {
-    "instruction": {"sentence_hard": 20, "sentence_soft": 15, "paragraph_hard": 6, "paragraph_soft": 4},
-    "documentation": {"sentence_hard": 35, "sentence_soft": 25, "paragraph_hard": 8, "paragraph_soft": 6},
-    "report": {"sentence_hard": 35, "sentence_soft": 25, "paragraph_hard": 8, "paragraph_soft": 6},
-    "correspondence": {"sentence_hard": 30, "sentence_soft": 22, "paragraph_hard": 8, "paragraph_soft": 6},
+CAPS: dict[str, int] = {
+    "sentence_hard": 35, "sentence_soft": 25, "paragraph_hard": 8, "paragraph_soft": 6,
 }
 
 # Document-level rhythm floor. Measured standard deviation of sentence length
@@ -283,7 +289,7 @@ CONTRASTIVE_RES = (
     re.compile(r"\bnot just\b[^.!?,;]{2,70},\s*(?:but\s+|it|this|that|they|we|you)\b", re.I),
 )
 
-# Emoji: banned outright, anywhere, in every profile. The sources scope their
+# Emoji: banned outright, anywhere, in every register. The sources scope their
 # bans to headings, bullets, or faces, but those scopes come from marketing copy.
 # This skill governs how an agent writes everywhere, so the scope is everywhere.
 # Deliberately excluded: arrows (U+2190-21FF), check and ballot marks (U+2713,
@@ -336,15 +342,6 @@ CONFORMANCE_CLAIM_RE = re.compile(
 )
 CONFORMANCE_CLAIM_RE2 = re.compile(r"\b(ste|asd[- ]?ste ?100)[- ]complian(?:t|ce)\b", re.I)
 
-IMPERATIVE_VERBS = {
-    "open", "close", "read", "write", "run", "check", "verify", "set", "add",
-    "remove", "delete", "install", "start", "stop", "restart", "click",
-    "select", "enter", "press", "copy", "move", "create", "update", "apply",
-    "send", "wait", "confirm", "review", "replace", "rename", "configure",
-    "enable", "disable", "export", "import", "build", "deploy", "retry",
-    "record", "report", "call", "load", "save", "attach", "detach", "mount",
-}
-
 PASSIVE_RE = re.compile(
     r"\b(is|are|was|were|be|been|being)\s+(?:\w+ly\s+)?(\w+ed|born|done|made|given|taken|"
     r"shown|known|seen|written|built|held|kept|sent|found|put|drawn|thrown|chosen)\b",
@@ -386,7 +383,6 @@ RULES: dict[str, tuple[str, str, str]] = {
     "L08": ("blocking", "verbal_tic", "Delete. Say the thing instead of framing it."),
     "L09": ("blocking", "compliance_announcement", "Delete. Show the property; never announce compliance with an instruction."),
     "L10": ("blocking", "paragraph_over_cap", "Split the paragraph. One topic per paragraph."),
-    "L11": ("blocking", "multi_instruction", "One instruction per sentence in this profile."),
     "L12": ("blocking", "glossary_alternate", "Use the canonical term. One term, one meaning, every time."),
     "L13": ("blocking", "conformance_claim", "Remove the claim. Conformance needs the official dictionary, which this tool does not carry."),
     "L14": ("blocking", "vague_attribution", "Name the source, or delete the claim."),
@@ -797,9 +793,8 @@ def word_count(text: str) -> int:
 
 
 class Linter:
-    def __init__(self, profile: str, glossary: dict[str, list[str]]) -> None:
-        self.profile = profile
-        self.caps = dict(PROFILES[profile])
+    def __init__(self, glossary: dict[str, list[str]]) -> None:
+        self.caps = dict(CAPS)
         self.dash_policy = DASH_POLICY
         self.glossary = glossary
 
@@ -952,14 +947,23 @@ class Linter:
             self._emit(out, unit, m.start(), "A05", m.group(0))
 
 
+    # The output contract's own trailer. It enumerates every preserved hedge,
+    # number and condition, so it is an inventory rather than prose, and a
+    # thorough one legitimately runs past any sentence cap. Identifiable from
+    # the text alone, which is what qualifies the exemption to live here.
+    KEPT_AS_IS_RE = re.compile(r"^\s*(?:\*\*)?kept as-is:", re.I)
+
     def _sentence_rules(
         self, out: list[Violation], unit: Unit, sentences: list[tuple[int, str]], lengths: list[int]
     ) -> None:
+        kept_line = bool(self.KEPT_AS_IS_RE.match(unit.text))
         openers: list[str] = []
         for offset, sentence in sentences:
             count = word_count(sentence)
             lengths.append(count)
-            if count > self.caps["sentence_hard"]:
+            if kept_line:
+                pass
+            elif count > self.caps["sentence_hard"]:
                 self._emit(out, unit, offset, "L01", sentence[:60], f"{count} words, cap {self.caps['sentence_hard']}")
             elif count > self.caps["sentence_soft"]:
                 self._emit(out, unit, offset, "A01", sentence[:60], f"{count} words, soft cap {self.caps['sentence_soft']}")
@@ -979,9 +983,6 @@ class Linter:
 
             if PARTICIPLE_TAIL_RE.search(sentence):
                 self._emit(out, unit, offset, "A16", sentence[-50:])
-
-            if self.profile == "instruction":
-                self._multi_instruction(out, unit, offset, sentence)
 
             words = WORD_RE.findall(sentence)
             openers.append(words[0].lower() if words else "")
@@ -1027,15 +1028,6 @@ class Linter:
             pronoun_subject = a[0].lower() == b[0].lower() and a[0].lower() in PIVOT_SUBJECTS
             if same_frame or pronoun_subject:
                 self._emit(out, unit, offset, "L15", f"{first[:34]} / {second[:34]}")
-
-    def _multi_instruction(self, out: list[Violation], unit: Unit, offset: int, sentence: str) -> None:
-        words = [w.lower() for w in WORD_RE.findall(sentence)]
-        if not words or words[0] not in IMPERATIVE_VERBS:
-            return
-        for i, word in enumerate(words[1:], start=1):
-            if word in {"and", "then"} and i + 1 < len(words) and words[i + 1] in IMPERATIVE_VERBS:
-                self._emit(out, unit, offset, "L11", sentence[:60], f"second instruction: {words[i + 1]}")
-                return
 
     def _document_rules(self, out: list[Violation], units: list[Unit], lengths: list[int]) -> None:
         total_words = sum(word_count(u.text) for u in units)
@@ -1105,8 +1097,7 @@ def render_text(violations: list[Violation], summary: dict) -> str:
         lines.append(f"    fix: {v.fix}")
     lines.append(
         f"\n{summary['blocking']} blocking, {summary['advisory']} advisory over "
-        f"{summary['words']} words ({summary['blocking_per_1k']} blocking per 1,000 words). "
-        f"profile={summary['profile']}"
+        f"{summary['words']} words ({summary['blocking_per_1k']} blocking per 1,000 words)."
     )
     return "\n".join(lines)
 
@@ -1114,7 +1105,10 @@ def render_text(violations: list[Violation], summary: dict) -> str:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="writing_lint", add_help=True)
     parser.add_argument("paths", nargs="*")
-    parser.add_argument("--profile", default="documentation", choices=sorted(PROFILES))
+    # Deprecated and ignored, but still accepted: rejecting it would recreate
+    # the exit-2 retry loop that profile names caused, and an agent following a
+    # stale instruction must not lose its gate run to that.
+    parser.add_argument("--profile", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--glossary")
     parser.add_argument("--format", default="text", choices=["text", "json"])
     parser.add_argument("--stats", action="store_true")
@@ -1122,6 +1116,9 @@ def main(argv: list[str]) -> int:
                         help="also lint comments inside fenced code blocks of a markdown file")
     parser.add_argument("--list-rules", action="store_true")
     args = parser.parse_args(argv)
+
+    if args.profile is not None:
+        print("note: --profile is deprecated and ignored; the register is one set of rules", file=sys.stderr)
 
     if args.list_rules:
         for rule, (severity, name, fix) in sorted(RULES.items()):
@@ -1143,7 +1140,7 @@ def main(argv: list[str]) -> int:
             print(f"error: glossary: {exc}", file=sys.stderr)
             return 2
 
-    linter = Linter(args.profile, glossary)
+    linter = Linter(glossary)
     all_violations: list[Violation] = []
     total_words = 0
     all_lengths: list[int] = []
@@ -1180,7 +1177,6 @@ def main(argv: list[str]) -> int:
     blocking = [v for v in all_violations if v.severity == "blocking"]
     advisory = [v for v in all_violations if v.severity == "advisory"]
     summary = {
-        "profile": args.profile,
         "words": total_words,
         "blocking": len(blocking),
         "advisory": len(advisory),
@@ -1189,7 +1185,7 @@ def main(argv: list[str]) -> int:
 
     if args.format == "json":
         print(json.dumps({
-            "version": 1,
+            "version": 2,
             "summary": summary,
             "violations": [v.as_dict() for v in all_violations],
         }, indent=2))

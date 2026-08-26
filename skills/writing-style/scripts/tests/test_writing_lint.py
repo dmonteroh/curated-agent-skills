@@ -15,8 +15,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import writing_lint  # noqa: E402
 
 
-def lint(text, profile="documentation", glossary=None):
-    linter = writing_lint.Linter(profile, glossary or {})
+def lint(text, glossary=None):
+    linter = writing_lint.Linter(glossary or {})
     violations, words = writing_lint.lint_text(text, "t.md", linter)
     return violations, words
 
@@ -114,11 +114,6 @@ class TestBlockingRules(unittest.TestCase):
         para = " ".join(f"Sentence number {n} is here." for n in range(12))
         self.assertIn("L10", rules_fired(para))
 
-    def test_L11_multi_instruction_instruction_profile_only(self):
-        text = "Open the file and read line three."
-        self.assertIn("L11", rules_fired(text, profile="instruction"))
-        self.assertNotIn("L11", rules_fired(text, profile="documentation"))
-
     def test_L12_glossary_alternate(self):
         glossary = {"worker": ["agent", "runner"]}
         fired = lint("The runner picks up the job.", glossary=glossary)[0]
@@ -142,6 +137,18 @@ class TestAdvisoryRules(unittest.TestCase):
         fired = rules_fired(text)
         self.assertIn("A01", fired)
         self.assertNotIn("L01", fired)
+
+    def test_kept_as_is_inventory_is_exempt_from_the_caps(self):
+        # The output contract demands the trailer, and a thorough one enumerates
+        # more than 35 words. Measured in cf3: a Kept as-is line fired L01 on a
+        # deliverable that was otherwise clean. Inventory, not prose.
+        items = ", ".join(f"the {n}-minute threshold for stage {n}" for n in range(12))
+        fired = rules_fired("Kept as-is: " + items + ".")
+        self.assertNotIn("L01", fired)
+        self.assertNotIn("A01", fired)
+        self.assertIn("L01", rules_fired("Kept nothing: " + items + "."))
+        # Only the caps are exempt: any other rule still fires on the trailer.
+        self.assertIn("L05", rules_fired("Kept as-is: the seamless rollout claim."))
 
     def test_A02_passive_voice(self):
         self.assertIn("A02", rules_fired("The file is deleted."))
@@ -361,13 +368,6 @@ class TestPositions(unittest.TestCase):
         self.assertEqual("seamless", text.splitlines()[hit.line - 1][hit.col - 1:hit.col - 1 + len(hit.span)])
 
 
-class TestProfiles(unittest.TestCase):
-    def test_instruction_profile_is_stricter(self):
-        text = ("Delete the row from the audit table once the export job reports that it finished, and record the deletion in the ledger.")
-        self.assertIn("L01", rules_fired(text, profile="instruction"))
-        self.assertNotIn("L01", rules_fired(text, profile="documentation"))
-
-
 class TestCli(unittest.TestCase):
     def _run(self, argv, stdin=None):
         out, err = io.StringIO(), io.StringIO()
@@ -407,11 +407,24 @@ class TestCli(unittest.TestCase):
         code, out, _ = self._run(["--format", "json", "-"], stdin="The rollout was seamless.")
         payload = json.loads(out)
         self.assertEqual(1, code)
-        self.assertEqual(1, payload["version"])
+        self.assertEqual(2, payload["version"])
         self.assertEqual(1, payload["summary"]["blocking"])
         self.assertIn("blocking_per_1k", payload["summary"])
         self.assertEqual("L05", payload["violations"][0]["rule"])
         self.assertIn("fix", payload["violations"][0])
+
+    def test_profile_flag_is_deprecated_not_fatal(self):
+        # 15% of 223 traced invocations passed a profile that does not exist,
+        # and each one exited 2 with nothing linted. The flag is now ignored:
+        # any value, real or invented, must produce a normal lint run.
+        for name in ("documentation", "pr_body", "strict", "conversation"):
+            code, out, err = self._run(["--profile", name, "-"], stdin="The rollout was seamless.")
+            self.assertEqual(1, code, name)
+            self.assertIn("L05", out, name)
+            self.assertIn("deprecated", err, name)
+        code, _, err = self._run(["-"], stdin=CLEAN)
+        self.assertEqual(0, code)
+        self.assertNotIn("deprecated", err)
 
     def test_list_rules_covers_every_emitted_rule(self):
         code, out, _ = self._run(["--list-rules"])
@@ -433,10 +446,6 @@ class TestCli(unittest.TestCase):
         self.assertIn("L12", out)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 PY_SOURCE = '''#!/usr/bin/env python3
 """Spins up a seamless worker; it is best-in-class."""
 
@@ -456,7 +465,7 @@ const x = 1; // in order to pass
 
 class TestSourceComments(unittest.TestCase):
     def _lint_as(self, text, name):
-        linter = writing_lint.Linter("documentation", {})
+        linter = writing_lint.Linter({})
         return writing_lint.lint_text(text, name, linter)[0]
 
     def test_python_comments_and_docstring_are_linted(self):
@@ -487,7 +496,7 @@ class TestSourceComments(unittest.TestCase):
 
     def test_fenced_block_opt_in_for_markdown(self):
         md = "Text here.\n\n```python\n# A seamless helper.\nx = 1\n```\n"
-        linter = writing_lint.Linter("documentation", {})
+        linter = writing_lint.Linter({})
         without = writing_lint.lint_text(md, "d.md", linter)[0]
         with_flag = writing_lint.lint_text(md, "d.md", linter, code_comments=True)[0]
         self.assertEqual([], without)
@@ -495,17 +504,9 @@ class TestSourceComments(unittest.TestCase):
 
     def test_fenced_block_line_numbers_point_at_the_file(self):
         md = "Text here.\n\n```python\n# A seamless helper.\nx = 1\n```\n"
-        linter = writing_lint.Linter("documentation", {})
+        linter = writing_lint.Linter({})
         hit = next(v for v in writing_lint.lint_text(md, "d.md", linter, code_comments=True)[0])
         self.assertEqual(4, hit.line)
-
-
-CHAT_HYGIENE = ("Great question. We could possibly perhaps maybe look into it, and honestly "
-                "the seamless new pipeline is best-in-class; it will move the needle.")
-CHAT_LONG = ("The migration is going to take a while, and the reason is that the backfill has "
-             "to run through every partition one at a time because the index rebuild locks the "
-             "table, which means we cannot parallelise it the way we did last quarter; the "
-             "estimate is about six hours.")
 
 
 PY_SUPPRESSED = """# writing-lint: allow L05 the vendor's own wording, quoted
@@ -520,7 +521,7 @@ PY_NO_REASON = """# writing-lint: allow L05
 
 class TestSourceSuppression(unittest.TestCase):
     def _lint_as(self, text, name):
-        linter = writing_lint.Linter("documentation", {})
+        linter = writing_lint.Linter({})
         return writing_lint.lint_text(text, name, linter)[0]
 
     def test_own_line_directive_covers_the_next_comment(self):
@@ -545,3 +546,10 @@ class TestSourceSuppression(unittest.TestCase):
     def test_suppression_does_not_leak_past_its_target(self):
         text = "# writing-lint: allow L05 quoted\n# The seamless pipeline.\n# Another seamless claim.\n"
         self.assertIn("L05", {v.rule for v in self._lint_as(text, "m.py")})
+
+
+# Keep this guard at the end of the file. It once sat mid-file, and a direct
+# `python3 test_writing_lint.py` run silently executed only the classes defined
+# above it while discovery ran them all.
+if __name__ == "__main__":
+    unittest.main()

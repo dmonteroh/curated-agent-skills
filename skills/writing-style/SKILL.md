@@ -55,13 +55,12 @@ A reply or a one-line deliverable runs none of this: apply the rules and answer.
 For a document, a set of strings, or anything a reviewer will act on:
 
 1. Read the source once for meaning. Name what it must still say afterwards.
-2. Pick the profile. `references/writing-guide.md` maps deliverables to profiles.
-3. **Build the glossary when the request names required terms.** A request saying "use these terms and no synonyms", a repository glossary, or a term list in the brief each become a JSON file. It maps every canonical term to the alternates that must not appear, in the shape given in `references/writing-guide.md`. Without that file rule L12 cannot fire, and term drift ships.
-4. For a rewrite, lint the source first. If it reports no blocking violation, say so, return it unchanged, and stop.
-5. Write in the register.
-6. Run `python3 scripts/writing_lint.py --profile <profile> [--glossary <path>] <file>`.
-7. Fix every blocking violation, or suppress it with a written reason. A suppression with no reason is itself a violation.
-8. Run the three gates below. A failed gate sends the text back to step 5.
+2. **Build the glossary when the request names required terms.** A request saying "use these terms and no synonyms", a repository glossary, or a term list in the brief each become a JSON file. It maps every canonical term to the alternates that must not appear, in the shape given in `references/writing-guide.md`. Without that file rule L12 cannot fire, and term drift ships.
+3. For a rewrite, lint the source first. If it reports no blocking violation, say so, return it unchanged, and stop.
+4. Write in the register.
+5. Run `python3 scripts/writing_lint.py [--glossary <path>] <file>`.
+6. Fix every blocking violation, or suppress it with a written reason. A suppression with no reason is itself a violation.
+7. Run the three gates below. A failed gate sends the text back to step 4.
 
 ## Gates
 
@@ -73,7 +72,7 @@ Each one can fail, and a failure is a defect rather than a note.
 
 ## Output contract
 
-Return the text alone, plus any `Kept as-is:` lines. Nothing about the process reaches the reader: not the profile, not the lint output, not a note about which tools were available. Never announce that the register was applied. Where the text must mention a banned term to discuss it, put the term in backticks.
+Return the text alone, plus any `Kept as-is:` lines. Nothing about the process reaches the reader: not the lint output, not the glossary, not a note about which tools were available. Never announce that the register was applied. Where the text must mention a banned term to discuss it, put the term in backticks.
 
 ## Scripts
 
@@ -82,7 +81,7 @@ Return the text alone, plus any `Kept as-is:` lines. Nothing about the process r
 ## References
 
 - `references/README.md`: index.
-- `references/writing-guide.md`: everything the rules above compress — the profiles and their caps, the house conventions, the glossary shape, the precedence order when two of them disagree, and the worked before-and-after pairs.
+- `references/writing-guide.md`: everything the rules above compress — the caps and their provenance, the glossary shape, which ASD-STE100 rules the linter enforces against which it only prefers, and the worked before-and-after pairs.
 - `references/always-on-block.md`: the compact block for a project's own instruction file, for the turns where this skill does not load.
 
 ## Provenance

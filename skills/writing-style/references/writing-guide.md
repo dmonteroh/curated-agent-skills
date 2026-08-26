@@ -1,41 +1,27 @@
 # Writing guide
 
-Everything `SKILL.md` compresses. Four parts: the profiles and their caps, the house conventions and the glossary shape, which ASD-STE100 rules this skill enforces against which it only prefers, and worked before-and-after pairs.
+Everything `SKILL.md` compresses. Four parts: the caps and their provenance, the glossary shape, which ASD-STE100 rules the linter enforces against which it only prefers, and worked before-and-after pairs.
 
-## Register profiles
+## The caps
 
-A profile is an input to the linter, not a mood. It sets the caps and decides whether rule L11 fires. Pass it with `--profile`.
+One register, one set of caps. The linter had four profiles once. A 97-run trace audit removed them: agents invented profile names in 15% of invocations, each a failed gate, and split two byte-identical options by coin flip.
 
-| Profile | Sentence cap (hard / soft) | Paragraph cap (hard / soft) | L11 one-instruction rule |
-| --- | --- | --- | --- |
-| `instruction` | 20 / 15 | 6 / 4 | on |
-| `documentation` | 35 / 25 | 8 / 6 | off |
-| `report` | 35 / 25 | 8 / 6 | off |
-| `correspondence` | 30 / 22 | 8 / 6 | off |
-
-### Which deliverable takes which
-
-| Deliverable | Profile | Why |
+| Cap | Hard (blocking) | Soft (advisory) |
 | --- | --- | --- |
-| Error message, empty state, log line | `instruction` | A machine or a person under pressure reads it once |
-| Tool or function description | `instruction` | Another agent parses it with no back-channel |
-| Instruction passed to another agent | `instruction` | Same reason, and a compound sentence splits into two possible orderings |
-| Runbook or procedure step | `instruction` | A wrong reading has an operational cost |
-| Code comment, docstring | `documentation` | Short by nature. This profile governs the register, never the count |
-| README, reference doc, API guide | `documentation` | Explanation needs subordinate clauses the instruction cap forbids |
-| Design brief, findings, status report | `report` | Same shape as documentation, plus the lead-with-the-outcome habit below |
-| Pull-request body, commit body, changelog entry | `report` | Read by a reviewer deciding something |
-| Email, chat message, stakeholder note | `correspondence` | A person reads it, and contractions and first person are correct here |
+| Sentence, words | 35 (L01) | 25 (A01) |
+| Paragraph, sentences | 8 (L10) | 6 |
 
-### Choosing when the requester does not say
+The values are measured, not chosen by feel. Across eight documents this library treats as good writing, p90 sentence length ran 17-29 words and p95 ran 21-38. The soft cap sits at the p90 band and the hard cap above the p95, so accepted prose passes and an outlier fires.
 
-Ask one question: **who acts on this, and can they ask a follow-up?** No back-channel and a real cost means `instruction`. A reader who can ask means one of the other three. State the choice in one line and move on.
+### The tighter target the linter cannot hold
 
-Where one task produces two deliverables, such as a pull-request body plus the error strings the change adds, lint each with its own profile. Do not average them.
+ASD-STE100 caps a procedure sentence at 20 words with one instruction in it, and that limit is rule 12 in `SKILL.md`, not a linter rule. The linter reads the text alone and cannot know that a sentence is an error string, a runbook step, or a message another agent will parse. The writer knows. Apply the 20-word, one-instruction form to anything read once, under pressure, or by a machine: error messages, log lines, tool descriptions, procedure steps, instructions handed to another agent. The linted caps govern everything else.
 
-### What the report profile adds
+One question decides the tight form: **who acts on this, and can they ask a follow-up?** No back-channel and a real cost of misreading means the tight form.
 
-The caps are the same as `documentation`. The habits are not, and the linter cannot check them:
+### What a report adds
+
+Reports and briefs share the caps. The habits are their own, and the linter cannot check them:
 
 - **Lead with the outcome.** The first sentence answers what happened or what was found. Supporting detail comes after, for the reader who wants it.
 - **Say what changed and what is next.** A report that ends without a next step makes the reader write back to ask.
@@ -86,8 +72,8 @@ Each one can be pointed at: a word, a punctuation mark, or a count.
 
 | Rule | What it says | Linter |
 | --- | --- | --- |
-| Sentence length | Cap the sentence. Procedures are capped tighter than description | L01, A01 |
-| One instruction per sentence | A procedure sentence carries one action | L11 |
+| Sentence length | Cap the sentence. Procedures are capped tighter than description | L01, A01. The tighter 20-word procedure cap is `SKILL.md` rule 12, prose only |
+| One instruction per sentence | A procedure sentence carries one action | `SKILL.md` rule 12, prose only. As a linter rule it fired on 7.3% of accepted prose: deciding that a sentence is a procedure step takes knowledge the text alone does not carry |
 | No semicolon | Rule 8.1 bans the mark outright, and permits every other standard mark. The em dash is not banned by the standard | L02, L03 by house style |
 | Paragraph limit | One topic per paragraph, and a sentence cap | L10 |
 | Lists for sequences | Three or more steps or conditions become a list rather than one sentence | not automated |
@@ -135,7 +121,7 @@ One per register, plus two cases that are not rewrites. Every "after" preserves 
 
 > An error may have occurred while processing your request due to a possible mismatch in the expected data format, which could be caused by an outdated client version.
 
-What fires: L01 at 26 words against a 20-word cap, L06 with three hedges stacked, A02 on `be caused`.
+What fires: L06 with three hedges stacked, A01 at 26 words, A02 on `be caused`. Rule 12 asks more of an error string than the linter does: 20 words, one instruction per sentence, because a person under pressure reads it once.
 
 **After**
 
@@ -203,7 +189,7 @@ What fires: L04 on `reach out`, `circle back`, `dive into`, and `loop you in`, L
 
 > Hi team, an update on last night's incident. Priya asked on the call how far it reached: no customer requests failed, and we have confirmed that against the gateway logs. We are still looking for the root cause and I will write again once we know it.
 
-Contractions and first person are correct in this profile. What went is the business idiom and the reassurance that carried no evidence. Note the addition of *how* the no-impact claim was checked, which the source asserted and did not support.
+Contractions and first person are correct in correspondence. What went is the business idiom and the reassurance that carried no evidence. Note the addition of *how* the no-impact claim was checked, which the source asserted and did not support.
 
 ### Not a rewrite — the text already passes
 
@@ -225,9 +211,9 @@ The quotation carries a verbal tic, a filler word, and two hedges. All of them s
 
 **Input**
 
-> Delete the row only after the export finishes and the checksum matches, unless the run is a dry run, in which case delete nothing and report the intended deletion.
+> Delete the row only after the export finishes and the checksum matches, unless the run is a dry run, in which case delete nothing, report the intended deletion, and keep the export file for the audit trail.
 
-At 30 words this exceeds the 20-word `instruction` cap and fires L01. Every clause is load-bearing: two conditions, one exception, and a different action inside the exception. Splitting it into four sentences separates the exception from the action it governs, which is the ambiguity the cap exists to prevent.
+At 37 words this fires L01. Every clause is load-bearing: two conditions, one exception, and three different actions inside the exception. Splitting it into four sentences separates the exception from the actions it governs, which is the ambiguity the cap exists to prevent.
 
 The correct handling is a suppression carrying the reason, and a `Kept as-is:` line in the delivery:
 

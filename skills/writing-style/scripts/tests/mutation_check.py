@@ -35,8 +35,6 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "L08": ("VERBAL_TICS = [", "VERBAL_TICS = [] and ["),
     "L09": ("COMPLIANCE_ANNOUNCEMENTS = [", "COMPLIANCE_ANNOUNCEMENTS = [] and ["),
     "L10": ('if count > self.caps["paragraph_hard"]:', 'if count > 10**9:'),
-    "L11": ("        words = [w.lower() for w in WORD_RE.findall(sentence)]\n        if not words or words[0] not in IMPERATIVE_VERBS:\n            return",
-            "        words = [w.lower() for w in WORD_RE.findall(sentence)]\n        if True:\n            return"),
     "L12": ("for canonical, alternates in self.glossary.items():", "for canonical, alternates in {}.items():"),
     "L13": ("for regex in (CONFORMANCE_CLAIM_RE, CONFORMANCE_CLAIM_RE2):", "for regex in ():"),
     "L14": ("VAGUE_ATTRIBUTION = [", "VAGUE_ATTRIBUTION = [] and ["),
@@ -82,6 +80,14 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "fenced_comments": ("        if code_comments:", "        if False:"),
     "string_masking": ("        masked = STRING_RE.sub(lambda m: \" \" * len(m.group(0)), raw)", "        masked = raw"),
     "shebang_guard": ("            if style == \"hash\" and raw[idx:idx + 2] == \"#!\":", "            if False:"),
+    # Parsing guards. Each had a fixture and no proof the fixture could fail.
+    "inline_code_masking": ("    for m in re.finditer(r\"`[^`]*`\", line):", "    for m in ():"),
+    "frontmatter_exclusion": ('    in_frontmatter = bool(lines) and lines[0].strip() == "---"',
+                              "    in_frontmatter = False"),
+    "sentence_boundary_guards": ("                if last not in ABBREVIATIONS and not digit_boundary:",
+                                 "                if True:"),
+    "kept_as_is_exemption": ("        kept_line = bool(self.KEPT_AS_IS_RE.match(unit.text))",
+                             "        kept_line = False"),
 }
 
 
