@@ -7,6 +7,7 @@
 - `writing-style`: skill, `references/README.md`, `references/writing-guide.md`, `references/always-on-block.md`, `scripts/writing_lint.py`, `scripts/tests/test_writing_lint.py`, `scripts/tests/mutation_check.py`, and `scripts/auditing/trigger-cases/writing-style.md`.
 - `writing-style`: `## Replying in this conversation` in `SKILL.md`, four reply rules; the same rules in `references/always-on-block.md`.
 - `writing-style`: `L20` unevidenced verdict in `scripts/writing_lint.py`.
+- `writing-style`: `assigned_string_lines` in `scripts/writing_lint.py` — a triple-quoted string assigned to a name is data, excluded from docstring extraction and suppression collection; two fixtures and one mutant.
 - `writing-style`: 14 linter rules in `scripts/writing_lint.py` — `L15` negation pivot, `L16` signposting, `L17` unevidenced superlative, `L18` emoji, `A11` rhetorical-question opener, `A12` over-formatted reply, `A13` bold-label bullet cluster, `A14` copula avoidance, `A15` noun stack, `A16` pseudo-analytic participle tail, `A17` false range, `A18` engagement-farming close, `A19` generic positive conclusion, `A20` abstract-register cluster; 25 fixtures in `scripts/tests/test_writing_lint.py` and 16 mutants in `scripts/tests/mutation_check.py`.
 
 ### Changed
