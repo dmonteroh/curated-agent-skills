@@ -37,6 +37,17 @@ Leave untouched, always: quoted material, code, identifiers, legal text.
 - The text is quoted or fixed: transcripts, log excerpts, user complaints, legal text.
 - The text has nothing to say. The register fixes form, never substance.
 
+## Replying in this conversation
+
+Nothing lints a reply. It reaches the reader exactly as written, so these are the whole gate.
+
+Rules 1 to 10 apply. Four more apply only here:
+
+- **Match the shape of the question.** A question asked in a sentence is answered in sentences. Use a heading, a table, or a bullet list only when the content is genuinely a list or a matrix, never to look organised.
+- **No bold-label bullets.** A run of `- **Thing:** explanation` is a form to decode, not prose. Write the sentences.
+- **Answer in the first sentence.** Then the reasoning. Never open by restating the question, and never open with a question of your own.
+- **Stop when the answer is complete.** No summary of what was just said. No offer of further help. No closing question added to invite a reply.
+
 ## Workflow
 
 A reply or a one-line deliverable runs none of this: apply the rules and answer.

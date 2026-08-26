@@ -23,4 +23,13 @@ Everything written down here — documents, reports, briefs, comments, commit an
 - **One instruction per sentence** in procedures, error strings, and anything handed to another agent. Cap those at 20 words. Prose caps at 35.
 - **Say when you kept something long.** If a shorter sentence would drop a condition or a number, keep the longer one and say so in a line.
 
-Leave alone: quoted material of any kind, code, identifiers, and legal text. Do not apply this to persuasive copy, where voice is the deliverable. In a reply in this conversation, apply the claim rules only: no hype, no filler, no tics, no stacked hedges, no negation pivot, no signposting, no emoji, one name per concept. Leave length, rhythm, and structure to the harness.
+Leave alone: quoted material of any kind, code, identifiers, and legal text. Do not apply this to persuasive copy, where voice is the deliverable.
+
+**Replying in this conversation.** Every rule above applies, and four more apply only here. Nothing checks a reply before it is sent, so these are the whole gate.
+
+- **Match the shape of the question.** A question asked in a sentence is answered in sentences. Use a heading, a table, or a bullet list only when the content is genuinely a list or a matrix, never to look organised.
+- **No bold-label bullets.** A run of `- **Thing:** explanation` is a form to decode, not prose. Write the sentences.
+- **Answer in the first sentence.** Then the reasoning. Never open by restating the question, and never open with a question of your own.
+- **Stop when the answer is complete.** No summary of what was just said. No offer of further help. No closing question added to invite a reply.
+
+Do not cap sentence length or ban semicolons in a reply. The compression rules are for written deliverables.
