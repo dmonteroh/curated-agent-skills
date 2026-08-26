@@ -4,7 +4,7 @@
 One register, no profiles. The linter reads the text alone and cannot know what
 the text is for, so every rule that needed that knowledge lives in SKILL.md as
 prose instead: the 20-word procedure cap, one-instruction-per-sentence, and the
-reply carve-out are the LLM's to apply. The linter returns violations; the LLM
+reply carve-out are the LLM's to apply. The linter returns violations. The LLM
 decides the edit.
 
 Usage:
@@ -64,7 +64,7 @@ CAPS: dict[str, int] = {
 }
 
 # Document-level rhythm floor. Measured standard deviation of sentence length
-# across the same eight documents ran 6.2-12.1 words; below 5.0 is flatter than
+# across the same eight documents ran 6.2-12.1 words. Below 5.0 is flatter than
 # any of them, which is the cadence that reads as generated.
 # Dashes. ASD-STE100 bans the semicolon and permits the em dash, so forbidding one
 # is a house preference and not a rule of the standard. Shipped as an advisory
@@ -155,8 +155,8 @@ CONSTRUCTION_NOUNS = (
 LITERAL_SENSE = {
     "load-bearing": re.compile(
         r"load-bearing\s+(?:\w+\s+)?(?:" + "|".join(CONSTRUCTION_NOUNS) + r")\b", re.I),
-    # Screen orientation, not the metaphor. "a phone held in landscape" is literal;
-    # "the competitive landscape" is not.
+    # Screen orientation, not the metaphor. "a phone held in landscape" is
+    # literal. "the competitive landscape" is not.
     "landscape": re.compile(
         r"\b(?:in|to|and|or)\s+landscape\b"
         r"|\blandscape\s+(?:orientation|mode|view|layout|shape|aspect)\b"
@@ -222,6 +222,7 @@ VAGUE_ATTRIBUTION = [
 # guard says the evidence is the cluster and never the item, so the rules that
 # cannot be stated as a fixed phrase fire once per document, not once per hit.
 
+# writing-lint: allow L16 the rule's own example, quoted to explain the rule
 # The phrase list below cannot generalise: it caught "Here's what's happening"
 # and missed "Here's what's left, plainly". The shape is the tell — a sentence
 # that is nothing but an announcement frame, carrying no content of its own.
@@ -512,7 +513,7 @@ def collect_suppressions(
 
 
 def _mask(line: str) -> str:
-    """Blank out code spans, link targets, and comments; keep every offset."""
+    """Blank out code spans, link targets, and comments. Keep every offset."""
 
     out = list(line)
 
@@ -555,21 +556,53 @@ def _unit(text: str, lineno: int, col: int) -> Unit:
     return Unit("paragraph", body, [(lineno, col + i) for i in range(len(body))])
 
 
+ASSIGNED_STRING_RE = re.compile(r"=\s*[\(\[]?\s*(\"\"\"|''')")
+
+
+def assigned_string_lines(lines):
+    """Line numbers (1-based) inside triple-quoted strings assigned to a name.
+
+    `CLEAN = \"\"\"...\"\"\"` is data, not a docstring, and a test file full of
+    fixture documents otherwise lints its own fixtures as prose — measured at
+    11 false blocking hits on this skill's own test file. A line lexer cannot
+    parse Python, but an `=` before the opening quotes is decidable from the
+    line alone, which is what qualifies the fix to live here.
+    """
+
+    inside: set[int] = set()
+    closer = ""
+    for lineno, raw in enumerate(lines, start=1):
+        if closer:
+            inside.add(lineno)
+            if closer in raw:
+                closer = ""
+            continue
+        m = ASSIGNED_STRING_RE.search(raw)
+        if m and raw.count(m.group(1)) == 1:
+            closer = m.group(1)
+            inside.add(lineno)
+    return inside
+
+
 def extract_comments(lines, style, first_line=1):
     """Comment and docstring text from source lines, as prose units.
 
     String literals are blanked before the marker search, so a marker inside a
     string is not read as a comment. A marker inside a multi-line string is not
-    detected, which is the known limit of a lexer this small.
+    detected, which is the known limit of a lexer this small. Triple-quoted
+    strings assigned to a name are data and are skipped whole.
     """
 
     units = []
     in_block = False
     in_doc = ""
     markers = MARKERS.get(style, ())
+    skip = assigned_string_lines(lines) if style == "hash" else set()
 
     for offset, raw in enumerate(lines):
         lineno = first_line + offset
+        if lineno - first_line + 1 in skip:
+            continue
         masked = STRING_RE.sub(lambda m: " " * len(m.group(0)), raw)
 
         if style == "hash":
@@ -1005,6 +1038,7 @@ class Linter:
         r"weren't|do not|don't|does not|doesn't)\b|(?:'s|’s|'re|’re)\s+not\b", re.I)
 
     def _contrastive_pair(self, out: list[Violation], unit: Unit, sentences) -> None:
+        # writing-lint: allow L15 the rule's own example, quoted to define the shape
         """"You're not surrounded by idiots. You're surrounded by stress."
 
         The same pivot as the comma-joined frames, split across a full stop.
@@ -1068,8 +1102,15 @@ def lint_text(
     style = EXT_STYLE.get(Path(path).suffix.lower())
     if style:
         units = parse_source(text, style)
+        lines = text.splitlines()
+        if style == "hash":
+            # A directive inside an assigned fixture string is data, not an
+            # instruction to this linter, and must not enter the suppression
+            # table or fire E01.
+            inside = assigned_string_lines(lines)
+            lines = ["" if i + 1 in inside else l for i, l in enumerate(lines)]
         suppress_line, suppress_file, errors = collect_suppressions(
-            text.splitlines(), SUPPRESS_PLAIN_RE, _is_own_line_comment(style)
+            lines, SUPPRESS_PLAIN_RE, _is_own_line_comment(style)
         )
     else:
         units, suppress_line, suppress_file, errors = parse(text)

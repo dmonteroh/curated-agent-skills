@@ -61,7 +61,7 @@ class TestBlockingRules(unittest.TestCase):
         self.assertIn("L02", rules_fired("The job finished; the report is ready."))
 
     def test_L03_dash_policy_shipped_advisory(self):
-        """Shipped as advisory. A fork changes the module constant; there is no config file."""
+        """Shipped as advisory. A fork changes the module constant. There is no config file."""
         text = "The job finished — the report is ready."
         self.assertNotIn("L03", rules_fired(text))
         self.assertIn("A10", rules_fired(text))
@@ -470,9 +470,9 @@ class TestSourceComments(unittest.TestCase):
 
     def test_python_comments_and_docstring_are_linted(self):
         fired = {v.rule for v in self._lint_as(PY_SOURCE, "m.py")}
-        self.assertIn("L04", fired)   # spins up / kick off
+        self.assertIn("L04", fired)   # spins up / kick off  # writing-lint: allow L04 the fixture's own catch, named
         self.assertIn("L05", fired)   # seamless / best-in-class
-        self.assertIn("L07", fired)   # in order to
+        self.assertIn("L07", fired)   # in order to  # writing-lint: allow L07 the fixture's own catch, named
         self.assertIn("L06", fired)   # may possibly
         self.assertIn("L02", fired)   # semicolon in the docstring
 
@@ -484,6 +484,25 @@ class TestSourceComments(unittest.TestCase):
     def test_shebang_produces_no_unit(self):
         units = writing_lint.extract_comments(PY_SOURCE.splitlines(), "hash")
         self.assertEqual([], [u for u in units if u.positions and u.positions[0][0] == 1])
+
+    # Built without a literal triple quote, which the line lexer would read in
+    # THIS file's own raw source.
+    TQ = "\x22\x22\x22"
+
+    def test_assigned_triple_quoted_string_is_data_not_docstring(self):
+        # A test file's fixture documents are assigned strings. Reading them as
+        # docstrings linted this suite's own fixtures as prose: 11 false
+        # blocking hits before the guard.
+        src = f"FIXTURE = {self.TQ}\nThe rollout was seamless. Truly.\n{self.TQ}\n# a real comment\n"
+        fired = {v.rule for v in self._lint_as(src, "m.py")}
+        self.assertNotIn("L05", fired)
+
+    def test_directive_inside_assigned_string_does_not_leak(self):
+        src = (f"FIX = {self.TQ}\n# writing-lint: allow L05\n{self.TQ}\n"
+               "# The seamless pipeline.\n")
+        fired = {v.rule for v in self._lint_as(src, "m.py")}
+        self.assertIn("L05", fired)      # the fixture directive suppressed nothing
+        self.assertNotIn("E01", fired)   # and its missing reason is not an error
 
     def test_block_and_line_comments_in_c_style(self):
         fired = {v.rule for v in self._lint_as(JS_SOURCE, "g.js")}

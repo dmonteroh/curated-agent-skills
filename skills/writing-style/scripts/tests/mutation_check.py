@@ -7,7 +7,7 @@ Usage: python3 scripts/tests/mutation_check.py
 Exit:  0 every mutant killed, 1 a mutant survived, 2 setup error.
 
 Requirements: Python 3.10+, standard library only. Rerun after any change to
-writing_lint.py or the fixtures; a surviving mutant means a test that certifies the
+writing_lint.py or the fixtures. A surviving mutant means a test that certifies the
 gap it hides.
 """
 
@@ -71,7 +71,7 @@ MUTATIONS: dict[str, tuple[str, str]] = {
     "suppression": ("if violation.rule in suppress_line.get(violation.line, set()):",
                     "if False:"),
     "source_suppression": ("        suppress_line, suppress_file, errors = collect_suppressions(\n"
-                           "            text.splitlines(), SUPPRESS_PLAIN_RE, _is_own_line_comment(style)\n"
+                           "            lines, SUPPRESS_PLAIN_RE, _is_own_line_comment(style)\n"
                            "        )",
                            "        suppress_line, suppress_file, errors = {}, set(), []"),
     "hedge_threshold": ("if len(distinct) >= HEDGE_STACK_THRESHOLD:", "if len(distinct) >= 2:"),
@@ -88,6 +88,7 @@ MUTATIONS: dict[str, tuple[str, str]] = {
                                  "                if True:"),
     "kept_as_is_exemption": ("        kept_line = bool(self.KEPT_AS_IS_RE.match(unit.text))",
                              "        kept_line = False"),
+    "assigned_string_guard": ("        m = ASSIGNED_STRING_RE.search(raw)", "        m = None"),
 }
 
 
