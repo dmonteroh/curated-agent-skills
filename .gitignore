@@ -33,3 +33,6 @@ temp/
 .agent/
 CLAUDE.md
 AGENTS.md
+
+# Local MCP server config (host-specific endpoint)
+.mcp.json
