@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-22
+
+### Added
+
+- `laya-mcp`: skill, `scripts/auditing/trigger-cases/laya-mcp.md`.
+
 ## 2026-08-26
 
 ### Added
