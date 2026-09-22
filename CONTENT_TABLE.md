@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 95
+Total skills: 96
 
 ## Ai
 
@@ -15,6 +15,7 @@ Total skills: 95
 | `deterministic-extraction-gate` | Decides whether a model belongs in a text-extraction loop at all, then builds the seam: a deterministic parser that accounts for every region of its input, reason-code flags rather than a confidence score, escalation of flagged records only, and a labelled sample that measures the miss rate. Use when extracting fields from many similarly shaped records. |
 | `finetuning-method-selection` | Routes a fine-tuning request by the data shape actually in hand — demonstrations, preference pairs, unpaired feedback, or a checkable pass/fail — then clears that branch's precondition gate before a run is configured. Use when scoping a training effort, or when it is unclear whether training is the right tool at all. |
 | `google-stitch-ai` | Create DESIGN.md summaries from Google Stitch projects or offline assets for UI design workflows, and refine Stitch-ready UI prompts using extracted design tokens. |
+| `laya-mcp` | Calls the local Laya System One model over MCP for a fast, typed, calibrated decision about a piece of text — a label from a fixed set, a level on a fixed ladder, or a yes/no probability — instead of spending an LLM judgment call on it. Use when a classification, routing, or scoring decision needs a probability distribution to act on and the same closed question runs often. |
 | `loop-design-check` | Designs an autonomous agent loop and reviews an existing one for the ways loops fail: spinning on a goal no machine can settle, gaming the verifier, or running a wrong answer to completion. Gates whether the loop is deserved, pairs a done-criterion with a boundary, picks a control shape and skeleton, and adds damping. Use before building a repeating unattended run, or when one already exists and might run away. |
 | `mcp-server-development` | Build high-quality MCP (Model Context Protocol) servers: workflow-first tool design, tight schemas, predictable outputs, safe error handling, and eval-driven iteration. Framework-agnostic (Node/TS or Python). No web fetching required. |
 | `mle-workflow` | Takes a trained model to production: a prediction contract and a data contract written before model code, a pipeline another engineer can rerun, promotion gates declared before training finishes and failing closed on a missing metric, a serving path with a proven train-serve equivalence test, and drift signals with a rollback artifact once live. Use when a model has to become a system. |
