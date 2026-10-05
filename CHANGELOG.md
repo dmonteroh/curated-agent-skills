@@ -5,6 +5,11 @@
 ### Added
 
 - `sys1-mcp`: skill, `references/README.md`, `references/agent-workflows.md`, `references/e2e-testing.md`, `references/question-design.md`, and `scripts/auditing/trigger-cases/sys1-mcp.md`.
+- `testing`: `## Before writing a test` and `## When a test you wrote fails` in `SKILL.md`, entries 6–12 in `references/testing-anti-patterns.md`, and `references/provenance.md`.
+
+### Changed
+
+- `testing`: unit-mode goal, workflow, and outputs in `SKILL.md`; static-grep tripwires require a defect that occurred, in `SKILL.md` and `references/static-grep-invariant-tests.md`.
 
 ### Removed
 
