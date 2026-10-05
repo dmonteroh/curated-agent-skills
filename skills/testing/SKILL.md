@@ -7,7 +7,7 @@ metadata:
 # Testing
 
 Provides a single testing skill that covers:
-- **unit**: generate or improve unit tests with edge-case coverage
+- **unit**: write or improve unit tests that pin observable behavior
 - **automation**: integration/E2E strategy, CI feedback loops, and stability
 - **api**: API behavior testing and deterministic mocking
 
@@ -46,6 +46,51 @@ When the work is driven by an externally authored document — a plan file, a ti
 
 If the document is ambiguous or carries any of the above, record the concern and the interpretation chosen rather than silently widening scope.
 
+## Before writing a test
+
+Applies in every mode, to new tests and to rewrites of existing ones.
+
+1. **Check the project's own conventions first.** Before writing or rewriting a test, check whether this repo's own area docs define a concrete testing convention for the surface being touched — they override this skill's generic defaults, which exist for projects/areas that have not yet written their own. Look where the project keeps agent-facing guidance (`AGENTS.md`, `CLAUDE.md`, a docs or contributing folder, a README beside the tests), and name in the output the convention followed, or that none was found.
+2. **Name what the test protects.** Write a test only when its name can state the behavior it pins and a realistic change that would turn it red. A test that cannot name both is not written. Coverage is not a reason: no line, branch, or percentage target exists unless the project or the request sets one, and where one exists it is met with tests that pass this gate, never by executing lines without asserting on what they do.
+3. **Take the expected value from the contract, not from the code.** The expected result comes from the spec, the docs, the issue, or what the caller needs, written as a literal. Never compute it by calling the unit under test, and never copy the unit's current output into the assertion: both certify whatever the code does today, defects included. When the current output contradicts the contract, that is a defect finding — see "When a test you wrote fails".
+4. **Prove it can fail.** Once a new test passes, break the behavior it protects — flip the condition, return a wrong constant, revert the fix — run it, watch it fail for the expected reason, then restore the code. A test that stays green against broken code is rewritten or deleted, never kept. Assertions that cannot run — inside a `catch` that swallows the error, in a callback nothing invokes, after an un-awaited promise — fail this check.
+
+Do not write these tests:
+
+- **The language, runtime, or standard library.** That a list appends, a dataclass stores its fields, `JSON.parse` parses, a type annotation holds. The platform's own suite owns that. Test what this code does with them.
+- **A third-party library's own behavior.** That the ORM saves, the validator rejects a malformed email, the date library adds a day. Test this code's side of the boundary: the request it sends when that request is the externally visible effect, how it maps the result, how it handles the library's errors. When a dependency is a real risk (a known bug, a major upgrade), pin it with one test of this code's behavior that depends on it, at the adapter.
+- **Implementation choices.** Call order or call counts on internal collaborators, which private helper ran, intermediate data structures, log text that is not a contract, a mock of a module inside the unit. The check: would the test still pass after a refactor that keeps every observable behavior? If not, it pins a decision, not a behavior; assert on the return value, the persisted state, or the externally visible effect instead.
+- **The absence of something removed.** When a task removes a feature, flag, module, or dependency, it is verified by deleting the tests that covered it and keeping the remaining suite green. Never add a test asserting that the symbol, file, import, route, or package no longer exists. The only exception is a tripwire that passes the gate in "Static-grep regression tests".
+- **Private or internal state.** Smell: a private-field cast (`obj['_field']`, `as unknown as {...}`), driving a UI test by setting an internal form control directly, or asserting on a stubbed child/dependency's inputs instead of the rendered/observable result. Fix: drive the unit through its public API or the user-facing surface (DOM, CLI output, HTTP response), and assert on that same surface. When the internal reach-in is the only way to reach a case, the unit's public interface is missing a seam — fix that first instead of reaching past it. A project with a framework-specific version of this pattern (e.g. "drive the DOM, never `component['x']`") documents the concrete mechanism in its own area doc; check for one before writing framework-specific test code.
+
+Wrong beside right — the first test reads private state and computes its expected value with the logic it is meant to check, so it passes whatever `total()` does:
+
+```ts
+// Wrong
+cart.add(item(5));
+expect(cart["_items"].length).toBe(1);
+expect(cart.total()).toBe(cart["_items"].reduce((s, i) => s + i.price, 0));
+
+// Right
+cart.add(item(5));
+cart.add(item(5));
+expect(cart.total()).toBe(10);
+```
+
+More smell-and-fix pairs, with code: `references/testing-anti-patterns.md`.
+
+## When a test you wrote fails
+
+A red test is evidence against the test or against the code. Decide which before changing either, and write the diagnosis down.
+
+- **The test is wrong** — it misreads the contract, sets up an impossible state, or drives the wrong surface. Fix the test and say what it got wrong.
+- **The code is wrong** — it violates the contract. In a task to add tests, this is a defect finding: report it with the failing test as evidence and ask whether to fix the code or mark the test as an expected failure with the framework's own marker and a reference to the defect. Never change production code silently, and never bend the test to fit the defect. In a task to change the code, fix the code.
+- **Not yet known** — "flaky" and "pre-existing" are conclusions, never first explanations. Each needs evidence: the rerun signature from "Flaky-test triage", or the same test run against the unmodified tree.
+
+Never make a test pass by changing the expected value to the observed output, widening a matcher (`toBe` → `toBeTruthy`, exact match → contains, equality → does-not-throw), deleting or commenting out an assertion, adding a skip or focus marker or an expected-failure marker nobody approved, wrapping the call in a `try`/`catch`, mocking the unit under test, re-blessing a snapshot or golden file to match the failure, editing a fixture until it holds the answer, or adding a retry or a sleep. Each one turns the test green by deleting the check it existed to make.
+
+Stop rule: when the third consecutive fix attempt on the same test fails without a new written diagnosis — a different hypothesis about test versus code, backed by something read or run — stop editing. Report the test as written, the observed failure, the hypotheses tried, and what would decide between them. An open finding is a valid result; a forced green is not. Three is a chosen default, not a measured threshold.
+
 ## Decision points
 
 - If the user asks for new/updated tests for code changes, choose **unit**.
@@ -57,28 +102,25 @@ If the document is ambiguous or carries any of the above, record the concern and
 
 ### Mode: unit (fast unit test generation)
 
-Goal: maximize coverage of changed behavior with maintainable tests.
+Goal: pin the changed behavior with tests that fail when it breaks and keep passing through any refactor that preserves it.
 
 Workflow:
-1) Identify units under test + seams (pure functions, modules, services).
-   - Output: target list with boundaries to isolate.
-2) Enumerate scenarios:
-   - happy path
-   - boundary conditions
-   - error handling
-   - state transitions
-   - Output: scenario matrix mapped to tests.
+1) Identify units under test, the public surface each test will drive (exported function, public method, CLI, HTTP, rendered UI), and the seams where external I/O enters.
+   - Output: target list with the surface per unit.
+2) Enumerate behaviors from the unit's contract — happy path, boundary conditions, error handling, state transitions — where the contract defines them, and run each through "Before writing a test".
+   - Output: behavior list, each with the change that would break it; candidates rejected by the gate, with the reason.
 3) Decide if mocks are required.
-   - Decision: if external I/O exists, stub at the boundary; if logic is pure, avoid mocking.
+   - Decision: if external I/O exists, stub at the boundary; if logic is pure, avoid mocking. Never mock the unit under test.
    - Output: mock/stub plan with rationale.
-4) Implement minimal fixtures and assertions.
+4) Implement minimal fixtures and literal expected values; control time, randomness, and network so every run is deterministic.
    - Output: test files and fixtures added or updated.
-5) Ensure tests are deterministic and fast.
-   - Output: test run command or manual verification steps.
+5) Run the tests, then prove each new one can fail (step 4 of "Before writing a test").
+   - Output: the test command, and per test the break applied and the failure it produced.
 
 Outputs:
-- Test file(s) + brief explanation
-- Gaps, risks, and follow-ups
+- Test files, each test mapped to the behavior it protects and the break that turned it red.
+- Tests considered and not written, with the gate reason.
+- Defects found, with the failing test as evidence; gaps, risks, and follow-ups.
 
 ### Mode: automation (E2E/integration strategy)
 
@@ -88,7 +130,7 @@ Workflow:
 1) Define critical journeys and risks (auth, payments, data integrity, permissions).
    - Output: risk list and high-value flows.
 2) Choose test layers.
-   - Decision: if unit coverage is low, start there; if cross-service behavior is risky, add integration/contract tests; if business-critical flows fail end-to-end, add E2E tests.
+   - Decision: if a risky behavior has no unit-level test, start there; if cross-service behavior is risky, add integration/contract tests; if business-critical flows fail end-to-end, add E2E tests.
    - Output: recommended test pyramid.
 3) Design for stability.
    - hermetic environments where possible
@@ -142,6 +184,8 @@ Then fix the class, not the instance. Contention is fixed in the test infrastruc
 
 When a known-bad state has a cheap, fixed textual signature — a specific literal, or a specific pair of literals that must never co-occur in one file — encode it as a grep-based test instead of relying only on integration coverage or code review. Enumerate the relevant files at test-run time (not a hardcoded list) so new files are covered automatically, generate one test case per file so a failure names the offending file, assert on the textual signature rather than on behavior, and fail with a message that states the concrete fix rather than "invariant violated." This is deliberately cheaper and faster than re-triggering the original failure through a live call or an integration run: no network, no process spin-up, no live credentials. It guards against regressions a future contributor could reintroduce by copy-pasting working code into a sibling file without updating both halves. Recipe and a worked example (a forbidden literal pairing that caused a production failure): `references/static-grep-invariant-tests.md`.
 
+Gate: a tripwire is earned only by a defect that actually happened, recorded as the reference's recipe requires, and only when no behavioral test would see it come back. Removing a feature, module, or dependency never earns one on its own: the removal is verified by deleting its tests and keeping the rest green, and a test that forbids re-adding it guards no behavior while blocking the next intentional change.
+
 ## Quick start (in a real repo)
 
 ```sh
@@ -166,7 +210,8 @@ Script usage and verification:
 - `references/static-grep-invariant-tests.md` (grep-based regression tests for known-bad textual signatures)
 - `references/flaky-test-triage.md` (rerun signatures, concurrent-run contention checklist, fix policy)
 - `references/tdd-iron-laws.md` (TDD loop, runtime vs compile-time RED, durable RED/GREEN checkpoints)
-- `references/testing-anti-patterns.md` (fast test review heuristics)
+- `references/testing-anti-patterns.md` (smell-and-fix pairs with code, review checklist)
 - `references/test-report-template.md` (consistent findings + sign-off)
 - `references/qa-practice-compact.md` (exploratory charters, a11y smoke, risk-based focus)
+- `references/provenance.md` (where each rule in "Before writing a test" and "When a test you wrote fails" comes from, and what was not carried)
 - `scripts/test.sh` (wrapper)
