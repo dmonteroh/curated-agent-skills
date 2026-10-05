@@ -1,0 +1,25 @@
+# Trigger Cases: high-echo
+
+## Positive (should activate)
+- prompt: "I want to bake sourdough bread at home this weekend."
+  expect_activate: yes
+- prompt: "How long should I proof sourdough bread before baking?"
+  expect_activate: yes
+- prompt: "What hydration ratio works best for a beginner loaf?"
+  expect_activate: yes
+- prompt: "My starter smells like nail polish, is it still usable?"
+  expect_activate: yes
+- prompt: "Suggest a baking schedule for a same-day sourdough loaf."
+  expect_activate: yes
+
+## Negative (should not activate)
+- prompt: "Book a table for four at the Italian place downtown."
+  expect_activate: no
+- prompt: "Summarize this week's team standup notes."
+  expect_activate: no
+- prompt: "Convert this CSV export into a formatted report."
+  expect_activate: no
+- prompt: "Draft an apology email to a delayed customer."
+  expect_activate: no
+- prompt: "Reset the CI cache and rerun the failing pipeline."
+  expect_activate: no

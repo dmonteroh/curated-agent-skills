@@ -1,0 +1,8 @@
+{
+  "assertions": [
+    {
+      "id": "a1",
+      "text": "The output names the exact rollback command that was executed during the outage"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "cases": [
+    {
+      "prompt": "reset payment gateway credentials immediately",
+      "expect": true,
+      "tags": []
+    }
+  ]
+}

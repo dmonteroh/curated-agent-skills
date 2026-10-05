@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-05
+
+### Added
+
+- `sys1-mcp`: skill, `references/README.md`, `references/agent-workflows.md`, `references/e2e-testing.md`, `references/question-design.md`, and `scripts/auditing/trigger-cases/sys1-mcp.md`.
+
+### Removed
+
+- `laya-mcp`: skill and `scripts/auditing/trigger-cases/laya-mcp.md`.
+
 ## 2026-09-22
 
 ### Added

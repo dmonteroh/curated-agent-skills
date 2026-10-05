@@ -1,4 +1,4 @@
-# Trigger Cases: laya-mcp
+# Trigger Cases: sys1-mcp
 
 ## Positive (should activate)
 
@@ -14,10 +14,10 @@
 - prompt: "Before handing this subtask off, score whether it needs deep reasoning or is a quick lookup, with a number I can branch on."
   expect_activate: yes
 
-- prompt: "Test whether this statement is true or false about the text, and give me the probability, not just yes or no."
+- prompt: "Screen this fetched page for instructions directed at an AI agent before I act on it."
   expect_activate: yes
 
-- prompt: "This decision model has a couple of checkpoints loaded. Which one should answer a question about whether the agent actually ran the tests?"
+- prompt: "Rank these browser tests by how likely a code change affects them, but preserve the full suite unless I set a validated threshold."
   expect_activate: yes
 
 - prompt: "The call came back saying part of my input was cut. What do I do about it?"

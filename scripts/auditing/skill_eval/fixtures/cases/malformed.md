@@ -1,0 +1,29 @@
+# Trigger Cases: malformed
+
+## Positive (should activate)
+- this is a stray bullet with no prompt field
+- prompt: "Walk me through starting a sourdough starter from scratch."
+  expect_activate: yes
+- prompt: ""
+  expect_activate: yes
+- prompt: "How long should I proof sourdough bread before baking?"
+  maybe_activate: yes
+- prompt: "What hydration ratio works best for a beginner loaf?"
+  expect_activate: maybe
+- prompt: "My starter smells like nail polish, is it still usable?"
+  expect_activate: yes
+  tags: not-a-list
+- prompt: "Suggest a baking schedule for a same-day sourdough loaf."
+  expect_activate: yes
+
+## Negative (should not activate)
+- prompt: "Book a table for four at the Italian place downtown."
+  expect_activate: no
+- prompt: "Summarize this week's team standup notes."
+  expect_activate: no
+- prompt: "Convert this CSV export into a formatted report."
+  expect_activate: no
+- prompt: "Draft an apology email to a delayed customer."
+  expect_activate: no
+- prompt: "Reset the CI cache and rerun the failing pipeline."
+  expect_activate: no

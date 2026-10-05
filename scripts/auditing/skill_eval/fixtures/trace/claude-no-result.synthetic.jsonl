@@ -1,0 +1,2 @@
+{"type": "system", "subtype": "init", "session_id": "REDACTED", "skills": ["pr-description"], "model": "claude-haiku-4-5", "cwd": "REDACTED"}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "Working on it..."}]}, "session_id": "REDACTED"}

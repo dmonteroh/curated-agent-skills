@@ -1,0 +1,2 @@
+Extensionless supporting file; presence alone proves scan() no longer
+filters files by suffix.

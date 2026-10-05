@@ -253,11 +253,6 @@
   },
   {
     "issues": [],
-    "name": "laya-mcp",
-    "warnings": []
-  },
-  {
-    "issues": [],
     "name": "literature-review",
     "warnings": []
   },
@@ -438,6 +433,11 @@
     "warnings": [
       "entry_over_200_lines:245"
     ]
+  },
+  {
+    "issues": [],
+    "name": "sys1-mcp",
+    "warnings": []
   },
   {
     "issues": [],

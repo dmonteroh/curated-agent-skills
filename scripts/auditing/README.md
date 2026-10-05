@@ -104,6 +104,25 @@ Multi-arm review is the standard review pass for every skill in the library; `--
 
 Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm declaration (`REVIEWER_ARMS`) holds 2 arms, so N+1 = 3 calls per skill; a full run over all 95 skills in `skills_list.txt` is 285 calls. Re-count `skills_list.txt` rather than trusting this figure — the library grows.
 
+## Skill evaluation toolkit (skill-eval)
+
+A standalone toolkit for activation and task-quality testing on Claude and Codex, trigger-case lint, brute-pass integrity scans, and blind judging. It is not wired into the review runner above, and nothing in this pipeline calls it. Full command reference: `skill_eval/README.md`. Contract and threat model: `skill_eval/DESIGN.md`. Which parts of this pipeline it could replace: `skill_eval/REPLACEMENT-BRIEF.md`.
+
+```bash
+# free, static
+python3 scripts/auditing/skill-eval.py cases lint --all
+python3 scripts/auditing/skill-eval.py integrity scan-all
+python3 scripts/auditing/skill-eval.py integrity diff-scan --skill <name> --base HEAD
+
+# live agent calls (plan with --dry-run first)
+python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <tasks.json> --dry-run
+python3 scripts/auditing/skill-eval.py activation run --skill <name> --dry-run
+python3 scripts/auditing/skill-eval.py activation selftest --skill <name>
+python3 scripts/auditing/skill-eval.py activation run --skill <name> --repeats 4
+```
+
+Task-quality comparisons and suite format: [skill_eval/PERFORMANCE.md](skill_eval/PERFORMANCE.md).
+
 ## What Each File Does
 
 - `SKILL_REVIEW_CHECKLIST.md`
@@ -159,6 +178,12 @@ Call count: N reviewer arms plus one synthesis call per skill (N+1). Today's arm
 
 - `logs/`
   - Subagent execution logs per skill.
+
+- `skill-eval.py`, `skill_eval/`
+  - The skill-eval toolkit: see "Skill evaluation toolkit (skill-eval)" above.
+
+- `sealed/`
+  - Sealed holdout and assertion sets plus the holdout ledger, written by `skill-eval.py integrity seal` and `activation run --split holdout`. Encoded on purpose: decode only with `integrity show`, never into an authoring context.
 
 - `trigger-cases/`
   - Per-skill activation test prompts.

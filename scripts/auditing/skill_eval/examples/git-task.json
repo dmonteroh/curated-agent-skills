@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "branch-description",
+      "prompt": "Draft a pull request description for this branch against main. Inspect the changes. Explain the problem, the resulting behavior, and how a reviewer can verify it. Return the description in your final answer.",
+      "workspace": "git",
+      "assertions": [
+        "The description accurately identifies the changes found in the branch.",
+        "The description supplies verification steps grounded in the repository.",
+        "The description does not claim unperformed tests passed."
+      ]
+    }
+  ]
+}

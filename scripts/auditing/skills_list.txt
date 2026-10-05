@@ -46,7 +46,7 @@ google-stitch-ai
 grafana-dashboards
 interruption-budget
 jira-issue-management
-laya-mcp
+sys1-mcp
 literature-review
 living-docs-governance
 loop-design-check
