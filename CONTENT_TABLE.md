@@ -1,6 +1,6 @@
 # Content Table
 
-Total skills: 96
+Total skills: 97
 
 ## Ai
 
@@ -22,7 +22,7 @@ Total skills: 96
 | `skill-benchmark-harness` | Measures what one change does to agent behavior: each eval prompt runs twice under one arm variable — the skill loaded or absent, or one agent against another — both arms graded blind against one id-stable assertion checklist. Reports the pass-rate delta, which assertions discriminate, and which regressed. Use when the case for a skill or an agent rests on impression rather than measurement. |
 | `skill-corpus-maintenance` | Grooming pass over an agent's own instruction corpus: one deterministic inventory feeds a keep/revise/retire verdict per item and the promotion of recurring principles into the standing rule text. Batched cross-reads, evidence-bearing reasons, approval before any mutation, and a dated record so the next run re-evaluates only what changed. Use for periodic maintenance, not author-time review. |
 | `subagent-orchestrator` | Decide whether and how to split work across subagents, then orchestrate execution safely with mode selection, claim-set and execution-surface control, barriered verification, and deterministic integration. |
-| `sys1-mcp` | Use the sys1-mcp tools (a System One decision model such as Laya, Jev or Clef behind one MCP server) for closed text decisions, untrusted-content screening, task relevance, and, when the server enables them, agent workflows such as test selection, outcome checks, cache reuse, and context packing. |
+| `sys1-mcp` | Calibrated answers about text from a System One classifier via the sys1-mcp tools. Use when a request wants a probability per option, not prose: a fixed-set label, a fixed-scale grade, a yes/no about a passage, a score to branch on such as how much reasoning a task deserves, triage of many items, screening fetched content for injected instructions, test selection, or follow-ups like truncated input. Not for a single judgment the agent or user can simply make, categories nobody has defined, or deciding whether a model belongs in an extraction pipeline. |
 | `tool-output-middleware` | Provides a design and verification procedure for a layer that rewrites tool output before it reaches an agent's context — compaction, filtering, redaction, summarization — without silently dropping the one line that mattered. Use when building or reviewing any such middleware. |
 | `training-data-curation` | Turns graded examples and traces into a training set: selects which rows earn a place, holds evaluation items out by identifier at the one seam where that is still possible, shapes rows to the target method, masks loss to response spans, and emits a provenance card that gates the run. Use when building or auditing training data. |
 
@@ -122,8 +122,9 @@ Total skills: 96
 | --- | --- |
 | `chaos-engineer` | Design and run safe chaos experiments (failure injection + game days) to validate resilience and reduce blast radius. Produces hypotheses, steady-state signals, rollback gates, and experiment specs. Use when resilience is uncertain or before high-risk changes. |
 | `grafana-dashboards` | Provides guidance to create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces. |
+| `load-and-capacity-planning` | Plans load tests with pass criteria fixed beforehand and turns measured saturation points into capacity limits, headroom and scale triggers. Use to validate expected traffic before a launch, find a service's breaking point, or forecast when resources run out. |
 | `migration-observability` | Makes database migrations safe and observable. Defines progress and safety metrics, dashboards, and runbook gates (go/no-go criteria) for live migrations, backfills, and cutovers. Works standalone and is database/tooling agnostic. |
-| `monitoring-expert` | Provides end-to-end observability across logs, metrics, traces, alerting, and performance testing. Use when instrumenting services, setting alert strategy, or designing an observability stack. |
+| `observability-engineering` | Designs what a service emits and what pages a human: structured logs, metrics, traces, dashboards and alerts, then proves each signal and alert route works. Use for instrumenting a service, fixing noisy or unowned alerts, or catching regressions after a deploy. |
 | `performance` | End-to-end performance optimization workflow for baselining, profiling bottlenecks, proposing measurable fixes, and adding regression guardrails. Includes a safe-by-default scan/report script to capture repo signals and write a deterministic report. Use for latency/throughput/resource issues, data freshness, build-loop timing, scalability work, or performance gating. |
 | `sre-engineer` | Site Reliability Engineering for production systems: define SLIs/SLOs and error budgets, design alerting and runbooks, reduce toil with automation, and improve incident response. Use when you need reliability targets and operational practices (not just dashboards). |
 

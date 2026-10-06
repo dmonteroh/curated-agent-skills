@@ -67,8 +67,8 @@ The default vendors are `claude,codex`. Override models with `--models claude=ha
 **Which skill wins when neighbours compete?**
 
 ```bash
-python3 scripts/auditing/skill-eval.py activation run --skill monitoring-expert --shape competitive --neighbors sre-engineer,migration-observability
-python3 scripts/auditing/skill-eval.py activation run --skill monitoring-expert --shape competitive --library
+python3 scripts/auditing/skill-eval.py activation run --skill observability-engineering --shape competitive --neighbors sre-engineer,migration-observability
+python3 scripts/auditing/skill-eval.py activation run --skill observability-engineering --shape competitive --library
 ```
 
 **A/B a description change.** Measure both variants on train, then measure the winner once on the sealed holdout:

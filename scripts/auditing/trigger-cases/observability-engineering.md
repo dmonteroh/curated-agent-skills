@@ -1,12 +1,6 @@
-# Trigger Cases: monitoring-expert
+# Trigger Cases: observability-engineering
 
 ## Positive (should activate)
-- prompt: "Requirements are unclear and we need help comparing options before implementation."
-  expect_activate: yes
-
-- prompt: "Requirements are unclear and we need help comparing options before implementation."
-  expect_activate: yes
-
 - prompt: "I want to be paged when a release makes p99 worse than it was right before that deploy, not when it crosses some fixed number."
   expect_activate: yes
 
@@ -23,9 +17,6 @@
   expect_activate: yes
 
 - prompt: "Our alerts fire constantly and the team has stopped reading them. Can you design an alerting strategy tied to our SLO and SLA targets instead?"
-  expect_activate: yes
-
-- prompt: "Before the launch we need a load-testing plan and some profiling to find where the bottlenecks are. Where do we start?"
   expect_activate: yes
 
 - prompt: "add alerts and metrics to the api"
@@ -63,3 +54,15 @@
 - prompt: "Create a CI check that fails pull requests when services do not include enough unit-test coverage."
   expect_activate: no
   tags: [generated, near-miss, gen:codex]
+
+- prompt: "Before the launch we need a load-testing plan to confirm the service holds 2x traffic. Where do we start?"
+  expect_activate: no
+  tags: [near-miss]
+
+- prompt: "Disk usage has grown steadily for six months. When will we run out and how many nodes do we need next quarter?"
+  expect_activate: no
+  tags: [near-miss]
+
+- prompt: "This endpoint takes 3 seconds and I think it's the ORM. Profile it and tell me which call is slow."
+  expect_activate: no
+  tags: [near-miss]
