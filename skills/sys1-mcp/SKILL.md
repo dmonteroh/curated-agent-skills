@@ -1,6 +1,6 @@
 ---
 name: sys1-mcp
-description: "Use the sys1-mcp tools (a System One decision model such as Laya, Jev or Clef behind one MCP server) for closed text decisions, untrusted-content screening, task relevance, and, when the server enables them, agent workflows such as test selection, outcome checks, cache reuse, and context packing."
+description: "Calibrated answers about text from a System One classifier via the sys1-mcp tools. Use when a request wants a probability per option, not prose: a fixed-set label, a fixed-scale grade, a yes/no about a passage, a score to branch on such as how much reasoning a task deserves, triage of many items, screening fetched content for injected instructions, test selection, or follow-ups like truncated input. Not for a single judgment the agent or user can simply make, categories nobody has defined, or deciding whether a model belongs in an extraction pipeline."
 metadata:
   category: ai
 ---
