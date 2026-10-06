@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "order-dependent-failure",
+      "prompt": "test_exact_report passes when I run it on its own but fails when I run the whole test suite. Find out why and fix it.",
+      "workspace": "fixtures/debug-shared-default",
+      "artifacts": [
+        "reports/__init__.py",
+        "reports/build.py",
+        "tests/__init__.py",
+        "tests/test_a_summary.py",
+        "tests/test_b_report.py"
+      ],
+      "checks": [
+        {
+          "id": "suite-passes",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/run_tests.py",
+            "{workspace}"
+          ]
+        },
+        {
+          "id": "test-intact",
+          "kind": "contains",
+          "target": "tests/test_b_report.py",
+          "value": "'- nuts: 2'"
+        },
+        {
+          "id": "no-skip",
+          "kind": "not_contains",
+          "target": "tests/test_b_report.py",
+          "value": "skip"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "cause",
+          "text": "Names the cause: the mutable default list argument in build_report keeps lines from earlier calls."
+        },
+        {
+          "id": "evidence",
+          "text": "Shows evidence for the cause, such as running the tests in both orders or reproducing the accumulated output, rather than only asserting it."
+        },
+        {
+          "id": "fix-at-cause",
+          "text": "Fixes the function itself rather than changing the tests or their order."
+        }
+      ]
+    },
+    {
+      "id": "misleading-error",
+      "prompt": "The invoice tests fail with 'discount produced an invalid total' even in a test that applies no discount. Find the real cause and fix it.",
+      "workspace": "fixtures/debug-float-total",
+      "artifacts": [
+        "invoices/__init__.py",
+        "invoices/total.py",
+        "tests/__init__.py",
+        "tests/test_total.py"
+      ],
+      "checks": [
+        {
+          "id": "suite-passes",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/run_tests.py",
+            "{workspace}"
+          ]
+        },
+        {
+          "id": "test-intact",
+          "kind": "contains",
+          "target": "tests/test_total.py",
+          "value": "0.60)"
+        },
+        {
+          "id": "discount-test-intact",
+          "kind": "contains",
+          "target": "tests/test_total.py",
+          "value": "13.50)"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "cause",
+          "text": "Names the cause: binary floating-point addition makes 0.10 + 0.20 + 0.30 slightly more than 0.60, so the exact equality check fails; the discount logic is not at fault."
+        },
+        {
+          "id": "evidence",
+          "text": "Shows evidence for the cause, such as the actual computed value, rather than only asserting it."
+        },
+        {
+          "id": "sound-fix",
+          "text": "The fix handles money correctly in general, for example with Decimal, integer cents, or rounding before the comparison, rather than special-casing the test values."
+        }
+      ]
+    }
+  ]
+}

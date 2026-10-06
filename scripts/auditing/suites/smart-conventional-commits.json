@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "two-unrelated-changes",
+      "prompt": "Commit my changes.",
+      "workspace": "fixtures/commit-mixed",
+      "artifacts": [
+        ".git/logs/HEAD"
+      ],
+      "checks": [
+        {
+          "id": "split-conventional",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/commit_log.py",
+            "{workspace}",
+            "--base",
+            "2",
+            "--min-new",
+            "2",
+            "--require-type",
+            "fix"
+          ],
+          "metrics": {
+            "new_commits": {
+              "path": "new_commits",
+              "direction": "higher"
+            },
+            "conventional_subjects": {
+              "path": "conventional",
+              "direction": "higher"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "id": "separate",
+          "text": "The parser fix and the README spelling correction end up in separate commits."
+        },
+        {
+          "id": "describes",
+          "text": "The final answer reports what was committed, matching the actual changes (a fix to dropping the last CSV row, and README spelling)."
+        }
+      ]
+    },
+    {
+      "id": "feature-with-stray-file",
+      "prompt": "Commit the work in progress here.",
+      "workspace": "fixtures/commit-feature",
+      "artifacts": [
+        ".git/logs/HEAD"
+      ],
+      "checks": [
+        {
+          "id": "conventional",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/commit_log.py",
+            "{workspace}",
+            "--base",
+            "1",
+            "--min-new",
+            "1",
+            "--require-type",
+            "feat"
+          ],
+          "metrics": {
+            "new_commits": {
+              "path": "new_commits",
+              "direction": "higher"
+            },
+            "conventional_subjects": {
+              "path": "conventional",
+              "direction": "higher"
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "id": "stray",
+          "text": "debug-output.txt is not committed, and the answer says it was left out or asks about it."
+        },
+        {
+          "id": "feature-together",
+          "text": "The --sep option, its test, and its README note are committed as one coherent change."
+        },
+        {
+          "id": "describes",
+          "text": "The final answer accurately reports what was committed."
+        }
+      ]
+    }
+  ]
+}

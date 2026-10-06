@@ -1,0 +1,46 @@
+{
+  "path": "text/slug.py",
+  "original": "import re\nimport unicodedata\n\n\ndef slugify(title, max_length=50):\n    \"\"\"URL slug for a title: ASCII, lowercase, words joined by single\n    hyphens, no leading or trailing hyphen, at most max_length characters\n    and never ending in a hyphen. A title with no usable characters raises\n    ValueError.\"\"\"\n    text = unicodedata.normalize(\"NFKD\", title).encode(\"ascii\", \"ignore\").decode(\"ascii\")\n    text = re.sub(r\"[^a-zA-Z0-9]+\", \"-\", text).strip(\"-\").lower()\n    if not text:\n        raise ValueError(\"title has no usable characters\")\n    return text[:max_length].rstrip(\"-\")\n",
+  "mutants": [
+    {
+      "id": "no-transliteration",
+      "old": "unicodedata.normalize(\"NFKD\", title)",
+      "new": "title"
+    },
+    {
+      "id": "no-strip",
+      "old": ".strip(\"-\").lower()",
+      "new": ".lower()"
+    },
+    {
+      "id": "no-lowercase",
+      "old": ".strip(\"-\").lower()",
+      "new": ".strip(\"-\")"
+    },
+    {
+      "id": "repeated-hyphens",
+      "old": "r\"[^a-zA-Z0-9]+\"",
+      "new": "r\"[^a-zA-Z0-9]\""
+    },
+    {
+      "id": "trailing-hyphen",
+      "old": "text[:max_length].rstrip(\"-\")",
+      "new": "text[:max_length]"
+    },
+    {
+      "id": "length-off-by-one",
+      "old": "text[:max_length]",
+      "new": "text[:max_length - 1]"
+    },
+    {
+      "id": "empty-allowed",
+      "old": "raise ValueError(\"title has no usable characters\")",
+      "new": "return text"
+    },
+    {
+      "id": "default-length",
+      "old": "max_length=50",
+      "new": "max_length=60"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "discount-tests",
+      "prompt": "pricing/discount.py has no tests yet. Write unit tests for it in tests/test_discount.py. We use unittest.",
+      "workspace": "fixtures/testing-discount",
+      "artifacts": [
+        "pricing/__init__.py",
+        "pricing/discount.py",
+        "tests/__init__.py",
+        "tests/test_discount.py"
+      ],
+      "checks": [
+        {
+          "id": "catches-regressions",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/mutation.py",
+            "{workspace}",
+            "/workspace/scripts/auditing/suites/scorers/mutants/testing-discount.json"
+          ],
+          "metrics": {
+            "kill_ratio": {
+              "path": "kill_ratio",
+              "direction": "higher"
+            }
+          }
+        },
+        {
+          "id": "test-file-written",
+          "kind": "file_exists",
+          "target": "tests/test_discount.py"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "boundaries",
+          "text": "The tests check the quantities on both sides of each discount threshold (9 and 10, 49 and 50)."
+        },
+        {
+          "id": "invalid-input",
+          "text": "The tests check that invalid quantities and negative prices are rejected."
+        },
+        {
+          "id": "no-source-change",
+          "text": "The answer does not change pricing/discount.py, or clearly says why it did."
+        },
+        {
+          "id": "readable",
+          "text": "Each test's name or structure says which behaviour it checks."
+        }
+      ]
+    },
+    {
+      "id": "slug-tests",
+      "prompt": "Write unit tests for text/slug.py in tests/test_slug.py, using unittest. I want them to catch it if someone breaks this function later.",
+      "workspace": "fixtures/testing-slug",
+      "artifacts": [
+        "text/__init__.py",
+        "text/slug.py",
+        "tests/__init__.py",
+        "tests/test_slug.py"
+      ],
+      "checks": [
+        {
+          "id": "catches-regressions",
+          "kind": "command",
+          "argv": [
+            "python3",
+            "/workspace/scripts/auditing/suites/scorers/mutation.py",
+            "{workspace}",
+            "/workspace/scripts/auditing/suites/scorers/mutants/testing-slug.json"
+          ],
+          "metrics": {
+            "kill_ratio": {
+              "path": "kill_ratio",
+              "direction": "higher"
+            }
+          }
+        },
+        {
+          "id": "test-file-written",
+          "kind": "file_exists",
+          "target": "tests/test_slug.py"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "accents",
+          "text": "The tests cover accented or non-ASCII input."
+        },
+        {
+          "id": "length",
+          "text": "The tests cover truncation at max_length, including that the result never ends in a hyphen."
+        },
+        {
+          "id": "empty",
+          "text": "The tests check that a title with no usable characters raises an error."
+        },
+        {
+          "id": "no-source-change",
+          "text": "The answer does not change text/slug.py, or clearly says why it did."
+        }
+      ]
+    }
+  ]
+}

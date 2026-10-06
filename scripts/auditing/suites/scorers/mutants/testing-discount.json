@@ -1,0 +1,46 @@
+{
+  "path": "pricing/discount.py",
+  "original": "from decimal import ROUND_HALF_UP, Decimal\n\n\ndef order_total(qty, unit_price):\n    \"\"\"Total in euros for qty items at unit_price, rounded to cents.\n\n    10 to 49 items get 5% off; 50 or more get 12% off. qty must be a\n    positive int; unit_price is a str or Decimal and must not be negative.\n    \"\"\"\n    if not isinstance(qty, int) or isinstance(qty, bool) or qty <= 0:\n        raise ValueError(\"qty must be a positive integer\")\n    price = Decimal(str(unit_price))\n    if price < 0:\n        raise ValueError(\"unit_price must not be negative\")\n    total = price * qty\n    if qty >= 50:\n        total *= Decimal(\"0.88\")\n    elif qty >= 10:\n        total *= Decimal(\"0.95\")\n    return total.quantize(Decimal(\"0.01\"), rounding=ROUND_HALF_UP)\n",
+  "mutants": [
+    {
+      "id": "upper-tier-boundary",
+      "old": "if qty >= 50:",
+      "new": "if qty > 50:"
+    },
+    {
+      "id": "lower-tier-boundary",
+      "old": "elif qty >= 10:",
+      "new": "elif qty > 10:"
+    },
+    {
+      "id": "upper-tier-rate",
+      "old": "Decimal(\"0.88\")",
+      "new": "Decimal(\"0.90\")"
+    },
+    {
+      "id": "tiers-stack",
+      "old": "    elif qty >= 10:",
+      "new": "    if qty >= 10:"
+    },
+    {
+      "id": "zero-qty-allowed",
+      "old": "qty <= 0",
+      "new": "qty < 0"
+    },
+    {
+      "id": "bool-qty-allowed",
+      "old": " or isinstance(qty, bool)",
+      "new": ""
+    },
+    {
+      "id": "negative-price-allowed",
+      "old": "if price < 0:",
+      "new": "if price < -1000000:"
+    },
+    {
+      "id": "banker-rounding",
+      "old": "rounding=ROUND_HALF_UP",
+      "new": "rounding='ROUND_HALF_EVEN'"
+    }
+  ]
+}
