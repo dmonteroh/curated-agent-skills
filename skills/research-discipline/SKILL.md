@@ -1,6 +1,6 @@
 ---
 name: research-discipline
-description: Labels every claim in a research or investigation report as sourced, user-supplied, inferred, or a recommendation, escalates through sources lightest first, and dates freshness-sensitive findings. Use when reporting results from a lookup, investigation, comparison, or fact-finding task where the reader needs to tell verified fact from the agent's own inference.
+description: "Labels each claim in a research report as sourced, user-supplied, inferred or recommended, dates freshness-sensitive facts, and tells a failed lookup from an empty one. Use when findings from a lookup, comparison or investigation will be acted on, or when asked which parts were verified."
 metadata:
   category: research
 ---
