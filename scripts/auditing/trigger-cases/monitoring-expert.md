@@ -28,9 +28,38 @@
 - prompt: "Before the launch we need a load-testing plan and some profiling to find where the bottlenecks are. Where do we start?"
   expect_activate: yes
 
-## Negative (should not activate)
-- prompt: "Please do this exactly now: The request is only for a single vendor UI walkthrough with no implementation decisions. No planning, just implementation."
-  expect_activate: no
+- prompt: "add alerts and metrics to the api"
+  expect_activate: yes
+  tags: [generated, off-register, gen:claude]
 
+## Negative (should not activate)
 - prompt: "After each deploy just curl the health URL a few times and tell me whether the site is up."
   expect_activate: no
+
+- prompt: "Write a postmortem document for last Tuesday's outage using the incident timeline I pasted, including root cause and action items."
+  expect_activate: no
+  tags: [generated, gen:claude]
+
+- prompt: "Migrate our CI pipeline from Jenkins to GitHub Actions, keeping the same build, test, and deploy stages."
+  expect_activate: no
+  tags: [generated, gen:claude]
+
+- prompt: "Add a console.log and a try/catch around this function so I can see what value is coming in while I debug locally."
+  expect_activate: no
+  tags: [generated, near-miss, gen:claude]
+
+- prompt: "Build an analytics dashboard feature in our product that shows customers their own usage metrics and event history."
+  expect_activate: no
+  tags: [generated, near-miss, gen:claude]
+
+- prompt: "Build an internal admin dashboard that lets support agents search customer orders and issue refunds."
+  expect_activate: no
+  tags: [generated, gen:codex]
+
+- prompt: "Upgrade the payment service from Node 18 to Node 22 and resolve any compatibility failures."
+  expect_activate: no
+  tags: [generated, gen:codex]
+
+- prompt: "Create a CI check that fails pull requests when services do not include enough unit-test coverage."
+  expect_activate: no
+  tags: [generated, near-miss, gen:codex]
