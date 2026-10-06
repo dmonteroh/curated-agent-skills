@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-06
+
+### Added
+
+- `load-and-capacity-planning`: skill, `references/` (8 files moved from `monitoring-expert`), and `scripts/auditing/trigger-cases/load-and-capacity-planning.md`.
+
+### Changed
+
+- `monitoring-expert`: renamed to `observability-engineering`; `SKILL.md` rewritten; load-testing and capacity-planning references moved to `load-and-capacity-planning`.
+- `performance`: `references/` gains the 5 `application-profiling-*` files moved from `monitoring-expert`.
+- `research-discipline`: frontmatter `description` rewritten.
+
 ## 2026-10-05
 
 ### Added
