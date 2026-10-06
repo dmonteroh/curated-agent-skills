@@ -101,6 +101,11 @@ def _unwrap_shell_c(cmd: str) -> str:
     return cmd
 
 
+def _frontmatter_name_in(output: str, name: str) -> bool:
+    """True when `output` holds a SKILL.md frontmatter line naming `name`."""
+    return re.search(rf"(?m)^name:\s*[\"']?{re.escape(name)}[\"']?\s*$", output) is not None
+
+
 def _read_verb_segments(cmd: str) -> list[str]:
     """Pipeline/`&&`/`;`-separated segments of `cmd` whose OWN first token is
     a read verb (after unwrapping one `bash -c` layer). Only these segments'
@@ -350,12 +355,23 @@ def _parse_codex(events, known: set[str]) -> TraceRecord:
                 # the path must be an argument of the SAME pipeline segment
                 # as the read verb (`_read_verb_segments`), not merely
                 # present anywhere in the command line.
-                if item.get("status") == "completed" and item.get("exit_code") == 0:
-                    for seg in _read_verb_segments(cmd):
-                        for is_system, fname in _SKILL_MD_RE.findall(seg):
-                            path = f"skills/{'.system/' if is_system else ''}{fname}/SKILL.md"
-                            rec.files_read.append(path)
-                            _activate(rec, _skill_label(is_system, fname, known), "command_read")
+                #
+                # A chained command (`sed … SKILL.md && sed missing.md`) takes
+                # the exit code of the last segment that ran, so a later
+                # segment's failure hides a read that succeeded (measured: both
+                # codex positive-control calls of a 2026-10-05 pr-description
+                # selftest). A non-zero command still counts when its output
+                # carries the file's own `name:` frontmatter line: the content
+                # reached the agent.
+                succeeded = item.get("status") == "completed" and item.get("exit_code") == 0
+                output = item.get("aggregated_output") or ""
+                for seg in _read_verb_segments(cmd):
+                    for is_system, fname in _SKILL_MD_RE.findall(seg):
+                        if not (succeeded or _frontmatter_name_in(output, fname)):
+                            continue
+                        path = f"skills/{'.system/' if is_system else ''}{fname}/SKILL.md"
+                        rec.files_read.append(path)
+                        _activate(rec, _skill_label(is_system, fname, known), "command_read")
             elif itype == "agent_message":
                 messages.append(item.get("text") or "")
         elif etype == "turn.completed":
@@ -466,6 +482,32 @@ def _resolve_against(token: str, base: Path) -> str:
     return str(_safe_resolve(base / token))
 
 
+# A heredoc whose body only becomes a file (`cat > f <<EOF`, `cat >> f <<EOF`,
+# `tee f <<EOF`): the body is file content, not commands or reads.
+_FILE_HEREDOC_RE = re.compile(
+    r"^[^\n]*\b(?:cat\s*>>?\s*\S+|tee(?:\s+-a)?\s+\S+)[^\n]*<<-?\s*(['\"]?)(\w+)\1[^\n]*$", re.M)
+
+
+def _strip_file_heredocs(script: str) -> str:
+    """Drop the bodies of heredocs that only write a file.
+
+    Measured 2026-10-05: an arm writing Terraform with `cat > envs/dev/main.tf
+    <<'E'` put `source = "../../modules/vcn"` in the body, which resolved to
+    a path two levels above its cwd and voided the call as contamination.
+    A heredoc fed to an interpreter (`python3 - <<EOF`, `bash <<EOF`) keeps
+    its body, because that body can read files."""
+    out, pos = [], 0
+    for m in _FILE_HEREDOC_RE.finditer(script):
+        if m.start() < pos:
+            continue
+        end_tag = re.compile(rf"^\s*{re.escape(m.group(2))}\s*$", re.M)
+        close = end_tag.search(script, m.end())
+        out.append(script[pos:m.end()])
+        pos = close.end() if close else len(script)
+    out.append(script[pos:])
+    return "".join(out)
+
+
 def _command_path_candidates(cmd: str, cwd_root: Path | None) -> list[str]:
     """Absolute, `~`-prefixed, and resolved-relative path tokens in a shell
     command line (R3 findings C1, I6).
@@ -493,7 +535,7 @@ def _command_path_candidates(cmd: str, cwd_root: Path | None) -> list[str]:
     on its own -- only the path-like tokens are, which is enough to catch
     the `cd` target itself doing the escaping.
     """
-    script = _unwrap_shell_c(cmd)
+    script = _strip_file_heredocs(_unwrap_shell_c(cmd))
     tokens: list[str] = []
     current_dir = cwd_root
     for raw in _SHELL_OP_RE.split(script):

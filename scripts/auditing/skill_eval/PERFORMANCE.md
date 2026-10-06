@@ -34,7 +34,7 @@ python3 scripts/auditing/skill-eval.py performance run \
   --dry-run
 ```
 
-These examples demonstrate the format. They are visible development tasks, and one task cannot establish a skill's general value.
+These examples demonstrate the format. They are visible development tasks, and one task cannot establish a skill's general value. The library's real suites, their git fixtures, and their scorers are in `scripts/auditing/suites/` (see its README).
 
 ## Task suite
 
@@ -128,6 +128,7 @@ The summary reports metric means, paired deltas, and direction-adjusted improvem
 | `--models` | Source models, using `claude=MODEL,codex=MODEL`. Existing package defaults apply when omitted. |
 | `--judge-models` | Judge models in the same format. Defaults to the resolved source models. |
 | `--vendors` | Defaults to `claude,codex`. Selecting one vendor produces a warning. |
+| `--install-as NAME` | Installs the skill under `NAME`, with its frontmatter name rewritten, and uses `NAME` in the explicit prompt and the activation checks. Use it when the skill's name collides with a vendor built-in: Claude ships a built-in `code-review`, and without an alias that vendor's arms are refused. |
 
 Each call gets a fresh home and workspace. Claude task arms expose `Read,Glob,Grep,Bash,Skill,Edit,Write,NotebookEdit`. Both arms receive the same tools. Baseline probes retain the activation tool set. Control and treatment order varies using the recorded seed. Baselines detect built-in collisions, and contamination excludes the entire pair.
 
@@ -150,6 +151,12 @@ Records use the existing `SKILL_EVAL_RUNS_DIR` destination. Run records must rem
 - `pairs.jsonl`: outputs, artifacts, validity, objective checks, grades, and comparisons.
 - `budget.json`: attempted calls and reported usage.
 - `summary.json` and `summary.md`: per-task, per-vendor paired results.
+
+When judges failed (an outage, an expired login), re-run only the judging of the affected valid pairs. Arm outputs are reused, the previous `pairs.jsonl` is kept beside the new one, and `--all` re-judges every valid pair:
+
+```bash
+python3 scripts/auditing/skill-eval.py performance rejudge RUN_DIR --max-calls 60
+```
 
 Rebuild the report without making calls:
 

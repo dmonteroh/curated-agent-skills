@@ -458,8 +458,90 @@ class CliIntegrationTests(unittest.TestCase):
                 self.assertEqual(row["checks"]["delta"], 1)
                 self.assertEqual(row["grades"]["delta"], 1)
             scratch = root / "scratch"
+            # The containers are traverse-only; restore read access to check
+            # that every per-call home and cwd is gone.
+            for name in ("homes", "cwd"):
+                self.assertEqual((scratch / name).stat().st_mode & 0o777, 0o300)
+                os.chmod(scratch / name, 0o700)
             self.assertEqual(list((scratch / "homes").iterdir()), [])
             self.assertEqual(list((scratch / "cwd").iterdir()), [])
+
+
+    def test_install_as_runs_the_skill_under_an_alias(self):
+        """--install-as: the arms see only the alias, the explicit prompt
+        names it, and activation of the alias counts as the skill loading."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bindir = root / "bin"
+            bindir.mkdir()
+            auditing = Path(__file__).resolve().parent.parent / "auditing"
+            for name in ("claude", "codex"):
+                shutil.copy2(auditing / "skill_eval/fixtures/performance/agent_stub.py", bindir / name)
+                (bindir / name).chmod(0o755)
+            suite = root / "suite.json"
+            suite.write_text(json.dumps({"version": 1, "tasks": [task()]}))
+            (root / "home").mkdir()
+            env = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ["PATH"], HOME=str(root / "home"),
+                       SKILL_EVAL_SCRATCH=str(root / "scratch"), SKILL_EVAL_RUNS_DIR=str(root / "runs"))
+            proc = subprocess.run([sys.executable, str(auditing / "skill-eval.py"), "performance", "run",
+                                   "--skill", "writing-style", "--install-as", "ws-under-test", "--suite", str(suite),
+                                   "--repeats", "1", "--max-calls", "14"], env=env, capture_output=True, text=True, timeout=30)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            result_dir = Path(proc.stdout.strip())
+            for row in json.loads((result_dir / "summary.json").read_text())["rows"]:
+                self.assertEqual(row["activation_count"], 1)
+            snapshot = (result_dir / "inputs" / "skill" / "SKILL.md").read_text()
+            self.assertIn("name: ws-under-test", snapshot)
+            for line in (result_dir / "pairs.jsonl").read_text().splitlines():
+                self.assertEqual(json.loads(line)["arms"]["with"]["trace"]["activated"], ["ws-under-test"])
+
+    def test_install_as_refuses_a_library_name(self):
+        auditing = Path(__file__).resolve().parent.parent / "auditing"
+        proc = subprocess.run([sys.executable, str(auditing / "skill-eval.py"), "performance", "run",
+                               "--skill", "writing-style", "--install-as", "code-review",
+                               "--suite", str(auditing / "skill_eval/examples/text-task.json"), "--dry-run"],
+                              capture_output=True, text=True, timeout=30)
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("--install-as", proc.stderr)
+
+
+    def test_rejudge_repairs_only_failed_judging_and_keeps_a_backup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bindir = root / "bin"
+            bindir.mkdir()
+            auditing = Path(__file__).resolve().parent.parent / "auditing"
+            for name in ("claude", "codex"):
+                shutil.copy2(auditing / "skill_eval/fixtures/performance/agent_stub.py", bindir / name)
+                (bindir / name).chmod(0o755)
+            suite = root / "suite.json"
+            suite.write_text(json.dumps({"version": 1, "tasks": [task()]}))
+            (root / "home").mkdir()
+            env = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ["PATH"], HOME=str(root / "home"),
+                       SKILL_EVAL_SCRATCH=str(root / "scratch"), SKILL_EVAL_RUNS_DIR=str(root / "runs"))
+            entry = [sys.executable, str(auditing / "skill-eval.py"), "performance"]
+            proc = subprocess.run(entry + ["run", "--skill", "writing-style", "--suite", str(suite), "--repeats", "1",
+                                           "--max-calls", "14"], env=env, capture_output=True, text=True, timeout=30)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            run_dir = Path(proc.stdout.strip())
+            pairs = [json.loads(l) for l in (run_dir / "pairs.jsonl").read_text().splitlines()]
+            # Simulate a judge outage on the first pair only.
+            broken = pairs[0]
+            broken["comparison"]["repeats"] = [{"void": True}, {"void": True}]
+            broken["comparison"]["verdict"] = "void"
+            for arm in broken["arms"].values():
+                for g in arm["grades"]:
+                    g["verdict"] = "unsupported"
+            (run_dir / "pairs.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pairs))
+            proc = subprocess.run(entry + ["rejudge", str(run_dir)], env=env, capture_output=True, text=True, timeout=30)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            after = [json.loads(l) for l in (run_dir / "pairs.jsonl").read_text().splitlines()]
+            self.assertIn("rejudged_at", after[0])
+            self.assertNotIn("rejudged_at", after[1])
+            self.assertEqual(after[0]["comparison"]["verdict"], "b")
+            self.assertEqual(len(list(run_dir.glob("pairs.before-rejudge-*.jsonl"))), 1)
+            budget = json.loads((run_dir / "budget.json").read_text())
+            self.assertGreater(budget["calls"], 14)
 
 
 class CollectorHookTests(unittest.TestCase):

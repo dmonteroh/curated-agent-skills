@@ -171,6 +171,13 @@ class ParaphraseSplitInheritanceTests(unittest.TestCase):
 class DryRunCliTests(unittest.TestCase):
     """`activation run --dry-run` prints the plan and never touches vendors."""
 
+    def setUp(self):
+        # These tests stub load_cases; the corpus gate lints the real file,
+        # so it is stubbed clean here and exercised in CorpusGateTests.
+        p = mock.patch("skill_eval.cases.lint", return_value=[])
+        p.start()
+        self.addCleanup(p.stop)
+
     def test_dry_run_never_calls_exec_agent(self):
         cases = _cases(n_pos=2, n_neg=2)
 
@@ -938,6 +945,73 @@ class SelftestScoringTests(unittest.TestCase):
         self.assertFalse(result["passed"])
         self.assertIsNone(result["real_rate"])
 
+    def _skipped(self, n, reason="--max-calls 7 reached"):
+        return [{"hit": False, "ok": False, "error": f"skipped: {reason}"} for _ in range(n)]
+
+    def test_capped_negative_arm_is_inconclusive_never_fail(self):
+        """The recorded sys1-mcp run: a cap starved the negative arm, and the
+        missing rate was reported as a failed negative control."""
+        result = activation.evaluate_selftest(self._rows(4, 7), self._skipped(7), self._rows(3, 3))
+        self.assertEqual(result["verdict"], "inconclusive")
+        self.assertIsNone(result["negative_control_ok"])
+        self.assertEqual(result["real_rate"], 4 / 7)
+        self.assertEqual(len(result["reasons"]), 1)
+        self.assertIn("negative arm", result["reasons"][0])
+        self.assertIn("--max-calls 7 reached", result["reasons"][0])
+        self.assertNotIn("no better than noise", result["reasons"][0])
+
+    def test_capped_positive_control_names_the_cap_not_the_environment(self):
+        """The recorded codex result: never dispatched, yet reported as an
+        environment that does not let the skill activate."""
+        result = activation.evaluate_selftest([], [], self._skipped(3))
+        self.assertEqual(result["verdict"], "inconclusive")
+        self.assertNotEqual(result["reasons"], [activation.SELFTEST_INCONCLUSIVE_MESSAGE])
+        self.assertIn("positive control", result["reasons"][0])
+        self.assertIn("skipped", result["reasons"][0])
+
+    def test_failed_calls_are_inconclusive_with_the_vendor_error(self):
+        failed = [{"hit": False, "ok": False, "error": "authentication failed"} for _ in range(3)]
+        result = activation.evaluate_selftest(self._rows(3, 3), failed, self._rows(3, 3))
+        self.assertEqual(result["verdict"], "inconclusive")
+        self.assertIn("authentication failed", result["reasons"][0])
+
+    def test_partial_arms_still_score_when_both_have_valid_calls(self):
+        """A cap that trips after some paired calls leaves a scoreable run."""
+        real = self._rows(2, 2) + self._skipped(1)
+        negative = self._rows(0, 2) + self._skipped(1)
+        result = activation.evaluate_selftest(real, negative, self._rows(3, 3))
+        self.assertEqual(result["verdict"], "pass")
+        self.assertEqual(result["real_rate"], 1.0)
+        self.assertEqual(result["negative_control_rate"], 0.0)
+
+
+class SelftestPlanBudgetTests(unittest.TestCase):
+    """`--max-calls` sizes the selftest plan instead of truncating it."""
+
+    def test_uncapped_plan_uses_every_train_positive(self):
+        plan = activation._selftest_plan("s", {"claude": "haiku", "codex": "luna"}, 3, 7)
+        self.assertEqual(plan["cases_used"], 7)
+        self.assertEqual(plan["call_count_per_vendor"], {"claude": 45, "codex": 45})
+        self.assertIsNone(plan["call_budget_per_vendor"])
+
+    def test_cap_is_split_per_vendor_and_shrinks_cases(self):
+        plan = activation._selftest_plan("s", {"claude": "haiku", "codex": "luna"}, 3, 7, max_calls=30)
+        # 15 per vendor: 3 positive-control calls leave 12, i.e. 2 paired cases at 3 repeats.
+        self.assertEqual(plan["call_budget_per_vendor"], 15)
+        self.assertEqual(plan["cases_used"], 2)
+        self.assertEqual(plan["call_count_per_vendor"], {"claude": 15, "codex": 15})
+        self.assertLessEqual(plan["call_count_total"], 30)
+
+    def test_cap_never_raises_cases_above_the_corpus(self):
+        plan = activation._selftest_plan("s", {"claude": "haiku"}, 1, 2, max_calls=100)
+        self.assertEqual(plan["cases_used"], 2)
+        self.assertEqual(plan["call_count_total"], 5)
+
+    def test_cap_below_one_complete_comparison_is_refused(self):
+        with self.assertRaises(activation.SelftestBudgetError) as ctx:
+            activation._selftest_plan("s", {"claude": "haiku", "codex": "luna"}, 3, 7, max_calls=17)
+        self.assertIn("at least 18", str(ctx.exception))
+
 
 class NegativeControlSkillTests(unittest.TestCase):
     """Round 2 finding 4: the negative control must rename the skill, not
@@ -1683,6 +1757,9 @@ class SelftestCliIntegrationTests(unittest.TestCase):
         p = mock.patch("skill_eval.cases.load_cases", return_value=[self.train_positive])
         p.start()
         self.addCleanup(p.stop)
+        p = mock.patch("skill_eval.cases.lint", return_value=[])
+        p.start()
+        self.addCleanup(p.stop)
         # split_cases is hash-based; force this single case to land in train
         # regardless of the salted hash outcome, so the test never depends
         # on hash luck.
@@ -1725,24 +1802,88 @@ class SelftestCliIntegrationTests(unittest.TestCase):
         # each) never ran.
         self.assertEqual(len(calls), 2)
 
-    def test_max_calls_cap_shared_across_the_whole_selftest_command(self):
-        def fake_exec(vendor, home, cwd, prompt, trace_out, **kwargs):
-            Path(trace_out).parent.mkdir(parents=True, exist_ok=True)
-            Path(trace_out).write_bytes((_TRACE_FIXTURES / "claude-activate.jsonl").read_bytes())
-            return {"exit_code": 0, "duration_s": 0.1, "trace_path": str(trace_out),
-                    "stderr_path": str(trace_out) + ".err", "cmd": []}
-
-        call_count = {"n": 0}
-
-        def counting_exec(*a, **kw):
-            call_count["n"] += 1
-            return fake_exec(*a, **kw)
-
-        with mock.patch.object(vendors, "exec_agent", side_effect=counting_exec), \
-             mock.patch("builtins.print"):
+    def test_max_calls_below_one_comparison_refuses_before_any_call(self):
+        with mock.patch.object(vendors, "exec_agent") as fake_exec, \
+             mock.patch("sys.stderr"):
             args = self._args(["--max-calls", "1"])
-            args.func(args)
-        self.assertEqual(call_count["n"], 1)
+            rc = args.func(args)
+        self.assertEqual(rc, 2)
+        fake_exec.assert_not_called()
+
+    def _stub_execute(self, calls, activate_real=True, cost=None):
+        """Stub `_execute_one`: the real skill activates, the renamed
+        negative-control skill never does."""
+        def fake(*, vendor, label, known_skills, **kwargs):
+            calls.append((vendor, label))
+            name = next(iter(known_skills))
+            hit = activate_real and name != activation.SELFTEST_NEGATIVE_CONTROL_NAME
+            record = activation.TraceRecord(vendor=vendor, ok=True, activated=[name] if hit else [],
+                                            cost_usd=cost if vendor == "claude" else None)
+            return record, {}, []
+        return fake
+
+    def test_capped_two_vendor_run_reaches_a_verdict_for_both_vendors(self):
+        """The recorded failure: a shared cap spent by claude left codex
+        undispatched and claude's negative arm empty. Sized per vendor, both
+        vendors get a complete paired comparison."""
+        calls = []
+        with mock.patch.object(activation, "_execute_one", side_effect=self._stub_execute(calls)), \
+             mock.patch.object(activation, "_check_contamination", return_value=([], [], [])), \
+             mock.patch.object(activation, "split_cases", return_value={"train": [
+                 self.train_positive,
+                 Case(skill="pr-description", prompt="write up this branch for review", expect=True),
+             ], "holdout": []}), \
+             mock.patch("builtins.print"):
+            parser = _build_parser()
+            args = parser.parse_args([
+                "activation", "selftest", "--skill", "pr-description", "--vendors", "claude,codex",
+                "--models", "claude=haiku,codex=luna", "--repeats", "2", "--max-calls", "12",
+            ])
+            rc = args.func(args)
+        self.assertEqual(rc, activation.SELFTEST_EXIT_CODES["pass"])
+        by_vendor = {v: [l for vv, l in calls if vv == v] for v in ("claude", "codex")}
+        for vendor, labels in by_vendor.items():
+            self.assertEqual(len(labels), 6, vendor)  # 2 positive control + 2 real + 2 negative
+            self.assertEqual(sum(l.startswith("negative-") for l in labels), 2, vendor)
+        run_dirs = list((self.tmp_path / "runs").iterdir())
+        result = json.loads((run_dirs[0] / "selftest.json").read_text())
+        self.assertEqual(result["verdict"], "pass")
+        self.assertEqual(result["plan"]["cases_used"], 1)
+        self.assertEqual(set(result["vendors"]), {"claude", "codex"})
+
+    def test_cost_cap_mid_run_keeps_arms_paired_and_names_the_cap(self):
+        calls = []
+        with mock.patch.object(activation, "_execute_one",
+                               side_effect=self._stub_execute(calls, cost=0.1)), \
+             mock.patch.object(activation, "_check_contamination", return_value=([], [], [])), \
+             mock.patch("builtins.print"):
+            # 3 positive-control calls spend 0.3; the cap then admits exactly
+            # one real/negative pair before it trips.
+            args = self._args(["--max-cost-usd", "0.35", "--repeats", "3"])
+            rc = args.func(args)
+        labels = [l for _, l in calls]
+        self.assertEqual(sum(l.startswith("real-") for l in labels), 1)
+        self.assertEqual(sum(l.startswith("negative-") for l in labels), 1)
+        run_dirs = list((self.tmp_path / "runs").iterdir())
+        result = json.loads((run_dirs[0] / "selftest.json").read_text())
+        claude = result["vendors"]["claude"]
+        self.assertIn("--max-cost-usd", claude["stopped_by_cap"])
+        self.assertEqual(claude["verdict"], "pass")
+        self.assertEqual(claude["calls"]["valid"], 5)
+        self.assertEqual(rc, activation.SELFTEST_EXIT_CODES["pass"])
+
+    def test_vendor_exception_still_writes_a_result(self):
+        def boom(**kwargs):
+            raise RuntimeError("codex binary vanished")
+
+        with mock.patch.object(activation, "_execute_one", side_effect=boom), \
+             mock.patch("builtins.print"):
+            args = self._args([])
+            rc = args.func(args)
+        self.assertEqual(rc, activation.SELFTEST_EXIT_CODES["inconclusive"])
+        run_dirs = list((self.tmp_path / "runs").iterdir())
+        result = json.loads((run_dirs[0] / "selftest.json").read_text())
+        self.assertIn("codex binary vanished", result["vendors"]["claude"]["reasons"][0])
 
     def test_selftest_cwd_and_negctrl_dir_removed_after_the_run(self):
         def fake_exec(vendor, home, cwd, prompt, trace_out, **kwargs):
@@ -1902,3 +2043,124 @@ class BaselineProbeCapTests(_LiveRunHarness):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CorpusGateTests(unittest.TestCase):
+    """`run` and `selftest` refuse a corpus with lint errors before any call,
+    unless `--allow-corpus-errors` is passed, and the plan records it."""
+
+    _ERROR = Finding("error", "template-residue", "pr-description: residue", "x")
+
+    def _parse(self, argv):
+        return _build_parser().parse_args(argv)
+
+    def test_run_refuses_a_corpus_with_lint_errors(self):
+        with mock.patch("skill_eval.cases.lint", return_value=[self._ERROR]), \
+             mock.patch.object(vendors, "exec_agent") as fake_exec, \
+             mock.patch("sys.stderr"):
+            args = self._parse(["activation", "run", "--skill", "pr-description", "--dry-run"])
+            rc = args.func(args)
+        self.assertEqual(rc, 2)
+        fake_exec.assert_not_called()
+
+    def test_run_with_override_records_the_errors_in_the_plan(self):
+        printed = []
+        with mock.patch("skill_eval.cases.lint", return_value=[self._ERROR]), \
+             mock.patch("skill_eval.cases.load_cases", return_value=_cases(n_pos=2, n_neg=2)), \
+             mock.patch.object(activation, "_print_plan", side_effect=printed.append):
+            args = self._parse(["activation", "run", "--skill", "pr-description", "--dry-run",
+                                "--allow-corpus-errors", "--vendors", "claude", "--models", "claude=haiku"])
+            rc = args.func(args)
+        self.assertEqual(rc, 0)
+        self.assertEqual(printed[0]["corpus_lint"]["errors"], 1)
+        self.assertTrue(printed[0]["corpus_lint"]["allowed_with_errors"])
+
+    def test_selftest_refuses_a_corpus_with_lint_errors(self):
+        with mock.patch("skill_eval.cases.lint", return_value=[self._ERROR]), \
+             mock.patch.object(vendors, "exec_agent") as fake_exec, \
+             mock.patch("sys.stderr"):
+            args = self._parse(["activation", "selftest", "--skill", "pr-description", "--dry-run"])
+            rc = args.func(args)
+        self.assertEqual(rc, 2)
+        fake_exec.assert_not_called()
+
+    def test_warnings_alone_do_not_block(self):
+        warn = Finding("warn", "no-off-register-positive", "pr-description: warn", "x")
+        with mock.patch("skill_eval.cases.lint", return_value=[warn]), \
+             mock.patch("skill_eval.cases.load_cases", return_value=_cases(n_pos=2, n_neg=2)), \
+             mock.patch.object(activation, "_print_plan"):
+            args = self._parse(["activation", "run", "--skill", "pr-description", "--dry-run",
+                                "--vendors", "claude", "--models", "claude=haiku"])
+            rc = args.func(args)
+        self.assertEqual(rc, 0)
+
+
+class SelftestSweepTests(unittest.TestCase):
+    """`selftest-all`: child argv pass-through, per-verdict counts, and a
+    table that shows an errored child instead of dropping it."""
+
+    def _args(self, extra=()):
+        return _build_parser().parse_args(["activation", "selftest-all", *extra])
+
+    def test_child_argv_passes_caps_and_models_through(self):
+        args = self._args(["--max-calls", "14", "--repeats", "1", "--models", "claude=haiku"])
+        argv = activation._selftest_child_argv("pr-description", args)
+        self.assertIn("selftest", argv)
+        self.assertEqual(argv[argv.index("--skill") + 1], "pr-description")
+        self.assertEqual(argv[argv.index("--max-calls") + 1], "14")
+        self.assertEqual(argv[argv.index("--models") + 1], "claude=haiku")
+        self.assertNotIn("--max-cost-usd", argv)
+
+    def test_summary_counts_overall_and_per_vendor_verdicts(self):
+        results = {
+            "a": {"verdict": "pass", "vendors": {"claude": {"verdict": "pass"}, "codex": {"verdict": "pass"}}},
+            "b": {"verdict": "inconclusive", "vendors": {"claude": {"verdict": "pass"},
+                                                        "codex": {"verdict": "inconclusive"}}},
+            "c": {"verdict": "error", "error": "boom"},
+        }
+        s = activation.summarize_sweep(results)
+        self.assertEqual(s["overall"], {"pass": 1, "inconclusive": 1, "error": 1})
+        self.assertEqual(s["per_vendor"]["codex"], {"pass": 1, "inconclusive": 1})
+        md = activation.render_sweep_md(results, s)
+        self.assertIn("| c | error |", md)
+        self.assertIn("boom", md)
+        self.assertIn("| b | inconclusive | pass |", md)
+
+
+class ScratchProbeClassificationTests(unittest.TestCase):
+    """With the scratch root hardened, a listing or glob of an unlistable
+    directory reaches nothing and is recorded only; a concrete path into
+    another arm's material stays contamination. Unhardened, every scratch
+    reference stays contamination."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name) / "scratch"
+        for mod in (vendors, activation):
+            p = mock.patch.object(mod, "SCRATCH_ROOT", self.root)
+            p.start()
+            self.addCleanup(p.stop)
+
+    def _check(self, paths):
+        record = TraceRecord(vendor="codex", ok=True, outside_reads=[str(p) for p in paths])
+        reasons, _foreign, other = activation._check_contamination(record, "codex", {"s"}, [])
+        return reasons, other
+
+    def test_probes_are_recorded_not_contamination_when_hardened(self):
+        vendors.harden_scratch_root()
+        probes = [self.root, self.root / "cwd", self.root / "cwd" / "*" / "docs",
+                  self.root / "homes" / "*" / "skills" / "s" / "SKILL.md"]
+        reasons, other = self._check(probes)
+        self.assertEqual(reasons, [])
+        self.assertEqual(len(other), 4)
+
+    def test_concrete_sibling_path_is_contamination_when_hardened(self):
+        vendors.harden_scratch_root()
+        reasons, _ = self._check([self.root / "homes" / "run-codex-negative-r0" / "skills" / "s" / "SKILL.md"])
+        self.assertTrue(any(r.startswith("scratch-read") for r in reasons))
+
+    def test_unhardened_root_keeps_every_scratch_reference_as_contamination(self):
+        (self.root / "cwd").mkdir(parents=True)
+        reasons, _ = self._check([self.root / "cwd"])
+        self.assertTrue(any(r.startswith("scratch-read") for r in reasons))

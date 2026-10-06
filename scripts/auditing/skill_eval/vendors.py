@@ -135,6 +135,9 @@ _CONFIG_FILENAMES = frozenset({".mcp.json"})
 # so config dirs get the same treatment. Precomputed once so both the cwd
 # scan and `prepare_workspace`'s fixture-source refusal share it.
 _CONFIG_DIRNAMES_LOWER = frozenset(d.lower() for d in _CONFIG_DIRNAMES)
+# Canonical spellings probed by name in a directory that cannot be listed.
+_PROBE_NAMES = ("CLAUDE.md", "CLAUDE.local.md", "AGENTS.md", "GEMINI.md", ".cursorrules",
+                "copilot-instructions.md", *sorted(_CONFIG_DIRNAMES), *sorted(_CONFIG_FILENAMES))
 
 # Memory stores carry state from the operator's own sessions (DESIGN.md
 # T-A). `build_home` never creates any of these; `verify_environment` treats
@@ -264,6 +267,44 @@ def _require_under_scratch_root(home: Path, caller: str) -> Path:
     return home
 
 
+class CredentialError(RuntimeError):
+    """The operator's credential cannot safely be lent to an arm."""
+
+
+#: Chosen default: an arm's access token must outlive the default 600 s call
+#: timeout with margin, because the arm holds no refresh token.
+CLAUDE_TOKEN_MIN_REMAINING_S = 1200
+
+
+def claude_arm_credentials(src: Path, now: float | None = None) -> dict:
+    """The operator's claude credential with its refresh token removed.
+
+    Every arm got a full copy, so an arm whose access token had expired
+    refreshed it from its own copy. OAuth refresh tokens rotate, so arms
+    racing to refresh can invalidate the operator's own login (measured
+    2026-10-05: 13 arm calls failed with "OAuth session expired and could
+    not be refreshed" during one sweep). An arm holding only the access
+    token cannot refresh, so it fails as a recorded vendor error instead.
+    Raises CredentialError when the token would expire during a call;
+    the operator's own session refreshes the real file, and later calls
+    pick up the fresh token.
+    """
+    import time
+    data = json.loads(Path(src).read_text(encoding="utf-8"))
+    oauth = data.get("claudeAiOauth")
+    if isinstance(oauth, dict):
+        oauth.pop("refreshToken", None)
+        oauth.pop("refreshTokenExpiresAt", None)
+        expires_at = oauth.get("expiresAt")
+        if isinstance(expires_at, (int, float)):
+            remaining = expires_at / 1000 - (time.time() if now is None else now)
+            if remaining < CLAUDE_TOKEN_MIN_REMAINING_S:
+                raise CredentialError(
+                    f"claude access token expires in {max(0, int(remaining))} s; arms cannot refresh it. "
+                    "Use claude in the operator session to refresh the login, then rerun.")
+    return data
+
+
 def build_home(vendor: str, home: Path, skills: dict[str, Path],
                 description_overrides: dict[str, str] | None = None) -> dict:
     """Wipe and rebuild `home` as a bare, single-purpose agent home.
@@ -279,6 +320,7 @@ def build_home(vendor: str, home: Path, skills: dict[str, Path],
     """
     if vendor not in VENDORS:
         raise ValueError(f"build_home: unknown vendor {vendor!r}")
+    harden_scratch_root()
     home = _require_under_scratch_root(home, "build_home")
     if home.exists():
         shutil.rmtree(home)
@@ -291,7 +333,7 @@ def build_home(vendor: str, home: Path, skills: dict[str, Path],
         src = Path.home() / ".claude" / ".credentials.json"
         if src.exists():
             dest = home / ".credentials.json"
-            shutil.copy2(src, dest)
+            dest.write_text(json.dumps(claude_arm_credentials(src)), encoding="utf-8")
             os.chmod(dest, 0o600)
     else:  # codex
         src = Path.home() / ".codex" / "auth.json"
@@ -327,8 +369,39 @@ def build_home(vendor: str, home: Path, skills: dict[str, Path],
     }
 
 
+#: Directories directly under SCRATCH_ROOT that hold per-call material.
+SCRATCH_CONTAINERS = ("homes", "cwd", "selftest-negctrl")
+
+#: Traverse-only: the owner can create entries and open a path it already
+#: knows, but cannot list the directory. Arms run as the same user, so this
+#: is what stops `ls`, globs, and `find` over SCRATCH_ROOT from discovering
+#: other arms' homes and working directories. Measured 2026-10-05: before
+#: it, 3 of the first 14 skills in a library selftest sweep lost their only
+#: positive-control call to such searches, on both vendors.
+SCRATCH_DIR_MODE = 0o300
+
+
+def harden_scratch_root() -> None:
+    """Create SCRATCH_ROOT and its container directories traverse-only.
+    Idempotent; every function that creates a home or cwd calls it."""
+    for d in (SCRATCH_ROOT, *(SCRATCH_ROOT / c for c in SCRATCH_CONTAINERS)):
+        d.mkdir(parents=True, exist_ok=True)
+        if (d.stat().st_mode & 0o777) != SCRATCH_DIR_MODE:
+            os.chmod(d, SCRATCH_DIR_MODE)
+
+
+def scratch_is_hardened() -> bool:
+    """True when SCRATCH_ROOT and every container are unlistable."""
+    try:
+        return all((d.stat().st_mode & 0o444) == 0
+                   for d in (SCRATCH_ROOT, *(SCRATCH_ROOT / c for c in SCRATCH_CONTAINERS)))
+    except OSError:
+        return False
+
+
 def neutral_cwd(label: str) -> Path:
     """A fresh, empty working directory under SCRATCH_ROOT, outside the repo."""
+    harden_scratch_root()
     d = SCRATCH_ROOT / "cwd" / run_id(label)
     d.mkdir(parents=True, exist_ok=True)
     return d
@@ -525,7 +598,9 @@ def _scan_instruction_files(cwd: Path) -> list[Finding]:
         try:
             entries = list(d.iterdir())
         except OSError:
-            entries = []
+            # An unlistable ancestor (the hardened SCRATCH_ROOT) can still
+            # hold a file an agent CLI finds by name, so probe the names.
+            entries = [d / name for name in _PROBE_NAMES if (d / name).exists()]
         for entry in entries:
             lname = entry.name.lower()
             if entry.is_file() and lname in INSTRUCTION_FILENAMES:

@@ -1217,3 +1217,63 @@ class PrepareWorkspaceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ScratchHardeningTests(unittest.TestCase):
+    """The scratch root and its containers are traverse-only: an arm can open
+    its own known paths but cannot list or glob its way to another arm's."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name) / "scratch"
+        p = mock.patch.object(vendors, "SCRATCH_ROOT", self.root)
+        p.start()
+        self.addCleanup(p.stop)
+
+    def test_containers_are_unlistable_but_known_paths_open(self):
+        import glob
+        cwd = vendors.neutral_cwd("probe")
+        (cwd / "file.txt").write_text("x", encoding="utf-8")
+        self.assertTrue(vendors.scratch_is_hardened())
+        with self.assertRaises(PermissionError):
+            list((self.root / "cwd").iterdir())
+        self.assertEqual(glob.glob(str(self.root / "cwd" / "*")), [])
+        self.assertEqual((cwd / "file.txt").read_text(encoding="utf-8"), "x")
+
+    def test_instruction_file_in_unlistable_ancestor_is_still_found(self):
+        cwd = vendors.neutral_cwd("probe")
+        os.chmod(self.root, 0o700)
+        (self.root / "CLAUDE.md").write_text("bootstrap", encoding="utf-8")
+        os.chmod(self.root, vendors.SCRATCH_DIR_MODE)
+        codes = {f.code for f in vendors._scan_instruction_files(cwd)}
+        self.assertIn("instruction-file-in-cwd", codes)
+
+
+class ClaudeArmCredentialTests(unittest.TestCase):
+    """Arms receive the access token only, and never a token that would
+    expire during the call."""
+
+    def _write(self, tmp, expires_in_s):
+        import json, tempfile, time
+        src = Path(tmp) / "creds.json"
+        src.write_text(json.dumps({"claudeAiOauth": {
+            "accessToken": "a", "refreshToken": "r", "refreshTokenExpiresAt": 1,
+            "expiresAt": (time.time() + expires_in_s) * 1000}}))
+        return src
+
+    def test_refresh_token_is_removed(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            data = vendors.claude_arm_credentials(self._write(tmp, 3600))
+        oauth = data["claudeAiOauth"]
+        self.assertEqual(oauth["accessToken"], "a")
+        self.assertNotIn("refreshToken", oauth)
+        self.assertNotIn("refreshTokenExpiresAt", oauth)
+
+    def test_token_expiring_during_a_call_is_refused(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(vendors.CredentialError):
+                vendors.claude_arm_credentials(self._write(tmp, 60))

@@ -604,10 +604,10 @@ CASES_PROMPT_TEMPLATE = """Write realistic user requests related to the followin
 Task:
 {job}
 
-Write {n_pos} requests that clearly call for this task to be done. Write {n_neg} requests about a related but different task, which should not be treated as this task. Write {n_near_miss} requests that sound superficially similar but are near-misses that should also not be treated as this task.
+Write {n_pos} requests that clearly call for this task to be done. Write {n_neg} requests about a related but different task, which should not be treated as this task. Write {n_near_miss} requests that sound superficially similar but are near-misses that should also not be treated as this task. Write {n_off_register} requests that clearly call for this task but are typed the way people type into a chat box in a hurry: a few words, all lowercase, no punctuation.
 
 Respond with strict JSON only:
-{{"positive": ["..."], "negative": ["..."], "near_miss": ["..."]}}"""
+{{"positive": ["..."], "negative": ["..."], "near_miss": ["..."], "off_register": ["..."]}}"""
 
 CASES_JSON_SCHEMA = {
     "type": "object",
@@ -615,8 +615,9 @@ CASES_JSON_SCHEMA = {
         "positive": {"type": "array", "items": {"type": "string"}},
         "negative": {"type": "array", "items": {"type": "string"}},
         "near_miss": {"type": "array", "items": {"type": "string"}},
+        "off_register": {"type": "array", "items": {"type": "string"}},
     },
-    "required": ["positive", "negative", "near_miss"],
+    "required": ["positive", "negative", "near_miss", "off_register"],
     "additionalProperties": False,
 }
 
@@ -733,7 +734,7 @@ def generate_paraphrases(cases: list, k: int, *, gen_vendor: str, description: s
 
 
 def generate_cases(job: str, *, gen_vendor: str, description: str, n_pos: int, n_neg: int,
-                   n_near_miss: int, complete: Callable | None = None,
+                   n_near_miss: int, n_off_register: int = 0, complete: Callable | None = None,
                    echo_score: Callable | None = None, longest_echo: Callable | None = None,
                    echo_threshold: int | None = None,
                    gen_model: str | None = None, effort: str = "medium") -> list[dict]:
@@ -759,7 +760,8 @@ def generate_cases(job: str, *, gen_vendor: str, description: str, n_pos: int, n
         if echo_threshold is None:
             echo_threshold = _echo_threshold(cases_mod)
 
-    gen_prompt = CASES_PROMPT_TEMPLATE.format(job=job, n_pos=n_pos, n_neg=n_neg, n_near_miss=n_near_miss)
+    gen_prompt = CASES_PROMPT_TEMPLATE.format(job=job, n_pos=n_pos, n_neg=n_neg, n_near_miss=n_near_miss,
+                                              n_off_register=n_off_register)
     call_kwargs = _complete_kwargs(complete, model=gen_model, label="generate-cases",
                                    json_schema=CASES_JSON_SCHEMA, effort=effort)
     text, trace = complete(gen_vendor, gen_prompt, **call_kwargs)
@@ -781,6 +783,8 @@ def generate_cases(job: str, *, gen_vendor: str, description: str, n_pos: int, n
         ("positive", data.get("positive", []), True, ["generated"], True),
         ("negative", data.get("negative", []), False, ["generated"], False),
         ("near_miss", data.get("near_miss", []), False, ["generated", "near-miss"], False),
+        ("off_register", data.get("off_register", [])[:n_off_register], True,
+         ["generated", "off-register"], True),
     ]
     for group_name, prompts, expect, tags, apply_reject in groups:
         for p in prompts:
@@ -1011,24 +1015,87 @@ def _cmd_generate_paraphrases(args) -> int:
     return 1 if failed else 0
 
 
-def _cmd_generate_cases(args) -> int:
-    description = common.read_frontmatter(common.skill_dir(args.skill) / "SKILL.md").get("description", "")
-    rows = generate_cases(args.job, gen_vendor=args.gen_vendor, description=description,
-                          n_pos=args.n_pos, n_neg=args.n_neg, n_near_miss=args.n_near_miss,
-                          gen_model=args.gen_model, effort=args.effort)
+def _generate_for_skill(skill: str, job: str, vendors_models: list[tuple[str, str | None]],
+                        args) -> list[dict]:
+    """Every generator vendor's rows for one skill, each row tagged with the
+    vendor that wrote it (`gen:<vendor>`): prompts a vendor wrote may suit
+    that vendor's own phrasing, so the corpus keeps the provenance."""
+    description = common.read_frontmatter(common.skill_dir(skill) / "SKILL.md").get("description", "")
+    rows: list[dict] = []
+    for vendor, model in vendors_models:
+        for row in generate_cases(job, gen_vendor=vendor, description=description,
+                                  n_pos=args.n_pos, n_neg=args.n_neg, n_near_miss=args.n_near_miss,
+                                  n_off_register=args.n_off_register,
+                                  gen_model=model, effort=args.effort):
+            row["skill"] = skill
+            row["gen_vendor"] = vendor
+            if row.get("status") != "failed":
+                row["tags"] = list(row.get("tags", [])) + [f"gen:{vendor}"]
+            rows.append(row)
+    return rows
 
-    accepted = [r for r in rows if r.get("status") == "accepted"]
-    rejected = [r for r in rows if r.get("status") == "rejected"]
-    failed = [r for r in rows if r.get("status") == "failed"]
+
+def _cmd_generate_cases(args) -> int:
+    import concurrent.futures
+
+    if args.jobs:
+        jobs = json.loads(Path(args.jobs).read_text(encoding="utf-8"))
+        if args.skill:
+            jobs = {k: v for k, v in jobs.items() if k in set(args.skill)}
+    elif args.skill and args.job:
+        if len(args.skill) != 1:
+            print("error: --job takes exactly one --skill; use --jobs for several", file=sys.stderr)
+            return 2
+        jobs = {args.skill[0]: args.job}
+    else:
+        print("error: give --skill S --job TEXT, or --jobs FILE.json", file=sys.stderr)
+        return 2
+    unknown = [s for s in jobs if not (common.skill_dir(s) / "SKILL.md").exists()]
+    if unknown:
+        print(f"error: no such skill(s): {', '.join(unknown)}", file=sys.stderr)
+        return 2
+
+    vendors = [v.strip() for v in args.gen_vendor.split(",") if v.strip()]
+    models = dict(kv.split("=", 1) for kv in (args.gen_models or "").split(",") if "=" in kv)
+    if args.gen_model and len(vendors) == 1:
+        models.setdefault(vendors[0], args.gen_model)
+    vendors_models = [(v, models.get(v)) for v in vendors]
 
     run_dir = common.RUNS_DIR / common.run_id("judge-generate-cases")
-    out_path = run_dir / "candidates.md"
-    generator_meta = {"vendor": args.gen_vendor, "model": args.gen_model, "effort": args.effort}
-    write_candidates(out_path, args.skill, accepted, rejected, failed, generator=generator_meta)
-    if failed:
-        (run_dir / "failed-calls.json").write_text(json.dumps(failed, indent=2), encoding="utf-8")
-    print(str(out_path))
-    return 1 if failed else 0
+    run_dir.mkdir(parents=True, exist_ok=True)
+    generator_meta = {"vendor": ",".join(vendors),
+                      "model": ",".join(f"{v}={m or '(default)'}" for v, m in vendors_models),
+                      "effort": args.effort}
+    single = len(jobs) == 1 and not args.jobs
+    summary: dict[str, dict] = {}
+    any_failed = False
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as pool:
+        futures = {pool.submit(_generate_for_skill, skill, job, vendors_models, args): skill
+                   for skill, job in jobs.items()}
+        for fut in concurrent.futures.as_completed(futures):
+            skill = futures[fut]
+            try:
+                rows = fut.result()
+            except Exception as exc:  # noqa: BLE001 - one skill's failure is recorded, not fatal
+                rows = [{"status": "failed", "reason": f"{type(exc).__name__}: {exc}", "skill": skill}]
+            accepted = [r for r in rows if r.get("status") == "accepted"]
+            rejected = [r for r in rows if r.get("status") == "rejected"]
+            failed = [r for r in rows if r.get("status") == "failed"]
+            any_failed = any_failed or bool(failed)
+            out_path = run_dir / ("candidates.md" if single else f"{skill}.candidates.md")
+            write_candidates(out_path, skill, accepted, rejected, failed, generator=generator_meta)
+            summary[skill] = {"accepted": len(accepted), "rejected": len(rejected), "failed": len(failed),
+                              "candidates": str(out_path)}
+            if failed:
+                name = "failed-calls.json" if single else f"{skill}.failed-calls.json"
+                (run_dir / name).write_text(json.dumps(failed, indent=2), encoding="utf-8")
+    (run_dir / "summary.json").write_text(json.dumps({"generator": generator_meta, "skills": summary},
+                                                     indent=2, sort_keys=True), encoding="utf-8")
+    if single:
+        print(str(run_dir / "candidates.md"))
+    else:
+        print(str(run_dir))
+    return 1 if any_failed else 0
 
 
 def add_subparser(subparsers) -> None:
@@ -1076,12 +1143,21 @@ def add_subparser(subparsers) -> None:
     p_para.set_defaults(func=_cmd_generate_paraphrases)
 
     p_cases = gen_sub.add_parser("cases", help="generate new candidate trigger cases from a job statement")
-    p_cases.add_argument("--skill", required=True)
-    p_cases.add_argument("--job", required=True)
+    p_cases.add_argument("--skill", action="append", default=[],
+                         help="the skill to generate for; with --jobs, limits the batch (repeatable)")
+    p_cases.add_argument("--job", default=None, help="one-line job statement for a single --skill")
+    p_cases.add_argument("--jobs", default=None,
+                         help='JSON {"<skill>": "<one-line job>", ...}: one candidates file per skill')
     p_cases.add_argument("--n-pos", type=int, default=5)
     p_cases.add_argument("--n-neg", type=int, default=5)
     p_cases.add_argument("--n-near-miss", type=int, default=3)
-    p_cases.add_argument("--gen-vendor", required=True, help="no default: must be named explicitly")
+    p_cases.add_argument("--n-off-register", type=int, default=0,
+                         help="terse lowercase positives, tagged off-register")
+    p_cases.add_argument("--gen-vendor", required=True,
+                         help="no default: must be named explicitly; comma-separated for several")
     p_cases.add_argument("--gen-model", default=None, help="model passed through to the generator call")
+    p_cases.add_argument("--gen-models", default=None,
+                         help="per-vendor models for several generator vendors: claude=sonnet,codex=gpt-5.6-terra")
+    p_cases.add_argument("--concurrency", type=int, default=4)
     p_cases.add_argument("--effort", default="medium", help="reasoning effort passed through to the generator call")
     p_cases.set_defaults(func=_cmd_generate_cases)

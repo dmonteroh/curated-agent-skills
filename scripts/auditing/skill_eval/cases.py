@@ -11,6 +11,7 @@ import argparse
 import dataclasses
 import json
 import re
+import sys
 from pathlib import Path
 
 from .common import (
@@ -124,7 +125,11 @@ def _parse_file(skill: str, path: Path) -> tuple[list[Case], list[Finding]]:
     except OSError as exc:
         return [], [Finding("error", "unreadable-corpus-file",
                              f"{skill}: {exc}", str(path))]
+    return _parse_text(skill, text, path)
 
+
+def _parse_text(skill: str, text: str, path: Path) -> tuple[list[Case], list[Finding]]:
+    """Parse trigger-case markdown already in memory; `path` labels findings."""
     cases: list[Case] = []
     findings: list[Finding] = []
     section: bool | None = None  # True = positive section, False = negative, None = preamble
@@ -490,6 +495,148 @@ def stats(skills: list[str] | None = None) -> dict[str, dict]:
 
 
 # ---------------------------------------------------------------------------
+# Repair: deficits() says what a file is missing; apply_selection() writes
+# reviewed generator candidates into it. Neither authors a prompt.
+# ---------------------------------------------------------------------------
+
+
+def deficits(skill: str, *, min_pos: int = MIN_POSITIVE, min_neg: int = MIN_NEGATIVE,
+             path: Path | None = None, description: str | None = None) -> dict:
+    """What `skill`'s file needs to clear lint's errors and its near-miss and
+    off-register warnings, counted after its template-residue cases are
+    dropped (those cases are removed by `apply_selection`, never kept)."""
+    p = path if path is not None else TRIGGER_CASES_DIR / f"{skill}.md"
+    cases = load_cases(skill, path=p)
+    description = description if description is not None else _skill_description(skill)
+    residue = [c for c in cases if _residue_hits(c.prompt)]
+    kept = [c for c in cases if not _residue_hits(c.prompt)]
+    positives = [c for c in kept if c.expect]
+    negatives = [c for c in kept if not c.expect]
+    return {
+        "skill": skill,
+        "residue": [c.prompt for c in residue],
+        "positive": len(positives),
+        "negative": len(negatives),
+        "need_positive": max(0, min_pos - len(positives)),
+        "need_negative": max(0, min_neg - len(negatives)),
+        "need_near_miss": 0 if any(_is_near_miss(c, description) for c in negatives) else 1,
+        "need_off_register": 0 if any(_is_off_register(c) for c in positives) else 1,
+    }
+
+
+def needs_repair(d: dict) -> bool:
+    return bool(d["residue"] or d["need_positive"] or d["need_negative"]
+                or d["need_near_miss"] or d["need_off_register"])
+
+
+def _quote(prompt: str) -> str:
+    return prompt.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _render_case(case: Case) -> list[str]:
+    lines = [f'- prompt: "{_quote(case.prompt)}"',
+             f"  expect_activate: {'yes' if case.expect else 'no'}"]
+    if case.tags:
+        lines.append(f"  tags: [{', '.join(case.tags)}]")
+    return lines
+
+
+def _case_blocks(lines: list[str]) -> list[tuple[int, int, str]]:
+    """(start, end_exclusive, prompt line) for every `- prompt:` block: the
+    prompt line plus the indented, non-blank lines under it."""
+    blocks = []
+    i = 0
+    while i < len(lines):
+        if lines[i].strip().startswith("- prompt:"):
+            j = i + 1
+            while j < len(lines) and lines[j].strip() and lines[j][:1].isspace():
+                j += 1
+            blocks.append((i, j, lines[i]))
+            i = j
+        else:
+            i += 1
+    return blocks
+
+
+class SelectionError(ValueError):
+    """A selection names a prompt the generator never produced."""
+
+
+def apply_selection(skill: str, selected: list[Case], allowed: list[Case], *,
+                    path: Path | None = None, dry_run: bool = False) -> dict:
+    """Drop `skill`'s template-residue cases and append `selected`.
+
+    Every selected prompt must match an `allowed` case (the accepted rows of
+    the generator's candidates files) exactly, polarity included, or the
+    whole selection is refused: a reviewer chooses among generated prompts
+    and never writes one (DESIGN.md sec 2 T-B). Edits are made per case
+    block, so comments, notes and unrelated cases in the file survive.
+    Returns a summary; writes nothing when `dry_run` is set.
+    """
+    p = path if path is not None else TRIGGER_CASES_DIR / f"{skill}.md"
+    allowed_by_key = {(normalise_prompt(c.prompt), c.expect): c for c in allowed}
+    unknown = [c.prompt for c in selected if (normalise_prompt(c.prompt), c.expect) not in allowed_by_key]
+    if unknown:
+        raise SelectionError(f"{skill}: {len(unknown)} selected prompt(s) are not accepted generator "
+                             f"candidates with that polarity: {unknown[:3]!r}")
+    # The written case is the generator's own row: its exact text and tags.
+    selected = [allowed_by_key[(normalise_prompt(c.prompt), c.expect)] for c in selected]
+
+    text = p.read_text(encoding="utf-8") if p.exists() else f"# Trigger Cases: {skill}\n"
+    lines = text.splitlines()
+    existing = {normalise_prompt(c.prompt) for c in load_cases(skill, path=p) if not _residue_hits(c.prompt)}
+
+    dropped = []
+    for start, end, first in reversed(_case_blocks(lines)):
+        block_cases, _ = _parse_block(skill, lines[start:end])
+        if block_cases and _residue_hits(block_cases[0].prompt):
+            dropped.append(block_cases[0].prompt)
+            if end < len(lines) and not lines[end].strip():
+                end += 1
+            del lines[start:end]
+
+    added = []
+    for want_positive in (True, False):
+        new = [c for c in selected if c.expect == want_positive
+               and normalise_prompt(c.prompt) not in existing]
+        if not new:
+            continue
+        heading = "positive" if want_positive else "negative"
+        h = next((i for i, l in enumerate(lines)
+                  if l.strip().startswith("#") and heading in l.lower()), None)
+        if h is None:
+            while lines and not lines[-1].strip():
+                lines.pop()
+            lines += ["", f"## {'Positive (should activate)' if want_positive else 'Negative (should not activate)'}", ""]
+            insert_at = len(lines)
+        else:
+            nxt = next((i for i in range(h + 1, len(lines)) if lines[i].strip().startswith("#")), len(lines))
+            insert_at = nxt
+            while insert_at > h + 1 and not lines[insert_at - 1].strip():
+                insert_at -= 1
+        chunk = []
+        for c in new:
+            chunk += [""] + _render_case(c)
+            existing.add(normalise_prompt(c.prompt))
+            added.append(c.prompt)
+        if insert_at < len(lines):
+            chunk.append("")
+        lines[insert_at:insert_at] = chunk
+
+    out = "\n".join(lines).rstrip("\n") + "\n"
+    out = re.sub(r"\n{3,}", "\n\n", out)
+    if not dry_run:
+        p.write_text(out, encoding="utf-8")
+    return {"skill": skill, "path": str(p), "dropped": dropped[::-1], "added": added, "dry_run": dry_run}
+
+
+def _parse_block(skill: str, block: list[str]) -> tuple[list[Case], list[Finding]]:
+    """Parse one case block on its own, under a neutral positive heading
+    (only the prompt text is needed)."""
+    return _parse_text(skill, "## Positive\n" + "\n".join(block) + "\n", Path("<block>"))
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -550,6 +697,47 @@ def _cmd_stats(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_deficits(args: argparse.Namespace) -> int:
+    skills = args.skill if args.skill else library_skills()
+    rows = [deficits(s, min_pos=args.min_pos, min_neg=args.min_neg) for s in skills]
+    if not args.include_clean:
+        rows = [r for r in rows if needs_repair(r)]
+    if args.json:
+        print(json.dumps(rows, indent=2, sort_keys=True))
+        return 0
+    headers = ("skill", "residue", "pos", "neg", "need_pos", "need_neg", "need_near_miss", "need_off_register")
+    table = [headers] + [(r["skill"], str(len(r["residue"])), str(r["positive"]), str(r["negative"]),
+                          str(r["need_positive"]), str(r["need_negative"]), str(r["need_near_miss"]),
+                          str(r["need_off_register"])) for r in rows]
+    widths = [max(len(t[i]) for t in table) for i in range(len(headers))]
+    for t in table:
+        print("  ".join(cell.ljust(widths[i]) for i, cell in enumerate(t)))
+    print(f"\n{len(rows)} skill(s) listed")
+    return 0
+
+
+def _cmd_apply(args: argparse.Namespace) -> int:
+    selection = json.loads(Path(args.selection).read_text(encoding="utf-8"))
+    skill = selection.get("skill") or args.skill
+    if args.skill and skill != args.skill:
+        print(f"error: selection is for {skill!r}, not {args.skill!r}", file=sys.stderr)
+        return 2
+    allowed: list[Case] = []
+    for cand in args.candidates:
+        allowed.extend(load_cases(skill, path=Path(cand)))
+    selected = [Case(skill=skill, prompt=row["prompt"], expect=bool(row["expect"]))
+                for row in selection.get("keep", [])]
+    try:
+        result = apply_selection(skill, selected, allowed, dry_run=args.dry_run)
+    except SelectionError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    findings = [] if args.dry_run else lint(skill)
+    result["lint_errors"] = [dataclasses.asdict(f) for f in findings if f.severity == "error"]
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 1 if result["lint_errors"] else 0
+
+
 def add_subparser(subparsers) -> None:
     parser = subparsers.add_parser("cases", help="lint the trigger-case corpus")
     sub = parser.add_subparsers(dest="cases_command", required=True)
@@ -569,3 +757,22 @@ def add_subparser(subparsers) -> None:
                          help="report one skill (repeatable); default is the whole library")
     stats_p.add_argument("--json", action="store_true")
     stats_p.set_defaults(func=_cmd_stats)
+
+    def_p = sub.add_parser("deficits", help="what each trigger-case file needs to clear lint")
+    def_p.add_argument("--skill", action="append", default=[],
+                       help="report one skill (repeatable); default is the whole library")
+    def_p.add_argument("--include-clean", action="store_true", help="also list files that need nothing")
+    def_p.add_argument("--json", action="store_true")
+    def_p.add_argument("--min-pos", type=int, default=MIN_POSITIVE, dest="min_pos")
+    def_p.add_argument("--min-neg", type=int, default=MIN_NEGATIVE, dest="min_neg")
+    def_p.set_defaults(func=_cmd_deficits)
+
+    apply_p = sub.add_parser("apply", help="write reviewed generator candidates into a trigger-case file")
+    apply_p.add_argument("--selection", required=True,
+                         help='JSON: {"skill": S, "keep": [{"prompt": "...", "expect": true}, ...]}')
+    apply_p.add_argument("--candidates", required=True, action="append",
+                         help="candidates file from `judge generate cases` (repeatable); every kept "
+                              "prompt must be one of its accepted rows")
+    apply_p.add_argument("--skill", default=None, help="refuse unless the selection is for this skill")
+    apply_p.add_argument("--dry-run", action="store_true")
+    apply_p.set_defaults(func=_cmd_apply)

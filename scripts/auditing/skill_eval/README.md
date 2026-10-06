@@ -10,7 +10,7 @@ python3 scripts/auditing/skill-eval.py <command> <subcommand> [options]
 
 Stdlib-only Python 3.10+. The `performance run` command makes calls unless `--dry-run` is set. The `activation`, `judge generate`, `judge pairwise`, `judge grade`, and `env builtins` commands call the `claude` and `codex` CLIs and spend money or quota. The rest are static and free.
 
-Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requirements are data for the shared runner.
+Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requirements are data for the shared runner; the library's suites live in [`../suites/`](../suites/README.md).
 
 ## Commands
 
@@ -18,6 +18,8 @@ Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requ
 | --- | --- | --- |
 | `cases lint [--skill S \| --all] [--json]` | free | Lints `trigger-cases/`: the 5/5 floor, a near-miss negative, an off-register positive, generator residue, duplicates, echo of the description, cross-skill collisions. Exits 1 on any error. |
 | `cases stats [--json]` | free | Per-skill case counts and quality signals. |
+| `cases deficits [--skill S] [--json]` | free | Per skill, the template-residue cases that repair will drop and how many positives, negatives, near-misses, and off-register positives are still missing. Lists only files that need something unless `--include-clean`. |
+| `cases apply --selection F.json --candidates F.md [--dry-run]` | free | Drops a file's template-residue cases and appends the selected cases. Every selected prompt must be an accepted row of the given candidates file with the same polarity, or nothing is written: a reviewer chooses generated prompts and never writes one. Edits are per case block, so notes and other cases survive. Exits 1 if the file still has lint errors afterwards. |
 | `integrity scan --skill S` / `scan-all` | free | Looks for evaluation material inside a skill: canaries, sealed holdout and assertion text (error), and its own trigger prompts (warn). |
 | `integrity diff-scan --skill S --base REF` | free | The same checks on lines added since `REF`. Run it before accepting a skill edit. |
 | `integrity seal --skill S --kind holdout\|assertions --src F.json` | free | Encodes a holdout or assertion set into `scripts/auditing/sealed/` with a canary, so an authoring agent never reads it in plaintext. `list` shows headers; `show` decodes, with a warning. |
@@ -27,10 +29,11 @@ Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requ
 | `performance report RUN_DIR [--json]` | free | Rebuilds task-quality metrics from saved pairs. |
 | `activation run --skill S ...` | N calls | The activation test. See below. |
 | `activation report RUN_DIR` / `compare A B` / `feedback RUN_DIR` | free | Re-renders a summary, diffs two runs per case, or gives train-only failure classes. |
-| `activation selftest --skill S [--dry-run] [--max-calls N]` | calls | A positive control (the skill named explicitly) and, only if it activates, a negative control (renamed skill, unrelated description). `pass` (0), `fail` (1), or `inconclusive` (3: no signal in this environment). Do not trust `run` results for a skill whose selftest is not `pass`. |
+| `activation selftest --skill S [--dry-run] [--max-calls N]` | calls | A positive control (the skill named explicitly) and, only if it activates, a negative control (renamed skill, unrelated description). `pass` (0), `fail` (1), or `inconclusive` (3: no valid comparison; `reasons` says whether the positive control did not activate, a cap stopped the run, or calls failed). `--max-calls` is split evenly per vendor and sizes the plan: fewer train positives are used so every vendor gets a complete paired comparison, and a cap below `3 × repeats` calls per vendor is refused (exit 2) before any call. Do not trust `run` results for a skill whose selftest is not `pass`. |
+| `activation selftest-all [--skills a,b] [--parallel N] [--dry-run]` | calls | Runs `selftest` for every skill (or the listed ones) as parallel child processes, passing the other flags through per skill, and writes `sweep.json` and a `sweep.md` table of per-vendor verdicts, rates, valid calls, and reasons to a `selftest-sweep` run directory. Exit 0 when every skill passes, 1 on any `fail` or child error, 3 otherwise. |
 | `judge pairwise --prompt F --a F --b F --judge-vendor V` | 2+ calls | A blind A/B judgement in both presentation orders. A flip counts as a tie. |
 | `judge grade --prompt F --output F --assertions F\|--sealed F --judge-vendor V` | 1 call per assertion | Pass, fail, or unsupported. The quote is checked mechanically against the output. |
-| `judge generate paraphrases\|cases --skill S --gen-vendor V` | calls | Candidate trigger cases from a generator that never sees the skill. Writes `candidates.md` for human review. |
+| `judge generate paraphrases\|cases --skill S --gen-vendor V` | calls | Candidate trigger cases from a generator that never sees the skill. Writes `candidates.md` for human review. `generate cases --jobs F.json` takes `{"<skill>": "<one-line job>"}` and writes one `<skill>.candidates.md` per skill; `--gen-vendor claude,codex` asks every listed vendor and tags each row `gen:<vendor>`; `--n-off-register N` adds terse lowercase positives. |
 
 ## Typical workflows
 
@@ -41,7 +44,17 @@ python3 scripts/auditing/skill-eval.py cases lint --skill pr-description
 python3 scripts/auditing/skill-eval.py integrity scan --skill pr-description
 ```
 
-**Does a description load where it should?** Plan first, then run:
+**Repair a corpus that fails lint.** The generator sees only a one-line job you write per skill, never the skill. Review the candidates against the skill's scope, write a selection, then apply it:
+
+```bash
+python3 scripts/auditing/skill-eval.py cases deficits
+python3 scripts/auditing/skill-eval.py judge generate cases --jobs jobs.json --gen-vendor claude,codex \
+  --n-pos 5 --n-neg 4 --n-near-miss 3 --n-off-register 2
+python3 scripts/auditing/skill-eval.py cases apply --selection sel/pr-description.json \
+  --candidates RUN_DIR/pr-description.candidates.md
+```
+
+**Does a description load where it should?** Plan first, then run. `run` and `selftest` refuse a skill whose corpus has lint errors unless `--allow-corpus-errors` is passed, which the plan records:
 
 ```bash
 python3 scripts/auditing/skill-eval.py activation run --skill pr-description --dry-run
@@ -94,6 +107,7 @@ To create a holdout, write `{"cases": [{"prompt": "...", "expect": true, "tags":
 
 - Copilot is not covered, because no Copilot CLI is installed in this container.
 - Claude accounts with organisation-provisioned skills (`anthropic-skills:*`) can see them appear in an otherwise bare arm. `activation` detects this, excludes the affected records, and lists the foreign skills in the summary. See `REPLACEMENT-BRIEF.md` §2 for the current state of this channel.
+- `SCRATCH_ROOT` and its `homes/`, `cwd/`, and `selftest-negctrl/` directories are traverse-only (mode `0300`), so arms cannot list or glob their way to other arms' material. To inspect them by hand, `chmod u+r` first.
 - Shell-capable arms (Claude Bash, Codex with `danger-full-access`, the only Codex mode that works in this container) can read any path the container user can. Nothing prevents it; `activation` detects it from the trace and marks the record contaminated when the path is in the repository, the real home, the scratch root, or the runs directory. Detection is a heuristic over tool inputs and shell commands.
 - Codex reports no visible-skill list, so the post-run visible-skill check covers Claude only. Codex isolation rests on the generated home and on path detection.
 - Arms run in a neutral git fixture by default (`--workspace git`). In an empty directory, task-shaped prompts often end with the agent exploring an empty cwd before any skill decision; `selftest` then reports `inconclusive` (exit 3).

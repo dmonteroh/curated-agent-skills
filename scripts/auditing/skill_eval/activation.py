@@ -241,7 +241,9 @@ def _load_all_cases(skill: str, include_paraphrases: Path | None) -> list[Case]:
 
 def _description_text(skill: str, description_file: Path | None) -> str:
     if description_file is not None:
-        return Path(description_file).read_text(encoding="utf-8")
+        # Stripped like a frontmatter value, so the same text hashes the same
+        # in both places and the holdout ledger counts it once.
+        return Path(description_file).read_text(encoding="utf-8").strip()
     return read_frontmatter(skill_dir(skill) / "SKILL.md").get("description", "")
 
 
@@ -312,6 +314,31 @@ def _is_within(path: Path, root: Path) -> bool:
         return False
 
 
+_GLOB_CHARS = set("*?[")
+
+
+def _is_unlistable_probe(path: str) -> bool:
+    """A scratch path that can only reach other arms' material by listing a
+    traverse-only directory: SCRATCH_ROOT itself, one of its containers, or
+    a glob directly under either. With the scratch root hardened such a
+    reference resolves to nothing, so it is recorded, not counted as
+    contamination. A concrete path into another arm's home or cwd is still
+    contamination, because a known path opens without listing."""
+    try:
+        rel = Path(path).relative_to(SCRATCH_ROOT)
+    except ValueError:
+        return False
+    parts = rel.parts
+    from . import vendors as vendors_mod
+    if not parts:
+        return True
+    if any(c in parts[0] for c in _GLOB_CHARS):
+        return True
+    if parts[0] not in vendors_mod.SCRATCH_CONTAINERS:
+        return False
+    return len(parts) == 1 or any(c in parts[1] for c in _GLOB_CHARS)
+
+
 def _check_contamination(record: TraceRecord, vendor: str, expected: set[str],
                           builtin: list[str], *, tool_role: str = "activation") -> tuple[list[str], list[str], list[str]]:
     """Contamination check (DESIGN.md sec 2 T-A, item 5; round 2 findings 2).
@@ -377,11 +404,18 @@ def _check_contamination(record: TraceRecord, vendor: str, expected: set[str],
         real_home = Path.home()
         bad_reads = []
         scratch_reads = []
+        hardened = None
         for p in record.outside_reads:
             if _is_within(p, common.REPO_ROOT) or _is_within(p, real_home):
                 bad_reads.append(p)
             elif _is_within(p, SCRATCH_ROOT) or _is_within(p, RUNS_DIR):
-                scratch_reads.append(p)
+                if hardened is None:
+                    from . import vendors as vendors_mod
+                    hardened = vendors_mod.scratch_is_hardened()
+                if hardened and _is_unlistable_probe(p):
+                    other_outside_reads.append(p)
+                else:
+                    scratch_reads.append(p)
             else:
                 other_outside_reads.append(p)
         if bad_reads:
@@ -414,11 +448,13 @@ class _RunState:
         self.stopped_by_cap = False
         self.stop_reason = ""
 
-    def try_reserve(self) -> bool:
+    def try_reserve(self, n: int = 1) -> bool:
+        """Reserve `n` calls at once, or none: selftest reserves a real and
+        a negative call together so a cap never splits a pair."""
         with self._lock:
             if self.stopped_by_cap:
                 return False
-            if self.max_calls is not None and self.calls_issued >= self.max_calls:
+            if self.max_calls is not None and self.calls_issued + n > self.max_calls:
                 self.stopped_by_cap = True
                 self.stop_reason = f"--max-calls {self.max_calls} reached"
                 return False
@@ -430,7 +466,7 @@ class _RunState:
                 self.stopped_by_cap = True
                 self.stop_reason = f"--max-codex-tokens {self.max_codex_tokens} reached"
                 return False
-            self.calls_issued += 1
+            self.calls_issued += n
             return True
 
     def add_cost(self, cost_usd: float | None) -> None:
@@ -582,7 +618,12 @@ def _execute_one(*, vendor: str, model: str, skills_map: dict[str, Path],
     trace_out = trace_dir / f"{label}-{vendor}.jsonl"
 
     try:
-        vendors_mod.build_home(vendor, home, skills_map, description_overrides=description_overrides)
+        try:
+            vendors_mod.build_home(vendor, home, skills_map, description_overrides=description_overrides)
+        except vendors_mod.CredentialError as exc:
+            record = TraceRecord(vendor=vendor, ok=False, error=f"credential: {exc}")
+            return record, {"exit_code": None, "duration_s": 0.0, "trace_path": "", "stderr_path": "",
+                            "cmd": [], "workspace_sha": None}, []
         # Round 3 finding O1: the fresh cwd is prepared BEFORE
         # verify_environment runs, so an isolation error (an instruction
         # file the fixture itself might carry, say) is caught the same way
@@ -1112,6 +1153,30 @@ def _preflight_check(plan: dict, run_label: str, description_overrides: dict[str
     return findings
 
 
+def _corpus_gate(skill: str, allow_errors: bool) -> tuple[bool, dict]:
+    """Lint `skill`'s visible corpus before spending anything. A file with
+    lint errors (below the floor, template residue, unparsable cases) cannot
+    give a valid measurement, so a run over it is refused unless the caller
+    passes `--allow-corpus-errors`, which the plan records."""
+    from . import cases as cases_mod
+    findings = cases_mod.lint(skill)
+    errors = [f for f in findings if f.severity == "error"]
+    summary = {
+        "errors": len(errors),
+        "warnings": sum(1 for f in findings if f.severity == "warn"),
+        "error_codes": sorted({f.code for f in errors}),
+        "allowed_with_errors": bool(errors) and allow_errors,
+    }
+    if errors and not allow_errors:
+        print(f"error: the trigger-case corpus for {skill!r} has {len(errors)} lint error(s) "
+              f"({', '.join(summary['error_codes'])}); a run over it is not a valid measurement.\n"
+              f"  see: python3 scripts/auditing/skill-eval.py cases lint --skill {skill}\n"
+              "  pass --allow-corpus-errors to run anyway (recorded in the plan)",
+              file=sys.stderr)
+        return False, summary
+    return True, summary
+
+
 def _cmd_run(args: argparse.Namespace) -> int:
     vendor_names = [v.strip() for v in args.vendors.split(",") if v.strip()]
     overrides = _parse_kv_list(args.models or "")
@@ -1164,6 +1229,9 @@ def _cmd_run(args: argparse.Namespace) -> int:
         cases_by_split = {"train": [], "dev": [], "holdout": holdout_cases}
         all_cases_by_id = {c.id: c for c in holdout_cases}
     else:
+        corpus_ok, corpus_lint = _corpus_gate(args.skill, args.allow_corpus_errors)
+        if not corpus_ok:
+            return 2
         all_cases = _load_all_cases(args.skill, Path(args.include_paraphrases) if args.include_paraphrases else None)
         if not all_cases:
             print(f"error: no trigger cases found for skill {args.skill!r}", file=sys.stderr)
@@ -1183,6 +1251,8 @@ def _cmd_run(args: argparse.Namespace) -> int:
         neighbors=neighbors, library=args.library, workspace=args.workspace,
     )
     plan["baseline_probe_calls"] = _count_uncached_baseline_probes(vendors_models)
+    if args.split != "holdout":
+        plan["corpus_lint"] = corpus_lint
 
     if args.dry_run:
         _print_plan(plan)
@@ -1535,6 +1605,26 @@ def _cmd_feedback(args: argparse.Namespace) -> int:
 SELFTEST_INCONCLUSIVE_MESSAGE = "no signal: the environment does not let the skill activate"
 
 
+def _selftest_rate(rows: list[dict]) -> float | None:
+    valid = [r for r in rows if r.get("ok")]
+    if not valid:
+        return None
+    return sum(1 for r in valid if r["hit"]) / len(valid)
+
+
+def _no_valid_calls_reason(arm: str, rows: list[dict]) -> str:
+    """Why an arm produced no valid call. A cap that skipped the calls and a
+    vendor that failed them are different findings, and neither one says
+    anything about the description, so the reason names which it was."""
+    if not rows:
+        return f"{arm}: no calls were planned"
+    skipped = [r for r in rows if str(r.get("error", "")).startswith("skipped: ")]
+    if len(skipped) == len(rows):
+        return f"{arm}: every call was skipped ({skipped[0]['error'][len('skipped: '):]})"
+    errors = sorted({str(r.get("error") or "no error text") for r in rows if not r.get("ok")})
+    return f"{arm}: none of {len(rows)} calls returned a valid trace ({'; '.join(errors)[:300]})"
+
+
 def evaluate_selftest(real_rows: list[dict], negative_rows: list[dict],
                        positive_control_rows: list[dict]) -> dict:
     """Pure scoring over already-executed call rows (dicts with 'hit'/'ok').
@@ -1547,24 +1637,24 @@ def evaluate_selftest(real_rows: list[dict], negative_rows: list[dict],
     once the positive control passes"). Only once the positive control
     passes does the negative control's drop decide `"pass"` vs `"fail"`.
 
+    An arm with no valid call (every call capped, failed, or contaminated)
+    is `"inconclusive"` with a reason naming the arm, never `"fail"`: a
+    missing rate is not a measured lack of discrimination.
+
     `verdict` is one of `"pass" | "fail" | "inconclusive"`. `passed` is kept
     for backward compatibility (`True` iff `verdict == "pass"`); callers
     that need to tell a broken run apart from a genuinely bad description
     must read `verdict`, not `passed`.
     """
-    def _rate(rows: list[dict]) -> float | None:
-        valid = [r for r in rows if r.get("ok")]
-        if not valid:
-            return None
-        return sum(1 for r in valid if r["hit"]) / len(valid)
-
-    positive_control_rate = _rate(positive_control_rows)
+    positive_control_rate = _selftest_rate(positive_control_rows)
     positive_control_ok = (
         positive_control_rate is not None
         and positive_control_rate >= SELFTEST_POSITIVE_CONTROL_MIN_RATE
     )
 
     if not positive_control_ok:
+        reason = (SELFTEST_INCONCLUSIVE_MESSAGE if positive_control_rate is not None
+                  else _no_valid_calls_reason("positive control", positive_control_rows))
         return {
             "verdict": "inconclusive",
             "passed": False,
@@ -1573,15 +1663,28 @@ def evaluate_selftest(real_rows: list[dict], negative_rows: list[dict],
             "positive_control_rate": positive_control_rate,
             "negative_control_ok": None,
             "positive_control_ok": False,
-            "reasons": [SELFTEST_INCONCLUSIVE_MESSAGE],
+            "reasons": [reason],
         }
 
-    real_rate = _rate(real_rows)
-    negative_rate = _rate(negative_rows)
-    negative_control_ok = (
-        real_rate is not None and negative_rate is not None
-        and negative_rate <= real_rate - SELFTEST_MIN_DROP
-    )
+    real_rate = _selftest_rate(real_rows)
+    negative_rate = _selftest_rate(negative_rows)
+    missing = [_no_valid_calls_reason(arm, rows)
+               for arm, rows, rate in (("real arm", real_rows, real_rate),
+                                       ("negative arm", negative_rows, negative_rate))
+               if rate is None]
+    if missing:
+        return {
+            "verdict": "inconclusive",
+            "passed": False,
+            "real_rate": real_rate,
+            "negative_control_rate": negative_rate,
+            "positive_control_rate": positive_control_rate,
+            "negative_control_ok": None,
+            "positive_control_ok": True,
+            "reasons": missing,
+        }
+
+    negative_control_ok = negative_rate <= real_rate - SELFTEST_MIN_DROP
     reasons = []
     if not negative_control_ok:
         reasons.append(
@@ -1640,7 +1743,7 @@ def _run_arm(*, skill: str, vendor: str, model: str, skills_map: dict[str, Path]
              prompt_specs: list[tuple[str, int, str]], run_dir: Path, arm_label: str,
              known_skills: set[str], timeout: int, effort: str, run_label: str,
              keep_homes: bool, workspace_kind: str = DEFAULT_WORKSPACE,
-             state: "_RunState | None" = None) -> list[dict]:
+             state: "_RunState | None" = None, reserved: bool = False) -> list[dict]:
     """Run one selftest arm. `prompt_specs` is `[(case_id, repeat, prompt), ...]`
     so each call's home and trace are named for the case id and repeat index
     (round 2 finding 6: the old naming used `hash((arm_label, vendor, i))`,
@@ -1650,11 +1753,12 @@ def _run_arm(*, skill: str, vendor: str, model: str, skills_map: dict[str, Path]
 
     Round 3 finding I7: `state`, when given, is the same `_RunState` cap
     machinery `run_activation` uses -- a spec is skipped (never dispatched)
-    once a cap trips, exactly like a capped call in `run`.
+    once a cap trips, exactly like a capped call in `run`. `reserved` means
+    the caller already reserved these calls on `state`; costs still accrue.
     """
     rows = []
     for case_id, repeat, prompt in prompt_specs:
-        if state is not None and not state.try_reserve():
+        if state is not None and not reserved and not state.try_reserve():
             rows.append({"vendor": vendor, "ok": False, "hit": False,
                          "error": f"skipped: {state.stop_reason}", "_record": TraceRecord(vendor=vendor, ok=False)})
             continue
@@ -1673,20 +1777,49 @@ def _run_arm(*, skill: str, vendor: str, model: str, skills_map: dict[str, Path]
     return rows
 
 
+class SelftestBudgetError(ValueError):
+    """`--max-calls` cannot fund one complete comparison per vendor."""
+
+
 def _selftest_plan(skill: str, vendors_models: dict[str, str], repeats: int,
-                    n_train_positives: int) -> dict:
+                    n_train_positives: int, max_calls: int | None = None) -> dict:
     """Round 3 finding I7: `--dry-run` for selftest, sharing the same shape
-    `run --dry-run` prints. Real: `n_train_positives * repeats` calls;
-    negative: the same; positive control: `repeats` calls (one case,
-    repeated). This is the UPPER bound `--dry-run` reports -- a live
-    invocation may spend less per vendor when the positive control fails
-    and the real/negative arms are skipped (DESIGN.md/finding O1: the
-    negative control is judged, and now also RUN, only once the positive
-    control passes)."""
-    per_vendor = {v: (2 * n_train_positives * repeats) + repeats for v in vendors_models}
+    `run --dry-run` prints. Per vendor: positive control `repeats` calls
+    (one case, repeated), then real and negative `cases * repeats` calls
+    each. This is the UPPER bound -- a live invocation spends less per
+    vendor when the positive control fails and the real/negative arms are
+    skipped (DESIGN.md/finding O1: the negative control is judged, and also
+    RUN, only once the positive control passes).
+
+    `max_calls` sizes the plan instead of truncating it. A cap that tripped
+    mid-run used to starve the arms dispatched last -- the negative arm,
+    and every arm of the second vendor -- so a capped run reported a
+    missing rate as a failed control. Now the cap is split evenly across
+    vendors and the number of train positives shrinks until every vendor
+    can afford a complete positive control plus paired real and negative
+    arms. A cap too small for one case per vendor raises
+    `SelftestBudgetError` before any call is made."""
+    n_cases = n_train_positives
+    per_vendor_budget = None
+    if max_calls is not None:
+        per_vendor_budget = max_calls // max(1, len(vendors_models))
+        affordable = (per_vendor_budget - repeats) // (2 * repeats) if repeats > 0 else 0
+        if affordable < 1:
+            minimum = 3 * repeats * len(vendors_models)
+            raise SelftestBudgetError(
+                f"--max-calls {max_calls} cannot fund one complete selftest: each vendor needs "
+                f"{3 * repeats} calls at --repeats {repeats} (positive control, real, negative), "
+                f"so {len(vendors_models)} vendor(s) need at least {minimum}. "
+                "Raise --max-calls or lower --repeats."
+            )
+        n_cases = min(n_train_positives, affordable)
+    per_vendor = {v: (2 * n_cases * repeats) + repeats for v in vendors_models}
     return {
         "skill": skill, "vendors": dict(vendors_models), "repeats": repeats,
         "train_positive_cases": n_train_positives,
+        "cases_used": n_cases,
+        "max_calls": max_calls,
+        "call_budget_per_vendor": per_vendor_budget,
         "call_count_per_vendor": per_vendor,
         "call_count_total": sum(per_vendor.values()),
     }
@@ -1715,6 +1848,9 @@ def _cmd_selftest(args: argparse.Namespace) -> int:
     overrides = _parse_kv_list(args.models or "")
     vendors_models = _resolve_models(vendor_names, overrides)
 
+    corpus_ok, corpus_lint = _corpus_gate(args.skill, args.allow_corpus_errors)
+    if not corpus_ok:
+        return 2
     cases = cases_mod.load_cases(args.skill)
     train_positives = [c for c in split_cases(cases)["train"] if c.expect]
     if not train_positives:
@@ -1722,15 +1858,23 @@ def _cmd_selftest(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return 2
 
+    try:
+        plan = _selftest_plan(args.skill, vendors_models, args.repeats, len(train_positives),
+                              max_calls=args.max_calls)
+    except SelftestBudgetError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     if args.dry_run:
-        plan = _selftest_plan(args.skill, vendors_models, args.repeats, len(train_positives))
         print(json.dumps(plan, indent=2, sort_keys=True))
         return 0
+    train_positives = train_positives[:plan["cases_used"]]
+    plan["corpus_lint"] = corpus_lint
 
     the_run_id = run_id(f"selftest-{args.skill}")
     run_dir = RUNS_DIR / the_run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    vendors_mod.harden_scratch_root()
     neg_control_root = SCRATCH_ROOT / "selftest-negctrl" / the_run_id
     neg_skill_dir = _build_negative_control_skill_dir(args.skill, neg_control_root)
 
@@ -1741,122 +1885,253 @@ def _cmd_selftest(args: argparse.Namespace) -> int:
     explicit_prompt = f"Use the {args.skill} skill to help with this: {train_positives[0].prompt}"
     pc_specs = [(train_positives[0].id, r, explicit_prompt) for r in range(args.repeats)]
 
-    # selftest shares one _RunState across the whole command, covering every
-    # vendor, so --max-calls, --max-cost-usd, and --max-codex-tokens behave
-    # the same way here as in `run`.
-    state = _RunState(args.max_calls, args.max_cost_usd, args.max_codex_tokens)
+    # Each vendor gets its own call budget, sized by `_selftest_plan`, so the
+    # first vendor can never spend the second vendor's calls. Cost and token
+    # caps are per vendor already: only claude reports dollars and only codex
+    # reports tokens.
+    vendor_budget = plan["call_budget_per_vendor"]
+
+    def _write_result(per_vendor: dict[str, dict]) -> dict:
+        overall = _overall_selftest_verdict(per_vendor) if per_vendor else "inconclusive"
+        result = {
+            "verdict": overall,
+            "passed": overall == "pass",
+            "skill": args.skill,
+            "negative_control_skill_name": SELFTEST_NEGATIVE_CONTROL_NAME,
+            "plan": plan,
+            "vendors": per_vendor,
+        }
+        (run_dir / "selftest.json").write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+        return result
+
+    def _vendor_selftest(vendor: str, model: str) -> dict:
+        state = _RunState(vendor_budget, args.max_cost_usd, args.max_codex_tokens)
+        preflight_findings: list[Finding] = []
+        for label, skills_map in (("real", real_skills_map), ("negative", neg_skills_map)):
+            pf_home = SCRATCH_ROOT / "homes" / f"{the_run_id}-{vendor}-{label}-preflight"
+            vendors_mod.build_home(vendor, pf_home, skills_map)
+            cwd = vendors_mod.neutral_cwd(f"selftest-preflight-{vendor}-{label}")
+            vendors_mod.prepare_workspace(cwd, kind=args.workspace)
+            preflight_findings.extend(vendors_mod.verify_environment(vendor, pf_home, cwd, set(skills_map)))
+            if not args.keep_homes:
+                vendors_mod.cleanup_home(pf_home)
+                shutil.rmtree(cwd, ignore_errors=True)
+        pf_errors = [f for f in preflight_findings if f.severity == "error"]
+        if pf_errors:
+            return {
+                "verdict": "fail", "passed": False,
+                "preflight_errors": [dataclasses.asdict(f) for f in pf_errors],
+                "reasons": [f"preflight isolation check failed for {vendor}: "
+                            + "; ".join(f"{f.code}={f.message}" for f in pf_errors)],
+            }
+
+        builtin = vendors_mod.builtin_baseline(vendor, model)
+
+        def _score(rows: list[dict], expected: set[str]) -> list[dict]:
+            # A contaminated call is an invalid call: it keeps its row, with
+            # ok=False and the reason as its error, so a fully contaminated
+            # arm reports why it has no rate instead of looking unplanned.
+            for row in rows:
+                record = row.pop("_record")
+                reasons, _foreign, _other = _check_contamination(record, vendor, expected, builtin)
+                row["contaminated"] = bool(reasons)
+                row["contamination_reasons"] = reasons
+                if reasons and row.get("ok"):
+                    row["ok"] = False
+                    row["error"] = "contaminated: " + "; ".join(reasons)
+            return rows
+
+        def _arm(arm_label: str, specs: list[tuple[str, int, str]], negative: bool,
+                 reserved: bool = False) -> list[dict]:
+            name = SELFTEST_NEGATIVE_CONTROL_NAME if negative else args.skill
+            return _score(_run_arm(
+                skill=name, vendor=vendor, model=model,
+                skills_map=neg_skills_map if negative else real_skills_map,
+                prompt_specs=specs, run_dir=run_dir, arm_label=arm_label,
+                known_skills={name}, timeout=args.timeout, effort=args.effort,
+                run_label=the_run_id, keep_homes=args.keep_homes, workspace_kind=args.workspace,
+                state=state, reserved=reserved,
+            ), {name})
+
+        # Round 3 finding O1: the positive control runs, and is judged,
+        # FIRST. When it is below threshold the run stops for this vendor
+        # right there -- the real and negative arms are never dispatched,
+        # which both saves the spend and matches "the negative control is
+        # judged only once the positive control passes" as an execution
+        # order, not merely a scoring order.
+        positive_control_rows = _arm("positive-control", pc_specs, negative=False)
+        real_rows: list[dict] = []
+        negative_rows: list[dict] = []
+        pc_only = evaluate_selftest([], [], positive_control_rows)
+        if pc_only["positive_control_ok"]:
+            # Real and negative calls run as reserved pairs, so a cost or
+            # token cap that trips mid-run leaves both arms with the same
+            # number of calls instead of starving whichever arm ran last.
+            for spec in repeat_specs:
+                if not state.try_reserve(2):
+                    skipped = {"vendor": vendor, "ok": False, "hit": False,
+                               "error": f"skipped: {state.stop_reason}", "contaminated": False,
+                               "contamination_reasons": []}
+                    real_rows.append(dict(skipped))
+                    negative_rows.append(dict(skipped))
+                    continue
+                real_rows.extend(_arm("real", [spec], negative=False, reserved=True))
+                negative_rows.extend(_arm("negative", [spec], negative=True, reserved=True))
+            vendor_result = evaluate_selftest(real_rows, negative_rows, positive_control_rows)
+        else:
+            vendor_result = pc_only
+
+        all_rows = positive_control_rows + real_rows + negative_rows
+        vendor_result["calls"] = {
+            "planned": plan["call_count_per_vendor"][vendor],
+            "dispatched": state.calls_issued,
+            "valid": sum(1 for r in all_rows if r.get("ok")),
+        }
+        if state.stopped_by_cap:
+            vendor_result["stopped_by_cap"] = state.stop_reason
+        vendor_result["contaminated_counts"] = {
+            "real": sum(1 for r in real_rows if r["contaminated"]),
+            "negative": sum(1 for r in negative_rows if r["contaminated"]),
+            "positive_control": sum(1 for r in positive_control_rows if r["contaminated"]),
+        }
+        return vendor_result
 
     # Round 2 finding 4: evaluate per vendor, never pooled -- one broken
     # vendor must fail the selftest for that vendor specifically, and the
     # report lists each vendor's own verdict rather than averaging a healthy
-    # vendor's signal over a broken one's noise.
+    # vendor's signal over a broken one's noise. Each vendor's result is
+    # written as soon as it exists, and an exception in one vendor becomes
+    # that vendor's inconclusive result, so an interrupted or crashing run
+    # still leaves a selftest.json naming what it measured.
     per_vendor: dict[str, dict] = {}
     try:
         for vendor, model in vendors_models.items():
-            preflight_findings: list[Finding] = []
-            for label, skills_map in (("real", real_skills_map), ("negative", neg_skills_map)):
-                pf_home = SCRATCH_ROOT / "homes" / f"{the_run_id}-{vendor}-{label}-preflight"
-                vendors_mod.build_home(vendor, pf_home, skills_map)
-                cwd = vendors_mod.neutral_cwd(f"selftest-preflight-{vendor}-{label}")
-                vendors_mod.prepare_workspace(cwd, kind=args.workspace)
-                preflight_findings.extend(vendors_mod.verify_environment(vendor, pf_home, cwd, set(skills_map)))
-                if not args.keep_homes:
-                    vendors_mod.cleanup_home(pf_home)
-                    shutil.rmtree(cwd, ignore_errors=True)
-            pf_errors = [f for f in preflight_findings if f.severity == "error"]
-            if pf_errors:
-                per_vendor[vendor] = {
-                    "verdict": "fail", "passed": False, "vendor": vendor,
-                    "preflight_errors": [dataclasses.asdict(f) for f in pf_errors],
-                    "reasons": [f"preflight isolation check failed for {vendor}: "
-                                + "; ".join(f"{f.code}={f.message}" for f in pf_errors)],
+            try:
+                vendor_result = _vendor_selftest(vendor, model)
+            except Exception as exc:  # noqa: BLE001 - recorded, never swallowed
+                vendor_result = {
+                    "verdict": "inconclusive", "passed": False,
+                    "reasons": [f"selftest raised {type(exc).__name__}: {exc}"],
                 }
-                continue
-
-            builtin = vendors_mod.builtin_baseline(vendor, model)
-
-            def _score(rows: list[dict], expected: set[str]) -> list[dict]:
-                for row in rows:
-                    record = row.pop("_record")
-                    reasons, _foreign, _other = _check_contamination(record, vendor, expected, builtin)
-                    row["contaminated"] = bool(reasons)
-                    row["contamination_reasons"] = reasons
-                return rows
-
-            # Round 3 finding O1: the positive control runs, and is judged,
-            # FIRST. When it is below threshold the run stops for this
-            # vendor right there -- the real and negative arms are never
-            # dispatched, which both saves the spend and matches "the
-            # negative control is judged only once the positive control
-            # passes" as an execution order, not merely a scoring order.
-            positive_control_rows = _score(_run_arm(
-                skill=args.skill, vendor=vendor, model=model, skills_map=real_skills_map,
-                prompt_specs=pc_specs, run_dir=run_dir, arm_label="positive-control",
-                known_skills={args.skill}, timeout=args.timeout, effort=args.effort,
-                run_label=the_run_id, keep_homes=args.keep_homes, workspace_kind=args.workspace,
-                state=state,
-            ), {args.skill})
-            pc_valid = [r for r in positive_control_rows if not r["contaminated"]]
-            pc_rate = None
-            pc_ok_rows = [r for r in pc_valid if r.get("ok")]
-            if pc_ok_rows:
-                pc_rate = sum(1 for r in pc_ok_rows if r["hit"]) / len(pc_ok_rows)
-            pc_contaminated = sum(1 for r in positive_control_rows if r["contaminated"])
-
-            if pc_rate is None or pc_rate < SELFTEST_POSITIVE_CONTROL_MIN_RATE:
-                per_vendor[vendor] = {
-                    "verdict": "inconclusive", "passed": False, "vendor": vendor,
-                    "real_rate": None, "negative_control_rate": None,
-                    "positive_control_rate": pc_rate,
-                    "negative_control_ok": None, "positive_control_ok": False,
-                    "reasons": [SELFTEST_INCONCLUSIVE_MESSAGE],
-                    "contaminated_counts": {"real": 0, "negative": 0, "positive_control": pc_contaminated},
-                }
-                continue
-
-            real_rows = _score(_run_arm(
-                skill=args.skill, vendor=vendor, model=model, skills_map=real_skills_map,
-                prompt_specs=repeat_specs, run_dir=run_dir, arm_label="real",
-                known_skills={args.skill}, timeout=args.timeout, effort=args.effort,
-                run_label=the_run_id, keep_homes=args.keep_homes, workspace_kind=args.workspace,
-                state=state,
-            ), {args.skill})
-            negative_rows = _score(_run_arm(
-                skill=SELFTEST_NEGATIVE_CONTROL_NAME, vendor=vendor, model=model, skills_map=neg_skills_map,
-                prompt_specs=repeat_specs, run_dir=run_dir, arm_label="negative",
-                known_skills={SELFTEST_NEGATIVE_CONTROL_NAME}, timeout=args.timeout, effort=args.effort,
-                run_label=the_run_id, keep_homes=args.keep_homes, workspace_kind=args.workspace,
-                state=state,
-            ), {SELFTEST_NEGATIVE_CONTROL_NAME})
-
-            vendor_result = evaluate_selftest(
-                [r for r in real_rows if not r["contaminated"]],
-                [r for r in negative_rows if not r["contaminated"]],
-                pc_valid,
-            )
             vendor_result["vendor"] = vendor
-            vendor_result["contaminated_counts"] = {
-                "real": sum(1 for r in real_rows if r["contaminated"]),
-                "negative": sum(1 for r in negative_rows if r["contaminated"]),
-                "positive_control": pc_contaminated,
-            }
             per_vendor[vendor] = vendor_result
+            _write_result(per_vendor)
     finally:
         if not args.keep_homes:
             shutil.rmtree(neg_control_root, ignore_errors=True)
 
-    overall_verdict = _overall_selftest_verdict(per_vendor)
-    result = {
-        "verdict": overall_verdict,
-        "passed": overall_verdict == "pass",
-        "skill": args.skill,
-        "negative_control_skill_name": SELFTEST_NEGATIVE_CONTROL_NAME,
-        "vendors": per_vendor,
-    }
-    (run_dir / "selftest.json").write_text(json.dumps(result, indent=2, sort_keys=True), encoding="utf-8")
+    result = _write_result(per_vendor)
+    overall_verdict = result["verdict"]
     print(json.dumps(result, indent=2, sort_keys=True))
     print(str(run_dir))
     return SELFTEST_EXIT_CODES[overall_verdict]
+
+
+# ---------------------------------------------------------------------------
+# CLI: selftest-all -- one selftest per skill, run as parallel child processes
+# ---------------------------------------------------------------------------
+
+
+def _selftest_child_argv(skill: str, args: argparse.Namespace) -> list[str]:
+    argv = [sys.executable, str(common.AUDITING_DIR / "skill-eval.py"), "activation", "selftest",
+            "--skill", skill, "--vendors", args.vendors, "--repeats", str(args.repeats),
+            "--timeout", str(args.timeout), "--effort", args.effort, "--workspace", args.workspace]
+    for flag, value in (("--models", args.models), ("--max-calls", args.max_calls),
+                        ("--max-cost-usd", args.max_cost_usd),
+                        ("--max-codex-tokens", args.max_codex_tokens)):
+        if value is not None:
+            argv += [flag, str(value)]
+    return argv
+
+
+def summarize_sweep(results: dict[str, dict]) -> dict:
+    """Counts per overall verdict and per vendor verdict; `results` maps a
+    skill to its selftest.json content, or to `{"verdict": "error", ...}`
+    when the child produced none."""
+    overall: dict[str, int] = {}
+    per_vendor: dict[str, dict[str, int]] = {}
+    for res in results.values():
+        overall[res.get("verdict", "error")] = overall.get(res.get("verdict", "error"), 0) + 1
+        for vendor, vres in (res.get("vendors") or {}).items():
+            bucket = per_vendor.setdefault(vendor, {})
+            bucket[vres.get("verdict", "error")] = bucket.get(vres.get("verdict", "error"), 0) + 1
+    return {"skills": len(results), "overall": overall, "per_vendor": per_vendor}
+
+
+def render_sweep_md(results: dict[str, dict], summary: dict) -> str:
+    def _r(x):
+        return "-" if x is None else f"{x:.2f}"
+    vendors = sorted({v for r in results.values() for v in (r.get("vendors") or {})})
+    lines = ["# selftest sweep", "",
+             f"skills: {summary['skills']}  overall: "
+             + ", ".join(f"{k}={v}" for k, v in sorted(summary["overall"].items())), ""]
+    for v in vendors:
+        lines.append(f"- {v}: " + ", ".join(f"{k}={n}" for k, n in sorted(summary["per_vendor"].get(v, {}).items())))
+    lines += ["", "| skill | overall | " + " | ".join(f"{v} verdict | {v} pc/real/neg | {v} valid/planned | {v} reason" for v in vendors) + " |",
+              "|---|---|" + "---|---|---|---|" * len(vendors)]
+    for skill in sorted(results):
+        res = results[skill]
+        cells = [skill, res.get("verdict", "error")]
+        for v in vendors:
+            vr = (res.get("vendors") or {}).get(v, {})
+            calls = vr.get("calls") or {}
+            reason = "; ".join(vr.get("reasons", []))[:120].replace("|", "/")
+            cells += [vr.get("verdict", "-"),
+                      f"{_r(vr.get('positive_control_rate'))}/{_r(vr.get('real_rate'))}/{_r(vr.get('negative_control_rate'))}",
+                      f"{calls.get('valid', '-')}/{calls.get('planned', '-')}", reason]
+        if res.get("verdict") == "error":
+            cells[-1] = (res.get("error") or "")[:120].replace("|", "/")
+        lines.append("| " + " | ".join(str(c) for c in cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def _cmd_selftest_all(args: argparse.Namespace) -> int:
+    import subprocess
+
+    skills = [s.strip() for s in args.skills.split(",") if s.strip()] if args.skills else library_skills()
+    if args.dry_run:
+        total = 0
+        for skill in skills:
+            out = subprocess.run(_selftest_child_argv(skill, args) + ["--dry-run"],
+                                 capture_output=True, text=True)
+            if out.returncode != 0:
+                print(f"{skill}: refused: {out.stderr.strip()[:200]}")
+                continue
+            total += json.loads(out.stdout)["call_count_total"]
+        print(json.dumps({"skills": len(skills), "call_count_total_upper_bound": total}, indent=2))
+        return 0
+
+    sweep_dir = RUNS_DIR / run_id("selftest-sweep")
+    sweep_dir.mkdir(parents=True, exist_ok=True)
+    results: dict[str, dict] = {}
+    lock = threading.Lock()
+
+    def _one(skill: str) -> None:
+        out = subprocess.run(_selftest_child_argv(skill, args), capture_output=True, text=True)
+        lines = [l for l in out.stdout.strip().splitlines() if l.strip()]
+        run_dir = Path(lines[-1]) if lines else None
+        if run_dir is not None and (run_dir / "selftest.json").exists():
+            res = json.loads((run_dir / "selftest.json").read_text(encoding="utf-8"))
+            res["run_dir"] = str(run_dir)
+        else:
+            res = {"verdict": "error", "exit_code": out.returncode,
+                   "error": (out.stderr.strip().splitlines() or ["no selftest.json and no stderr"])[-1]}
+        with lock:
+            results[skill] = res
+            summary = summarize_sweep(results)
+            (sweep_dir / "sweep.json").write_text(
+                json.dumps({"summary": summary, "skills": results}, indent=2, sort_keys=True), encoding="utf-8")
+            (sweep_dir / "sweep.md").write_text(render_sweep_md(results, summary), encoding="utf-8")
+            print(f"[{len(results)}/{len(skills)}] {skill}: {res.get('verdict')}", flush=True)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.parallel)) as pool:
+        list(pool.map(_one, skills))
+    summary = summarize_sweep(results)
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    print(str(sweep_dir))
+    if summary["overall"].get("fail") or summary["overall"].get("error"):
+        return 1
+    return 0 if summary["overall"].get("pass", 0) == len(skills) else 3
 
 
 # ---------------------------------------------------------------------------
@@ -1893,6 +2168,8 @@ def add_subparser(subparsers) -> None:
     p_run.add_argument("--keep-homes", action="store_true",
                         help="skip cleanup of arm homes after each call (they hold credentials)")
     p_run.add_argument("--allow-holdout-reuse", action="store_true")
+    p_run.add_argument("--allow-corpus-errors", action="store_true",
+                       help="run even when `cases lint` reports errors for this skill (recorded)")
     p_run.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
     p_run.add_argument("--effort", default="medium")
     p_run.add_argument("--workspace", default=DEFAULT_WORKSPACE,
@@ -1931,4 +2208,21 @@ def add_subparser(subparsers) -> None:
     p_selftest.add_argument("--max-calls", type=int, default=None)
     p_selftest.add_argument("--max-cost-usd", type=float, default=None)
     p_selftest.add_argument("--max-codex-tokens", type=int, default=None)
+    p_selftest.add_argument("--allow-corpus-errors", action="store_true",
+                            help="run even when `cases lint` reports errors for this skill (recorded)")
     p_selftest.set_defaults(func=_cmd_selftest)
+
+    p_sweep = sub.add_parser("selftest-all", help="selftest every skill (or --skills) in parallel; one summary table")
+    p_sweep.add_argument("--skills", default=None, help="comma-separated subset; default is the whole library")
+    p_sweep.add_argument("--parallel", type=int, default=6, help="skills run at once (each is one child process)")
+    p_sweep.add_argument("--vendors", default="claude,codex")
+    p_sweep.add_argument("--models", default=None)
+    p_sweep.add_argument("--repeats", type=int, default=DEFAULT_REPEATS)
+    p_sweep.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
+    p_sweep.add_argument("--effort", default="medium")
+    p_sweep.add_argument("--workspace", default=DEFAULT_WORKSPACE)
+    p_sweep.add_argument("--max-calls", type=int, default=None, help="per skill, as in selftest")
+    p_sweep.add_argument("--max-cost-usd", type=float, default=None, help="per skill, as in selftest")
+    p_sweep.add_argument("--max-codex-tokens", type=int, default=None, help="per skill, as in selftest")
+    p_sweep.add_argument("--dry-run", action="store_true")
+    p_sweep.set_defaults(func=_cmd_selftest_all)

@@ -279,7 +279,8 @@ def summarize(plan, pairs, budget):
             valid = [p for p in selected if p["valid"]]
             row = {"vendor": vendor, "task_id": task["id"], "pairs": len(selected),
                    "valid_pairs": len(valid), "invalid_pairs": len(selected) - len(valid),
-                   "activation_count": sum(plan["skill"] in p["arms"]["with"]["trace"]["activated"] for p in selected),
+                   "activation_count": sum((plan.get("installed_name") or plan["skill"]) in p["arms"]["with"]["trace"]["activated"]
+                                           for p in selected),
                    "pairwise": dict(Counter({"a": "without", "b": "with"}.get(
                        p.get("comparison", {}).get("verdict"), p.get("comparison", {}).get("verdict", "void"))
                        for p in valid))}
@@ -367,6 +368,17 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
     shutil.copytree(common.skill_dir(plan["skill"]), skill_snapshot)
     if vendors._fixture_fingerprint(skill_snapshot) != plan["skill_sha"]:
         raise ValueError("Skill changed after planning. Start a fresh run.")
+    # `installed_name` is the name the arms see. It differs from the skill
+    # only with --install-as, used when the skill's name collides with a
+    # vendor built-in (claude ships `code-review`): the frontmatter name is
+    # rewritten in the snapshot so the installed skill answers to the alias.
+    installed_name = plan.get("installed_name") or plan["skill"]
+    if installed_name != plan["skill"]:
+        skill_md = skill_snapshot / "SKILL.md"
+        text, n = re.subn(r"(?m)^name:\s*.*$", f"name: {installed_name}", skill_md.read_text(encoding="utf-8"), count=1)
+        if n != 1:
+            raise ValueError("Cannot rename the skill snapshot: no frontmatter name line.")
+        skill_md.write_text(text, encoding="utf-8")
     for task in plan["tasks"]:
         if task["workspace"] not in ("empty", "git"):
             snapshot = run_dir / "inputs" / "fixtures" / task["id"]
@@ -374,7 +386,7 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
             task["workspace"] = str(snapshot)
             task["workspace_sha"] = vendors._fixture_fingerprint(snapshot)
     (run_dir / "plan.json").write_text(json.dumps(plan, indent=2), encoding="utf-8")
-    known = set(common.library_skills())
+    known = set(common.library_skills()) | {installed_name}
     names = sorted(known | set(judge._default_skill_names()))
     pairs = []
     builtins, baseline_errors = {}, {}
@@ -402,7 +414,7 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
         capture_error = info.get("evidence", {}).get("error")
         if capture_error:
             reasons.append(capture_error)
-        if not installed and plan["skill"] in rec.activated:
+        if not installed and installed_name in rec.activated:
             reasons.append("Control loaded the evaluated skill.")
         row = {"trace": dataclasses.asdict(rec), "valid": rec.ok and not reasons,
                "invalid_reasons": reasons + ([rec.error] if not rec.ok else []),
@@ -414,7 +426,7 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
             if not installed and any(re.search(m, output) for m in task["control_markers"]):
                 row["valid"] = False
                 row["invalid_reasons"].append("Control fingerprint found.")
-            if installed and plan["mode"] == "explicit" and plan["skill"] not in rec.activated:
+            if installed and plan["mode"] == "explicit" and installed_name not in rec.activated:
                 row["valid"] = False
                 row["invalid_reasons"].append("Explicit treatment did not load the skill.")
             if row["valid"]:
@@ -434,8 +446,9 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
                 row = execute(vendor, model, "Say OK and do nothing else.", {}, f"baseline-{vendor}")
                 rec = row["trace"]
                 builtins[vendor] = rec["visible_skills"] or list(vendors.KNOWN_BUILTINS[vendor])
-                if plan["skill"] in builtins[vendor]:
-                    baseline_errors[vendor] = "Evaluated skill collides with a vendor built-in."
+                if installed_name in builtins[vendor]:
+                    baseline_errors[vendor] = ("Evaluated skill collides with a vendor built-in; "
+                                               "rerun with --install-as <other-name>.")
                 if not row["valid"] or vendor == "claude" and rec["visible_skills"] is None:
                     baseline_errors[vendor] = "Built-in baseline failed or was contaminated."
                 common.append_jsonl(run_dir / "baselines.jsonl", {"vendor": vendor, **row})
@@ -458,10 +471,10 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
                 try:
                     if vendor in baseline_errors:
                         raise RuntimeError(baseline_errors[vendor])
-                    installed = {plan["skill"]: skill_snapshot} if arm == "with" else {}
+                    installed = {installed_name: skill_snapshot} if arm == "with" else {}
                     prompt = task["prompt"]
                     if arm == "with" and plan["mode"] == "explicit":
-                        prompt = f"Use the {plan['skill']} skill for this task.\n\n{prompt}"
+                        prompt = f"Use the {installed_name} skill for this task.\n\n{prompt}"
                     pair["arms"][arm] = execute(vendor, plan["vendors"][vendor], prompt, installed,
                                                 f"{task['id']}-{repeat}-{arm}-{vendor}", task)
                 except Exception as exc:
@@ -545,7 +558,11 @@ def _cmd_run(args):
             if args.effort not in valid_efforts:
                 raise ValueError(f"Unsupported effort for {vendor}: {args.effort}")
         plan = plan_run(tasks, {v: source_models[v] for v in selected}, args.repeats, args.judge_vendor, args.mode)
-        plan.update(skill=args.skill, suite_sha=common.sha256_file(args.suite),
+        if args.install_as and (not re.fullmatch(r"[a-z0-9][a-z0-9-]*", args.install_as)
+                                or args.install_as in common.library_skills()):
+            raise ValueError("--install-as needs a lowercase hyphenated name that no library skill uses.")
+        plan.update(skill=args.skill, installed_name=args.install_as or args.skill,
+                    suite_sha=common.sha256_file(args.suite),
                     skill_sha=vendors._fixture_fingerprint(common.skill_dir(args.skill)),
                     judge_models=judge_models)
         if args.max_calls is not None and plan["call_count_total"] > args.max_calls:
@@ -580,6 +597,98 @@ def _cmd_report(args):
         return 2
 
 
+def _needs_rejudge(pair: dict) -> bool:
+    """A valid pair whose judging produced nothing usable: a grading error,
+    every pairwise repeat void, or every grade unsupported in an arm."""
+    if not pair.get("valid"):
+        return False
+    if pair.get("grading_error"):
+        return True
+    repeats = pair.get("comparison", {}).get("repeats") or []
+    if not repeats or all(r.get("void") for r in repeats):
+        return True
+    for arm in pair["arms"].values():
+        grades = arm.get("grades") or []
+        if grades and all(g.get("verdict") == "unsupported" for g in grades):
+            return True
+    return False
+
+
+def rejudge(run_dir: Path, *, budget: Budget, effort: str, timeout: int, all_pairs: bool = False) -> dict:
+    """Re-run only the judges of a finished run: assertion grades and the
+    pairwise comparison, for valid pairs whose judging failed (or every
+    valid pair with `all_pairs`). Arm outputs are reused as recorded, so a
+    judge outage costs judge calls, not a rerun. The previous pairs.jsonl
+    is kept beside the new one."""
+    plan = json.loads((run_dir / "plan.json").read_text(encoding="utf-8"))
+    pairs = list(common.read_jsonl(run_dir / "pairs.jsonl"))
+    # The caps given here bound this rejudge's own calls; budget.json keeps
+    # the run's running total.
+    prior = json.loads((run_dir / "budget.json").read_text(encoding="utf-8"))
+    tasks = {t["id"]: t for t in plan["tasks"]}
+    installed_name = plan.get("installed_name") or plan["skill"]
+    names = sorted(set(common.library_skills()) | {installed_name} | set(judge._default_skill_names()))
+    rng = random.Random(f"{plan.get('seed', 0)}-rejudge-{common.utc_now()}")
+
+    def complete(vendor, prompt, **kwargs):
+        budget.reserve()
+        kwargs["timeout"] = timeout
+        text, rec = vendors.complete(vendor, prompt, **kwargs)
+        budget.record(rec)
+        return text, rec
+
+    done = 0
+    try:
+        for pair in pairs:
+            if not pair.get("valid") or not (all_pairs or _needs_rejudge(pair)):
+                continue
+            task = tasks[pair["task_id"]]
+            vendor = pair["vendor"]
+            jv = pair.get("judge_vendor") or (("codex" if vendor == "claude" else "claude")
+                                              if plan["judge_vendor"] == "cross" else plan["judge_vendor"])
+            kwargs = dict(judge_vendor=jv, judge_model=plan["judge_models"][jv],
+                          skill_names=names, complete=complete, effort=effort)
+            pair.pop("grading_error", None)
+            try:
+                order = ["without", "with"]
+                rng.shuffle(order)
+                for arm in order:
+                    pair["arms"][arm]["grades"] = judge.grade(task["prompt"], _judge_text(pair["arms"][arm]),
+                                                              task["assertions"], **kwargs)
+                pair["comparison"] = judge.pairwise(task["prompt"], _judge_text(pair["arms"]["without"]),
+                                                    _judge_text(pair["arms"]["with"]), repeats=2,
+                                                    run_dir=run_dir / "judgements" / f"{task['id']}-{vendor}-{pair['repeat']}-rejudge",
+                                                    seed=rng.randrange(2**32), **kwargs)
+            except BudgetExceeded:
+                raise
+            except Exception as exc:
+                pair["grading_error"] = str(exc)
+            pair["rejudged_at"] = common.utc_now()
+            done += 1
+    finally:
+        backup = run_dir / f"pairs.before-rejudge-{common.run_id('bak')}.jsonl"
+        shutil.copy2(run_dir / "pairs.jsonl", backup)
+        (run_dir / "pairs.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pairs), encoding="utf-8")
+        total = Budget(prior.get("max_calls"), prior.get("max_cost_usd"), prior.get("max_codex_tokens"),
+                       prior.get("calls", 0) + budget.calls, prior.get("cost_usd", 0.0) + budget.cost_usd,
+                       prior.get("codex_tokens", 0) + budget.codex_tokens)
+        (run_dir / "budget.json").write_text(json.dumps(dataclasses.asdict(total), indent=2), encoding="utf-8")
+        write_summary(run_dir, summarize(plan, pairs, total))
+    return {"rejudged": done, "judge_calls": budget.calls, "backup": str(backup)}
+
+
+def _cmd_rejudge(args):
+    try:
+        result = rejudge(args.run_dir, budget=Budget(args.max_calls, args.max_cost_usd, args.max_codex_tokens),
+                         effort=args.effort, timeout=args.timeout, all_pairs=args.all)
+        print(json.dumps(result, indent=2))
+        print((args.run_dir / "summary.md").read_text())
+        return 3 if json.loads((args.run_dir / "summary.json").read_text())["incomplete"] else 0
+    except (ValueError, OSError, KeyError, BudgetExceeded) as exc:
+        print(f"performance rejudge: {exc}", file=sys.stderr)
+        return 2
+
+
 def add_subparser(subparsers):
     parser = subparsers.add_parser("performance", help=__doc__)
     sub = parser.add_subparsers(dest="subcommand", required=True)
@@ -598,9 +707,20 @@ def add_subparser(subparsers):
     cmd.add_argument("--max-calls", type=_positive_int)
     cmd.add_argument("--max-cost-usd", type=_positive_float)
     cmd.add_argument("--max-codex-tokens", type=_positive_int)
+    cmd.add_argument("--install-as", default=None,
+                     help="install the skill under this name (for a name that collides with a vendor built-in)")
     cmd.add_argument("--dry-run", action="store_true")
     cmd.set_defaults(func=_cmd_run)
     cmd = sub.add_parser("report", help="Rebuild quality metrics from saved pairs.")
     cmd.add_argument("run_dir", type=Path)
     cmd.add_argument("--json", action="store_true")
     cmd.set_defaults(func=_cmd_report)
+    rj = sub.add_parser("rejudge", help="Re-run only the judges of a finished run, for pairs whose judging failed.")
+    rj.add_argument("run_dir", type=Path)
+    rj.add_argument("--all", action="store_true", help="re-judge every valid pair, not only failed ones")
+    rj.add_argument("--effort", default="medium")
+    rj.add_argument("--timeout", type=_positive_int, default=600)
+    rj.add_argument("--max-calls", type=_positive_int)
+    rj.add_argument("--max-cost-usd", type=_positive_float)
+    rj.add_argument("--max-codex-tokens", type=_positive_int)
+    rj.set_defaults(func=_cmd_rejudge)

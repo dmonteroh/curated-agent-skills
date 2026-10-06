@@ -838,3 +838,43 @@ class RejectedClaudeActivationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CodexChainedReadTests(unittest.TestCase):
+    """A chained command takes the exit code of its last segment, so a
+    successful SKILL.md read followed by a failing segment used to score as
+    no activation (measured on a live codex selftest, 2026-10-05). The read
+    counts when the output carries the file's own frontmatter name."""
+
+    def test_read_before_a_failing_segment_counts_as_activation(self):
+        rec = parse_trace(_FIXTURES_DIR / "codex-chained-read-later-failure.synthetic.jsonl", "codex", KNOWN)
+        self.assertTrue(rec.ok)
+        self.assertEqual(rec.activated, ["pr-description"])
+        self.assertEqual(rec.activation_signals, {"pr-description": "command_read"})
+
+    def test_a_read_that_itself_failed_is_still_not_activation(self):
+        rec = parse_trace(_FIXTURES_DIR / "codex-failed-read-no-content.synthetic.jsonl", "codex", KNOWN)
+        self.assertTrue(rec.ok)
+        self.assertEqual(rec.activated, [])
+
+
+class HeredocPathTests(unittest.TestCase):
+    """File-writing heredoc bodies are content, not reads; interpreter
+    heredocs are still scanned."""
+
+    def setUp(self):
+        from skill_eval import trace
+        self.trace = trace
+        self.cwd = Path("/tmp/skill-eval/cwd/call-x")
+
+    def test_file_heredoc_body_is_not_a_read(self):
+        cmd = ("mkdir -p envs/dev\ncat > envs/dev/main.tf <<'E'\nmodule \"vcn\" {\n  source = \"../../modules/vcn\"\n}\nE\n"
+               "cat envs/dev/main.tf")
+        toks = self.trace._command_path_candidates(cmd, self.cwd)
+        self.assertFalse(any("modules" in t for t in toks), toks)
+        self.assertIn(str(self.cwd / "envs/dev/main.tf"), toks)
+
+    def test_interpreter_heredoc_body_is_still_scanned(self):
+        cmd = "bash <<'EOF'\ncat /workspace/CLAUDE.md\nEOF"
+        toks = self.trace._command_path_candidates(cmd, self.cwd)
+        self.assertTrue(any(t.startswith("/workspace/CLAUDE.md") for t in toks), toks)

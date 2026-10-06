@@ -1303,3 +1303,63 @@ class ModelEffortPassThroughTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BatchGenerateCasesTests(unittest.TestCase):
+    """`generate cases --jobs`: one candidates file per skill, rows from
+    every generator vendor tagged with the vendor that wrote them, and the
+    off-register group tagged and echo-checked like any positive."""
+
+    def test_off_register_group_is_tagged_and_capped(self):
+        def fake_complete(vendor, prompt, **kw):
+            self.assertIn("all lowercase", prompt)
+            data = {"positive": [], "negative": [], "near_miss": [],
+                    "off_register": ["fix my flaky test", "flaky test again", "one too many"]}
+            return json.dumps(data), _trace()
+
+        rows = judge.generate_cases("job", gen_vendor="stub", description="unrelated words here",
+                                    n_pos=0, n_neg=0, n_near_miss=0, n_off_register=2,
+                                    complete=fake_complete)
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertTrue(row["expect"])
+            self.assertEqual(row["tags"], ["generated", "off-register"])
+
+    def test_jobs_file_writes_one_candidates_file_per_skill_with_vendor_tags(self):
+        seen = []
+
+        def fake_complete(vendor, prompt, **kw):
+            seen.append((vendor, prompt))
+            data = {"positive": [f"a {vendor} request about the task"], "negative": ["something else"],
+                    "near_miss": [], "off_register": []}
+            return json.dumps(data), _trace()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            jobs = tmp / "jobs.json"
+            jobs.write_text(json.dumps({"code-review": "look over a change for problems",
+                                        "pr-description": "write up a branch for reviewers"}))
+            parser = argparse.ArgumentParser()
+            sub = parser.add_subparsers(dest="command", required=True)
+            judge.add_subparser(sub)
+            args = parser.parse_args([
+                "judge", "generate", "cases", "--jobs", str(jobs), "--gen-vendor", "claude,codex",
+                "--n-pos", "1", "--n-neg", "1", "--n-near-miss", "0",
+            ])
+            with mock.patch.object(_real_vendors, "complete", fake_complete), \
+                 mock.patch.object(common, "RUNS_DIR", tmp / "runs"), \
+                 mock.patch("builtins.print"):
+                exit_code = args.func(args)
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(len(seen), 4)
+            # The job reaches the generator; the description never does.
+            for _, prompt in seen:
+                self.assertNotIn("Provides high-signal", prompt)
+            run_dir = next((tmp / "runs").glob("*judge-generate-cases*"))
+            from skill_eval import cases as cases_mod
+            for skill in ("code-review", "pr-description"):
+                rows = cases_mod.load_cases(skill, path=run_dir / f"{skill}.candidates.md")
+                tags = sorted(t for c in rows for t in c.tags if t.startswith("gen:"))
+                self.assertEqual(tags, ["gen:claude", "gen:claude", "gen:codex", "gen:codex"])
+            summary = json.loads((run_dir / "summary.json").read_text())
+            self.assertEqual(set(summary["skills"]), {"code-review", "pr-description"})

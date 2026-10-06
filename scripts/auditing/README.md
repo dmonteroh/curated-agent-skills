@@ -113,13 +113,23 @@ A standalone toolkit for activation and task-quality testing on Claude and Codex
 python3 scripts/auditing/skill-eval.py cases lint --all
 python3 scripts/auditing/skill-eval.py integrity scan-all
 python3 scripts/auditing/skill-eval.py integrity diff-scan --skill <name> --base HEAD
+python3 scripts/auditing/skill-eval.py cases deficits            # what each trigger-case file needs to clear lint
+
+# corpus repair: isolated generator, then review, then apply (see skill_eval/README.md)
+python3 scripts/auditing/skill-eval.py judge generate cases --jobs <jobs.json> --gen-vendor claude,codex --n-off-register 2
+python3 scripts/auditing/skill-eval.py cases apply --selection <skill>.json --candidates <skill>.candidates.md
 
 # live agent calls (plan with --dry-run first)
 python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <tasks.json> --dry-run
 python3 scripts/auditing/skill-eval.py activation run --skill <name> --dry-run
 python3 scripts/auditing/skill-eval.py activation selftest --skill <name>
+python3 scripts/auditing/skill-eval.py activation selftest-all --repeats 1 --max-calls 14 --parallel 8   # whole library
+python3 scripts/auditing/suites/build_fixtures.py                                                        # then:
+python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite scripts/auditing/suites/<name>.json --repeats 3
 python3 scripts/auditing/skill-eval.py activation run --skill <name> --repeats 4
 ```
+
+`activation run` and `activation selftest` refuse a skill whose trigger-case file has `cases lint` errors; `--allow-corpus-errors` overrides that and is recorded in the plan.
 
 Task-quality comparisons and suite format: [skill_eval/PERFORMANCE.md](skill_eval/PERFORMANCE.md).
 

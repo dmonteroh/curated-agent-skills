@@ -292,3 +292,88 @@ class LibraryIntegrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+_RESIDUE_FILE = """# Trigger Cases: demo
+
+## Positive (should activate)
+- prompt: "I need help with this: Baking sourdough. Can you guide me?"
+  expect_activate: yes
+
+- prompt: "My loaf came out flat again, what went wrong with the rise?"
+  expect_activate: yes
+  # a hand-written note that must survive
+
+## Negative (should not activate)
+- prompt: "Please do this exactly now: Fixing an oven. No planning, just implementation."
+  expect_activate: no
+"""
+
+
+class RepairTests(unittest.TestCase):
+    """deficits() and apply_selection(): residue dropped, generated rows
+    added verbatim, nothing authored by the selection itself."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = Path(self.tmp.name) / "demo.md"
+        self.path.write_text(_RESIDUE_FILE, encoding="utf-8")
+        self.generated = [
+            C.Case(skill="demo", prompt="How long should a starter rest before I feed it?", expect=True,
+                   tags=["generated", "gen:codex"]),
+            C.Case(skill="demo", prompt="sourdough wont rise", expect=True,
+                   tags=["generated", "off-register", "gen:claude"]),
+            C.Case(skill="demo", prompt="Which flour makes the best pizza dough?", expect=False,
+                   tags=["generated", "near-miss", "gen:codex"]),
+        ]
+
+    def test_deficits_count_after_dropping_residue(self):
+        d = C.deficits("demo", path=self.path, description=_BAKING_DESCRIPTION)
+        self.assertEqual(len(d["residue"]), 2)
+        self.assertEqual((d["positive"], d["negative"]), (1, 0))
+        self.assertEqual((d["need_positive"], d["need_negative"]), (4, 5))
+        self.assertTrue(C.needs_repair(d))
+
+    def test_apply_drops_residue_adds_generated_rows_and_keeps_notes(self):
+        selected = [C.Case(skill="demo", prompt=c.prompt, expect=c.expect) for c in self.generated]
+        result = C.apply_selection("demo", selected, self.generated, path=self.path)
+        self.assertEqual(len(result["dropped"]), 2)
+        self.assertEqual(len(result["added"]), 3)
+        text = self.path.read_text(encoding="utf-8")
+        self.assertIn("# a hand-written note that must survive", text)
+        self.assertNotIn("I need help with this:", text)
+        self.assertNotIn("Please do this exactly now:", text)
+        cases = C.load_cases("demo", path=self.path)
+        by_prompt = {c.prompt: c for c in cases}
+        # Tags come from the generator's row, not from the selection.
+        self.assertEqual(by_prompt["sourdough wont rise"].tags, ["generated", "off-register", "gen:claude"])
+        self.assertFalse(by_prompt["Which flour makes the best pizza dough?"].expect)
+        self.assertEqual(sum(c.expect for c in cases), 3)
+        # Each new case sits under its own polarity's heading: no section warning.
+        self.assertNotIn("expect-contradicts-section", _codes(C.parse_findings("demo", path=self.path)))
+
+    def test_apply_refuses_a_prompt_the_generator_never_wrote(self):
+        authored = [C.Case(skill="demo", prompt="A prompt the reviewer wrote", expect=True)]
+        with self.assertRaises(C.SelectionError):
+            C.apply_selection("demo", authored, self.generated, path=self.path)
+        self.assertEqual(self.path.read_text(encoding="utf-8"), _RESIDUE_FILE)
+
+    def test_apply_refuses_a_flipped_polarity(self):
+        flipped = [C.Case(skill="demo", prompt=self.generated[2].prompt, expect=True)]
+        with self.assertRaises(C.SelectionError):
+            C.apply_selection("demo", flipped, self.generated, path=self.path)
+
+    def test_apply_is_idempotent(self):
+        selected = [C.Case(skill="demo", prompt=c.prompt, expect=c.expect) for c in self.generated]
+        C.apply_selection("demo", selected, self.generated, path=self.path)
+        first = self.path.read_text(encoding="utf-8")
+        again = C.apply_selection("demo", selected, self.generated, path=self.path)
+        self.assertEqual(again["added"], [])
+        self.assertEqual(self.path.read_text(encoding="utf-8"), first)
+
+    def test_dry_run_writes_nothing(self):
+        selected = [C.Case(skill="demo", prompt=c.prompt, expect=c.expect) for c in self.generated]
+        C.apply_selection("demo", selected, self.generated, path=self.path, dry_run=True)
+        self.assertEqual(self.path.read_text(encoding="utf-8"), _RESIDUE_FILE)
