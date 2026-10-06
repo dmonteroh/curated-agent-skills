@@ -10,13 +10,13 @@ Read this when a browser test needs a semantic decision about visible text or a 
 | [jevcumber](https://github.com/RubyBrewsday/jevcumber) | Jev resolves a Gherkin step against actual buttons, fields, links, and step literals. A reviewed lockfile replays resolved steps. Missing controls require a new resolution. | Cache reviewed control IDs or locators per step. Treat a changed mapping as a reviewable test change. |
 | [Jev Browser semantic verification](https://github.com/tontoko/jev-browser/blob/main/docs/semantic-verification.md) | A semantic matcher compares fresh locator evidence and reports uncertain or changed evidence. Exact properties use native assertions. | Add a narrow semantic assertion for observed text. Re-read the locator before accepting the decision, and report the text, question, checkpoint, and score on failure. |
 
-These are Jev implementations, not measured Laya results. Their architecture transfers because Laya accepts the same three typed question forms. Their thresholds, label capacity, and accuracy do not transfer. In particular, this server warns that `choice` distributions become sharply overconfident at 11 or more labels ([server.py](../../../sys1-mcp/src/sys1_mcp/server.py)).
+These are Jev implementations, not measured Laya results. Their architecture transfers because Laya accepts the same three typed question forms. Their thresholds, label capacity, and accuracy do not transfer. In particular, this server warns that `choice` distributions become sharply overconfident at 11 or more labels.
 
 ## Call the warm daemon from a test
 
-The installed daemon serves `https://localhost:8765` on this host ([README.md](../../../README.md), TLS). Set `SYS1_URL` to its `/v1/systemone` route, or to another System One endpoint your test process can reach. The process must trust that server's certificate. Do not bypass certificate verification.
+The installed daemon serves `https://localhost:8765` on this host. Set `SYS1_URL` to its `/v1/systemone` route, or to another System One endpoint your test process can reach. The process must trust that server's certificate. Do not bypass certificate verification.
 
-`POST /v1/systemone` accepts `{"state": ..., "questions": ..., "model": "base"}` and runs `sys1_ask` ([daemon.py](../../../sys1-mcp/src/sys1_mcp/daemon.py), `systemone`). It is plain HTTP JSON, so a Playwright test needs no MCP client. For the other tools, `POST /predict` accepts `{"tool": "sys1_relevant", "arguments": {...}}`.
+`POST /v1/systemone` accepts `{"state": ..., "questions": ..., "model": "<optional>"}` and runs `sys1_ask`. It is plain HTTP JSON, so a Playwright test needs no MCP client. For the other tools, `POST /predict` accepts `{"tool": "sys1_relevant", "arguments": {...}}`.
 
 ```ts
 import { expect, test } from '@playwright/test';
@@ -59,13 +59,13 @@ test('records whether the alert explains the email problem', async ({ page }) =>
 });
 ```
 
-This example records a judgment through [Playwright's runtime annotations](https://playwright.dev/docs/test-annotations). It does not turn the score into a pass. Use test data that may appear in reports and the daemon's call log ([README.md](../../../README.md), Call logging). The existing skill has no threshold fitted to browser assertions, and `noul` can misread some yes/no wording. Compare the answer with known pass, fail, and near-miss cases before choosing a pass threshold. Keep `model` and the exact question fixed once calibrated. A score between accepted pass and fail bands is inconclusive, not success.
+This example records a judgment through [Playwright's runtime annotations](https://playwright.dev/docs/test-annotations). It does not turn the score into a pass. Use test data that may appear in reports and the daemon's call log. The existing skill has no threshold fitted to browser assertions, and `noul` can misread some yes/no wording. Compare the answer with known pass, fail, and near-miss cases before choosing a pass threshold. Keep `model` and the exact question fixed once calibrated. A score between accepted pass and fail bands is inconclusive, not success.
 
 For change-aware selection of which Playwright tests to run, call `sys1_select_tests` with the discovered test IDs and diff chunks before starting Playwright. It defaults to a full-suite run while recording relevance scores. Its contract and threshold evaluation are in [agent-workflows.md](agent-workflows.md); semantic assertions inside a running test still use the `/v1/systemone` pattern above.
 
 ## Let the model choose a control
 
-Build candidates from the current Playwright page or a scoped region. Give each candidate an ID stable within the observation, role, accessible name, and current state. Put the test step and that candidate table in `state`. Ask one `choice` question with candidate IDs and `none` as the criteria. Keep at most ten labels including `none`, because the Laya backend sharpens distributions at eleven ([server.py](../../../sys1-mcp/src/sys1_mcp/server.py), `_add_margins`). Narrow a crowded page by region or element type before asking. Never silently omit a plausible control.
+Build candidates from the current Playwright page or a scoped region. Give each candidate an ID stable within the observation, role, accessible name, and current state. Put the test step and that candidate table in `state`. Ask one `choice` question with candidate IDs and `none` as the criteria. Keep at most ten labels including `none`, because the Laya backend sharpens distributions at eleven. Narrow a crowded page by region or element type before asking. Never silently omit a plausible control.
 
 ```json
 {

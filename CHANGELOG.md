@@ -5,11 +5,13 @@
 ### Added
 
 - `load-and-capacity-planning`: skill, `references/` (8 files moved from `monitoring-expert`), and `scripts/auditing/trigger-cases/load-and-capacity-planning.md`.
+- `sys1-mcp`: `references/backend-laya.md` and `references/backend-jev-style.md`.
 
 ### Changed
 
 - `monitoring-expert`: renamed to `observability-engineering`; `SKILL.md` rewritten; load-testing and capacity-planning references moved to `load-and-capacity-planning`.
 - `performance`: `references/` gains the 5 `application-profiling-*` files moved from `monitoring-expert`.
+- `sys1-mcp`: `SKILL.md` made backend-neutral with Laya-specific measurements moved to `references/backend-laya.md`; links outside the skill removed from `references/agent-workflows.md` and `references/e2e-testing.md`.
 - `research-discipline`: frontmatter `description` rewritten.
 
 ## 2026-10-05

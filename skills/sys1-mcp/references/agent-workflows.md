@@ -1,8 +1,8 @@
 # System One agent workflows
 
-Read this when an agent needs to select tests, check task completion, consider a cached answer, or trim a handoff brief. These tools compose the existing `sys1_ask` and `sys1_classify` decisions on the backend's `trace` model (`typed-decisions` on Laya). They add no HTTP endpoint: MCP clients call the tool name, and HTTP clients POST `{"tool": "...", "arguments": {...}}` to `/predict` ([daemon.py](../../../sys1-mcp/src/sys1_mcp/daemon.py)). A single `sys1_ask` also has its own System One route, `POST /v1/systemone`.
+Read this when an agent needs to select tests, check task completion, consider a cached answer, or trim a handoff brief. These tools compose the existing `sys1_ask` and `sys1_classify` decisions on the backend's `trace` model (`typed-decisions` on Laya). They add no HTTP endpoint: MCP clients call the tool name, and HTTP clients POST `{"tool": "...", "arguments": {...}}` to `/predict`. A single `sys1_ask` also has its own System One route, `POST /v1/systemone`.
 
-The workflows began as proposals in [the expansion note](../../../temp/expansion/laya-agent-use-cases.md). Jev examples suggest the architecture. They do not calibrate this deployment's model. Treat returned probabilities as measurements to evaluate, not as portable confidence thresholds. Each response names the serving checkpoint when it made a model call.
+The workflows began as proposals. Jev examples suggest the architecture. They do not calibrate this deployment's model. Treat returned probabilities as measurements to evaluate, not as portable confidence thresholds. Each response names the serving checkpoint when it made a model call.
 
 ## Change-aware E2E selection
 
@@ -40,4 +40,4 @@ Review the result against the full brief on tasks with known required facts. Cou
 
 ## Screening stays separate
 
-Call `sys1_screen` for fetched pages, tool output, or files that might contain instructions aimed at an agent. Its `directed`, `injection`, `sensitive_data`, and `harm` scores answer a different question from these four workflows. None of the workflow tools grants permission for a proposed action or makes untrusted instructions authoritative ([server.py](../../../sys1-mcp/src/sys1_mcp/server.py), `SCREEN_QUESTIONS`).
+Call `sys1_screen` for fetched pages, tool output, or files that might contain instructions aimed at an agent. Its `directed`, `injection`, `sensitive_data`, and `harm` scores answer a different question from these four workflows. None of the workflow tools grants permission for a proposed action or makes untrusted instructions authoritative.
