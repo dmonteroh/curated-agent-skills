@@ -25,4 +25,5 @@ python3 scripts/auditing/skill-eval.py performance run --skill code-review \
 
 - Write tasks and requirements as the user would state them, without reading the skill body. A requirement copied from the skill grades compliance with the skill's own rules, not the quality of the work (`../skill_eval/DESIGN.md` §2 T-B).
 - Every check must be able to fail: confirm it fails on the untouched fixture and passes on a correct result before trusting it.
+- New suites are eval cards (version 2): claims, a `harm` or `stand-down` task, planted good and bad outputs, and an invalidation map (`../skill_eval/PERFORMANCE.md`, "Eval cards"). Run `performance validate` on a card before any live run. The five suites above are version 1.
 - These suites are visible, so they are development evidence. An author tuning a skill against them can overfit; there is no sealed performance holdout yet.

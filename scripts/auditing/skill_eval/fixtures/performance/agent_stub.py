@@ -18,7 +18,18 @@ assert "CLAUDE_CODE_MESSAGING_TOKEN" not in os.environ
 prompt = sys.stdin.read()
 skills = sorted(p.parent.name for p in (home / "skills").glob("*/SKILL.md"))
 judge_call = "Requirement:" in prompt or "Option 1:" in prompt
-if "Requirement:" in prompt:
+if "Requirements:\n" in prompt:
+    one, rest = prompt.split("Option 1:\n", 1)[1].split("\n\nOption 2:\n", 1)
+    two, reqs = rest.split("\n\nRequirements:\n", 1)
+    ids = [line[2:].split(":", 1)[0] for line in reqs.split("\n\n", 1)[0].splitlines() if line.startswith("- ")]
+
+    def grades(text):
+        good = "stable helpful note" in text
+        return [{"id": i, "verdict": "pass" if good else "fail",
+                 "quote": "stable helpful note" if good else "NO RELEVANT CONTENT", "reason": "x"} for i in ids]
+    answer = {"option_1": grades(one), "option_2": grades(two),
+              "winner": "1" if "stable helpful note" in one else "2", "reason": "More useful."}
+elif "Requirement:" in prompt:
     answer = {"verdict": "pass", "quote": "stable helpful note", "reason": "Useful."}
     if "ordinary note" in prompt:
         answer = {"verdict": "fail", "quote": "NO RELEVANT CONTENT", "reason": "Missing."}

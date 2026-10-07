@@ -23,6 +23,21 @@ def task(**overrides):
                 assertions=[{"id": "useful", "text": "The note is useful."}], control_markers=[], **overrides)
 
 
+def batched_answer(prompt):
+    """A judge that passes every requirement for the output that says
+    "stable helpful note" and prefers it, in the batched format."""
+    one, rest = prompt.split("Option 1:\n", 1)[1].split("\n\nOption 2:\n", 1)
+    two, reqs = rest.split("\n\nRequirements:\n", 1)
+    ids = [line[2:].split(":", 1)[0] for line in reqs.split("\n\n", 1)[0].splitlines() if line.startswith("- ")]
+
+    def grades(text):
+        good = "stable helpful note" in text
+        return [{"id": i, "verdict": "pass" if good else "fail",
+                 "quote": "stable helpful note" if good else "NO RELEVANT CONTENT", "reason": "x"} for i in ids]
+    return {"option_1": grades(one), "option_2": grades(two),
+            "winner": "1" if "stable helpful note" in one else "2", "reason": "More useful."}
+
+
 class SuiteTests(unittest.TestCase):
     def load(self, data):
         with tempfile.TemporaryDirectory() as directory:
@@ -161,8 +176,14 @@ class BudgetPlanTests(unittest.TestCase):
         plan = perf.plan_run([task()], {"claude": "haiku", "codex": "luna"}, 4, "cross", "explicit")
         self.assertEqual(plan["baseline_calls"], 2)
         self.assertEqual(plan["arm_calls"], 16)
-        self.assertEqual(plan["judge_calls"], 32)
-        self.assertEqual(plan["call_count_total"], 50)
+        # Batched: two judge calls per pair, whatever the assertion count.
+        self.assertEqual(plan["judge_calls"], 16)
+        self.assertEqual(plan["call_count_total"], 34)
+        separate = perf.plan_run([task()], {"claude": "haiku", "codex": "luna"}, 4, "cross", "explicit", "separate")
+        self.assertEqual(separate["judge_calls"], 32)
+        self.assertEqual(separate["call_count_total"], 50)
+        with self.assertRaises(ValueError):
+            perf.plan_run([task()], {"claude": "haiku"}, 1, "cross", "explicit", "sometimes")
 
     def test_objective_only_plan_omits_judging(self):
         plan = perf.plan_run([task()], {"claude": "haiku", "codex": "luna"}, 1, "none", "natural")
@@ -220,6 +241,7 @@ class RunTests(unittest.TestCase):
         self.judge_failure = False
         self.collect_error = False
         self.mismatch = False
+        self.scripts = False
         self.complete_calls = []
         for patch in [mock.patch.object(activation, "_execute_one", side_effect=self.execute),
                       mock.patch.object(vendors, "cli_version", return_value="fixture"),
@@ -228,9 +250,9 @@ class RunTests(unittest.TestCase):
             patch.start()
             self.addCleanup(patch.stop)
 
-    def plan(self, mode="explicit", jv="cross", tasks=None):
+    def plan(self, mode="explicit", jv="cross", tasks=None, grading="batched"):
         tasks = tasks or [task()]
-        plan = perf.plan_run(tasks, {"claude": "haiku", "codex": "luna"}, 1, jv, mode)
+        plan = perf.plan_run(tasks, {"claude": "haiku", "codex": "luna"}, 1, jv, mode, grading)
         return dict(plan, skill="demo", skill_sha=vendors._fixture_fingerprint(self.skills / "demo"),
                     judge_models={"claude": "haiku", "codex": "luna"})
 
@@ -247,6 +269,8 @@ class RunTests(unittest.TestCase):
                                  text="stable helpful note" if installed else "ordinary note",
                                  cost_usd=0.01 if kwargs["vendor"] == "claude" else None,
                                  tokens={"input_tokens": 10, "output_tokens": 2} if kwargs["vendor"] == "codex" else None)
+        if self.scripts and installed and not baseline:
+            rec.script_runs = ["skills/demo/scripts/check.py"]
         if self.bad_control and not installed and not baseline:
             rec.outside_reads = [str(common.REPO_ROOT / "skills/demo/SKILL.md")]
         info = {"workspace_sha": "fixture-with" if self.mismatch and installed else "fixture"}
@@ -264,7 +288,9 @@ class RunTests(unittest.TestCase):
         self.complete_calls.append((vendor, prompt, kwargs))
         if self.judge_failure:
             raise RuntimeError("judge failed")
-        if "Requirement:" in prompt:
+        if "Requirements:\n" in prompt:
+            text = json.dumps(batched_answer(prompt))
+        elif "Requirement:" in prompt:
             text = json.dumps({"verdict": "pass", "quote": "stable helpful note", "reason": "Useful."})
             if "ordinary note" in prompt:
                 text = json.dumps({"verdict": "fail", "quote": "NO RELEVANT CONTENT", "reason": "Missing."})
@@ -284,9 +310,10 @@ class RunTests(unittest.TestCase):
         directory = self.run_plan()
         result = self.summary(directory)
         self.assertFalse(result["incomplete"])
-        self.assertEqual(result["calls"], 14)
+        # Two baselines, four arms, and two batched judge calls per pair.
+        self.assertEqual(result["calls"], 10)
         self.assertEqual(len(self.calls), 6)
-        self.assertEqual(len(self.complete_calls), 8)
+        self.assertEqual(len(self.complete_calls), 4)
         for row in result["rows"]:
             self.assertEqual(row["checks"]["delta"], 1)
             self.assertEqual(row["grades"]["delta"], 1)
@@ -299,6 +326,16 @@ class RunTests(unittest.TestCase):
         sources = [call["skills_map"]["demo"] for call in self.calls if call["skills_map"]]
         self.assertEqual(len(set(sources)), 1)
         self.assertNotEqual(sources[0], self.skills / "demo")
+
+    def test_separate_grading_keeps_the_per_assertion_judge(self):
+        directory = self.run_plan(self.plan(grading="separate"))
+        result = self.summary(directory)
+        self.assertFalse(result["incomplete"])
+        self.assertEqual(result["calls"], 14)
+        self.assertEqual(len(self.complete_calls), 8)
+        for row in result["rows"]:
+            self.assertEqual(row["grades"]["delta"], 1)
+            self.assertEqual(row["pairwise"], {"with": 1})
 
     def test_control_contamination_excludes_entire_pair(self):
         self.bad_control = True
@@ -449,9 +486,10 @@ class CliIntegrationTests(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
             result_dir = Path(proc.stdout.strip())
             summary = json.loads((result_dir / "summary.json").read_text())
-            self.assertEqual(summary["calls"], 14)
-            self.assertEqual(summary["codex_tokens"], 84)
-            self.assertAlmostEqual(summary["claude_cost_usd"], 0.07)
+            # Per vendor: one baseline, two arms, two batched judge calls.
+            self.assertEqual(summary["calls"], 10)
+            self.assertEqual(summary["codex_tokens"], 60)
+            self.assertAlmostEqual(summary["claude_cost_usd"], 0.05)
             for row in summary["rows"]:
                 self.assertEqual(row["activation_count"], 1)
                 self.assertEqual(row["pairwise"], {"with": 1})
@@ -541,7 +579,7 @@ class CliIntegrationTests(unittest.TestCase):
             self.assertEqual(after[0]["comparison"]["verdict"], "b")
             self.assertEqual(len(list(run_dir.glob("pairs.before-rejudge-*.jsonl"))), 1)
             budget = json.loads((run_dir / "budget.json").read_text())
-            self.assertGreater(budget["calls"], 14)
+            self.assertEqual(budget["calls"], 12)
 
 
 class CollectorHookTests(unittest.TestCase):
@@ -581,3 +619,316 @@ class CollectorHookTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def card_task(tid="note", kind="deliverable", claims=("facts",), **overrides):
+    base = {"id": tid, "kind": kind, "claims": list(claims), "prompt": "Write a useful note.",
+            "checks": [{"id": f"{tid}-fact", "kind": "contains", "value": "stable", "claim": claims[0]}],
+            "assertions": [{"id": f"{tid}-useful", "text": "The note is useful.", "claim": claims[-1]}]}
+    base.update(overrides)
+    return base
+
+
+def card(tasks=None, claims=None, invalidation=None):
+    claims = claims or [{"id": "facts", "statement": "Keeps the stated facts."},
+                        {"id": "restraint", "statement": "Leaves a correct note alone."}]
+    tasks = tasks or [card_task(), card_task("clean", "harm", ("restraint",))]
+    data = {"version": 2, "claims": claims, "tasks": tasks}
+    if invalidation is not None:
+        data["invalidation"] = invalidation
+    return data
+
+
+class CardTests(unittest.TestCase):
+    def load(self, data, plants=()):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for rel in plants:
+                (root / rel).mkdir(parents=True)
+                (root / rel / "output.txt").write_text("text")
+            path = root / "card.json"
+            path.write_text(json.dumps(data))
+            return perf.load_card(path)
+
+    def test_valid_card_loads_claims_kinds_and_defaults(self):
+        result = self.load(card(invalidation={"SKILL.md": ["facts"], "scripts/*": "all"}))
+        self.assertEqual(result["version"], 2)
+        self.assertEqual([c["id"] for c in result["claims"]], ["facts", "restraint"])
+        self.assertEqual(result["tasks"][1]["kind"], "harm")
+        self.assertEqual(result["tasks"][0]["planted"], [])
+
+    def test_card_rules_fail_before_calls(self):
+        bad_cards = [
+            {"version": 2, "tasks": [card_task()]},
+            card(claims=[{"id": "facts", "statement": ""}]),
+            card(claims=[{"id": "facts", "statement": "a"}, {"id": "facts", "statement": "b"}]),
+            card(tasks=[card_task(), {**card_task("clean", "harm", ("restraint",)), "claims": ["nope"]}]),
+            card(tasks=[card_task(checks=[{"id": "x", "kind": "contains", "value": "a"}]),
+                        card_task("clean", "harm", ("restraint",))]),
+            card(tasks=[card_task(kind="sometimes"), card_task("clean", "harm", ("restraint",))]),
+            card(tasks=[card_task(), card_task("other")]),
+            card(tasks=[card_task(), card_task("clean", "harm", ("facts",))]),
+            card(invalidation={"SKILL.md": ["unknown"]}),
+            card(invalidation={"SKILL.md": []}),
+            card(tasks=[card_task(planted=[{"path": "missing", "expect": "good"}]),
+                        card_task("clean", "harm", ("restraint",))]),
+            card(tasks=[card_task(planted=[{"path": "p", "expect": "maybe"}]),
+                        card_task("clean", "harm", ("restraint",))]),
+        ]
+        for data in bad_cards:
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                self.load(data, plants=("p",))
+
+    def test_version_one_refuses_claim_tags(self):
+        with self.assertRaises(ValueError):
+            self.load({"version": 1, "tasks": [{**task(), "assertions": [{"id": "a", "text": "x", "claim": "facts"}]}]})
+
+
+class ValidateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+
+    def plant(self, rel, text, artifacts=None):
+        (self.root / rel / "artifacts").mkdir(parents=True)
+        (self.root / rel / "output.txt").write_text(text)
+        for name, content in (artifacts or {}).items():
+            (self.root / rel / "artifacts" / name).write_text(content)
+        return rel
+
+    def validate(self, data):
+        path = self.root / "card.json"
+        path.write_text(json.dumps(data))
+        return perf.validate_card(path)
+
+    def test_a_check_that_separates_planted_outputs_is_clean(self):
+        good, bad = self.plant("good", "stable facts"), self.plant("bad", "vague words")
+        t = card_task(planted=[{"path": good, "expect": "good"}, {"path": bad, "expect": "bad"}])
+        findings = self.validate(card(tasks=[t, card_task("clean", "harm", ("restraint",), checks=[])]))
+        self.assertEqual([f for f in findings if f["severity"] == "error"], [])
+        self.assertIn("restraint", " ".join(f["message"] for f in findings if f["severity"] == "info"))
+
+    def test_a_check_that_cannot_fail_or_rejects_good_output_is_an_error(self):
+        good, bad = self.plant("good", "stable facts"), self.plant("bad", "stable but wrong")
+        t = card_task(planted=[{"path": good, "expect": "good"}, {"path": bad, "expect": "bad"}])
+        findings = self.validate(card(tasks=[t, card_task("clean", "harm", ("restraint",), checks=[])]))
+        self.assertTrue(any("cannot fail" in f["message"] for f in findings))
+        strict = card_task(planted=[{"path": good, "expect": "good"}, {"path": bad, "expect": "bad"}],
+                           checks=[{"id": "exact", "kind": "contains", "value": "only this", "claim": "facts"}])
+        findings = self.validate(card(tasks=[strict, card_task("clean", "harm", ("restraint",), checks=[])]))
+        self.assertTrue(any("planted good" in f["message"] for f in findings))
+
+    def test_checks_without_both_kinds_of_plant_are_an_error(self):
+        good = self.plant("good", "stable facts")
+        t = card_task(planted=[{"path": good, "expect": "good"}])
+        findings = self.validate(card(tasks=[t, card_task("clean", "harm", ("restraint",), checks=[])]))
+        self.assertTrue(any("planted good and one planted bad" in f["message"] for f in findings))
+
+    def test_command_scorers_see_the_run_layout(self):
+        code = "import pathlib,sys; sys.exit(0 if 'ok' in pathlib.Path('notes.txt').read_text() else 1)"
+        good = self.plant("good", "x", {"notes.txt": "ok"})
+        bad = self.plant("bad", "x", {"notes.txt": "no"})
+        t = card_task(artifacts=["notes.txt"], planted=[{"path": good, "expect": "good"}, {"path": bad, "expect": "bad"}],
+                      checks=[{"id": "scorer", "kind": "command", "argv": [sys.executable, "-c", code], "claim": "facts"}])
+        findings = self.validate(card(tasks=[t, card_task("clean", "harm", ("restraint",), checks=[])]))
+        self.assertEqual([f for f in findings if f["severity"] == "error"], [])
+
+    def test_version_one_suites_are_reported_not_validated(self):
+        findings = self.validate({"version": 1, "tasks": [task()]})
+        self.assertEqual(findings[0]["severity"], "error")
+
+
+class ClaimVerdictTests(unittest.TestCase):
+    def test_verdicts_follow_interval_separation_and_the_baseline_rate(self):
+        self.assertEqual(perf.claim_verdict(18, 6, 20)["verdict"], "STRONG")
+        self.assertEqual(perf.claim_verdict(14, 10, 20)["verdict"], "WEAK")
+        self.assertEqual(perf.claim_verdict(6, 18, 20)["verdict"], "HARM")
+        self.assertEqual(perf.claim_verdict(10, 9, 10)["verdict"], "BASELINE")
+        self.assertEqual(perf.claim_verdict(0, 0, 0)["verdict"], "UNMEASURED")
+        # Per vendor at 10 pairs, 9 against 3 still touches: no verdict yet.
+        self.assertEqual(perf.claim_verdict(9, 3, 10)["verdict"], "WEAK")
+
+
+class CardRunTests(RunTests):
+    """A version 2 card through the runner with the same stubs as RunTests."""
+
+    def card_plan(self, tasks, repeats=1, adaptive=False):
+        data = card(tasks=tasks)
+        plan = perf.plan_run(tasks, {"claude": "haiku", "codex": "luna"}, repeats, "cross", "explicit")
+        return dict(plan, skill="demo", skill_sha=vendors._fixture_fingerprint(self.skills / "demo"),
+                    judge_models={"claude": "haiku", "codex": "luna"}, claims=data["claims"],
+                    card_version=2, adaptive=adaptive)
+
+    def tasks(self, n=1):
+        out = [dict(card_task(f"note{i}"), workspace="empty", artifacts=[], control_markers=[], planted=[])
+               for i in range(n)]
+        harm = dict(card_task("clean", "harm", ("restraint",)), workspace="empty", artifacts=[],
+                    control_markers=[], planted=[])
+        return out + [harm]
+
+    def test_claims_get_verdicts_per_vendor_with_agreement_cost_and_scripts(self):
+        self.scripts = True
+        directory = self.run_plan(self.card_plan(self.tasks()))
+        result = self.summary(directory)
+        self.assertFalse(result["incomplete"])
+        facts = result["claims"]["facts"]
+        self.assertEqual(facts["vendors"]["claude"]["n"], 1)
+        self.assertEqual(facts["vendors"]["claude"]["with"], 1.0)
+        self.assertEqual(facts["vendors"]["claude"]["without"], 0.0)
+        self.assertTrue(facts["vendors_agree"])
+        self.assertEqual(facts["pooled"]["n"], 2)
+        self.assertEqual(result["arm_cost"]["claude"]["unit"], "usd")
+        self.assertAlmostEqual(result["arm_cost"]["claude"]["with"], 0.01)
+        self.assertEqual(result["arm_cost"]["codex"]["with"], 12)
+        self.assertEqual(result["script_runs"]["claude"]["with"], {"ran": 2, "of": 2})
+        self.assertEqual(result["script_runs"]["claude"]["without"], {"ran": 0, "of": 2})
+        pairs = list(common.read_jsonl(directory / "pairs.jsonl"))
+        grade = pairs[0]["arms"]["with"]["grades"][0]
+        self.assertIn(grade["claim"], ("facts", "restraint"))
+        self.assertTrue(all("evidence_dir" in p["arms"]["with"] for p in pairs))
+        markdown = (directory / "summary.md").read_text()
+        self.assertIn("| facts |", markdown)
+        self.assertIn("Skill scripts run", markdown)
+
+    def test_records_without_script_runs_are_not_counted_as_never_ran(self):
+        directory = self.run_plan(self.card_plan(self.tasks()))
+        pairs = list(common.read_jsonl(directory / "pairs.jsonl"))
+        for pair in pairs:
+            for arm in pair["arms"].values():
+                arm["trace"].pop("script_runs")
+        (directory / "pairs.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pairs))
+        with mock.patch("sys.stdout"):
+            perf._cmd_report(argparse.Namespace(run_dir=directory, json=True))
+        self.assertEqual(self.summary(directory)["script_runs"]["claude"]["with"], {"ran": 0, "of": 0})
+        self.assertIn("not recorded", (directory / "summary.md").read_text())
+
+    def test_unsupported_evidence_never_counts_toward_a_claim(self):
+        self.judge_failure = True
+        result = self.summary(self.run_plan(self.card_plan(self.tasks())))
+        # The check still scores "facts"; the judged-only part of each claim is unsupported.
+        self.assertEqual(result["claims"]["facts"]["pooled"]["n"], 0)
+        self.assertEqual(result["claims"]["restraint"]["pooled"]["verdict"], "UNMEASURED")
+
+    def test_adaptive_rounds_stop_spending_on_decided_claims(self):
+        tasks = [t for t in self.tasks(6) if t["kind"] == "deliverable"]
+        for t in tasks:
+            t["claims"] = ["facts"]
+            t["assertions"] = [dict(t["assertions"][0], claim="facts")]
+        plan = self.card_plan(tasks, repeats=3, adaptive=True)
+        plan["claims"] = plan["claims"][:1]
+        result = self.summary(self.run_plan(plan))
+        # Round one: 6 pairs per vendor, 6/6 against 0/6 separates, so rounds two and three are skipped.
+        self.assertEqual(result["claims"]["facts"]["vendors"]["claude"]["verdict"], "STRONG")
+        self.assertEqual(result["adaptive_skipped"], 24)
+        self.assertEqual(len([c for c in self.calls if not c["label"].startswith("baseline")]), 24)
+        self.assertFalse(result["incomplete"])
+        plan_back = json.loads((Path(self.run_plan(dict(plan, adaptive=False))) / "plan.json").read_text())
+        self.assertEqual(plan_back["adaptive_skipped"], [])
+
+    def test_rescore_reruns_checks_from_stored_evidence_without_calls(self):
+        directory = self.run_plan(self.card_plan(self.tasks()))
+        calls_before = (len(self.calls), len(self.complete_calls))
+        suite = self.root / "card.json"
+        data = card(tasks=self.tasks())
+        for t in data["tasks"]:
+            t["checks"] = [dict(c, value="ordinary") for c in t["checks"]]
+        suite.write_text(json.dumps(data))
+        pairs = list(common.read_jsonl(directory / "pairs.jsonl"))
+        pairs[0]["arms"]["with"].pop("evidence_dir")
+        (directory / "pairs.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pairs))
+        result = perf.rescore(directory, suite)
+        self.assertEqual(result["assertions_changed"], [])
+        self.assertEqual((len(self.calls), len(self.complete_calls)), calls_before)
+        after = list(common.read_jsonl(directory / "pairs.jsonl"))
+        for pair in after:
+            self.assertEqual(pair["arms"]["with"]["checks"][0]["verdict"], "fail")
+            self.assertEqual(pair["arms"]["without"]["checks"][0]["verdict"], "pass")
+        self.assertEqual(len(list(directory.glob("pairs.before-rescore-*.jsonl"))), 1)
+        self.assertEqual(json.loads((directory / "plan.json").read_text())["rescored"][0]["assertions_changed"], [])
+
+    def test_rescore_flags_changed_assertions(self):
+        directory = self.run_plan(self.card_plan(self.tasks()))
+        data = card(tasks=self.tasks())
+        data["tasks"][0]["assertions"][0]["text"] = "A different requirement."
+        suite = self.root / "card.json"
+        suite.write_text(json.dumps(data))
+        self.assertEqual(perf.rescore(directory, suite)["assertions_changed"], ["note0"])
+
+    def test_claims_filter_and_adaptive_need_a_card(self):
+        suite = self.root / "card.json"
+        suite.write_text(json.dumps(card(tasks=self.tasks(2))))
+        parser = argparse.ArgumentParser()
+        perf.add_subparser(parser.add_subparsers())
+        args = parser.parse_args(["performance", "run", "--skill", "demo", "--suite", str(suite), "--repeats", "1",
+                                  "--claims", "restraint", "--dry-run"])
+        out = mock.MagicMock()
+        with mock.patch("sys.stdout", out):
+            self.assertEqual(args.func(args), 0)
+        printed = json.loads("".join(c.args[0] for c in out.write.call_args_list))
+        self.assertEqual([t["id"] for t in printed["tasks"]], ["clean"])
+        args.claims = "nope"
+        with mock.patch("sys.stderr"):
+            self.assertEqual(args.func(args), 2)
+        v1 = self.root / "v1.json"
+        v1.write_text(json.dumps({"version": 1, "tasks": [task()]}))
+        for flags in (["--claims", "facts"], ["--adaptive"]):
+            args = parser.parse_args(["performance", "run", "--skill", "demo", "--suite", str(v1), "--dry-run", *flags])
+            with mock.patch("sys.stderr"):
+                self.assertEqual(args.func(args), 2)
+        self.assertEqual(self.calls, [])
+
+
+class PlanChangesTests(unittest.TestCase):
+    """The planner against a throwaway git repository."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.repo = Path(self.tmp.name)
+        skill = self.repo / "skills" / "demo"
+        (skill / "references").mkdir(parents=True)
+        (skill / "SKILL.md").write_text('---\nname: demo\ndescription: "Write notes."\n---\nUse facts.\n')
+        (skill / "references" / "guide.md").write_text("guide\n")
+        git = lambda *a: subprocess.run(["git", *a], cwd=self.repo, check=True, capture_output=True)
+        git("init", "-q")
+        git("-c", "user.name=t", "-c", "user.email=t@t", "add", ".")
+        git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base")
+        for name, value in [("REPO_ROOT", self.repo), ("SKILLS_DIR", self.repo / "skills")]:
+            patch = mock.patch.object(common, name, value)
+            patch.start()
+            self.addCleanup(patch.stop)
+        self.card = {"claims": [{"id": "facts"}, {"id": "restraint"}],
+                     "invalidation": {"references/*.md": ["facts"]},
+                     "tasks": [{"id": "note", "claims": ["facts"]}, {"id": "clean", "claims": ["restraint"]}]}
+
+    def test_unchanged_skill_needs_nothing(self):
+        result = perf.plan_changes("demo", self.card, "HEAD")
+        self.assertEqual((result["changed"], result["claims"], result["activation"]), ([], [], False))
+
+    def test_description_change_invalidates_activation_only(self):
+        skill_md = self.repo / "skills/demo/SKILL.md"
+        skill_md.write_text(skill_md.read_text().replace("Write notes.", "Write short notes."))
+        result = perf.plan_changes("demo", self.card, "HEAD")
+        self.assertTrue(result["activation"])
+        self.assertEqual(result["claims"], [])
+
+    def test_mapped_path_selects_its_claims_and_unmapped_paths_select_all(self):
+        (self.repo / "skills/demo/references/guide.md").write_text("changed\n")
+        result = perf.plan_changes("demo", self.card, "HEAD")
+        self.assertEqual(result["claims"], ["facts"])
+        self.assertEqual(result["tasks"], ["note"])
+        (self.repo / "skills/demo/scripts").mkdir()
+        (self.repo / "skills/demo/scripts/new.py").write_text("print()\n")
+        result = perf.plan_changes("demo", self.card, "HEAD")
+        self.assertEqual(result["claims"], ["facts", "restraint"])
+        self.assertIn("unmapped", result["paths"]["scripts/new.py"]["reason"])
+
+    def test_body_change_is_a_path_and_defaults_to_every_claim(self):
+        skill_md = self.repo / "skills/demo/SKILL.md"
+        skill_md.write_text(skill_md.read_text() + "Another rule.\n")
+        result = perf.plan_changes("demo", self.card, "HEAD")
+        self.assertFalse(result["activation"])
+        self.assertEqual(result["claims"], ["facts", "restraint"])
+        self.card["invalidation"]["SKILL.md"] = ["restraint"]
+        self.assertEqual(perf.plan_changes("demo", self.card, "HEAD")["claims"], ["restraint"])

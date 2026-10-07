@@ -1,0 +1,1 @@
+Version 2.4 releases on Friday. Most checks have passed, and the migration is quick.

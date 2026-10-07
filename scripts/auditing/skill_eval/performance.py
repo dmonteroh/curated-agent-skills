@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import fnmatch
 import json
 import math
 import os
@@ -12,6 +13,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 from collections import Counter
 from pathlib import Path, PurePosixPath
 
@@ -68,21 +70,61 @@ def _text(value, field):
     return value
 
 
+_ID_RE = re.compile(r"[a-zA-Z0-9_-]+")
+TASK_KINDS = ("deliverable", "harm", "stand-down")
+_V1_TASK_FIELDS = {"id", "prompt", "workspace", "artifacts", "checks", "assertions", "control_markers"}
+_V2_TASK_FIELDS = _V1_TASK_FIELDS | {"kind", "claims", "planted"}
+
+
 def load_suite(path: Path) -> list[dict]:
-    """Validate task data before any agent calls."""
+    """Validate task data before any agent calls. Returns the task list."""
+    return load_card(path)["tasks"]
+
+
+def load_card(path: Path) -> dict:
+    """Validate a suite (version 1) or an eval card (version 2).
+
+    Version 2 adds `claims` (what the skill promises, each probed by tagged
+    checks or assertions), task `kind` and `claims`, `planted` good and bad
+    outputs for `validate`, and an `invalidation` map from skill paths to
+    the claims a change there invalidates (read by `plan`)."""
     data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or type(data.get("version")) is not int or data["version"] != 1:
-        raise ValueError("Suite version must be 1.")
-    if set(data) - {"version", "tasks"}:
+    if not isinstance(data, dict) or type(data.get("version")) is not int or data["version"] not in (1, 2):
+        raise ValueError("Suite version must be 1 or 2.")
+    version = data["version"]
+    allowed = {"version", "tasks"} | ({"claims", "invalidation"} if version == 2 else set())
+    if set(data) - allowed:
         raise ValueError("Unknown suite fields.")
+    claim_ids: list[str] = []
+    if version == 2:
+        claims = data.get("claims")
+        if not isinstance(claims, list) or not claims:
+            raise ValueError("A version 2 card needs a nonempty claims list.")
+        for claim in claims:
+            if not isinstance(claim, dict) or set(claim) - {"id", "statement", "rests_on"}:
+                raise ValueError("Claims take id, statement, and rests_on.")
+            cid = _text(claim.get("id"), "Claim id")
+            if not _ID_RE.fullmatch(cid) or cid in claim_ids:
+                raise ValueError(f"Duplicate or unsafe claim id: {cid}")
+            claim_ids.append(cid)
+            _text(claim.get("statement"), "Claim statement")
+            rests_on = claim.setdefault("rests_on", [])
+            if not isinstance(rests_on, list) or any(not isinstance(r, str) or not r.strip() for r in rests_on):
+                raise ValueError("Claim rests_on must be a list of skill paths or sections.")
+        invalidation = data.setdefault("invalidation", {})
+        if not isinstance(invalidation, dict):
+            raise ValueError("Invalidation must map skill paths to claim lists.")
+        for key, value in invalidation.items():
+            _text(key, "Invalidation path")
+            if value != "all" and (not isinstance(value, list) or not value
+                                   or any(v not in claim_ids for v in value)):
+                raise ValueError(f"Invalidation for {key} must be \"all\" or a list of known claim ids.")
     tasks = data.get("tasks")
     if not isinstance(tasks, list) or not tasks:
         raise ValueError("Suite tasks must be a nonempty list.")
     seen = set()
     for task in tasks:
-        if not isinstance(task, dict) or set(task) - {
-            "id", "prompt", "workspace", "artifacts", "checks", "assertions", "control_markers"
-        }:
+        if not isinstance(task, dict) or set(task) - (_V2_TASK_FIELDS if version == 2 else _V1_TASK_FIELDS):
             raise ValueError("Unknown task fields.")
         tid = _text(task.get("id"), "Task id")
         if not re.fullmatch(r"[a-zA-Z0-9_-]+", tid) or tid in seen:
@@ -111,7 +153,8 @@ def load_suite(path: Path) -> list[dict]:
         for i, assertion in enumerate(assertions):
             if isinstance(assertion, str):
                 assertions[i] = {"id": f"assertion-{i + 1}", "text": _text(assertion, "Assertion")}
-            elif isinstance(assertion, dict) and set(assertion) == {"id", "text"}:
+            elif isinstance(assertion, dict) and {"id", "text"} <= set(assertion) <= (
+                    {"id", "text", "claim"} if version == 2 else {"id", "text"}):
                 _text(assertion["id"], "Assertion id")
                 _text(assertion["text"], "Assertion text")
             else:
@@ -124,7 +167,8 @@ def load_suite(path: Path) -> list[dict]:
             raise ValueError("Checks must be a list.")
         check_ids = set()
         for check in checks:
-            if not isinstance(check, dict) or set(check) - {"id", "kind", "target", "value", "argv", "metrics"}:
+            if not isinstance(check, dict) or set(check) - ({"id", "kind", "target", "value", "argv", "metrics"}
+                                                            | ({"claim"} if version == 2 else set())):
                 raise ValueError("Unknown check fields.")
             cid = _text(check.get("id"), "Check id")
             if cid in check_ids:
@@ -165,7 +209,44 @@ def load_suite(path: Path) -> list[dict]:
             re.compile(_text(marker, "Control marker"))
         if not checks and not assertions:
             raise ValueError("Every task needs checks or assertions.")
-    return tasks
+        if version == 2:
+            _validate_card_task(task, claim_ids, path)
+    if version == 2:
+        probed = {item["claim"] for t in tasks for item in t["checks"] + t["assertions"]}
+        missing = [c for c in claim_ids if c not in probed]
+        if missing:
+            raise ValueError(f"Claims with no check or assertion: {', '.join(missing)}")
+        if not any(t["kind"] in ("harm", "stand-down") for t in tasks):
+            raise ValueError("A card needs at least one harm or stand-down task.")
+    return {"version": version, "claims": data.get("claims", []),
+            "invalidation": data.get("invalidation", {}), "tasks": tasks}
+
+
+def _validate_card_task(task: dict, claim_ids: list[str], path: Path) -> None:
+    """Version 2 task rules: a kind, the claims it probes, every check and
+    assertion tagged with one of those claims, and planted outputs on disk."""
+    kind = task.setdefault("kind", "deliverable")
+    if kind not in TASK_KINDS:
+        raise ValueError(f"Task kind must be one of {', '.join(TASK_KINDS)}.")
+    claims = task.get("claims")
+    if not isinstance(claims, list) or not claims or any(c not in claim_ids for c in claims) \
+            or len(set(claims)) != len(claims):
+        raise ValueError(f"Task {task['id']} must list known claims, without duplicates.")
+    for item in task["checks"] + task["assertions"]:
+        if item.get("claim") not in claims:
+            raise ValueError(f"Task {task['id']}: {item['id']} must name one of the task's claims.")
+    planted = task.setdefault("planted", [])
+    if not isinstance(planted, list):
+        raise ValueError("Planted outputs must be a list.")
+    for sample in planted:
+        if not isinstance(sample, dict) or set(sample) != {"path", "expect"} or sample["expect"] not in ("good", "bad"):
+            raise ValueError("A planted output needs a path and expect: good or bad.")
+        src = (path.parent / _text(sample["path"], "Planted path")).resolve()
+        if not (src / "output.txt").is_file():
+            raise ValueError(f"Planted output {sample['path']} needs an output.txt.")
+        if any(p.is_symlink() for p in src.rglob("*")):
+            raise ValueError("Planted outputs cannot contain symlinks.")
+        sample["path"] = str(src)
 
 
 def collect_evidence(cwd: Path, text: str, task: dict, destination: Path) -> dict:
@@ -204,6 +285,8 @@ def objective_checks(text: str, artifacts: dict, checks: list[dict], destination
         target = check.get("target", "output")
         content = text if target == "output" else artifacts.get(target)
         row = {"id": check["id"], "verdict": "unsupported"}
+        if check.get("claim"):
+            row["claim"] = check["claim"]
         if kind == "command":
             # The operator supplies argv. No shell or arm labels reach the scorer.
             argv = [arg.replace("{output}", str(destination / "output.txt"))
@@ -256,13 +339,172 @@ def _judge_text(record: dict) -> str:
     return text
 
 
-def plan_run(tasks, models, repeats, judge_vendor, mode):
+GRADING_MODES = ("batched", "separate")
+
+
+def judge_calls_per_pair(task: dict, grading: str) -> int:
+    """`batched`: one call per presentation order grades every assertion for
+    both outputs and gives the preference. `separate`: one call per assertion
+    per output, plus two pairwise calls."""
+    return 2 if grading == "batched" else 2 + 2 * len(task["assertions"])
+
+
+def plan_run(tasks, models, repeats, judge_vendor, mode, grading="batched"):
+    if grading not in GRADING_MODES:
+        raise ValueError(f"Grading must be one of {', '.join(GRADING_MODES)}.")
     pairs = len(tasks) * len(models) * repeats
-    grading = sum(2 + 2 * len(t["assertions"]) for t in tasks) * len(models) * repeats
+    grading_calls = sum(judge_calls_per_pair(t, grading) for t in tasks) * len(models) * repeats
     return {"vendors": models, "repeats": repeats, "mode": mode, "judge_vendor": judge_vendor,
-            "tasks": tasks, "baseline_calls": len(models), "arm_calls": pairs * 2,
-            "judge_calls": grading if judge_vendor != "none" else 0,
-            "call_count_total": len(models) + pairs * 2 + (grading if judge_vendor != "none" else 0)}
+            "grading": grading, "tasks": tasks, "baseline_calls": len(models), "arm_calls": pairs * 2,
+            "judge_calls": grading_calls if judge_vendor != "none" else 0,
+            "call_count_total": len(models) + pairs * 2 + (grading_calls if judge_vendor != "none" else 0)}
+
+
+# Chosen default: a claim the no-skill arm already meets at this rate or
+# above is BASELINE, so the skill earns nothing for it (claims.md rule from
+# the writing-style campaign: "a claim present in the without arms is baseline").
+BASELINE_RATE = 0.8
+
+
+def claim_outcome(pair: dict, arm: str, claim: str, task: dict) -> bool | None:
+    """Whether one arm met one claim: every check and assertion the task tags
+    with the claim passed. None when any of them is missing from the record
+    (a judge that never ran) or unsupported, so partial evidence never
+    decides a claim."""
+    expected = [("checks", c["id"]) for c in task["checks"] if c.get("claim") == claim] + \
+               [("grades", a["id"]) for a in task["assertions"] if a.get("claim") == claim]
+    if not expected:
+        return None
+    verdicts = []
+    for kind, item_id in expected:
+        row = next((r for r in pair["arms"][arm].get(kind, []) if r["id"] == item_id), None)
+        if row is None or row["verdict"] == "unsupported":
+            return None
+        verdicts.append(row["verdict"] == "pass")
+    return all(verdicts)
+
+
+def claim_verdict(with_met: int, without_met: int, n: int) -> dict:
+    """STRONG or HARM when the two arms' 95% Wilson intervals do not overlap,
+    BASELINE when the no-skill arm already meets the claim, WEAK otherwise
+    (no separation at this n: more pairs may still separate it), UNMEASURED
+    with no supported pair. Disjoint intervals are a conservative chosen
+    test. A paired test would separate sooner."""
+    if n == 0:
+        return {"verdict": "UNMEASURED", "n": 0}
+    w_lo, w_hi = common.wilson_interval(with_met, n)
+    o_lo, o_hi = common.wilson_interval(without_met, n)
+    if w_lo > o_hi:
+        verdict = "STRONG"
+    elif o_lo > w_hi:
+        verdict = "HARM"
+    elif without_met / n >= BASELINE_RATE:
+        verdict = "BASELINE"
+    else:
+        verdict = "WEAK"
+    return {"verdict": verdict, "n": n, "with": with_met / n, "without": without_met / n,
+            "with_interval": [w_lo, w_hi], "without_interval": [o_lo, o_hi]}
+
+
+def claim_summary(plan: dict, pairs: list[dict]) -> dict:
+    """Per claim: a verdict per vendor and pooled, plus whether the vendors
+    moved the same way. A claim counts once per pair, over every task that
+    probes it."""
+    out = {}
+    for claim in plan.get("claims", []):
+        cid = claim["id"]
+        tasks = {t["id"]: t for t in plan["tasks"] if cid in t.get("claims", [])}
+        per_vendor, pooled = {}, [0, 0, 0]
+        for vendor in plan["vendors"]:
+            counts = [0, 0, 0]
+            for pair in pairs:
+                if pair["vendor"] != vendor or pair["task_id"] not in tasks or not pair["valid"]:
+                    continue
+                task = tasks[pair["task_id"]]
+                w, o = claim_outcome(pair, "with", cid, task), claim_outcome(pair, "without", cid, task)
+                if w is None or o is None:
+                    continue
+                counts[0] += w
+                counts[1] += o
+                counts[2] += 1
+            per_vendor[vendor] = claim_verdict(*counts)
+            pooled = [a + b for a, b in zip(pooled, counts)]
+        directions = {v: r["with"] - r["without"] for v, r in per_vendor.items() if r["n"]}
+        agree = None
+        if len(directions) == len(plan["vendors"]) and len(directions) > 1:
+            signs = {(d > 0) - (d < 0) for d in directions.values()}
+            agree = len(signs) == 1 and 0 not in signs
+        out[cid] = {"statement": claim["statement"], "vendors": per_vendor,
+                    "pooled": claim_verdict(*pooled), "vendors_agree": agree}
+    return out
+
+
+def _arm_cost(pairs: list[dict], vendor: str) -> dict:
+    """Mean cost per arm in the vendor's own unit, never converted."""
+    out = {}
+    for arm in ("without", "with"):
+        values = []
+        for pair in pairs:
+            if pair["vendor"] != vendor or not pair["valid"]:
+                continue
+            trace = pair["arms"][arm]["trace"]
+            if vendor == "claude" and trace.get("cost_usd") is not None:
+                values.append(trace["cost_usd"])
+            elif vendor == "codex" and trace.get("tokens"):
+                values.append(sum((trace["tokens"].get(k) or trace["tokens"].get(k + "_tokens") or 0)
+                                  for k in ("input", "output")))
+        out[arm] = sum(values) / len(values) if values else None
+    out["unit"] = "usd" if vendor == "claude" else "tokens"
+    return out
+
+
+def _script_runs(pairs: list[dict], vendor: str, name: str) -> dict:
+    """Valid arms that executed one of the evaluated skill's own scripts.
+    Records parsed before traces carried `script_runs` are left out, so an
+    old run reports 0 of 0 rather than a false "never ran"."""
+    out = {}
+    prefix = f"skills/{name}/scripts/"
+    for arm in ("without", "with"):
+        rows = [p["arms"][arm]["trace"] for p in pairs if p["vendor"] == vendor and p["valid"]
+                and "script_runs" in p["arms"][arm]["trace"]]
+        out[arm] = {"ran": sum(any(r.startswith(prefix) for r in t.get("script_runs", [])) for t in rows),
+                    "of": len(rows)}
+    return out
+
+
+def judge_pair(pair: dict, task: dict, *, grading: str, judge_kwargs: dict, run_dir: Path,
+               label: str, rng: random.Random) -> None:
+    """Grade both arms of a valid pair and compare them, in place. Grades
+    carry the claim their assertion names, so claim verdicts can read them."""
+    claim_of = {a["id"]: a.get("claim") for a in task["assertions"]}
+    without, with_ = _judge_text(pair["arms"]["without"]), _judge_text(pair["arms"]["with"])
+    if grading == "batched":
+        result = judge.compare_and_grade(task["prompt"], without, with_, task["assertions"],
+                                         run_dir=run_dir / "judgements" / label,
+                                         seed=rng.randrange(2**32), **judge_kwargs)
+        pair["arms"]["without"]["grades"] = result["grades"]["a"]
+        pair["arms"]["with"]["grades"] = result["grades"]["b"]
+        pair["comparison"] = result["comparison"]
+    else:
+        order = ["without", "with"]
+        rng.shuffle(order)
+        for arm in order:
+            pair["arms"][arm]["grades"] = judge.grade(task["prompt"], _judge_text(pair["arms"][arm]),
+                                                      task["assertions"], **judge_kwargs)
+        pair["comparison"] = judge.pairwise(task["prompt"], without, with_, repeats=2,
+                                            run_dir=run_dir / "judgements" / label,
+                                            seed=rng.randrange(2**32), **judge_kwargs)
+    for arm in ("without", "with"):
+        for row in pair["arms"][arm]["grades"]:
+            if claim_of.get(row["id"]):
+                row["claim"] = claim_of[row["id"]]
+
+
+def _decided_claims(plan: dict, pairs: list[dict], vendor: str) -> set[str]:
+    """Claims already STRONG or HARM for this vendor: more pairs cannot
+    change the direction, so adaptive rounds stop spending on them."""
+    summary = claim_summary(plan, pairs)
+    return {cid for cid, c in summary.items() if c["vendors"].get(vendor, {}).get("verdict") in ("STRONG", "HARM")}
 
 
 def _score(rows):
@@ -277,7 +519,9 @@ def summarize(plan, pairs, budget):
         for task in plan["tasks"]:
             selected = [p for p in pairs if p["vendor"] == vendor and p["task_id"] == task["id"]]
             valid = [p for p in selected if p["valid"]]
+            skipped = sum(1 for v, t, _ in plan.get("adaptive_skipped", []) if v == vendor and t == task["id"])
             row = {"vendor": vendor, "task_id": task["id"], "pairs": len(selected),
+                   "expected_pairs": plan["repeats"] - skipped,
                    "valid_pairs": len(valid), "invalid_pairs": len(selected) - len(valid),
                    "activation_count": sum((plan.get("installed_name") or plan["skill"]) in p["arms"]["with"]["trace"]["activated"]
                                            for p in selected),
@@ -321,10 +565,15 @@ def summarize(plan, pairs, budget):
                                         "with": with_skill, "delta": delta, "direction": samples["direction"],
                                         "improvement": -delta if samples["direction"] == "lower" else delta}
             rows.append(row)
+    installed_name = plan.get("installed_name") or plan["skill"]
     return {"skill": plan["skill"], "mode": plan["mode"], "rows": rows,
+            "claims": claim_summary(plan, pairs),
+            "arm_cost": {v: _arm_cost(pairs, v) for v in plan["vendors"]},
+            "script_runs": {v: _script_runs(pairs, v, installed_name) for v in plan["vendors"]},
+            "adaptive_skipped": len(plan.get("adaptive_skipped", [])),
             "calls": budget.calls, "claude_cost_usd": budget.cost_usd,
             "codex_tokens": budget.codex_tokens,
-            "incomplete": any(r["pairs"] != plan["repeats"] or r["invalid_pairs"] for r in rows)
+            "incomplete": any(r["pairs"] != r["expected_pairs"] or r["invalid_pairs"] for r in rows)
                           or any(p.get("grading_error") for p in pairs)
                           or any(p.get("comparison", {}).get("verdict") == "void" for p in pairs)
                           or any(r["verdict"] == "unsupported" for p in pairs for a in p["arms"].values()
@@ -349,6 +598,33 @@ def write_summary(run_dir: Path, summary: dict):
             for name, metric in sorted(row["metrics"].items()):
                 lines.append(f"| {row['vendor']} | {row['task_id']} | {name} | {metric['without']:.3f} | "
                              f"{metric['with']:.3f} | {metric['improvement']:+.3f} | {metric['supported_pairs']} |")
+    if summary.get("claims"):
+        vendor_names = sorted({v for c in summary["claims"].values() for v in c["vendors"]})
+        lines += ["", "| Claim | " + " | ".join(vendor_names) + " | Pooled | Vendors agree |",
+                  "| --- | " + " | ".join("---" for _ in vendor_names) + " | --- | --- |"]
+
+        def cell(result):
+            if not result["n"]:
+                return "UNMEASURED"
+            return f"{result['verdict']} {result['with']:.2f} vs {result['without']:.2f}, n={result['n']}"
+        for cid, claim in summary["claims"].items():
+            agree = {True: "yes", False: "no", None: "-"}[claim["vendors_agree"]]
+            lines.append(f"| {cid} | " + " | ".join(cell(claim["vendors"][v]) for v in vendor_names)
+                         + f" | {cell(claim['pooled'])} | {agree} |")
+        lines += ["", "A claim verdict compares the with-skill rate to the without rate. STRONG and HARM need "
+                  "non-overlapping 95% intervals. BASELINE means the without arm already meets the claim. "
+                  "WEAK means no separation at this n."]
+    if summary.get("arm_cost"):
+        lines += ["", "| Vendor | Unit | Mean per arm without | Mean per arm with | Skill scripts run (with) |",
+                  "| --- | --- | --- | --- | --- |"]
+        for vendor, cost in summary["arm_cost"].items():
+            fmt = (lambda x: "-" if x is None else f"{x:.4f}") if cost["unit"] == "usd" else \
+                  (lambda x: "-" if x is None else f"{x:.0f}")
+            runs = summary.get("script_runs", {}).get(vendor, {}).get("with", {"ran": 0, "of": 0})
+            ran = f"{runs['ran']}/{runs['of']}" if runs["of"] else "not recorded"
+            lines.append(f"| {vendor} | {cost['unit']} | {fmt(cost['without'])} | {fmt(cost['with'])} | {ran} |")
+    if summary.get("adaptive_skipped"):
+        lines += ["", f"Adaptive rounds skipped {summary['adaptive_skipped']} pairs whose claims were already decided."]
     lines += ["", f"Calls: {summary['calls']}. Claude dollars: {summary['claude_cost_usd']:.4f}. Codex tokens: {summary['codex_tokens']}.", "",
               "Scores use valid pairs with supported evidence. Positive check deltas, assertion deltas, and metric improvements favour the skill.",
               "An installed skill may remain inactive in natural mode. Explicit mode requires observed activation."]
@@ -422,6 +698,7 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
                "outside_reads": other, "findings": [dataclasses.asdict(f) for f in findings],
                "artifacts": info.get("evidence", {}).get("artifacts", {})}
         if task:
+            row["evidence_dir"] = str(destination.relative_to(run_dir))
             output = _judge_text(row)
             if not installed and any(re.search(m, output) for m in task["control_markers"]):
                 row["valid"] = False
@@ -458,10 +735,25 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
                 baseline_errors[vendor] = str(exc)
                 common.append_jsonl(run_dir / "baselines.jsonl", {"vendor": vendor, "error": str(exc)})
         rng = random.Random(seed)
-        jobs = [(vendor, task, repeat) for vendor in plan["vendors"] for task in plan["tasks"]
-                for repeat in range(plan["repeats"])]
-        rng.shuffle(jobs)
-        for vendor, task, repeat in jobs:
+        plan.setdefault("adaptive_skipped", [])
+
+        def jobs():
+            # One round per repeat. Adaptive runs drop, after the first round,
+            # the tasks whose every claim is already decided for that vendor.
+            for repeat in range(plan["repeats"]):
+                decided = {v: _decided_claims(plan, pairs, v) for v in plan["vendors"]} \
+                    if plan.get("adaptive") and repeat else {}
+                round_jobs = []
+                for vendor in plan["vendors"]:
+                    for task in plan["tasks"]:
+                        if task.get("claims") and set(task["claims"]) <= decided.get(vendor, set()):
+                            plan["adaptive_skipped"].append([vendor, task["id"], repeat])
+                        else:
+                            round_jobs.append((vendor, task, repeat))
+                rng.shuffle(round_jobs)
+                yield from round_jobs
+
+        for vendor, task, repeat in jobs():
             pair = {"vendor": vendor, "task_id": task["id"], "repeat": repeat,
                     "valid": False, "arms": {}, "judge_vendor": None}
             arms = ["without", "with"]
@@ -491,14 +783,10 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
                 try:
                     kwargs = dict(judge_vendor=jv, judge_model=plan["judge_models"][jv],
                                   skill_names=names, complete=complete, effort=effort)
-                    order = ["without", "with"]
-                    rng.shuffle(order)
-                    for arm in order:
-                        pair["arms"][arm]["grades"] = judge.grade(task["prompt"], _judge_text(pair["arms"][arm]), task["assertions"], **kwargs)
-                    pair["comparison"] = judge.pairwise(task["prompt"], _judge_text(pair["arms"]["without"]),
-                                                        _judge_text(pair["arms"]["with"]), repeats=2,
-                                                        run_dir=run_dir / "judgements" / f"{task['id']}-{vendor}-{repeat}",
-                                                        seed=rng.randrange(2**32), **kwargs)
+                    judge_pair(pair, task, grading=plan.get("grading", "separate"), judge_kwargs=kwargs,
+                               run_dir=run_dir, label=f"{task['id']}-{vendor}-{repeat}", rng=rng)
+                except BudgetExceeded:
+                    raise
                 except Exception as exc:
                     pair["grading_error"] = str(exc)
             pairs.append(pair)
@@ -511,6 +799,7 @@ def run(plan: dict, *, budget: Budget, timeout: int, effort: str, seed: int) -> 
         print(f"Interrupted run records: {run_dir}", file=sys.stderr)
         raise
     finally:
+        (run_dir / "plan.json").write_text(json.dumps(plan, indent=2), encoding="utf-8")
         (run_dir / "budget.json").write_text(json.dumps(dataclasses.asdict(budget), indent=2), encoding="utf-8")
         write_summary(run_dir, summarize(plan, pairs, budget))
     return run_dir
@@ -543,7 +832,19 @@ def _models(raw):
 
 def _cmd_run(args):
     try:
-        tasks = load_suite(args.suite.resolve())
+        card = load_card(args.suite.resolve())
+        tasks = card["tasks"]
+        selected_claims = None
+        if args.claims:
+            if card["version"] != 2:
+                raise ValueError("--claims needs a version 2 card.")
+            selected_claims = args.claims.split(",")
+            unknown = set(selected_claims) - {c["id"] for c in card["claims"]}
+            if unknown:
+                raise ValueError(f"Unknown claims: {', '.join(sorted(unknown))}")
+            tasks = [t for t in tasks if set(t["claims"]) & set(selected_claims)]
+        if args.adaptive and card["version"] != 2:
+            raise ValueError("--adaptive needs a version 2 card: rounds stop on decided claims.")
         if not (common.skill_dir(args.skill) / "SKILL.md").is_file() or args.skill not in common.library_skills():
             raise ValueError("Select an existing library skill.")
         source_models, judge_models = _models(args.models), _models(args.judge_models or args.models)
@@ -557,7 +858,10 @@ def _cmd_run(args):
             valid_efforts = vendors.CLAUDE_EFFORT_VALUES if vendor == "claude" else vendors.CODEX_EFFORT_VALUES
             if args.effort not in valid_efforts:
                 raise ValueError(f"Unsupported effort for {vendor}: {args.effort}")
-        plan = plan_run(tasks, {v: source_models[v] for v in selected}, args.repeats, args.judge_vendor, args.mode)
+        plan = plan_run(tasks, {v: source_models[v] for v in selected}, args.repeats, args.judge_vendor, args.mode,
+                        args.grading)
+        plan.update(card_version=card["version"], claims=card["claims"], claims_selected=selected_claims,
+                    adaptive=args.adaptive)
         if args.install_as and (not re.fullmatch(r"[a-z0-9][a-z0-9-]*", args.install_as)
                                 or args.install_as in common.library_skills()):
             raise ValueError("--install-as needs a lowercase hyphenated name that no library skill uses.")
@@ -650,15 +954,9 @@ def rejudge(run_dir: Path, *, budget: Budget, effort: str, timeout: int, all_pai
                           skill_names=names, complete=complete, effort=effort)
             pair.pop("grading_error", None)
             try:
-                order = ["without", "with"]
-                rng.shuffle(order)
-                for arm in order:
-                    pair["arms"][arm]["grades"] = judge.grade(task["prompt"], _judge_text(pair["arms"][arm]),
-                                                              task["assertions"], **kwargs)
-                pair["comparison"] = judge.pairwise(task["prompt"], _judge_text(pair["arms"]["without"]),
-                                                    _judge_text(pair["arms"]["with"]), repeats=2,
-                                                    run_dir=run_dir / "judgements" / f"{task['id']}-{vendor}-{pair['repeat']}-rejudge",
-                                                    seed=rng.randrange(2**32), **kwargs)
+                # Plans written before batched grading existed graded separately.
+                judge_pair(pair, task, grading=plan.get("grading", "separate"), judge_kwargs=kwargs,
+                           run_dir=run_dir, label=f"{task['id']}-{vendor}-{pair['repeat']}-rejudge", rng=rng)
             except BudgetExceeded:
                 raise
             except Exception as exc:
@@ -689,6 +987,259 @@ def _cmd_rejudge(args):
         return 2
 
 
+def _planted_evidence(sample: dict, task: dict, root: Path) -> tuple[str, dict, Path]:
+    """Copy a planted output into a scratch evidence directory shaped like a
+    run's, so command checks see the same layout they see in a run."""
+    destination = root / common.run_id("planted")
+    shutil.copytree(sample["path"], destination)
+    (destination / "artifacts").mkdir(exist_ok=True)
+    artifacts = {}
+    for rel in task["artifacts"]:
+        path = destination / "artifacts" / rel
+        artifacts[rel] = path.read_text(encoding="utf-8") if path.is_file() else None
+    return (destination / "output.txt").read_text(encoding="utf-8"), artifacts, destination
+
+
+def validate_card(path: Path) -> list[dict]:
+    """Free checks of a card against its own planted outputs. Every check
+    must pass every planted good output and fail at least one planted bad
+    one: a check that cannot fail certifies nothing. Returns findings with
+    severity error or info."""
+    card = load_card(path)
+    findings = []
+    if card["version"] != 2:
+        return [{"severity": "error", "task": None,
+                 "message": "Version 1 suites carry no planted outputs or claims. Convert to version 2."}]
+    with tempfile.TemporaryDirectory() as tmp:
+        for task in card["tasks"]:
+            if not task["checks"]:
+                continue
+            goods = [p for p in task["planted"] if p["expect"] == "good"]
+            bads = [p for p in task["planted"] if p["expect"] == "bad"]
+            if not goods or not bads:
+                findings.append({"severity": "error", "task": task["id"],
+                                 "message": "Checks need at least one planted good and one planted bad output."})
+                continue
+            results = {}
+            for sample in goods + bads:
+                text, artifacts, destination = _planted_evidence(sample, task, Path(tmp))
+                rows = objective_checks(text, artifacts, task["checks"], destination)
+                results[sample["path"]] = {r["id"]: r["verdict"] for r in rows}
+            for check in task["checks"]:
+                cid = check["id"]
+                for sample in goods:
+                    verdict = results[sample["path"]][cid]
+                    if verdict != "pass":
+                        findings.append({"severity": "error", "task": task["id"],
+                                         "message": f"Check {cid} gives {verdict} on planted good {Path(sample['path']).name}."})
+                bad_verdicts = [results[b["path"]][cid] for b in bads]
+                if "unsupported" in bad_verdicts:
+                    findings.append({"severity": "error", "task": task["id"],
+                                     "message": f"Check {cid} is unsupported on a planted bad output: the scorer failed."})
+                if "fail" not in bad_verdicts:
+                    findings.append({"severity": "error", "task": task["id"],
+                                     "message": f"Check {cid} cannot fail: it passes every planted bad output."})
+    checked = {c.get("claim") for t in card["tasks"] for c in t["checks"]}
+    for claim in card["claims"]:
+        if claim["id"] not in checked:
+            findings.append({"severity": "info", "task": None,
+                             "message": f"Claim {claim['id']} rests on judged assertions only."})
+    return findings
+
+
+def _cmd_validate(args):
+    try:
+        findings = validate_card(args.suite.resolve())
+    except (ValueError, OSError, re.error) as exc:
+        print(f"performance validate: {exc}", file=sys.stderr)
+        return 2
+    if args.json:
+        print(json.dumps(findings, indent=2))
+    else:
+        for f in findings:
+            print(f"{f['severity']}\t{f['task'] or '-'}\t{f['message']}")
+        errors = sum(f["severity"] == "error" for f in findings)
+        print(f"{errors} errors, {len(findings) - errors} info.")
+    return 1 if any(f["severity"] == "error" for f in findings) else 0
+
+
+def rescore(run_dir: Path, suite: Path | None = None) -> dict:
+    """Rerun objective checks and scorers over a finished run's stored
+    outputs. No agent or judge calls. With `suite`, its checks and claim
+    tags replace the plan's for tasks with the same id. Changed assertions
+    are reported, since their grades need `rejudge --all`."""
+    plan = json.loads((run_dir / "plan.json").read_text(encoding="utf-8"))
+    pairs = list(common.read_jsonl(run_dir / "pairs.jsonl"))
+    tasks = {t["id"]: t for t in plan["tasks"]}
+    assertions_changed = []
+    if suite is not None:
+        card = load_card(suite)
+        fresh = {t["id"]: t for t in card["tasks"]}
+        missing = set(tasks) - set(fresh)
+        if missing:
+            raise ValueError(f"The suite lacks tasks this run used: {', '.join(sorted(missing))}")
+        for tid, task in tasks.items():
+            new = fresh[tid]
+            if [(a["id"], a["text"]) for a in new["assertions"]] != [(a["id"], a["text"]) for a in task["assertions"]]:
+                assertions_changed.append(tid)
+            task["checks"] = new["checks"]
+            if tid not in assertions_changed:
+                # Same requirements: only their claim tags can have moved.
+                task["assertions"] = new["assertions"]
+            if "claims" in new:
+                task["claims"] = new["claims"]
+                task["kind"] = new["kind"]
+        if card["version"] == 2:
+            plan["claims"] = card["claims"]
+        plan.setdefault("rescored", []).append({"at": common.utc_now(), "suite_sha": common.sha256_file(suite),
+                                                "assertions_changed": assertions_changed})
+    rescored = 0
+    with tempfile.TemporaryDirectory() as tmp:
+        for pair in pairs:
+            if not pair.get("valid"):
+                continue
+            task = tasks[pair["task_id"]]
+            claim_of = {a["id"]: a.get("claim") for a in task["assertions"]}
+            for arm in pair["arms"].values():
+                stored = run_dir / arm["evidence_dir"] if arm.get("evidence_dir") else None
+                if stored is not None and stored.is_dir():
+                    destination = stored
+                else:
+                    # Runs recorded before evidence_dir: rebuild from the pair record.
+                    destination = Path(tmp) / common.run_id("evidence")
+                    collected = {k: v for k, v in (arm.get("artifacts") or {}).items()}
+                    (destination / "artifacts").mkdir(parents=True)
+                    (destination / "output.txt").write_text(arm["trace"]["text"], encoding="utf-8")
+                    for rel, content in collected.items():
+                        if content is not None:
+                            target = destination / "artifacts" / rel
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            target.write_text(content, encoding="utf-8")
+                arm["checks"] = objective_checks(arm["trace"]["text"], arm.get("artifacts") or {},
+                                                 task["checks"], destination)
+                for row in arm.get("grades", []):
+                    row.pop("claim", None)
+                    if claim_of.get(row["id"]):
+                        row["claim"] = claim_of[row["id"]]
+            rescored += 1
+    backup = run_dir / f"pairs.before-rescore-{common.run_id('bak')}.jsonl"
+    shutil.copy2(run_dir / "pairs.jsonl", backup)
+    (run_dir / "pairs.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pairs), encoding="utf-8")
+    (run_dir / "plan.json").write_text(json.dumps(plan, indent=2), encoding="utf-8")
+    budget = Budget(**json.loads((run_dir / "budget.json").read_text(encoding="utf-8")))
+    write_summary(run_dir, summarize(plan, pairs, budget))
+    return {"rescored_pairs": rescored, "assertions_changed": assertions_changed, "backup": str(backup)}
+
+
+def _cmd_rescore(args):
+    try:
+        result = rescore(args.run_dir, args.suite.resolve() if args.suite else None)
+    except (ValueError, OSError, KeyError, re.error) as exc:
+        print(f"performance rescore: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(result, indent=2))
+    if result["assertions_changed"]:
+        print("warning: assertions changed for " + ", ".join(result["assertions_changed"])
+              + "; their grades are stale until `performance rejudge --all`.", file=sys.stderr)
+    print((args.run_dir / "summary.md").read_text())
+    return 3 if json.loads((args.run_dir / "summary.json").read_text())["incomplete"] else 0
+
+
+def _git(*argv: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *argv], cwd=common.REPO_ROOT, capture_output=True, text=True)
+
+
+def _split_skill_md(text: str | None) -> tuple[str | None, str | None]:
+    if text is None:
+        return None, None
+    m = common._FM_RE.match(text)
+    return (m.group(1), text[m.end():]) if m else ("", text)
+
+
+def plan_changes(skill: str, card: dict, since: str) -> dict:
+    """Which measurements a change to a skill invalidates.
+
+    Reads the changes under `skills/<skill>/` between `since` and the
+    working tree, untracked files included. A frontmatter change in
+    SKILL.md invalidates activation. A SKILL.md body change and every other
+    changed path map through the card's `invalidation` globs (relative to
+    the skill directory) to claims. A path no glob matches invalidates every
+    claim: an unmapped change is never assumed harmless."""
+    rel_root = f"skills/{skill}"
+    diff = _git("diff", "--name-only", since, "--", rel_root)
+    if diff.returncode != 0:
+        raise ValueError(f"git diff failed: {diff.stderr.strip()}")
+    untracked = _git("ls-files", "--others", "--exclude-standard", "--", rel_root)
+    changed = sorted({line[len(rel_root) + 1:] for line in (diff.stdout + untracked.stdout).splitlines()
+                      if line.startswith(rel_root + "/")})
+    activation = False
+    paths = []
+    for rel in changed:
+        if rel != "SKILL.md":
+            paths.append(rel)
+            continue
+        old = _git("show", f"{since}:{rel_root}/SKILL.md")
+        new_path = common.skill_dir(skill) / "SKILL.md"
+        old_fm, old_body = _split_skill_md(old.stdout if old.returncode == 0 else None)
+        new_fm, new_body = _split_skill_md(new_path.read_text(encoding="utf-8") if new_path.is_file() else None)
+        activation = old_fm != new_fm
+        if old_body != new_body:
+            paths.append(rel)
+    all_claims = [c["id"] for c in card["claims"]]
+    per_path, selected = {}, set()
+    for rel in paths:
+        keys = [k for k in card["invalidation"] if fnmatch.fnmatch(rel, k)]
+        if not keys:
+            claims, reason = all_claims, "unmapped: every claim"
+        elif any(card["invalidation"][k] == "all" for k in keys):
+            claims, reason = all_claims, "mapped to all"
+        else:
+            claims = sorted({c for k in keys for c in card["invalidation"][k]}, key=all_claims.index)
+            reason = "mapped by " + ", ".join(keys)
+        per_path[rel] = {"claims": claims, "reason": reason}
+        selected.update(claims)
+    claims = [c for c in all_claims if c in selected]
+    tasks = [t for t in card["tasks"] if set(t["claims"]) & selected]
+    return {"skill": skill, "since": since, "changed": changed, "activation": activation,
+            "paths": per_path, "claims": claims, "tasks": [t["id"] for t in tasks]}
+
+
+def _cmd_plan(args):
+    try:
+        card = load_card(args.suite.resolve())
+        if card["version"] != 2:
+            raise ValueError("plan needs a version 2 card with claims and an invalidation map.")
+        if args.skill not in common.library_skills():
+            raise ValueError("Select an existing library skill.")
+        result = plan_changes(args.skill, card, args.since)
+        selected = [v for v in args.vendors.split(",") if v]
+        tasks = [t for t in card["tasks"] if t["id"] in result["tasks"]]
+        result["estimated_calls"] = plan_run(tasks, {v: "" for v in selected}, args.repeats, "cross", "explicit",
+                                             args.grading)["call_count_total"] if tasks else 0
+        commands = []
+        if result["activation"]:
+            commands.append(f"python3 scripts/auditing/skill-eval.py activation run --skill {args.skill} --split train")
+        if result["claims"]:
+            commands.append(f"python3 scripts/auditing/skill-eval.py performance run --skill {args.skill} "
+                            f"--suite {args.suite} --claims {','.join(result['claims'])} --repeats {args.repeats} --adaptive")
+        result["commands"] = commands
+    except (ValueError, OSError, re.error) as exc:
+        print(f"performance plan: {exc}", file=sys.stderr)
+        return 2
+    if args.json:
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Changed under skills/{args.skill} since {args.since}: {', '.join(result['changed']) or 'nothing'}")
+        print(f"Activation invalidated: {'yes' if result['activation'] else 'no'}")
+        for rel, item in result["paths"].items():
+            print(f"  {rel}: {', '.join(item['claims'])} ({item['reason']})")
+        print(f"Claims to rerun: {', '.join(result['claims']) or 'none'}")
+        print(f"Tasks: {', '.join(result['tasks']) or 'none'}. Estimated calls at most: {result['estimated_calls']}")
+        for command in result["commands"]:
+            print(command)
+    return 0
+
+
 def add_subparser(subparsers):
     parser = subparsers.add_parser("performance", help=__doc__)
     sub = parser.add_subparsers(dest="subcommand", required=True)
@@ -709,8 +1260,30 @@ def add_subparser(subparsers):
     cmd.add_argument("--max-codex-tokens", type=_positive_int)
     cmd.add_argument("--install-as", default=None,
                      help="install the skill under this name (for a name that collides with a vendor built-in)")
+    cmd.add_argument("--grading", choices=GRADING_MODES, default="batched",
+                     help="batched: two judge calls per pair; separate: one per assertion per output plus two")
+    cmd.add_argument("--claims", help="version 2 cards: run only the tasks probing these claims (comma-separated)")
+    cmd.add_argument("--adaptive", action="store_true",
+                     help="version 2 cards: after the first round, skip tasks whose claims are already decided")
     cmd.add_argument("--dry-run", action="store_true")
     cmd.set_defaults(func=_cmd_run)
+    cmd = sub.add_parser("validate", help="Check a card's checks against its planted good and bad outputs. Free.")
+    cmd.add_argument("--suite", type=Path, required=True)
+    cmd.add_argument("--json", action="store_true")
+    cmd.set_defaults(func=_cmd_validate)
+    cmd = sub.add_parser("rescore", help="Rerun objective checks over a finished run's outputs. Free.")
+    cmd.add_argument("run_dir", type=Path)
+    cmd.add_argument("--suite", type=Path, help="take checks and claim tags from this suite")
+    cmd.set_defaults(func=_cmd_rescore)
+    cmd = sub.add_parser("plan", help="List the claims and runs a change to a skill invalidates. Free.")
+    cmd.add_argument("--skill", required=True)
+    cmd.add_argument("--suite", type=Path, required=True)
+    cmd.add_argument("--since", default="HEAD", help="git ref to compare the working tree against (default HEAD)")
+    cmd.add_argument("--repeats", type=_positive_int, default=DEFAULT_REPEATS)
+    cmd.add_argument("--vendors", default="claude,codex")
+    cmd.add_argument("--grading", choices=GRADING_MODES, default="batched")
+    cmd.add_argument("--json", action="store_true")
+    cmd.set_defaults(func=_cmd_plan)
     cmd = sub.add_parser("report", help="Rebuild quality metrics from saved pairs.")
     cmd.add_argument("run_dir", type=Path)
     cmd.add_argument("--json", action="store_true")

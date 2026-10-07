@@ -27,6 +27,9 @@ Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requ
 | `env builtins --vendor V [--model M]` | 1 call | Records which built-in skills a vendor shows with nothing installed. |
 | `performance run --skill S --suite F.json [--dry-run]` | N calls | Paired task quality with and without the skill on both vendors. Cross-vendor judging is the default. |
 | `performance report RUN_DIR [--json]` | free | Rebuilds task-quality metrics from saved pairs. |
+| `performance validate --suite F.json` | free | Checks a version 2 card against its planted good and bad outputs: every check must pass the good ones and be able to fail. |
+| `performance rescore RUN_DIR [--suite F.json]` | free | Reruns objective checks and scorers over a finished run's stored outputs. |
+| `performance plan --skill S --suite F.json [--since REF]` | free | Lists the claims, tasks, and activation runs that a change to the skill invalidates, with a call estimate. |
 | `activation run --skill S ...` | N calls | The activation test. See below. |
 | `activation report RUN_DIR` / `compare A B` / `feedback RUN_DIR` | free | Re-renders a summary, diffs two runs per case, or gives train-only failure classes. |
 | `activation selftest --skill S [--dry-run] [--max-calls N]` | calls | A positive control (the skill named explicitly) and, only if it activates, a negative control (renamed skill, unrelated description). `pass` (0), `fail` (1), or `inconclusive` (3: no valid comparison; `reasons` says whether the positive control did not activate, a cap stopped the run, or calls failed). `--max-calls` is split evenly per vendor and sizes the plan: fewer train positives are used so every vendor gets a complete paired comparison, and a cap below `3 × repeats` calls per vendor is refused (exit 2) before any call. Do not trust `run` results for a skill whose selftest is not `pass`. |

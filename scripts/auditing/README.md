@@ -119,8 +119,14 @@ python3 scripts/auditing/skill-eval.py cases deficits            # what each tri
 python3 scripts/auditing/skill-eval.py judge generate cases --jobs <jobs.json> --gen-vendor claude,codex --n-off-register 2
 python3 scripts/auditing/skill-eval.py cases apply --selection <skill>.json --candidates <skill>.candidates.md
 
+# eval cards (version 2 suites), free
+python3 scripts/auditing/skill-eval.py performance validate --suite <card.json>                    # planted good/bad outputs
+python3 scripts/auditing/skill-eval.py performance plan --skill <name> --suite <card.json> --since HEAD   # what an edit invalidates
+python3 scripts/auditing/skill-eval.py performance rescore <run-dir> --suite <card.json>            # rerun checks offline
+
 # live agent calls (plan with --dry-run first)
 python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <tasks.json> --dry-run
+python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <card.json> --claims <a,b> --adaptive
 python3 scripts/auditing/skill-eval.py activation run --skill <name> --dry-run
 python3 scripts/auditing/skill-eval.py activation selftest --skill <name>
 python3 scripts/auditing/skill-eval.py activation selftest-all --repeats 1 --max-calls 14 --parallel 8   # whole library

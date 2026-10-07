@@ -1,0 +1,1 @@
+Version 2.4 ships on Friday. The upgrade takes about 20 minutes, and you do not need to do anything.

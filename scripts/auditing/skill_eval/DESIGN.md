@@ -180,6 +180,11 @@ def parse_trace(path: Path, vendor: str, known_skills: Iterable[str]) -> TraceRe
     #   4 of 35 saved codex traces were under-counted before this rule);
     #   agent_message -> text;
     #   turn.completed usage -> tokens; turn.failed / error -> ok=False.
+    # script_runs: a claude Bash command or a codex command_execution (completed
+    #   or failed, never declined) that executes a file under
+    #   skills/<name>/scripts/, directly or through an interpreter, after a
+    #   `cd` into the skill in the same command. A gate that exits non-zero
+    #   still ran. Read verbs, `ls`, and `grep` naming the script do not count.
     # Activation is attributed only to skills in known_skills plus any name
     #   under a skills/ path, so a built-in reads as "builtin:<name>" when not
     #   in known_skills.
@@ -230,6 +235,7 @@ def parse_trace(path: Path, vendor: str, known_skills: Iterable[str]) -> TraceRe
 - `pairwise --prompt F --a OUT_A --b OUT_B [--repeats 2] [--judge-vendor V]` shuffles labels, runs both orders, and reports `a|b|tie` with the flip count. The arm map lives only in the run directory. The judge prompt never mentions skills or arms.
 - `grade --prompt F --output OUT --assertions A.json [--judge-vendor V]` gives per-assertion `pass|fail|unsupported` with the quotation. The quote check is mechanical. Assertions may come from a sealed file.
 - `generate paraphrases --skill S --k 2` and `generate cases --job "one line" --skill S` (or `--jobs F.json` for a batch, one candidates file per skill) go through `complete()`. `--gen-vendor` may list several vendors; each row carries `gen:<vendor>`, because a prompt one vendor wrote may suit that vendor's phrasing and the corpus keeps the provenance. `--n-off-register` adds terse lowercase positives tagged `off-register`, echo-checked like any positive. The generator never receives the SKILL.md body or the description. Output: `RUNS_DIR/<run_id>/candidates.md` in trigger-case format with `tags: [generated]` or `[paraphrase-of:<id>]`, each annotated with its echo score. Candidates above the echo threshold are listed separately as rejected.
+- `compare_and_grade(prompt, out_a, out_b, requirements)` grades every requirement for both outputs and gives the preference in one call per presentation order, two in total. A grade counts only when both orders agree after the quote check. Disagreement makes it `unsupported`, and a winner that flips with order is a tie. It returns the comparison in `pairwise`'s shape. `performance run` uses it by default.
 - `pairwise.json` and `grading.json` record the judge vendor, model, and effort. Rejected generator candidates are written in a form the trigger-case parser cannot load.
 - Every judge or generator call checks `record.tool_calls == 0`. A call that used tools is void. JSON schemas set `"additionalProperties": false` at every object level, because the Codex API rejects any schema without it.
 
