@@ -124,7 +124,12 @@ python3 scripts/auditing/skill-eval.py performance validate --suite <card.json> 
 python3 scripts/auditing/skill-eval.py performance plan --skill <name> --suite <card.json> --since HEAD   # what an edit invalidates
 python3 scripts/auditing/skill-eval.py performance rescore <run-dir> --suite <card.json>            # rerun checks offline
 
+# real use, free: which saved sessions loaded a skill, and what followed
+python3 scripts/auditing/skill-eval.py usage scan --skill <name> --claude <projects-dir> --codex <sessions-dir> \
+  --path-pattern 'test' --command-pattern 'pytest|unittest|jest'
+
 # live agent calls (plan with --dry-run first)
+python3 scripts/auditing/skill-eval.py card draft --skill <name> --usage-notes <usage-notes.txt> --dry-run   # 2 calls
 python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <tasks.json> --dry-run
 python3 scripts/auditing/skill-eval.py performance run --skill <name> --suite <card.json> --claims <a,b> --adaptive
 python3 scripts/auditing/skill-eval.py activation run --skill <name> --dry-run

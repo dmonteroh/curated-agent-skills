@@ -29,6 +29,8 @@ Paired task-quality evaluation: [PERFORMANCE.md](PERFORMANCE.md). Tasks and requ
 | `performance report RUN_DIR [--json]` | free | Rebuilds task-quality metrics from saved pairs. |
 | `performance validate --suite F.json` | free | Checks a version 2 card against its planted good and bad outputs: every check must pass the good ones and be able to fail. |
 | `performance rescore RUN_DIR [--suite F.json]` | free | Reruns objective checks and scorers over a finished run's stored outputs. |
+| `card draft --skill S [--vendor V] [--tasks-vendor V] [--usage-notes F]` | 2 calls | Authors an eval card: a claims author that reads the skill, then a tasks author that never sees it, then assembly and validation. Writes `scripts/auditing/suites/cards/<skill>/`. `card claims`, `card tasks`, and `card assemble` run one stage each. |
+| `usage scan --skill S --claude DIR --codex DIR [--path-pattern R] [--command-pattern R]` | free | Finds saved sessions where the skill loaded and what followed: edits, commands and outcomes, skill script runs, matched edits after a failed matched command. Writes `usage-notes.txt` for `card tasks`. |
 | `performance plan --skill S --suite F.json [--since REF]` | free | Lists the claims, tasks, and activation runs that a change to the skill invalidates, with a call estimate. |
 | `activation run --skill S ...` | N calls | The activation test. See below. |
 | `activation report RUN_DIR` / `compare A B` / `feedback RUN_DIR` | free | Re-renders a summary, diffs two runs per case, or gives train-only failure classes. |

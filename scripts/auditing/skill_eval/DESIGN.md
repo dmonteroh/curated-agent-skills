@@ -239,6 +239,18 @@ def parse_trace(path: Path, vendor: str, known_skills: Iterable[str]) -> TraceRe
 - `pairwise.json` and `grading.json` record the judge vendor, model, and effort. Rejected generator candidates are written in a form the trigger-case parser cannot load.
 - Every judge or generator call checks `record.tool_calls == 0`. A call that used tools is void. JSON schemas set `"additionalProperties": false` at every object level, because the Codex API rejects any schema without it.
 
+### `card.py` (eval-card authoring)
+
+- Three stages, each with a fixed reader. `claims` is one `complete()` call that reads `SKILL.md` and the references (cut at 80,000 characters, a chosen default) and returns a plain job line, an archetype, 3 to 6 claims, and up to three harm risks. `tasks` is one call that receives only that output, plus optional usage notes, and never the skill. `assemble` makes no call.
+- The tasks schema limits every claim field to the claim ids stage 1 returned. Assembly skips unsafe paths and agent instruction files in generated fixtures, adds check targets to the artifact list, builds the invalidation map from each claim's `rests_on` with `SKILL.md` mapped to every claim, and runs `performance validate`. It drops each check that fails a planted good output or passes every planted bad one, and records every drop in `authoring.json` beside `card.json`.
+- Assembly also reports any task whose prompt or fixtures share 8 or more consecutive tokens with the skill's files: wording that reached the tasks author through the claims.
+
+### `usage.py` (real-use scan)
+
+- Reads saved Claude Code transcripts and Codex session files, or `codex exec --json` traces. It never calls a model and writes only to the output directory.
+- A load is a `Skill` call, a slash command, or a read of the skill's `SKILL.md`. After the first load it records files edited, commands, their outcome when the record carries one, skill script runs, and, with a path and a command pattern, matching edits made after a matching command failed.
+- Codex exec scripts often print output without an exit code. Such a command's outcome stays unknown, and failures are counted only among commands with a known outcome.
+
 ## 4. Output and file layout
 
 ```
@@ -249,6 +261,8 @@ scripts/auditing/skill_eval/
   cases.py                              T2
   activation.py                         T3
   performance.py                        paired task-quality runner
+  card.py                               eval-card authoring stages
+  usage.py                              real-use scan of saved transcripts
   PERFORMANCE.md                        suite format and quality-evaluation contract
   integrity.py                          T4
   judge.py                              T5
