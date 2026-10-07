@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 MODULES = {
     "performance": "skill_eval.performance",
     "card": "skill_eval.card",
+    "usage": "skill_eval.usage",
     "activation": "skill_eval.activation",
     "cases": "skill_eval.cases",
     "integrity": "skill_eval.integrity",
