@@ -806,7 +806,7 @@ class CardRunTests(RunTests):
     def test_unsupported_evidence_never_counts_toward_a_claim(self):
         self.judge_failure = True
         result = self.summary(self.run_plan(self.card_plan(self.tasks())))
-        # The check still scores "facts"; the judged-only part of each claim is unsupported.
+        # The check scores "facts", but its assertion was never graded, so no pair counts.
         self.assertEqual(result["claims"]["facts"]["pooled"]["n"], 0)
         self.assertEqual(result["claims"]["restraint"]["pooled"]["verdict"], "UNMEASURED")
 
