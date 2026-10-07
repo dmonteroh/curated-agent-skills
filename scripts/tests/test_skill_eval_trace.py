@@ -878,3 +878,62 @@ class HeredocPathTests(unittest.TestCase):
         cmd = "bash <<'EOF'\ncat /workspace/CLAUDE.md\nEOF"
         toks = self.trace._command_path_candidates(cmd, self.cwd)
         self.assertTrue(any(t.startswith("/workspace/CLAUDE.md") for t in toks), toks)
+
+
+class ScriptRunTests(unittest.TestCase):
+    """`script_runs` records executions of a skill's scripts, the gate-run
+    signal the writing-style campaign measured by hand."""
+
+    def _parse(self, vendor, events):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "trace.jsonl"
+            path.write_text("".join(json.dumps(e) + "\n" for e in events))
+            return parse_trace(path, vendor, {"writing-style"})
+
+    def _claude(self, command, rejected=False):
+        events = [{"type": "assistant", "message": {"content": [
+            {"type": "tool_use", "id": "t1", "name": "Bash", "input": {"command": command}}]}}]
+        if rejected:
+            events.append({"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "t1", "is_error": True}]}})
+        events.append({"type": "result", "is_error": False, "result": "done", "total_cost_usd": 0.01})
+        return self._parse("claude", events)
+
+    def _codex(self, command, status="completed", exit_code=0):
+        return self._parse("codex", [
+            {"type": "item.completed", "item": {"id": "c1", "type": "command_execution", "command": command,
+                                                "status": status, "exit_code": exit_code}},
+            {"type": "item.completed", "item": {"id": "m1", "type": "agent_message", "text": "done"}},
+            {"type": "turn.completed", "usage": {"input_tokens": 1, "output_tokens": 1}}])
+
+    def test_interpreter_and_direct_execution_are_runs(self):
+        cmd = "python3 /h/skills/writing-style/scripts/writing_lint.py report.md"
+        self.assertEqual(self._claude(cmd).script_runs, ["skills/writing-style/scripts/writing_lint.py"])
+        self.assertEqual(self._codex(f"/bin/bash -lc '{cmd}'").script_runs,
+                         ["skills/writing-style/scripts/writing_lint.py"])
+        self.assertEqual(self._claude("/h/skills/testing/scripts/test.sh").script_runs,
+                         ["skills/testing/scripts/test.sh"])
+
+    def test_a_gate_that_reports_violations_still_ran(self):
+        rec = self._codex("python3 skills/writing-style/scripts/writing_lint.py a.md", status="failed", exit_code=1)
+        self.assertEqual(rec.script_runs, ["skills/writing-style/scripts/writing_lint.py"])
+
+    def test_reading_listing_or_refused_commands_are_not_runs(self):
+        for cmd in ("cat skills/writing-style/scripts/writing_lint.py",
+                    "ls skills/writing-style/scripts/",
+                    "grep -n rule skills/writing-style/scripts/writing_lint.py",
+                    "python3 report.py skills/writing-style/SKILL.md"):
+            with self.subTest(cmd=cmd):
+                self.assertEqual(self._claude(cmd).script_runs, [])
+        self.assertEqual(self._claude("python3 skills/writing-style/scripts/writing_lint.py a.md",
+                                      rejected=True).script_runs, [])
+        self.assertEqual(self._codex("python3 skills/writing-style/scripts/writing_lint.py a.md",
+                                     status="declined").script_runs, [])
+
+    def test_cd_into_the_skill_resolves_a_relative_script(self):
+        rec = self._claude("cd /h/skills/writing-style && python3 scripts/writing_lint.py ../a.md")
+        self.assertEqual(rec.script_runs, ["skills/writing-style/scripts/writing_lint.py"])
+        rec = self._claude("cd /tmp/work && python3 scripts/writing_lint.py a.md")
+        self.assertEqual(rec.script_runs, [])

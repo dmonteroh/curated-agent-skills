@@ -97,6 +97,10 @@ class TraceRecord:
     # Tool invocations the agent actually made; Claude's StructuredOutput
     # call, which is how --json-schema returns its answer, is not counted.
     tool_calls: int = 0
+    # Executions of a file under a skill's scripts/ directory, as
+    # "skills/<name>/scripts/<path>", one entry per run, whatever the exit
+    # code: a gate that reports violations still ran (trace.script_runs_in).
+    script_runs: list[str] = dataclasses.field(default_factory=list)
     text: str = ""
     cost_usd: float | None = None  # claude only; never converted
     tokens: dict | None = None     # codex only; never converted

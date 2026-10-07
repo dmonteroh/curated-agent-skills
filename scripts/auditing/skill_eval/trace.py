@@ -129,6 +129,57 @@ def _read_verb_segments(cmd: str) -> list[str]:
             segments.append(raw)
     return segments
 
+# A file under a skill's scripts/ directory, absolute or relative, inside a
+# shell command. Same name class as _SKILL_MD_RE, so a glob never names a skill.
+_SCRIPT_PATH_RE = re.compile(r"(?:^|/)skills/([A-Za-z0-9_][A-Za-z0-9_.-]*)/scripts/([^\s'\"]+)")
+# Chosen list, not measured: commands that execute a script given as an
+# argument. A read verb, `ls`, `grep`, or `cp` naming the script does not run it.
+_INTERPRETERS = ("python", "python3", "bash", "sh", "zsh", "dash", "node", "deno",
+                 "ruby", "perl", "uv", "env", "pytest")
+_SKILL_DIR_RE = re.compile(r"(?:^|/)skills/([A-Za-z0-9_][A-Za-z0-9_.-]*)/?$")
+
+
+def script_runs_in(cmd: str) -> list[str]:
+    """Skill scripts a shell command executes, as "skills/<name>/scripts/<path>".
+
+    A segment runs a script when its first token is the script path, or when
+    the first token is an interpreter (`python3`, `bash`, `uv run`, ...) and a
+    later token is the script path. `cd <...>/skills/<name>` earlier in the
+    same command resolves a relative `scripts/<path>` or `./scripts/<path>`.
+    Heuristic, like the rest of this module: a `cd` in an earlier command, a
+    variable, or an alias is not followed."""
+    runs: list[str] = []
+    cwd_skill = None
+    for raw in _SHELL_OP_RE.split(_unwrap_shell_c(cmd)):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            tokens = shlex.split(raw)
+        except ValueError:
+            tokens = raw.split()
+        if not tokens:
+            continue
+        verb = tokens[0].rsplit("/", 1)[-1]
+        if verb == "cd":
+            m = _SKILL_DIR_RE.search(tokens[1]) if len(tokens) > 1 else None
+            cwd_skill = m.group(1) if m else None
+            continue
+        if re.fullmatch(r"python3(\.\d+)?", verb):
+            verb = "python3"
+        candidates = tokens[:1] if verb not in _INTERPRETERS else tokens[1:]
+        for tok in candidates:
+            m = _SCRIPT_PATH_RE.search(tok)
+            if m:
+                runs.append(f"skills/{m.group(1)}/scripts/{m.group(2)}")
+                break
+            rel = tok[2:] if tok.startswith("./") else tok
+            if cwd_skill and rel.startswith("scripts/") and len(rel) > len("scripts/"):
+                runs.append(f"skills/{cwd_skill}/{rel}")
+                break
+    return runs
+
+
 # Chosen, not measured: enough vendor-observed phrasings (see
 # fixtures/trace/*-auth-error.synthetic.jsonl, modelled on real CLI wording)
 # to catch the failure modes DESIGN.md calls out — auth, quota, and an
@@ -292,6 +343,7 @@ def _parse_claude(events, known: set[str]) -> TraceRecord:
                         # shape of signal. Apply the identical
                         # `_read_verb_segments` rule here.
                         cmd = str(inp.get("command") or "")
+                        rec.script_runs.extend(script_runs_in(cmd))
                         for seg in _read_verb_segments(cmd):
                             for is_system, fname in _SKILL_MD_RE.findall(seg):
                                 path = f"skills/{'.system/' if is_system else ''}{fname}/SKILL.md"
@@ -364,6 +416,10 @@ def _parse_codex(events, known: set[str]) -> TraceRecord:
                 # carries the file's own `name:` frontmatter line: the content
                 # reached the agent.
                 succeeded = item.get("status") == "completed" and item.get("exit_code") == 0
+                # A script that ran and exited non-zero (a gate reporting
+                # violations) still ran. A declined command never did.
+                if item.get("status") in ("completed", "failed"):
+                    rec.script_runs.extend(script_runs_in(cmd))
                 output = item.get("aggregated_output") or ""
                 for seg in _read_verb_segments(cmd):
                     for is_system, fname in _SKILL_MD_RE.findall(seg):
