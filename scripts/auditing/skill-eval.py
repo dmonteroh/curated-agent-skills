@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # command -> module; each module exposes add_subparser(subparsers)
 MODULES = {
     "performance": "skill_eval.performance",
+    "card": "skill_eval.card",
     "activation": "skill_eval.activation",
     "cases": "skill_eval.cases",
     "integrity": "skill_eval.integrity",
