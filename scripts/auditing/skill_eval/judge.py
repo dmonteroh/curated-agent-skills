@@ -522,6 +522,17 @@ def quote_supported(quote: str, output: str) -> bool:
     return q in _normalize_quote_text(output)
 
 
+def _checked_verdict(raw_verdict, quote: str, redacted_output: str) -> str:
+    """`pass` needs a supported quotation. `fail` needs one too, or the literal
+    NO RELEVANT CONTENT. Anything else is `unsupported`, never a clean result."""
+    if raw_verdict == "pass":
+        return "pass" if quote_supported(quote, redacted_output) else "unsupported"
+    if raw_verdict == "fail":
+        if quote.strip() == NO_RELEVANT_CONTENT or quote_supported(quote, redacted_output):
+            return "fail"
+    return "unsupported"
+
+
 def _assertion_fields(assertion) -> tuple[str, str]:
     if isinstance(assertion, dict):
         return assertion.get("id", ""), assertion.get("text", "")
@@ -563,21 +574,176 @@ def grade(prompt: str, output: str, assertions: list, *, judge_vendor: str,
             except (json.JSONDecodeError, AttributeError, TypeError):
                 raw_verdict = None
 
-            if raw_verdict == "pass":
-                verdict = "pass" if quote_supported(quote, redacted_output) else "unsupported"
-            elif raw_verdict == "fail":
-                if quote.strip() == NO_RELEVANT_CONTENT:
-                    verdict = "fail"
-                elif quote_supported(quote, redacted_output):
-                    verdict = "fail"
-                else:
-                    verdict = "unsupported"
-            else:
-                verdict = "unsupported"
+            verdict = _checked_verdict(raw_verdict, quote, redacted_output)
 
         results.append({"id": a_id, "verdict": verdict, "quote": quote, "reason": reason})
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Batched grading: every requirement for both outputs, plus the preference,
+# in one call per presentation order
+# ---------------------------------------------------------------------------
+
+COMPARE_GRADE_PROMPT_TEMPLATE = """You are checking two responses to the same task against a list of requirements, then comparing them.
+
+Task:
+{prompt}
+
+Option 1:
+{option_1}
+
+Option 2:
+{option_2}
+
+Requirements:
+{requirements}
+
+For each option, grade every requirement by its id: "pass" when the option satisfies it, "fail" when it does not. Each grade carries a quote copied exactly from that option's own text, character for character, at least three content words or fifteen characters long. Do not paraphrase it. For "fail", the quote shows what the option did instead; if the option contains nothing relevant to quote, set the quote to the literal text NO RELEVANT CONTENT. Then decide which response better accomplishes the task overall.
+
+Respond with strict JSON only, matching this shape:
+{{"option_1": [{{"id": "<requirement id>", "verdict": "pass" | "fail", "quote": "<exact substring of option 1>", "reason": "<one sentence>"}}], "option_2": [<the same shape, quoting option 2>], "winner": "1" | "2" | "tie", "reason": "<one sentence>"}}
+
+Choose "tie" only when the two responses are truly equivalent in quality."""
+
+_REQUIREMENT_GRADE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "verdict": {"type": "string", "enum": ["pass", "fail"]},
+        "quote": {"type": "string"},
+        "reason": {"type": "string"},
+    },
+    "required": ["id", "verdict", "quote", "reason"],
+    "additionalProperties": False,
+}
+
+COMPARE_GRADE_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "option_1": {"type": "array", "items": _REQUIREMENT_GRADE_SCHEMA},
+        "option_2": {"type": "array", "items": _REQUIREMENT_GRADE_SCHEMA},
+        "winner": {"type": "string", "enum": ["1", "2", "tie"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["option_1", "option_2", "winner", "reason"],
+    "additionalProperties": False,
+}
+
+
+def compare_and_grade(prompt: str, out_a: str, out_b: str, requirements: list, *,
+                      judge_vendor: str, skill_names: Iterable[str] = (),
+                      complete: Callable | None = None, seed: int | None = None,
+                      run_dir: Path | None = None, judge_model: str | None = None,
+                      effort: str = "medium") -> dict:
+    """Grade both outputs against every requirement and compare them, in two
+    calls: one per presentation order. `grade()` plus `pairwise()` cost two
+    calls per requirement per output plus two. This costs two in total.
+
+    A requirement's grade for one output counts only when both orders agree
+    on it after the mechanical quote check. Disagreement is position bias
+    and makes the grade `unsupported`, the same way an order flip makes a
+    pairwise verdict a tie. A void call (tools used, call failed, bad JSON)
+    makes every grade `unsupported` and the comparison `void`.
+
+    Returns {"grades": {"a": [...], "b": [...]}, "comparison": {...}}. The
+    comparison has the shape `pairwise()` returns, so reports and
+    `rejudge` read it the same way."""
+    if complete is None:
+        from . import vendors
+        complete = vendors.complete
+    if seed is None:
+        seed = random.SystemRandom().randrange(2**32)
+    rng = random.Random(seed)
+    orders = ["ab", "ba"]
+    rng.shuffle(orders)
+    redacted = {}
+    counts = {}
+    redacted["a"], counts["a"] = redact(out_a, skill_names)
+    redacted["b"], counts["b"] = redact(out_b, skill_names)
+    reqs = [_assertion_fields(r) for r in requirements]
+    listing = "\n".join(f"- {rid}: {text}" for rid, text in reqs) or "- (none)"
+
+    per_order: list[dict] = []
+    for i, order in enumerate(orders):
+        labels = ("a", "b") if order == "ab" else ("b", "a")
+        judge_prompt = COMPARE_GRADE_PROMPT_TEMPLATE.format(
+            prompt=prompt, option_1=redacted[labels[0]], option_2=redacted[labels[1]], requirements=listing)
+        call_kwargs = _complete_kwargs(complete, model=judge_model, label=f"compare-grade-{i}",
+                                       json_schema=COMPARE_GRADE_JSON_SCHEMA, effort=effort)
+        text, trace = complete(judge_vendor, judge_prompt, **call_kwargs)
+        void = (not trace.ok) or (trace.tool_calls > 0)
+        data = {}
+        if not void:
+            try:
+                data = json.loads(text)
+                if not isinstance(data, dict):
+                    raise TypeError
+            except (json.JSONDecodeError, TypeError):
+                void = True
+        result = {"index": i, "order": order, "void": void, "raw_winner": None, "result": None,
+                  "reason": "", "grades": {"a": {}, "b": {}}}
+        if not void:
+            raw_winner = data.get("winner")
+            mapped = {"1": labels[0], "2": labels[1], "tie": "tie"}.get(raw_winner)
+            if mapped is None:
+                result["void"] = True
+            else:
+                result.update(raw_winner=raw_winner, result=mapped, reason=data.get("reason", ""))
+                for slot, label in (("option_1", labels[0]), ("option_2", labels[1])):
+                    rows = data.get(slot) if isinstance(data.get(slot), list) else []
+                    for row in rows:
+                        if not isinstance(row, dict) or row.get("id") in result["grades"][label]:
+                            continue
+                        quote = row.get("quote") or ""
+                        result["grades"][label][row.get("id")] = {
+                            "verdict": _checked_verdict(row.get("verdict"), quote, redacted[label]),
+                            "quote": quote, "reason": row.get("reason", "")}
+        per_order.append(result)
+
+    grades = {"a": [], "b": []}
+    for label in ("a", "b"):
+        for rid, _ in reqs:
+            seen = [o["grades"][label].get(rid) for o in per_order]
+            if any(o["void"] for o in per_order) or any(g is None for g in seen):
+                verdict, reason = "unsupported", "void or missing in a presentation order"
+            elif seen[0]["verdict"] != seen[1]["verdict"]:
+                verdict, reason = "unsupported", "order-dependent: the two presentation orders disagree"
+            else:
+                verdict, reason = seen[0]["verdict"], seen[0]["reason"]
+            first = next((g for g in seen if g), {})
+            grades[label].append({"id": rid, "verdict": verdict, "quote": first.get("quote", ""),
+                                  "reason": reason, "by_order": [g["verdict"] if g else None for g in seen]})
+
+    valid = [o for o in per_order if not o["void"]]
+    flips = 0
+    if len(valid) == 2:
+        if valid[0]["result"] != valid[1]["result"]:
+            flips, verdict = 1, "tie"
+        else:
+            verdict = valid[0]["result"]
+    else:
+        verdict = "void"
+    decisive = [o for o in valid if o["raw_winner"] in ("1", "2")]
+    comparison = {
+        "verdict": verdict,
+        "repeats": [{k: o[k] for k in ("index", "order", "void", "raw_winner", "result", "reason")}
+                    for o in per_order],
+        "flips": flips,
+        "position_bias": (sum(o["raw_winner"] == "1" for o in decisive) / len(decisive)) if decisive else None,
+        "redaction_counts": counts,
+        "redaction_asymmetry": counts["a"] != counts["b"],
+        "judge": {"vendor": judge_vendor, "model": judge_model, "effort": effort},
+        "grading": "batched",
+    }
+    if run_dir is not None:
+        run_dir = Path(run_dir)
+        run_dir.mkdir(parents=True, exist_ok=True)
+        (run_dir / "arm-map.json").write_text(json.dumps({"seed": seed, "repeats": [
+            {"index": i, "order": o, "label_1": o[0], "label_2": o[1]} for i, o in enumerate(orders)]},
+            indent=2), encoding="utf-8")
+    return {"grades": grades, "comparison": comparison}
 
 
 # ---------------------------------------------------------------------------

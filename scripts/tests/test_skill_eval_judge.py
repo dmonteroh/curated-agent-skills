@@ -288,6 +288,7 @@ class SchemaAdditionalPropertiesTests(unittest.TestCase):
             "GRADE_JSON_SCHEMA": judge.GRADE_JSON_SCHEMA,
             "PARAPHRASE_JSON_SCHEMA": judge.PARAPHRASE_JSON_SCHEMA,
             "CASES_JSON_SCHEMA": judge.CASES_JSON_SCHEMA,
+            "COMPARE_GRADE_JSON_SCHEMA": judge.COMPARE_GRADE_JSON_SCHEMA,
         }
         for name, schema in schemas.items():
             nodes = _walk_object_nodes(schema)
@@ -313,6 +314,7 @@ class ForbiddenWordsTests(unittest.TestCase):
             judge.GRADE_PROMPT_TEMPLATE,
             judge.PARAPHRASE_PROMPT_TEMPLATE,
             judge.CASES_PROMPT_TEMPLATE,
+            judge.COMPARE_GRADE_PROMPT_TEMPLATE,
         ]
         for tmpl in templates:
             hits = forbidden.findall(tmpl)
@@ -1363,3 +1365,91 @@ class BatchGenerateCasesTests(unittest.TestCase):
                 self.assertEqual(tags, ["gen:claude", "gen:claude", "gen:codex", "gen:codex"])
             summary = json.loads((run_dir / "summary.json").read_text())
             self.assertEqual(set(summary["skills"]), {"code-review", "pr-description"})
+
+
+class CompareAndGradeTests(unittest.TestCase):
+    """The batched grader: every requirement for both outputs plus the
+    preference, in exactly one call per presentation order."""
+
+    GOOD = "The release notes keep the hedge that the fix may not cover every region."
+    POOR = "The release is fixed everywhere and nothing else needs attention now."
+    REQS = [{"id": "hedge", "text": "Keeps the uncertainty about coverage."},
+            {"id": "scope", "text": "Names what is still open."}]
+
+    def _judge(self, behaviour):
+        calls = []
+
+        def fake_complete(vendor, prompt, *, model=None, json_schema=None, label="complete", timeout=300, effort="medium"):
+            calls.append(prompt)
+            one, two = prompt.split("Option 1:\n", 1)[1].split("\n\nOption 2:\n", 1)
+            two = two.split("\n\nRequirements:", 1)[0]
+            return behaviour(one, two, len(calls)), _trace()
+        return calls, fake_complete
+
+    @staticmethod
+    def _grades(text, good):
+        if good:
+            return [{"id": "hedge", "verdict": "pass", "quote": "may not cover every region", "reason": "kept"},
+                    {"id": "scope", "verdict": "fail", "quote": "NO RELEVANT CONTENT", "reason": "absent"}]
+        return [{"id": "hedge", "verdict": "fail", "quote": "fixed everywhere and nothing else", "reason": "promoted"},
+                {"id": "scope", "verdict": "fail", "quote": "NO RELEVANT CONTENT", "reason": "absent"}]
+
+    def test_two_calls_grade_every_requirement_and_map_labels_back(self):
+        def honest(one, two, n):
+            good_first = "may not cover" in one
+            return json.dumps({"option_1": self._grades(one, good_first), "option_2": self._grades(two, not good_first),
+                               "winner": "1" if good_first else "2", "reason": "keeps the hedge"})
+        calls, fake = self._judge(honest)
+        result = judge.compare_and_grade("Write notes.", self.POOR, self.GOOD, self.REQS,
+                                         judge_vendor="stub", complete=fake, seed=3)
+        self.assertEqual(len(calls), 2)
+        self.assertNotEqual(calls[0], calls[1])
+        self.assertEqual([g["verdict"] for g in result["grades"]["a"]], ["fail", "fail"])
+        self.assertEqual([g["verdict"] for g in result["grades"]["b"]], ["pass", "fail"])
+        self.assertEqual(result["comparison"]["verdict"], "b")
+        self.assertEqual(result["comparison"]["flips"], 0)
+
+    def test_order_dependent_grades_are_unsupported_and_a_flip_is_a_tie(self):
+        def first_wins(one, two, n):
+            return json.dumps({"option_1": self._grades(one, True) if "may not cover" in one else
+                               [{"id": "hedge", "verdict": "pass", "quote": "fixed everywhere and nothing else", "reason": "x"},
+                                {"id": "scope", "verdict": "fail", "quote": "NO RELEVANT CONTENT", "reason": "x"}],
+                               "option_2": self._grades(two, "may not cover" in two),
+                               "winner": "1", "reason": "first"})
+        _, fake = self._judge(first_wins)
+        result = judge.compare_and_grade("Write notes.", self.POOR, self.GOOD, self.REQS,
+                                         judge_vendor="stub", complete=fake, seed=3)
+        hedge_a = result["grades"]["a"][0]
+        self.assertEqual(hedge_a["verdict"], "unsupported")
+        self.assertIn("order-dependent", hedge_a["reason"])
+        # The good output passes in either position, so its grade stands.
+        self.assertEqual(result["grades"]["b"][0]["verdict"], "pass")
+        self.assertEqual(result["grades"]["a"][1]["verdict"], "fail")
+        self.assertEqual(result["comparison"]["verdict"], "tie")
+        self.assertEqual(result["comparison"]["flips"], 1)
+
+    def test_fabricated_quote_missing_requirement_and_void_call_never_pass(self):
+        def sloppy(one, two, n):
+            return json.dumps({"option_1": [{"id": "hedge", "verdict": "pass", "quote": "words that never appeared anywhere", "reason": "x"}],
+                               "option_2": [{"id": "hedge", "verdict": "pass", "quote": "words that never appeared anywhere", "reason": "x"}],
+                               "winner": "tie", "reason": "same"})
+        _, fake = self._judge(sloppy)
+        result = judge.compare_and_grade("Write notes.", self.POOR, self.GOOD, self.REQS,
+                                         judge_vendor="stub", complete=fake, seed=3)
+        for label in ("a", "b"):
+            self.assertEqual([g["verdict"] for g in result["grades"][label]], ["unsupported", "unsupported"])
+
+        def tool_user(vendor, prompt, **kwargs):
+            return json.dumps({"option_1": [], "option_2": [], "winner": "1", "reason": "x"}), _trace(tool_calls=1)
+        result = judge.compare_and_grade("Write notes.", self.POOR, self.GOOD, self.REQS,
+                                         judge_vendor="stub", complete=tool_user, seed=3)
+        self.assertEqual(result["comparison"]["verdict"], "void")
+        self.assertTrue(all(g["verdict"] == "unsupported" for g in result["grades"]["a"] + result["grades"]["b"]))
+
+    def test_outputs_are_redacted_before_the_judge_sees_them(self):
+        calls, fake = self._judge(lambda one, two, n: json.dumps(
+            {"option_1": [], "option_2": [], "winner": "tie", "reason": "x"}))
+        judge.compare_and_grade("Write notes.", "Using the demo-skill skill, " + self.GOOD, self.POOR, self.REQS,
+                                judge_vendor="stub", complete=fake, skill_names=["demo-skill"], seed=1)
+        for prompt in calls:
+            self.assertNotIn("demo-skill", prompt)
