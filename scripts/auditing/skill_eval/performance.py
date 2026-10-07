@@ -439,11 +439,20 @@ def claim_summary(plan: dict, pairs: list[dict]) -> dict:
     return out
 
 
+def _codex_token_parts(tokens: dict) -> dict:
+    """Codex reports cached input inside input; it is billed at a discount,
+    so the parts stay separate. Older traces used *_tokens keys."""
+    get = lambda k: tokens.get(k) or tokens.get(k + "_tokens") or 0
+    cached = get("cached_input")
+    return {"uncached_input": get("input") - cached, "cached_input": cached, "output": get("output")}
+
+
 def _arm_cost(pairs: list[dict], vendor: str) -> dict:
-    """Mean cost per arm in the vendor's own unit, never converted."""
-    out = {}
+    """Mean cost per arm in the vendor's own unit, never converted. Codex
+    gives input plus output (the budget's unit) and its parts."""
+    out = {"unit": "usd" if vendor == "claude" else "tokens"}
     for arm in ("without", "with"):
-        values = []
+        values, parts = [], []
         for pair in pairs:
             if pair["vendor"] != vendor or not pair["valid"]:
                 continue
@@ -451,10 +460,12 @@ def _arm_cost(pairs: list[dict], vendor: str) -> dict:
             if vendor == "claude" and trace.get("cost_usd") is not None:
                 values.append(trace["cost_usd"])
             elif vendor == "codex" and trace.get("tokens"):
-                values.append(sum((trace["tokens"].get(k) or trace["tokens"].get(k + "_tokens") or 0)
-                                  for k in ("input", "output")))
+                part = _codex_token_parts(trace["tokens"])
+                parts.append(part)
+                values.append(part["uncached_input"] + part["cached_input"] + part["output"])
         out[arm] = sum(values) / len(values) if values else None
-    out["unit"] = "usd" if vendor == "claude" else "tokens"
+        if parts:
+            out.setdefault("parts", {})[arm] = {k: sum(p[k] for p in parts) / len(parts) for k in parts[0]}
     return out
 
 
@@ -617,12 +628,20 @@ def write_summary(run_dir: Path, summary: dict):
     if summary.get("arm_cost"):
         lines += ["", "| Vendor | Unit | Mean per arm without | Mean per arm with | Skill scripts run (with) |",
                   "| --- | --- | --- | --- | --- |"]
+        part_lines = []
         for vendor, cost in summary["arm_cost"].items():
             fmt = (lambda x: "-" if x is None else f"{x:.4f}") if cost["unit"] == "usd" else \
                   (lambda x: "-" if x is None else f"{x:.0f}")
             runs = summary.get("script_runs", {}).get(vendor, {}).get("with", {"ran": 0, "of": 0})
             ran = f"{runs['ran']}/{runs['of']}" if runs["of"] else "not recorded"
             lines.append(f"| {vendor} | {cost['unit']} | {fmt(cost['without'])} | {fmt(cost['with'])} | {ran} |")
+            for arm, part in sorted(cost.get("parts", {}).items()):
+                part_lines.append(f"| {vendor} | {arm} | {part['uncached_input']:.0f} | {part['cached_input']:.0f} | "
+                                  f"{part['output']:.0f} |")
+        if part_lines:
+            lines += ["", "Codex input includes cached input, which is billed at a discount.", "",
+                      "| Vendor | Arm | Uncached input | Cached input | Output |", "| --- | --- | --- | --- | --- |"]
+            lines += part_lines
     if summary.get("adaptive_skipped"):
         lines += ["", f"Adaptive rounds skipped {summary['adaptive_skipped']} pairs whose claims were already decided."]
     lines += ["", f"Calls: {summary['calls']}. Claude dollars: {summary['claude_cost_usd']:.4f}. Codex tokens: {summary['codex_tokens']}.", "",

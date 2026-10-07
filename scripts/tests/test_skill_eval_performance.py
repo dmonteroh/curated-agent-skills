@@ -739,6 +739,17 @@ class ValidateTests(unittest.TestCase):
         self.assertEqual(findings[0]["severity"], "error")
 
 
+class CostTests(unittest.TestCase):
+    def test_codex_cached_input_is_reported_apart_from_uncached_input(self):
+        pair = {"vendor": "codex", "valid": True, "arms": {
+            "without": {"trace": {"tokens": {"input": 100, "cached_input": 80, "output": 5}}},
+            "with": {"trace": {"tokens": {"input_tokens": 400, "cached_input_tokens": 360, "output_tokens": 9}}}}}
+        cost = perf._arm_cost([pair], "codex")
+        self.assertEqual(cost["with"], 409)
+        self.assertEqual(cost["parts"]["with"], {"uncached_input": 40, "cached_input": 360, "output": 9})
+        self.assertEqual(cost["parts"]["without"]["uncached_input"], 20)
+
+
 class ClaimVerdictTests(unittest.TestCase):
     def test_verdicts_follow_interval_separation_and_the_baseline_rate(self):
         self.assertEqual(perf.claim_verdict(18, 6, 20)["verdict"], "STRONG")
@@ -781,6 +792,8 @@ class CardRunTests(RunTests):
         self.assertEqual(result["arm_cost"]["claude"]["unit"], "usd")
         self.assertAlmostEqual(result["arm_cost"]["claude"]["with"], 0.01)
         self.assertEqual(result["arm_cost"]["codex"]["with"], 12)
+        self.assertEqual(result["arm_cost"]["codex"]["parts"]["with"],
+                         {"uncached_input": 10, "cached_input": 0, "output": 2})
         self.assertEqual(result["script_runs"]["claude"]["with"], {"ran": 2, "of": 2})
         self.assertEqual(result["script_runs"]["claude"]["without"], {"ran": 0, "of": 2})
         pairs = list(common.read_jsonl(directory / "pairs.jsonl"))
