@@ -1,6 +1,6 @@
 # skill-eval
 
-`skill-eval` tests activation and task quality on Claude Code and Codex, without letting the test environment or the skill under test contaminate the result. It is standalone: the review pipeline (`run_parallel_skill_reviews.sh`, `audit-skills.sh`, `proposals.py`) neither calls it nor is called by it. `REPLACEMENT-BRIEF.md` lists which parts of that pipeline it could replace. `DESIGN.md` is the contract and threat model.
+`skill-eval` tests activation and task quality on Claude Code and Codex, without letting the test environment or the skill under test contaminate the result. It is standalone: the review pipeline (`run_parallel_skill_reviews.sh`, `audit-skills.sh`, `proposals.py`) neither calls it nor is called by it. `REPLACEMENT-BRIEF.md` lists which parts of that pipeline it could replace. `DESIGN.md` is the contract and threat model. [ROADMAP.md](ROADMAP.md) states where each layer stands and the build order, and [TESTING-REBUILD.md](TESTING-REBUILD.md) is the brief for the first pilot, the `testing` skill.
 
 Entry point, from the repository root:
 
