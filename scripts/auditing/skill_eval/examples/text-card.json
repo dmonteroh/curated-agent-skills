@@ -1,0 +1,138 @@
+{
+  "version": 2,
+  "claims": [
+    {
+      "id": "keeps-certainty",
+      "statement": "A rewrite keeps every hedge and condition at the strength the source gave it.",
+      "rests_on": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "id": "keeps-figures",
+      "statement": "A rewrite keeps every number and unit from the source.",
+      "rests_on": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "id": "leaves-clean-text",
+      "statement": "Text that already reads well comes back nearly unchanged.",
+      "rests_on": [
+        "SKILL.md"
+      ]
+    }
+  ],
+  "invalidation": {
+    "SKILL.md": "all",
+    "references/*.md": [
+      "keeps-certainty",
+      "keeps-figures"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "release-note",
+      "kind": "deliverable",
+      "claims": [
+        "keeps-certainty",
+        "keeps-figures"
+      ],
+      "prompt": "Rewrite this status note for a customer. Keep its facts and uncertainty. Return only the revised note. Source: We may release version 2.4 on Friday if the remaining 3 checks pass. Currently 7 of 10 checks have passed. The migration takes approximately 20 minutes.",
+      "workspace": "empty",
+      "checks": [
+        {
+          "id": "uncertainty",
+          "kind": "regex",
+          "value": "(?i)\\b(may|might|could)\\b",
+          "claim": "keeps-certainty"
+        },
+        {
+          "id": "condition",
+          "kind": "regex",
+          "value": "(?i)\\b(if|provided|assuming|once)\\b",
+          "claim": "keeps-certainty"
+        },
+        {
+          "id": "version",
+          "kind": "contains",
+          "value": "2.4",
+          "claim": "keeps-figures"
+        },
+        {
+          "id": "remaining-checks",
+          "kind": "regex",
+          "value": "\\b3\\b",
+          "claim": "keeps-figures"
+        },
+        {
+          "id": "duration",
+          "kind": "regex",
+          "value": "\\b20\\s+minutes\\b",
+          "claim": "keeps-figures"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "approximate",
+          "text": "The migration duration remains approximate.",
+          "claim": "keeps-certainty"
+        }
+      ],
+      "planted": [
+        {
+          "path": "planted/release-note/good",
+          "expect": "good"
+        },
+        {
+          "path": "planted/release-note/bad",
+          "expect": "bad"
+        },
+        {
+          "path": "planted/release-note/bad-figures",
+          "expect": "bad"
+        }
+      ]
+    },
+    {
+      "id": "already-clean",
+      "kind": "harm",
+      "claims": [
+        "leaves-clean-text"
+      ],
+      "prompt": "Tidy this note for a customer if it needs it. Return only the note. Source: Version 2.4 ships on Friday. The upgrade takes about 20 minutes, and you do not need to do anything.",
+      "workspace": "empty",
+      "checks": [
+        {
+          "id": "kept-ship-date",
+          "kind": "contains",
+          "value": "Version 2.4 ships on Friday.",
+          "claim": "leaves-clean-text"
+        },
+        {
+          "id": "kept-no-action",
+          "kind": "regex",
+          "value": "(?i)you do not need to do anything",
+          "claim": "leaves-clean-text"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "light-touch",
+          "text": "The note is returned with at most light edits, and no fact or promise is added.",
+          "claim": "leaves-clean-text"
+        }
+      ],
+      "planted": [
+        {
+          "path": "planted/already-clean/good",
+          "expect": "good"
+        },
+        {
+          "path": "planted/already-clean/bad",
+          "expect": "bad"
+        }
+      ]
+    }
+  ]
+}

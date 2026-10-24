@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "release-note",
+      "prompt": "Rewrite this status note for a customer. Keep its facts and uncertainty. Return only the revised note. Source: We may release version 2.4 on Friday if the remaining 3 checks pass. Currently 7 of 10 checks have passed. The migration takes approximately 20 minutes.",
+      "workspace": "empty",
+      "checks": [
+        {"id": "version", "kind": "contains", "value": "2.4"},
+        {"id": "uncertainty", "kind": "regex", "value": "(?i)\\b(may|might|could)\\b"},
+        {"id": "condition", "kind": "regex", "value": "(?i)\\b(if|provided|assuming|once|when)\\b"},
+        {"id": "remaining-checks", "kind": "regex", "value": "\\b3\\b"},
+        {"id": "passed-checks", "kind": "regex", "value": "\\b7\\b"},
+        {"id": "total-checks", "kind": "regex", "value": "\\b10\\b"},
+        {"id": "duration", "kind": "regex", "value": "\\b20\\s+minutes\\b"}
+      ],
+      "assertions": [
+        "The release remains conditional on the remaining checks passing.",
+        "The migration duration remains approximate.",
+        "The customer receives a concise note without invented facts or promises."
+      ]
+    }
+  ]
+}

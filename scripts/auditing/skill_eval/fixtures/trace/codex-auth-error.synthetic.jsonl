@@ -1,0 +1,3 @@
+{"type": "thread.started", "thread_id": "REDACTED"}
+{"type": "turn.started"}
+{"type": "error", "message": "401 Unauthorized: your Codex session has expired, run `codex login` to continue."}

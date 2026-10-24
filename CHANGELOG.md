@@ -1,5 +1,72 @@
 # Changelog
 
+## 2026-10-06
+
+### Added
+
+- `load-and-capacity-planning`: skill, `references/` (8 files moved from `monitoring-expert`), and `scripts/auditing/trigger-cases/load-and-capacity-planning.md`.
+- `sys1-mcp`: `references/backend-laya.md` and `references/backend-jev-style.md`.
+
+### Changed
+
+- `monitoring-expert`: renamed to `observability-engineering`; `SKILL.md` rewritten; load-testing and capacity-planning references moved to `load-and-capacity-planning`.
+- `performance`: `references/` gains the 5 `application-profiling-*` files moved from `monitoring-expert`.
+- `sys1-mcp`: `SKILL.md` made backend-neutral with Laya-specific measurements moved to `references/backend-laya.md`; links outside the skill removed from `references/agent-workflows.md` and `references/e2e-testing.md`.
+- `research-discipline`: frontmatter `description` rewritten.
+
+## 2026-10-05
+
+### Added
+
+- `sys1-mcp`: skill, `references/README.md`, `references/agent-workflows.md`, `references/e2e-testing.md`, `references/question-design.md`, and `scripts/auditing/trigger-cases/sys1-mcp.md`.
+- `testing`: `## Before writing a test` and `## When a test you wrote fails` in `SKILL.md`, entries 6–12 in `references/testing-anti-patterns.md`, and `references/provenance.md`.
+
+### Changed
+
+- `sys1-mcp`: frontmatter `description` rewritten.
+- `scripts/auditing/trigger-cases/`: template-residue cases removed and reviewed generated cases added (`tags: [generated, gen:<vendor>]`) for 67 skills: `adr-madr-system`, `adversarial-plan-review`, `agent-feedback-ui`, `agent-harness-portability`, `api-documenter`, `architect-review`, `auth-implementation-patterns`, `backend-architect`, `brainstorming`, `cdd-context`, `changelog-automation`, `chaos-engineer`, `cli-tools`, `cloud-architect`, `code-explain`, `code-review`, `cost-optimization`, `cross-vendor-delegation`, `daemon-lifecycle`, `database-cost-optimization`, `database-migration-orm`, `database-migration-sql`, `database-performance`, `delivery-pipeline`, `deployment-engineer`, `deps-audit`, `devex-review`, `devops-engineer`, `doc-generate`, `doc-sync`, `frontend-design`, `gdpr-data-handling`, `git-workflow`, `google-stitch-ai`, `grafana-dashboards`, `interruption-budget`, `jira-issue-management`, `mcp-server-development`, `mermaid-expert`, `migration-observability`, `monitoring-expert`, `monorepo-engineering`, `office-files`, `pdf-files`, `performance`, `plan-review`, `postgresql-engineering`, `pr-description`, `pre-publication-sanitization`, `prompt-engineering`, `prose-de-slopping`, `refactor-clean`, `research-discipline`, `secrets-management`, `security-auditor`, `shell-scripting`, `smart-conventional-commits`, `sre-engineer`, `subagent-orchestrator`, `tech-debt`, `terraform-engineer`, `testing`, `tool-output-middleware`, `tracks-conductor-protocol`, `tutorial-engineer`, `ui-design`, `ui-visual-validator`.
+- `testing`: unit-mode goal, workflow, and outputs in `SKILL.md`; static-grep tripwires require a defect that occurred, in `SKILL.md` and `references/static-grep-invariant-tests.md`.
+
+### Removed
+
+- `laya-mcp`: skill and `scripts/auditing/trigger-cases/laya-mcp.md`.
+
+## 2026-09-22
+
+### Added
+
+- `laya-mcp`: skill, `scripts/auditing/trigger-cases/laya-mcp.md`.
+
+## 2026-08-26
+
+### Added
+
+- `writing-style`: skill, `references/README.md`, `references/writing-guide.md`, `references/always-on-block.md`, `scripts/writing_lint.py`, `scripts/tests/test_writing_lint.py`, `scripts/tests/mutation_check.py`, and `scripts/auditing/trigger-cases/writing-style.md`.
+- `writing-style`: `## Replying in this conversation` in `SKILL.md`, four reply rules; the same rules in `references/always-on-block.md`.
+- `writing-style`: `L20` unevidenced verdict in `scripts/writing_lint.py`.
+- `writing-style`: `assigned_string_lines` in `scripts/writing_lint.py` — a triple-quoted string assigned to a name is data, excluded from docstring extraction and suppression collection; two fixtures and one mutant.
+- `writing-style`: `references/linter-guide.md` (the caps, the glossary shape, suppression with a written reason) and `references/provenance.md` (licence facts and rule-source credits).
+- `writing-style`: 14 linter rules in `scripts/writing_lint.py` — `L15` negation pivot, `L16` signposting, `L17` unevidenced superlative, `L18` emoji, `A11` rhetorical-question opener, `A12` over-formatted reply, `A13` bold-label bullet cluster, `A14` copula avoidance, `A15` noun stack, `A16` pseudo-analytic participle tail, `A17` false range, `A18` engagement-farming close, `A19` generic positive conclusion, `A20` abstract-register cluster; 25 fixtures in `scripts/tests/test_writing_lint.py` and 16 mutants in `scripts/tests/mutation_check.py`.
+- `smart-conventional-commits`: `## Precedence rules` item 6 (harness and environment standing instructions, lowest rank), the attribution gate in `SKILL.md` workflow step 6, and a third example in `## Examples`.
+
+### Changed
+
+- `writing-style`: `SKILL.md` carries 12 numbered rules, adding the negation pivot, signposting, and emoji; the deliverable-only carve-out reads "apply rules 1 to 10". The same three rules are in `references/always-on-block.md`.
+- `writing-style`: `A12` disabled in the `instruction`, `documentation` and `report` profiles; `A18` disabled in `conversation`.
+- `writing-style`: `HYPE_ADVISORY` in `scripts/writing_lint.py` extended with the post-2023 abstract register, and a `LITERAL_SENSE` table exempts the construction sense of `load-bearing` and the orientation sense of `landscape`. `STACK_NOUNS` and `POSITIVE_CLOSE` rebuilt so `A15` and `A19` detect the patterns they name. `SKILL.md` Provenance names `conorbronsdon/avoid-ai-writing` (MIT) and records that no frequency claim is carried from it.
+- `writing-style`: `## Replying in this conversation` sits below `## Output contract` in `SKILL.md` and opens with the artifact-decides boundary rule; `Kept as-is:` trailer lines are exempt from `L01`/`A01` in `scripts/writing_lint.py`.
+- `writing-style`: `references/writing-guide.md` carries the register only — the ASD-STE100 rule tables, the report habits, and the worked pairs; gate mechanics moved to `references/linter-guide.md`, licence and credits to `references/provenance.md`; the internal brand skill is cited as `company-copywriter`.
+- `smart-conventional-commits`: `SKILL.md` `## Defaults` and workflow step 5 `Footers:` hand tool-attribution and co-author trailers to the attribution gate.
+
+### Removed
+
+- `writing-style`: the `--config` flag and its `dash_policy`, `profiles`, `extra_banned` and `allow` keys from `scripts/writing_lint.py`, with the matching sections of `SKILL.md`, `references/writing-guide.md` and `references/README.md`, and four fixtures. `DASH_POLICY` remains as a module constant.
+- `writing-style`: the machine-written stand-down bullet from `SKILL.md`, `## Do not use this skill when`.
+- `writing-style`: `A12` and the `conversation` profile from `scripts/writing_lint.py`.
+- `writing-style`: the `## Provenance` section from `SKILL.md`; the licence terms, the conformance disclaimer, and the absorbed-rule sources live in the Sources section of `references/writing-guide.md`.
+- `writing-style`: the `instruction`, `documentation`, `report` and `correspondence` profiles and `L11` from `scripts/writing_lint.py`; the profile tables in `references/writing-guide.md`; the pick-the-profile workflow step in `SKILL.md`. One cap set remains (sentence 35/25, paragraph 8/6); `--profile` is accepted, ignored, and answered with a deprecation notice; JSON output is `version` 2 without `summary.profile`.
+
+
 ## 2026-08-23
 
 ### Changed

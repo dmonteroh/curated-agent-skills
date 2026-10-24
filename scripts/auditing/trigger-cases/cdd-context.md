@@ -1,12 +1,6 @@
 # Trigger Cases: cdd-context
 
 ## Positive (should activate)
-- prompt: "I need help with this: Starting work in a repo and stable context (what/why/how) is needed before making changes. Can you guide me?"
-  expect_activate: yes
-
-- prompt: "I need help with this: A team wants consistent, discoverable context artifacts for humans and agents. Can you guide me?"
-  expect_activate: yes
-
 - prompt: "Our error strings are all over the place — some say 'Oops!', some dump a stack trace. Where do we write down how the product is supposed to sound so everyone follows it?"
   expect_activate: yes
 
@@ -25,9 +19,30 @@
 - prompt: "Can you write a short snapshot of this project I can paste at the start of a session so a new teammate or agent gets back up to speed fast?"
   expect_activate: yes
 
-## Negative (should not activate)
-- prompt: "Please do this exactly now: The request is a one-line change and context is already clear. No planning, just implementation."
-  expect_activate: no
+- prompt: "refresh our product and tech background docs"
+  expect_activate: yes
+  tags: [generated, off-register, gen:claude]
 
+## Negative (should not activate)
 - prompt: "We already have a README, an architecture doc and an ADR folder that mostly work. I don't want another set of files — I want to decide which of those owns what and keep them from drifting apart."
   expect_activate: no
+
+- prompt: "Save a note to your memory that I prefer tabs over spaces and terse commit messages."
+  expect_activate: no
+  tags: [generated, near-miss, gen:claude]
+
+- prompt: "Generate a CHANGELOG entry for the 2.4.0 release based on the commits since the last tag."
+  expect_activate: no
+  tags: [generated, gen:claude]
+
+- prompt: "Create a detailed architecture decision record explaining why we chose PostgreSQL over MongoDB."
+  expect_activate: no
+  tags: [generated, near-miss, gen:codex]
+
+- prompt: "Write a postmortem for last week’s production outage and list the corrective actions."
+  expect_activate: no
+  tags: [generated, near-miss, gen:codex]
+
+- prompt: "Implement a new employee onboarding portal with accounts, checklists, and progress tracking."
+  expect_activate: no
+  tags: [generated, gen:codex]

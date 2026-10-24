@@ -58,7 +58,7 @@ Install the recommended security bundle:
 Install the recommended DevOps bundle (CI/CD + day-2 ops + IaC):
 
 ```sh
-./scripts/codex_skills_sync.py --select "deployment-engineer,devops-engineer,terraform-engineer,monitoring-expert,grafana-dashboards,sre-engineer"
+./scripts/codex_skills_sync.py --select "deployment-engineer,devops-engineer,terraform-engineer,observability-engineering,grafana-dashboards,sre-engineer"
 ```
 
 Install the recommended documentation/enablement bundle:
@@ -70,7 +70,7 @@ Install the recommended documentation/enablement bundle:
 Install the recommended observability/monitoring bundle (day-2 focused):
 
 ```sh
-./scripts/codex_skills_sync.py --select "monitoring-expert,grafana-dashboards,sre-engineer,migration-observability"
+./scripts/codex_skills_sync.py --select "observability-engineering,load-and-capacity-planning,grafana-dashboards,sre-engineer,migration-observability"
 ```
 
 Install the recommended design bundle (spec + implementation + visual QA):

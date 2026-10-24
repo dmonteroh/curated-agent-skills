@@ -1,12 +1,6 @@
 # Trigger Cases: performance
 
 ## Positive (should activate)
-- prompt: "I need help with this: Diagnosing performance bottlenecks (backend/frontend/infra). Can you guide me?"
-  expect_activate: yes
-
-- prompt: "I need help with this: Designing load tests, capacity plans, performance budgets, or SLOs. Can you guide me?"
-  expect_activate: yes
-
 - prompt: "There are about four plausible ways to write this hot loop. Give it two hours max — try them, keep the numbers, and stop when it stops paying off."
   expect_activate: yes
 
@@ -34,10 +28,11 @@
 - prompt: "One report query against the orders table takes 40 seconds. Why is it so slow and what do we do about it?"
   expect_activate: yes
 
-## Negative (should not activate)
-- prompt: "Please do this exactly now: The task is feature work with no performance goals. No planning, just implementation."
-  expect_activate: no
+- prompt: "app is so slow profile it and fix it"
+  expect_activate: yes
+  tags: [generated, off-register, gen:claude]
 
+## Negative (should not activate)
 - prompt: "Which embedding model should we use for the product catalogue?"
   expect_activate: no
 
@@ -46,3 +41,23 @@
 
 - prompt: "The cache is handing back records we deleted an hour ago. It's plain wrong — fix the invalidation, speed isn't the issue."
   expect_activate: no
+
+- prompt: "Write a short doc explaining what p95 latency means and how our team should talk about performance in design reviews."
+  expect_activate: no
+  tags: [generated, near-miss, gen:claude]
+
+- prompt: "Rewrite this Python script in Go because the team wants to standardize on Go; speed isn't a concern, just parity."
+  expect_activate: no
+  tags: [generated, near-miss, gen:claude]
+
+- prompt: "Please write unit tests for the payment module to bring coverage up to 90%."
+  expect_activate: no
+  tags: [generated, gen:claude]
+
+- prompt: "Redesign the checkout flow so customers can complete purchases in fewer clicks."
+  expect_activate: no
+  tags: [generated, gen:codex]
+
+- prompt: "Improve the accessibility of the dashboard, including keyboard navigation and screen-reader labels."
+  expect_activate: no
+  tags: [generated, gen:codex]

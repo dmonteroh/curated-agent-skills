@@ -1,0 +1,3 @@
+{"type": "system", "subtype": "init", "skills": ["pr-description", "anthropic-skills:writing-style"]}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Skill", "input": {"skill": "pr-description"}}]}}
+{"type": "result", "is_error": false, "result": "done", "total_cost_usd": 0.002}

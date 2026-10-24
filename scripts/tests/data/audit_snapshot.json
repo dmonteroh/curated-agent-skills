@@ -263,6 +263,11 @@
   },
   {
     "issues": [],
+    "name": "load-and-capacity-planning",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "loop-design-check",
     "warnings": []
   },
@@ -288,11 +293,6 @@
   },
   {
     "issues": [],
-    "name": "monitoring-expert",
-    "warnings": []
-  },
-  {
-    "issues": [],
     "name": "monorepo-engineering",
     "warnings": []
   },
@@ -309,6 +309,11 @@
   {
     "issues": [],
     "name": "network-segmentation-readiness",
+    "warnings": []
+  },
+  {
+    "issues": [],
+    "name": "observability-engineering",
     "warnings": []
   },
   {
@@ -436,6 +441,11 @@
   },
   {
     "issues": [],
+    "name": "sys1-mcp",
+    "warnings": []
+  },
+  {
+    "issues": [],
     "name": "tech-debt",
     "warnings": []
   },
@@ -447,7 +457,9 @@
   {
     "issues": [],
     "name": "testing",
-    "warnings": []
+    "warnings": [
+      "entry_over_200_lines:217"
+    ]
   },
   {
     "issues": [],

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "rate-limit-branch",
+      "prompt": "Write the pull request description for this branch against main. Return it in your final answer.",
+      "workspace": "fixtures/pr-ratelimit",
+      "checks": [
+        {
+          "id": "mentions-429",
+          "kind": "contains",
+          "value": "429"
+        },
+        {
+          "id": "mentions-config",
+          "kind": "contains",
+          "value": "API_RATE_LIMIT_PER_MINUTE"
+        },
+        {
+          "id": "mentions-health",
+          "kind": "regex",
+          "value": "(?i)health"
+        },
+        {
+          "id": "verification-command",
+          "kind": "regex",
+          "value": "unittest|python3 -m"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "why",
+          "text": "Explains why the change was made: one client's request volume slowed other customers."
+        },
+        {
+          "id": "what",
+          "text": "Accurately describes the behaviour: a per-client limit per minute, configurable with a default of 60, with over-limit requests answered 429 and a Retry-After header."
+        },
+        {
+          "id": "exemption",
+          "text": "States that health checks are exempt from the limit."
+        },
+        {
+          "id": "verify",
+          "text": "Gives a reviewer concrete steps to verify the change that work in this repository."
+        },
+        {
+          "id": "honest",
+          "text": "Does not claim that tests were run or passed unless the answer shows them being run."
+        }
+      ]
+    },
+    {
+      "id": "fix-and-rename-branch",
+      "prompt": "Draft a PR description for my branch. The base is main.",
+      "workspace": "fixtures/pr-renamefix",
+      "checks": [
+        {
+          "id": "mentions-new-name",
+          "kind": "contains",
+          "value": "within_hours"
+        },
+        {
+          "id": "mentions-deprecation",
+          "kind": "regex",
+          "value": "(?i)deprecat"
+        },
+        {
+          "id": "mentions-timezone",
+          "kind": "regex",
+          "value": "(?i)time ?zone|tz|aware"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "both-changes",
+          "text": "Describes both changes on the branch: the timezone fix and the rename of is_recent to within_hours."
+        },
+        {
+          "id": "compat",
+          "text": "Tells reviewers or callers that is_recent still works but is deprecated and emits a warning."
+        },
+        {
+          "id": "bug",
+          "text": "Explains the bug that was fixed: timezone-aware timestamps could not be compared with the naive current time."
+        },
+        {
+          "id": "verify",
+          "text": "Gives concrete verification steps that work in this repository."
+        },
+        {
+          "id": "honest",
+          "text": "Does not invent context, tickets, or motivation that the repository does not show."
+        }
+      ]
+    }
+  ]
+}

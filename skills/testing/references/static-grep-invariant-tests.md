@@ -2,7 +2,7 @@
 
 A **static-grep invariant test** encodes a known-bad textual signature — a value, or a combination of values, that must never appear in the source tree — as a filesystem-level check that runs inside the ordinary test suite. It targets regressions with a cheap, textual precondition: something a future contributor could reintroduce by copy-pasting working code into a sibling file, without ever running the code that would actually fail.
 
-It is not a substitute for behavioral tests. It stands alongside them because it is cheaper and faster than re-triggering the original failure through a live call or an integration run — no network, no process spin-up, no live credentials.
+It is earned by a defect that actually happened, not by a removal: deleting a feature, module, or dependency is verified by deleting its tests and keeping the rest of the suite green, never by a tripwire forbidding its return. It is not a substitute for behavioral tests. It stands alongside them because it is cheaper and faster than re-triggering the original failure through a live call or an integration run — no network, no process spin-up, no live credentials.
 
 ## Recipe
 
@@ -36,4 +36,4 @@ Each test case's name carries the file, so a failure points straight at the offe
 
 ## A second situation this same technique covers
 
-The identical mechanism guards a structurally different case: after closing a specific deprecated write path — not necessarily removing the whole resource; a legacy target can stay legitimately readable during a deprecation window — assert that no file outside an explicit, named allowlist writes to it. The allowlist is what lets the test separate a legitimate remaining reference (a reader, a migration shim, documentation) from the write-path regression it exists to catch. Land the test in the same change as the fix that closes the path, not a follow-up: a closed path with no tripwire is one accidental copy-paste away from reopening.
+The identical mechanism guards a structurally different case: after closing a specific deprecated write path — not necessarily removing the whole resource; a legacy target can stay legitimately readable during a deprecation window — assert that no file outside an explicit, named allowlist writes to it. The allowlist is what lets the test separate a legitimate remaining reference (a reader, a migration shim, documentation) from the write-path regression it exists to catch. This applies when writing to that path caused a defect that step 6 can name; closing a path as routine cleanup, or because the feature behind it was removed, does not earn a tripwire. When it is earned, land the test in the same change as the fix that closes the path, not a follow-up: a closed path with no tripwire is one accidental copy-paste away from reopening.

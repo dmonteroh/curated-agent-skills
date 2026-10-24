@@ -1,0 +1,2 @@
+{"type": "system", "subtype": "init", "skills": ["pr-description"]}
+{"type": "result", "is_error": false, "result": "handled without the skill", "total_cost_usd": 0.001}

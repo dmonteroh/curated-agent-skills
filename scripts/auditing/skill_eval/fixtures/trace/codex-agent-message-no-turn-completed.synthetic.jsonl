@@ -1,0 +1,3 @@
+{"type": "thread.started", "thread_id": "REDACTED"}
+{"type": "turn.started"}
+{"type": "item.completed", "item": {"id": "item_0", "type": "agent_message", "text": "The boiling point of water at sea level is 100 degrees Celsius."}}

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "user-search-branch",
+      "prompt": "Review the changes on this branch against main before I merge them. Tell me what must be fixed first.",
+      "workspace": "fixtures/review-search",
+      "checks": [
+        {
+          "id": "flags-injection",
+          "kind": "regex",
+          "value": "(?i)(sql[ -]?injection|injection|parameteri[sz])"
+        },
+        {
+          "id": "flags-page-offset",
+          "kind": "regex",
+          "value": "(?i)(off[- ]by[- ]one|page_number\\s*-\\s*1|first page|skips? (the )?first|page 1)"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "injection",
+          "text": "Identifies that find_by_email builds its SQL query by string interpolation and is open to SQL injection."
+        },
+        {
+          "id": "paging",
+          "text": "Identifies that page() skips the first page of results because page_number starts at 1 but is used as a zero-based index."
+        },
+        {
+          "id": "missing-name",
+          "text": "Identifies that display_name fails when a user's name is missing or None."
+        },
+        {
+          "id": "priority",
+          "text": "Makes clear which problems block the merge, rather than listing every issue at equal weight."
+        },
+        {
+          "id": "no-false-claims",
+          "text": "Does not report defects that are not present in the diff."
+        }
+      ]
+    },
+    {
+      "id": "retry-branch",
+      "prompt": "Can you review this branch before it goes in? It adds retries for failed requests.",
+      "workspace": "fixtures/review-retry",
+      "checks": [
+        {
+          "id": "flags-idempotency",
+          "kind": "regex",
+          "value": "(?i)(idempot|non-idempotent|POST)"
+        },
+        {
+          "id": "flags-swallowed-error",
+          "kind": "regex",
+          "value": "(?i)(return(s)? None|swallow|silently|loses? the (last |final )?(error|exception))"
+        }
+      ],
+      "assertions": [
+        {
+          "id": "idempotency",
+          "text": "Points out that retrying every method, including POST, can repeat non-idempotent requests."
+        },
+        {
+          "id": "swallowed",
+          "text": "Points out that after the last attempt the function returns None instead of raising, hiding the failure from callers."
+        },
+        {
+          "id": "backoff",
+          "text": "Points out that the fixed one-second sleep has no backoff."
+        },
+        {
+          "id": "broad-except",
+          "text": "Points out that catching every Exception also retries errors that will never succeed, such as client errors or programming bugs."
+        },
+        {
+          "id": "tests",
+          "text": "Notes that the tests cover only the success path and not retries or the final failure."
+        }
+      ]
+    }
+  ]
+}
